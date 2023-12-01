@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="openbar">
+  <schema id="org.gnome.shell.extensions.openbar" path="/org/gnome/shell/extensions/openbar/">
+
+    <key type="s" name="bartype">
+      <default>"Islands"</default>
+      <summary>Type of Top Bar</summary>
+      <description>Type of Top Bar.</description>
+    </key>
+    <key type="as" name="fgcolor">
+      <default>['1.0', '1.0', '1.0', '1.0']</default>
+      <summary>FG Color (RGBA)</summary>
+      <description>FG Color of Top Bar.</description>
+    </key>
+    <key type="d" name="fgalpha">
+      <default>0.0</default>
+      <summary>Transparency (alpha) foreground</summary>
+      <description>Transparency of foreground.</description>
+    </key>
+    <key type="as" name="bgcolor">
+      <default>['0.0', '0.73', '0.73', '1.0']</default>
+      <summary>BG Color (RGB)</summary>
+      <description>Background Color of Top Bar.</description>
+    </key>
+    <key type="as" name="bgcolor2">
+      <default>['0.75', '0.40', '0.95', '1.0']</default>
+      <summary>Gradient end color (RGB)</summary>
+      <description>Gradient end color of Top Bar background.</description>
+    </key>
+    <key type="s" name="gradient-direction">
+      <default>"vertical"</default>
+      <summary>Gradient direction</summary>
+      <description>Gradient direction of Top Bar background.</description>
+    </key>
+
+    <key type="d" name="bgalpha">
+      <default>90.0</default>
+      <summary>Transparency (alpha)</summary>
+      <description>Transparency of Top Bar.</description>
+    </key>
+    <key type="as" name="iscolor">
+      <default>['0.0', '0.73', '0.73', '1.0']</default>
+      <summary>Islands BG Color (RGB)</summary>
+      <description>Background Color of Islands.</description>
+    </key>
+    <key type="d" name="isalpha">
+      <default>0.0</default>
+      <summary>Transparency (alpha) Islands</summary>
+      <description>Transparency of Islands.</description>
+    </key>
+    <key type="b" name="shadow">
+      <default>true</default>
+      <summary>Box Shadow</summary>
+      <description>Box Shadow of Top Bar.</description>
+    </key>
+
+    <key type="d" name="bradius">
+      <default>100.0</default>
+      <summary>Border Radius</summary>
+      <description>Convert between rectangle and pill shapes.</description>
+    </key>
+    <key type="d" name="bwidth">
+      <default>100.0</default>
+      <summary>Border Width</summary>
+      <description>Border thickness or width.</description>
+    </key>
+    <key type="as" name="bcolor">
+      <default>['1.0', '1.0', '1.0', '1.0']</default>
+      <summary>Border FG Color (RGBA)</summary>
+      <description>FG Color of Top Bar Border.</description>
+    </key>
+    <key type="d" name="balpha">
+      <default>0.0</default>
+      <summary>Transparency (alpha) border</summary>
+      <description>Transparency of border.</description>
+    </key>
+    <key type="b" name="neon">
+      <default>false</default>
+      <summary>Neon Effect</summary>
+      <description>Neon Effect.</description>
+    </key>
+    <key type="b" name="gradient">
+      <default>false</default>
+      <summary>Gradient Effect</summary>
+      <description>Gradient Effect.</description>
+    </key>
+    <key type="s" name="monitors">
+      <default>"all"</default>
+      <summary>Monitors for Top Bar</summary>
+      <description>Monitors to show Top Bar display on.</description>
+    </key>
+    <key type="d" name="height">
+      <default>20.0</default>
+      <summary>Top Bar height</summary>
+      <description>Top Bar height.</description>
+    </key>
+    <key type="d" name="margin">
+      <default>5.0</default>
+      <summary>Top Bar margin</summary>
+      <description>Top Bar margin.</description>
+    </key>
+    <key type="s" name="font">
+      <default>""</default>
+      <summary>Font</summary>
+      <description>Font of Top Bar.</description>
+    </key>
+    <key type="s" name="default-font">
+      <default>""</default>
+      <summary>Default Font</summary>
+      <description>Default Font of Top Bar.</description>
+    </key>
+    <key type="as" name="hcolor">
+      <default>['1.0', '1.0', '1.0', '1.0']</default>
+      <summary>Highlight Color (RGBA)</summary>
+      <description>Highlight of Top Bar widgets.</description>
+    </key>
+    <key type="d" name="halpha">
+      <default>0.0</default>
+      <summary>Transparency (alpha) Highlight</summary>
+      <description>Transparency of highlight.</description>
+    </key>
+  </schema>
+</schemalist>

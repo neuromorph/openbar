@@ -1,0 +1,23 @@
+/* Add your custom extension styling here */
+
+#panel.openbar .panel-button {
+
+    /* box-shadow: 0px 0px 2px 3px rgba(0, 200, 200, 0.5); */
+    /* outline: 4px groove rgba(0, 200, 200, 0.5);
+    border-radius: 50px; 
+    margin: 6px 6px 6px 6px; */
+    padding: 1px;
+}
+
+/* #panel.openbar .panel-button:active, .panel-button:checked
+{
+    border-width: 6px !important;
+} */
+
+#panel.openbar .panel-button:hover.clock-display .clock {
+    background-color: transparent;
+}
+
+#panel.openbar .panel-button:active.clock-display .clock, #panel .panel-button:overview.clock-display .clock, #panel .panel-button:focus.clock-display .clock, #panel .panel-button:checked.clock-display .clock {
+    background-color: transparent;
+}

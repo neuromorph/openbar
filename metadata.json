@@ -1,0 +1,12 @@
+{
+  "name": "Open Bar",
+  "description": "Open the Top Bar and let the spirit flow",
+  "uuid": "openbar@neuromorph",
+  "gettext-domain": "openbar",
+  "shell-version": [
+    "42",
+    "43",
+    "44"
+  ],
+  "version": 1
+}
