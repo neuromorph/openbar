@@ -8,7 +8,7 @@
       <description>Type of Top Bar.</description>
     </key>
     <key type="as" name="fgcolor">
-      <default>['1.0', '1.0', '1.0', '1.0']</default>
+      <default>['1.0', '1.0', '1.0']</default>
       <summary>FG Color (RGBA)</summary>
       <description>FG Color of Top Bar.</description>
     </key>
@@ -18,12 +18,12 @@
       <description>Transparency of foreground.</description>
     </key>
     <key type="as" name="bgcolor">
-      <default>['0.0', '0.73', '0.73', '1.0']</default>
+      <default>['0.0', '0.73', '0.73']</default>
       <summary>BG Color (RGB)</summary>
       <description>Background Color of Top Bar.</description>
     </key>
     <key type="as" name="bgcolor2">
-      <default>['0.75', '0.40', '0.95', '1.0']</default>
+      <default>['0.75', '0.40', '0.95']</default>
       <summary>Gradient end color (RGB)</summary>
       <description>Gradient end color of Top Bar background.</description>
     </key>
@@ -39,7 +39,7 @@
       <description>Transparency of Top Bar.</description>
     </key>
     <key type="as" name="iscolor">
-      <default>['0.0', '0.73', '0.73', '1.0']</default>
+      <default>['0.0', '0.73', '0.73']</default>
       <summary>Islands BG Color (RGB)</summary>
       <description>Background Color of Islands.</description>
     </key>
@@ -65,7 +65,7 @@
       <description>Border thickness or width.</description>
     </key>
     <key type="as" name="bcolor">
-      <default>['1.0', '1.0', '1.0', '1.0']</default>
+      <default>['1.0', '1.0', '1.0']</default>
       <summary>Border FG Color (RGBA)</summary>
       <description>FG Color of Top Bar Border.</description>
     </key>
@@ -110,12 +110,22 @@
       <description>Default Font of Top Bar.</description>
     </key>
     <key type="as" name="hcolor">
-      <default>['1.0', '1.0', '1.0', '1.0']</default>
+      <default>['1.0', '1.0', '1.0']</default>
       <summary>Highlight Color (RGBA)</summary>
       <description>Highlight of Top Bar widgets.</description>
     </key>
     <key type="d" name="halpha">
       <default>0.0</default>
+      <summary>Transparency (alpha) Highlight</summary>
+      <description>Transparency of highlight.</description>
+    </key>
+    <key type="as" name="mcolor">
+      <default>['0.5', '0.5', '0.5']</default>
+      <summary>Highlight Color (RGBA)</summary>
+      <description>Highlight of Top Bar widgets.</description>
+    </key>
+    <key type="d" name="malpha">
+      <default>1.0</default>
       <summary>Transparency (alpha) Highlight</summary>
       <description>Transparency of highlight.</description>
     </key>

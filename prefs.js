@@ -51,7 +51,7 @@ function buildPrefsWidget() {
 
     // Add a title label
     let titleLabel = new Gtk.Label({
-        label: `<span><b>Top Panel Customization</b></span>\n\n<span size="small">${_('Version:')} ${Me.metadata.version}  |  © neuromorph</span>`,
+        label: `<span><b>Top Panel Customization</b></span>\n\n<span size="small" underline="none">${_('Version:')} ${Me.metadata.version}  |  <a href="${Me.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a></span>`,
         // halign: Gtk.Align.CENTER,
         use_markup: true,
         // visible: true,
@@ -506,7 +506,7 @@ function buildPrefsWidget() {
     rowNo += 1;
 
     const bprop = new Gtk.Expander({
-        label: `<b>DRAW BORDER</b>`,
+        label: `<b>BORDER</b>`,
         expanded: false,
         use_markup: true,
     });
@@ -578,7 +578,7 @@ function buildPrefsWidget() {
 
     // Add a border color chooser
     let borderColorLabel = new Gtk.Label({
-        label: 'Color:',
+        label: 'Color',
         halign: Gtk.Align.START,
         // visible: true,
     });
@@ -641,13 +641,13 @@ function buildPrefsWidget() {
     ////////////////////////////////////////////////////////////////////
 
     rowNo += 1;
-    const mprop = new Gtk.Expander({
+    const ubprop = new Gtk.Expander({
         label: `<b>UNDER BAR</b>`,
         expanded: false,
         use_markup: true,
     });
 
-    let mgrid = new Gtk.Grid({
+    let ubgrid = new Gtk.Grid({
         margin_top: 14,
         margin_bottom: 14,
         margin_start: 14,
@@ -660,45 +660,13 @@ function buildPrefsWidget() {
 
     rowbar = 1;
 
-    // Add a neon switch
-    let neonLbl = new Gtk.Label({
-        label: 'Neon glow',
-        halign: Gtk.Align.START,
-        // visible: true,
-    });
-    mgrid.attach(neonLbl, 1, rowbar, 1, 1);
-
-    let neon = new Gtk.Switch({
-        halign: Gtk.Align.END,
-        // visible: true,
-    });
-    mgrid.attach(neon, 2, rowbar, 1, 1);
-
-    rowbar += 1;
-
-    // Add a shadow switch
-    let shadowLabel = new Gtk.Label({
-        label: 'Shadow effect',
-        halign: Gtk.Align.START,
-        // visible: true,
-    });
-    mgrid.attach(shadowLabel, 1, rowbar, 1, 1);
-
-    let shadowSwitch = new Gtk.Switch({
-        halign: Gtk.Align.END,
-        // visible: true,
-    });
-    mgrid.attach(shadowSwitch, 2, rowbar, 1, 1);
-
-    rowbar += 1;
-
     // Add a font button
     let fontLabel = new Gtk.Label({
         label: 'Panel Font',
         halign: Gtk.Align.START,
         // visible: true,
     });
-    mgrid.attach(fontLabel, 1, rowbar, 1, 1);
+    ubgrid.attach(fontLabel, 1, rowbar, 1, 1);
 
     const fontBtn = new Gtk.FontButton({
         use_font: true,
@@ -718,7 +686,7 @@ function buildPrefsWidget() {
             settings.set_string('font', value);
         }
     );
-    mgrid.attach(fontBtn, 2, rowbar, 1, 1);
+    ubgrid.attach(fontBtn, 2, rowbar, 1, 1);
 
     const resetFontBtn = new Gtk.Button({
         label: '↺',
@@ -732,14 +700,106 @@ function buildPrefsWidget() {
         settings.reset('font');
         fontBtn.set_font(settings.get_string('default-font'));
     });
-    mgrid.attach(resetFontBtn, 3, rowbar, 1, 1);
+    ubgrid.attach(resetFontBtn, 3, rowbar, 1, 1);
 
-    mprop.set_child(mgrid);
-    prefsWidget.attach(mprop, 1, rowNo, 2, 1);
+    rowbar += 1;
 
-    rowNo += 1;
+    // Add a neon switch
+    let neonLbl = new Gtk.Label({
+        label: 'Neon glow',
+        halign: Gtk.Align.START,
+        // visible: true,
+    });
+    ubgrid.attach(neonLbl, 1, rowbar, 1, 1);
 
-    
+    let neon = new Gtk.Switch({
+        halign: Gtk.Align.END,
+        // visible: true,
+    });
+    ubgrid.attach(neon, 2, rowbar, 1, 1);
+
+    rowbar += 1;
+
+    // Add a shadow switch
+    let shadowLabel = new Gtk.Label({
+        label: 'Shadow effect',
+        halign: Gtk.Align.START,
+        // visible: true,
+    });
+    ubgrid.attach(shadowLabel, 1, rowbar, 1, 1);
+
+    let shadowSwitch = new Gtk.Switch({
+        halign: Gtk.Align.END,
+        // visible: true,
+    });
+    ubgrid.attach(shadowSwitch, 2, rowbar, 1, 1);
+
+    rowbar += 1;
+
+    // Add a menu color chooser
+    let menuColorLabel = new Gtk.Label({
+        label: 'Menu Color',
+        halign: Gtk.Align.START,
+        // visible: true,
+    });
+    ubgrid.attach(menuColorLabel, 1, rowbar, 1, 1);
+
+    let menuColorChooser = new Gtk.ColorButton({
+        title: 'Menu color',
+        halign: Gtk.Align.END,
+        // visible: true,
+        // use_alpha: true
+    });
+    ubgrid.attach(menuColorChooser, 2, rowbar, 1, 1);
+
+    let mcolorArray = settings.get_strv('mcolor');
+  	let mrgba = new Gdk.RGBA();
+    mrgba.red = parseFloat(mcolorArray[0]);
+    mrgba.green = parseFloat(mcolorArray[1]);
+    mrgba.blue = parseFloat(mcolorArray[2]);
+    mrgba.alpha = 1.0;
+    menuColorChooser.set_rgba(brgba);
+
+    menuColorChooser.connect('color-set', (widget) => {
+        mrgba = widget.get_rgba();
+        settings.set_strv('mcolor', [
+            mrgba.red.toString(),
+            mrgba.green.toString(),
+            mrgba.blue.toString(),
+        ]);
+    });
+
+    rowbar += 1;
+
+    // Add a menu alpha scale
+    let mAlphaLbl = new Gtk.Label({
+        label: 'Menu Alpha',
+        halign: Gtk.Align.START,
+        // visible: true,
+    });
+    ubgrid.attach(mAlphaLbl, 1, rowbar, 1, 1);
+
+    let mAlpha = new Gtk.Scale({
+        orientation: Gtk.Orientation.HORIZONTAL,
+        adjustment: new Gtk.Adjustment({
+            lower: 0,
+            upper: 1,
+            step_increment: 0.01,
+        }),
+        digits: 2,
+        draw_value: true,
+        value_pos: Gtk.PositionType.RIGHT,
+        // visible: true,
+        width_request: 50,
+        hexpand: true,
+    });
+    ubgrid.attach(mAlpha, 2, rowbar, 1, 1);
+
+
+    ubprop.set_child(ubgrid);
+    prefsWidget.attach(ubprop, 1, rowNo, 2, 1);
+
+    ///////////////////////////////////////////////////////////////////////
 
 
 
@@ -844,6 +904,12 @@ function buildPrefsWidget() {
         'shadow',
         shadowSwitch,
         'active',
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        'malpha',
+        mAlpha.adjustment,
+        'value',
         Gio.SettingsBindFlags.DEFAULT
     );
     

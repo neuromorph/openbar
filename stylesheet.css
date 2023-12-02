@@ -21,3 +21,14 @@
 #panel.openbar .panel-button:active.clock-display .clock, #panel .panel-button:overview.clock-display .clock, #panel .panel-button:focus.clock-display .clock, #panel .panel-button:checked.clock-display .clock {
     background-color: transparent;
 }
+
+/* .popup-menu-content,
+.candidate-popup-content {
+    color: #8994a9;
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(0, 0, 0, 0.75);
+    margin: 3px 12px 17px 12px;
+    padding: 8px;
+    spacing: 6px;
+    background-color: aqua;
+  } */

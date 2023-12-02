@@ -70,6 +70,7 @@ class Extension {
             for(const btn of box) {
                 if(btn.child instanceof PanelMenu.Button) {
                     btn.child.set_style(null);
+                    btn.child.menu.box?.set_style(null);
                     // btn.child.remove_style_pseudo_class('openbar-button');
                     // btn.remove_style_class_name('openbar-container');
                 }
@@ -116,6 +117,8 @@ class Extension {
         let borderRadius = this._settings.get_double('bradius');
         let highlightColor = this._settings.get_strv('hcolor');
         let halpha = this._settings.get_double('halpha');
+        let menuColor = this._settings.get_strv('mcolor');
+        let malpha = this._settings.get_double('malpha');
         let islandsColor = this._settings.get_strv('iscolor');
         let isalpha = this._settings.get_double('isalpha');
         let neon = this._settings.get_boolean('neon');
@@ -147,6 +150,10 @@ class Extension {
         const hred = parseInt(parseFloat(highlightColor[0]) * 255);
         const hgreen = parseInt(parseFloat(highlightColor[1]) * 255);
         const hblue = parseInt(parseFloat(highlightColor[2]) * 255);
+
+        const mred = parseInt(parseFloat(menuColor[0]) * 255);
+        const mgreen = parseInt(parseFloat(menuColor[1]) * 255);
+        const mblue = parseInt(parseFloat(menuColor[2]) * 255);
     
         // log(bartype, bgcolor, bgalpha, fgcolor, borderColor, borderRadius, borderWidth, highlightColor, neon, shadow, font, height, margin, fgred, fggreen, fgblue, fgalpha, bgred, bggreen, bgblue, bred, bblue, bgreen, balpha, hred, hgreen, hblue, halpha);
     
@@ -157,17 +164,19 @@ class Extension {
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox]
         const onEvents = ['enter-event', 'key-focus-in'];
         const offEvents = ['leave-event', 'key-focus-out'];
-        let style, panelStyle, btnStyle, fontStyle, panelBGStyle;       
+        let style, panelStyle, btnStyle, fontStyle, panelBGStyle, menuStyle;       
 
         // Create the style string
         style = `
-            color: rgba(${fgred},${fggreen},${fgblue},${fgalpha});  
+              
             border: ${borderWidth}px solid rgba(${bred},${bgreen},${bblue},${balpha}); 
             border-radius: ${borderRadius}px;
             height: ${height}px !important;
         `;
 
+        panelStyle = ` color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}); `;
         panelBGStyle = ` background-color: rgba(${bgred},${bggreen},${bgblue},${bgalpha}) !important; `;
+        menuStyle = ` background-color: rgba(${mred},${mgreen},${mblue},${malpha}); `;
 
         if (font != ""){
             let fontDesc = Pango.font_description_from_string(font); 
@@ -224,12 +233,13 @@ class Extension {
             `;
             panelStyle = ` margin: ${margin}px; `;
 
-            panel.set_style(panelBGStyle + panelStyle + fontStyle + ` height: ${height}px !important; `);  //background-color: transparent;
+            panel.set_style(panelBGStyle + panelStyle + fontStyle );  //background-color: transparent; + ` height: ${height}px; `
 
             for(const box of panelBoxes) {
                 for(const btn of box) {
                     if(btn.child instanceof PanelMenu.Button) {
                         btn.child.set_style(style + ` background-color: rgba(${isred},${isgreen},${isblue},${isalpha}); `);
+                        btn.child.menu.box?.set_style(menuStyle);
                         // btn.child.style = style;
                         // btn.child.add_style_class_name('panel-button');
                         // btn.child.add_style_pseudo_class('openbar-button');
@@ -268,6 +278,7 @@ class Extension {
                     if(btn.child instanceof PanelMenu.Button) { //log('b radius = '+ borderRadius);
                         btnStyle += ` border-radius: ${borderRadius+4}px; border-width: 0px;`;
                         btn.child.set_style(btnStyle);
+                        btn.child.menu.box?.set_style(menuStyle);
 
                         onEvents.forEach(event => {
                             let eventId = btn.child.connect(event, () => {
