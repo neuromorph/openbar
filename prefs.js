@@ -33,7 +33,7 @@ function buildPrefsWidget() {
 
     prefsWidget.connect("realize", ()=>{
         const window = prefsWidget.get_root();
-        window.set_title(_("Open Bar"));
+        window.set_title(_("Open Bar 🍹"));
         window.default_height = 750;
         window.default_width = 600;
     });
@@ -51,7 +51,7 @@ function buildPrefsWidget() {
 
     // Add a title label
     let titleLabel = new Gtk.Label({
-        label: `<span><b>Top Panel Customization</b></span>\n\n<span size="small" underline="none">${_('Version:')} ${Me.metadata.version}  |  <a href="${Me.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a></span>`,
+        label: `<span><b>Top Bar Customization</b></span>\n\n<span size="small" underline="none">${_('Version:')} ${Me.metadata.version}  |  <a href="${Me.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="https://www.buymeacoffee.com/neuromorph">☕</a></span>`,
         // halign: Gtk.Align.CENTER,
         use_markup: true,
         // visible: true,
@@ -132,7 +132,7 @@ function buildPrefsWidget() {
         orientation: Gtk.Orientation.HORIZONTAL,
         adjustment: new Gtk.Adjustment({
             lower: 0,
-            upper: 20,
+            upper: 50,
             step_increment: 0.5,
         }),
         digits: 1,
@@ -141,11 +141,39 @@ function buildPrefsWidget() {
         // visible: true,
         width_request: 50,
         hexpand: true,
+        tooltip_text: 'Not applicable for Mainland',
     });
     bargrid.attach(margin, 2, rowbar, 1, 1);
 
+    rowbar += 1;
+
+    // Add a overview switch
+    let overviewLabel = new Gtk.Label({
+        label: 'Apply in Overview',
+        halign: Gtk.Align.START,
+        // visible: true,
+    });
+    bargrid.attach(overviewLabel, 1, rowbar, 1, 1);
+
+    let overviewSwitch = new Gtk.Switch({
+        halign: Gtk.Align.END,
+        // visible: true,
+    });
+    bargrid.attach(overviewSwitch, 2, rowbar, 1, 1);
+
     barprop.set_child(bargrid);
     prefsWidget.attach(barprop, 1, rowNo, 2, 1);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    rowNo += 1
+
+    const separator1 = new Gtk.Separator({
+        orientation: Gtk.Orientation.HORIZONTAL,
+        hexpand: true,
+        margin_bottom: 6,
+        margin_top: 6,
+    });
+    prefsWidget.attach(separator1, 1, rowNo, 2, 1);
 
     //////////////////////////////////////////////////////////////////////////////////
     rowNo += 1;
@@ -170,17 +198,18 @@ function buildPrefsWidget() {
 
     // Add a foreground color chooser
     let fgColorLbl = new Gtk.Label({
-        label: 'FG color',
+        label: 'FG Color',
         halign: Gtk.Align.START,
         // visible: true,
     });
     fggrid.attach(fgColorLbl, 1, rowbar, 1, 1);
 
     let fgColor = new Gtk.ColorButton({
-        title: 'Foreground color',
+        title: 'Foreground Color',
         halign: Gtk.Align.END,
         // visible: true,
-        // use_alpha: true
+        // use_alpha: true,
+        tooltip_text: 'Foreground color for the bar',
     });
     fggrid.attach(fgColor, 2, rowbar, 1, 1);
 
@@ -226,9 +255,64 @@ function buildPrefsWidget() {
     });
     fggrid.attach(fgAlpha, 2, rowbar, 1, 1);
 
+    rowbar += 1;
+
+    // Add a font button
+    let fontLabel = new Gtk.Label({
+        label: 'Panel Font',
+        halign: Gtk.Align.START,
+        // visible: true,
+    });
+    fggrid.attach(fontLabel, 1, rowbar, 1, 1);
+
+    const fontBtn = new Gtk.FontButton({
+        use_font: true,
+        tooltip_text: _("Font for Panel text"),
+        valign: Gtk.Align.CENTER,
+        hexpand: true,
+    });
+    let font = settings.get_string('font');
+    if (font == ""){
+        let defaultFont = fontBtn.get_font();
+        settings.set_string('default-font', defaultFont);
+    }
+    fontBtn.connect(
+        "font-set",
+        function (w) {
+            var value = w.get_font();
+            settings.set_string('font', value);
+        }
+    );
+    fggrid.attach(fontBtn, 2, rowbar, 1, 1);
+
+    const resetFontBtn = new Gtk.Button({
+        label: '↺',
+        width_request: 10,
+        tooltip_text: _("Reset to default font"),
+        valign: Gtk.Align.CENTER, 
+        halign: Gtk.Align.END
+    }); 
+    resetFontBtn.get_style_context().add_class('circular');
+    resetFontBtn.connect('clicked', () => {
+        settings.reset('font');
+        fontBtn.set_font(settings.get_string('default-font'));
+    });
+    fggrid.attach(resetFontBtn, 3, rowbar, 1, 1);
+
     fgprop.set_child(fggrid);
     prefsWidget.attach(fgprop, 1, rowNo, 2, 1);
 
+    ////////////////////////////////////////////////////////////////////////////////
+    rowNo += 1
+
+    const separator2 = new Gtk.Separator({
+        orientation: Gtk.Orientation.HORIZONTAL,
+        hexpand: true,
+        margin_bottom: 6,
+        margin_top: 6,
+    });
+    prefsWidget.attach(separator2, 1, rowNo, 2, 1);
+    
     ///////////////////////////////////////////////////////////////////
     rowNo += 1;
     const bgprop = new Gtk.Expander({
@@ -252,16 +336,17 @@ function buildPrefsWidget() {
 
     // Add a background color chooser
     let bgColorLbl = new Gtk.Label({
-        label: 'BG color',
+        label: 'Bar BG Color',
         halign: Gtk.Align.START,
         // visible: true,
     });
     bggrid.attach(bgColorLbl, 1, rowbar, 1, 1);
 
     let bgColor = new Gtk.ColorButton({
-        title: 'Background color',
+        title: 'Background Color',
         halign: Gtk.Align.END,
         // visible: true,
+        tooltip_text: 'Background or gradient start color for the bar',
     });
     bggrid.attach(bgColor, 2, rowbar, 1, 1);
 
@@ -310,6 +395,68 @@ function buildPrefsWidget() {
 
     rowbar += 1;
 
+    // Add a Islands color chooser
+    let islandsColorLabel = new Gtk.Label({
+        label: 'Islands BG Color',
+        halign: Gtk.Align.START,
+        // visible: true,
+    });
+    bggrid.attach(islandsColorLabel, 1, rowbar, 1, 1);
+
+    let islandsColorChooser = new Gtk.ColorButton({
+        title: 'Islands Background Color',
+        halign: Gtk.Align.END,
+        // visible: true,
+        // use_alpha: true,
+        tooltip_text: 'Background or gradient start color for Islands',
+    });
+    bggrid.attach(islandsColorChooser, 2, rowbar, 1, 1);
+
+    let iscolorArray = settings.get_strv('iscolor');
+  	let isrgba = new Gdk.RGBA();
+    isrgba.red = parseFloat(iscolorArray[0]);
+    isrgba.green = parseFloat(iscolorArray[1]);
+    isrgba.blue = parseFloat(iscolorArray[2]);
+    isrgba.alpha = 1.0;
+    islandsColorChooser.set_rgba(isrgba);
+
+    islandsColorChooser.connect('color-set', (widget) => {
+        isrgba = widget.get_rgba();
+        settings.set_strv('iscolor', [
+            isrgba.red.toString(),
+            isrgba.green.toString(),
+            isrgba.blue.toString(),
+        ]);
+    });
+
+    rowbar += 1;
+
+    // Add a Islands alpha scale
+    let isAlphaLbl = new Gtk.Label({
+        label: 'Islands Alpha',
+        halign: Gtk.Align.START,
+        // visible: true,
+    });
+    bggrid.attach(isAlphaLbl, 1, rowbar, 1, 1);
+
+    let isAlpha = new Gtk.Scale({
+        orientation: Gtk.Orientation.HORIZONTAL,
+        adjustment: new Gtk.Adjustment({
+            lower: 0,
+            upper: 1,
+            step_increment: 0.01,
+        }),
+        digits: 2,
+        draw_value: true,
+        value_pos: Gtk.PositionType.RIGHT,
+        // visible: true,
+        width_request: 50,
+        hexpand: true,
+    });
+    bggrid.attach(isAlpha, 2, rowbar, 1, 1);
+    
+    rowbar += 1;
+
     // Add a gradient switch
     let gradientLbl = new Gtk.Label({
         label: 'Gradient',
@@ -328,14 +475,14 @@ function buildPrefsWidget() {
 
     // Add a gradient color chooser
     let grColorLbl = new Gtk.Label({
-        label: 'Gradient color 2',
+        label: 'Gradient End Color',
         halign: Gtk.Align.START,
         // visible: true,
     });
     bggrid.attach(grColorLbl, 1, rowbar, 1, 1);
 
     let grColor = new Gtk.ColorButton({
-        title: 'Gradient color 2',
+        title: 'Gradient End Color',
         halign: Gtk.Align.END,
         // visible: true,
     });
@@ -362,7 +509,7 @@ function buildPrefsWidget() {
 
     //Gradient direction
     let grDirecLbl = new Gtk.Label({
-        label: 'Gradient direction',
+        label: 'Gradient Direction',
         halign: Gtk.Align.START,
         // visible: true,
     });
@@ -377,18 +524,18 @@ function buildPrefsWidget() {
 
     // Add a highlight color chooser
     let highlightColorLabel = new Gtk.Label({
-        label: 'Highlight color',
+        label: 'Highlight Color',
         halign: Gtk.Align.START,
         // visible: true,
     });
     bggrid.attach(highlightColorLabel, 1, rowbar, 1, 1);
 
     let highlightColorChooser = new Gtk.ColorButton({
-        title: 'Highlight color',
+        title: 'Highlight Color',
         halign: Gtk.Align.END,
         // visible: true,
         // use_alpha: true,
-        tooltip_text: 'Highlight color for hover, focus etc.'
+        tooltip_text: 'Background highlight color for hover, focus etc.'
     });
     bggrid.attach(highlightColorChooser, 2, rowbar, 1, 1);
 
@@ -413,7 +560,7 @@ function buildPrefsWidget() {
 
     // Add a highlight alpha scale
     let hgAlphaLbl = new Gtk.Label({
-        label: 'Highlight alpha',
+        label: 'Highlight Alpha',
         halign: Gtk.Align.START,
         // visible: true,
     });
@@ -435,71 +582,19 @@ function buildPrefsWidget() {
     });
     bggrid.attach(hgAlpha, 2, rowbar, 1, 1);
 
-
-    rowbar += 1;
-
-    // Add a Islands color chooser
-    let islandsColorLabel = new Gtk.Label({
-        label: 'Islands color',
-        halign: Gtk.Align.START,
-        // visible: true,
-    });
-    bggrid.attach(islandsColorLabel, 1, rowbar, 1, 1);
-
-    let islandsColorChooser = new Gtk.ColorButton({
-        title: 'Islands background color',
-        halign: Gtk.Align.END,
-        // visible: true,
-        // use_alpha: true,
-        tooltip_text: 'Islands background color',
-    });
-    bggrid.attach(islandsColorChooser, 2, rowbar, 1, 1);
-
-    let iscolorArray = settings.get_strv('iscolor');
-  	let isrgba = new Gdk.RGBA();
-    isrgba.red = parseFloat(iscolorArray[0]);
-    isrgba.green = parseFloat(iscolorArray[1]);
-    isrgba.blue = parseFloat(iscolorArray[2]);
-    isrgba.alpha = 1.0;
-    islandsColorChooser.set_rgba(isrgba);
-
-    islandsColorChooser.connect('color-set', (widget) => {
-        isrgba = widget.get_rgba();
-        settings.set_strv('iscolor', [
-            isrgba.red.toString(),
-            isrgba.green.toString(),
-            isrgba.blue.toString(),
-        ]);
-    });
-
-    rowbar += 1;
-
-    // Add a Islands alpha scale
-    let isAlphaLbl = new Gtk.Label({
-        label: 'Islands alpha',
-        halign: Gtk.Align.START,
-        // visible: true,
-    });
-    bggrid.attach(isAlphaLbl, 1, rowbar, 1, 1);
-
-    let isAlpha = new Gtk.Scale({
-        orientation: Gtk.Orientation.HORIZONTAL,
-        adjustment: new Gtk.Adjustment({
-            lower: 0,
-            upper: 1,
-            step_increment: 0.01,
-        }),
-        digits: 2,
-        draw_value: true,
-        value_pos: Gtk.PositionType.RIGHT,
-        // visible: true,
-        width_request: 50,
-        hexpand: true,
-    });
-    bggrid.attach(isAlpha, 2, rowbar, 1, 1);
-
     bgprop.set_child(bggrid);
     prefsWidget.attach(bgprop, 1, rowNo, 2, 1);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    rowNo += 1
+
+    const separator3 = new Gtk.Separator({
+        orientation: Gtk.Orientation.HORIZONTAL,
+        hexpand: true,
+        margin_bottom: 6,
+        margin_top: 6,
+    });
+    prefsWidget.attach(separator3, 1, rowNo, 2, 1);
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -523,6 +618,22 @@ function buildPrefsWidget() {
     });
 
     rowbar = 1;
+
+    // //Type of border
+    // let borderTypeLbl = new Gtk.Label({
+    //     label: 'Type of Border',
+    //     halign: Gtk.Align.START,
+    //     // visible: true,
+    // });
+    // bgrid.attach(borderTypeLbl, 1, rowbar, 1, 1);
+
+    // let borderType = new Gtk.ComboBoxText({halign: Gtk.Align.END});
+    // borderType.append("solid", _("Solid"));
+    // borderType.append("double", _("Double"));
+    // borderType.append("dashed", _("Dashed"));
+    // bgrid.attach(borderType, 2, rowbar, 1, 1);
+
+    // rowbar += 1;
 
     // Add a border width scale
     let borderWidthLabel = new Gtk.Label({
@@ -585,7 +696,7 @@ function buildPrefsWidget() {
     bgrid.attach(borderColorLabel, 1, rowbar, 1, 1);
 
     let borderColorChooser = new Gtk.ColorButton({
-        title: 'Border color',
+        title: 'Border Color',
         halign: Gtk.Align.END,
         // visible: true,
         // use_alpha: true
@@ -638,6 +749,17 @@ function buildPrefsWidget() {
     bprop.set_child(bgrid);
     prefsWidget.attach(bprop, 1, rowNo, 2, 1);
 
+    ////////////////////////////////////////////////////////////////////////////////
+    rowNo += 1
+
+    const separator4 = new Gtk.Separator({
+        orientation: Gtk.Orientation.HORIZONTAL,
+        hexpand: true,
+        margin_bottom: 6,
+        margin_top: 6,
+    });
+    prefsWidget.attach(separator4, 1, rowNo, 2, 1);
+
     ////////////////////////////////////////////////////////////////////
 
     rowNo += 1;
@@ -660,53 +782,9 @@ function buildPrefsWidget() {
 
     rowbar = 1;
 
-    // Add a font button
-    let fontLabel = new Gtk.Label({
-        label: 'Panel Font',
-        halign: Gtk.Align.START,
-        // visible: true,
-    });
-    ubgrid.attach(fontLabel, 1, rowbar, 1, 1);
-
-    const fontBtn = new Gtk.FontButton({
-        use_font: true,
-        tooltip_text: _("Font for Panel text"),
-        valign: Gtk.Align.CENTER,
-        hexpand: true,
-    });
-    let font = settings.get_string('font');
-    if (font == ""){
-        let defaultFont = fontBtn.get_font();
-        settings.set_string('default-font', defaultFont);
-    }
-    fontBtn.connect(
-        "font-set",
-        function (w) {
-            var value = w.get_font();
-            settings.set_string('font', value);
-        }
-    );
-    ubgrid.attach(fontBtn, 2, rowbar, 1, 1);
-
-    const resetFontBtn = new Gtk.Button({
-        label: '↺',
-        width_request: 10,
-        tooltip_text: _("Reset to default font"),
-        valign: Gtk.Align.CENTER, 
-        halign: Gtk.Align.END
-    }); 
-    resetFontBtn.get_style_context().add_class('circular');
-    resetFontBtn.connect('clicked', () => {
-        settings.reset('font');
-        fontBtn.set_font(settings.get_string('default-font'));
-    });
-    ubgrid.attach(resetFontBtn, 3, rowbar, 1, 1);
-
-    rowbar += 1;
-
     // Add a neon switch
     let neonLbl = new Gtk.Label({
-        label: 'Neon glow',
+        label: 'Neon Glow',
         halign: Gtk.Align.START,
         // visible: true,
     });
@@ -715,6 +793,7 @@ function buildPrefsWidget() {
     let neon = new Gtk.Switch({
         halign: Gtk.Align.END,
         // visible: true,
+        tooltip_text: 'Select bright/neon color for border and dark/opaque background',
     });
     ubgrid.attach(neon, 2, rowbar, 1, 1);
 
@@ -722,7 +801,7 @@ function buildPrefsWidget() {
 
     // Add a shadow switch
     let shadowLabel = new Gtk.Label({
-        label: 'Shadow effect',
+        label: 'Shadow Effect',
         halign: Gtk.Align.START,
         // visible: true,
     });
@@ -736,50 +815,51 @@ function buildPrefsWidget() {
 
     rowbar += 1;
 
-    // Add a menu color chooser
-    let menuColorLabel = new Gtk.Label({
-        label: 'Menu Color',
+    // Add a menu FG color chooser
+    let menuFGColorLabel = new Gtk.Label({
+        label: 'Menu FG Color',
         halign: Gtk.Align.START,
         // visible: true,
     });
-    ubgrid.attach(menuColorLabel, 1, rowbar, 1, 1);
+    ubgrid.attach(menuFGColorLabel, 1, rowbar, 1, 1);
 
-    let menuColorChooser = new Gtk.ColorButton({
-        title: 'Menu color',
+    let menuFGColorChooser = new Gtk.ColorButton({
+        title: 'Menu Foreground Color',
         halign: Gtk.Align.END,
         // visible: true,
         // use_alpha: true
+        tooltip_text: 'Foreground color for the dropdown menus',
     });
-    ubgrid.attach(menuColorChooser, 2, rowbar, 1, 1);
+    ubgrid.attach(menuFGColorChooser, 2, rowbar, 1, 1);
 
-    let mcolorArray = settings.get_strv('mcolor');
-  	let mrgba = new Gdk.RGBA();
-    mrgba.red = parseFloat(mcolorArray[0]);
-    mrgba.green = parseFloat(mcolorArray[1]);
-    mrgba.blue = parseFloat(mcolorArray[2]);
-    mrgba.alpha = 1.0;
-    menuColorChooser.set_rgba(brgba);
+    let mfgcolorArray = settings.get_strv('mfgcolor');
+  	let mfgrgba = new Gdk.RGBA();
+    mfgrgba.red = parseFloat(mfgcolorArray[0]);
+    mfgrgba.green = parseFloat(mfgcolorArray[1]);
+    mfgrgba.blue = parseFloat(mfgcolorArray[2]);
+    mfgrgba.alpha = 1.0;
+    menuFGColorChooser.set_rgba(mfgrgba);
 
-    menuColorChooser.connect('color-set', (widget) => {
-        mrgba = widget.get_rgba();
-        settings.set_strv('mcolor', [
-            mrgba.red.toString(),
-            mrgba.green.toString(),
-            mrgba.blue.toString(),
+    menuFGColorChooser.connect('color-set', (widget) => {
+        mfgrgba = widget.get_rgba();
+        settings.set_strv('mfgcolor', [
+            mfgrgba.red.toString(),
+            mfgrgba.green.toString(),
+            mfgrgba.blue.toString(),
         ]);
     });
 
     rowbar += 1;
 
     // Add a menu alpha scale
-    let mAlphaLbl = new Gtk.Label({
-        label: 'Menu Alpha',
+    let mfgAlphaLbl = new Gtk.Label({
+        label: 'Menu FG Alpha',
         halign: Gtk.Align.START,
         // visible: true,
     });
-    ubgrid.attach(mAlphaLbl, 1, rowbar, 1, 1);
+    ubgrid.attach(mfgAlphaLbl, 1, rowbar, 1, 1);
 
-    let mAlpha = new Gtk.Scale({
+    let mfgAlpha = new Gtk.Scale({
         orientation: Gtk.Orientation.HORIZONTAL,
         adjustment: new Gtk.Adjustment({
             lower: 0,
@@ -793,7 +873,131 @@ function buildPrefsWidget() {
         width_request: 50,
         hexpand: true,
     });
-    ubgrid.attach(mAlpha, 2, rowbar, 1, 1);
+    ubgrid.attach(mfgAlpha, 2, rowbar, 1, 1);
+
+    rowbar += 1;
+
+    // Add a menu BG color chooser
+    let menuBGColorLabel = new Gtk.Label({
+        label: 'Menu BG Color',
+        halign: Gtk.Align.START,
+        // visible: true,
+    });
+    ubgrid.attach(menuBGColorLabel, 1, rowbar, 1, 1);
+
+    let menuBGColorChooser = new Gtk.ColorButton({
+        title: 'Menu Background Color',
+        halign: Gtk.Align.END,
+        // visible: true,
+        // use_alpha: true
+        tooltip_text: 'Background color for the dropdown menus',
+    });
+    ubgrid.attach(menuBGColorChooser, 2, rowbar, 1, 1);
+
+    let mbgcolorArray = settings.get_strv('mbgcolor');
+  	let mbgrgba = new Gdk.RGBA();
+    mbgrgba.red = parseFloat(mbgcolorArray[0]);
+    mbgrgba.green = parseFloat(mbgcolorArray[1]);
+    mbgrgba.blue = parseFloat(mbgcolorArray[2]);
+    mbgrgba.alpha = 1.0;
+    menuBGColorChooser.set_rgba(mbgrgba);
+
+    menuBGColorChooser.connect('color-set', (widget) => {
+        mbgrgba = widget.get_rgba();
+        settings.set_strv('mbgcolor', [
+            mbgrgba.red.toString(),
+            mbgrgba.green.toString(),
+            mbgrgba.blue.toString(),
+        ]);
+    });
+
+    rowbar += 1;
+
+    // Add a menu alpha scale
+    let mbgAlphaLbl = new Gtk.Label({
+        label: 'Menu BG Alpha',
+        halign: Gtk.Align.START,
+        // visible: true,
+    });
+    ubgrid.attach(mbgAlphaLbl, 1, rowbar, 1, 1);
+
+    let mbgAlpha = new Gtk.Scale({
+        orientation: Gtk.Orientation.HORIZONTAL,
+        adjustment: new Gtk.Adjustment({
+            lower: 0,
+            upper: 1,
+            step_increment: 0.01,
+        }),
+        digits: 2,
+        draw_value: true,
+        value_pos: Gtk.PositionType.RIGHT,
+        // visible: true,
+        width_request: 50,
+        hexpand: true,
+    });
+    ubgrid.attach(mbgAlpha, 2, rowbar, 1, 1);
+
+    rowbar += 1;
+
+    // Add a menu Border color chooser
+    let menubColorLabel = new Gtk.Label({
+        label: 'Menu Border Color',
+        halign: Gtk.Align.START,
+        // visible: true,
+    });
+    ubgrid.attach(menubColorLabel, 1, rowbar, 1, 1);
+
+    let menubColorChooser = new Gtk.ColorButton({
+        title: 'Menu Border Color',
+        halign: Gtk.Align.END,
+        // visible: true,
+        // use_alpha: true
+        tooltip_text: 'Border color for the dropdown menus',
+    });
+    ubgrid.attach(menubColorChooser, 2, rowbar, 1, 1);
+
+    let mbcolorArray = settings.get_strv('mbcolor');
+  	let mbrgba = new Gdk.RGBA();
+    mbrgba.red = parseFloat(mbcolorArray[0]);
+    mbrgba.green = parseFloat(mbcolorArray[1]);
+    mbrgba.blue = parseFloat(mbcolorArray[2]);
+    mbrgba.alpha = 1.0;
+    menubColorChooser.set_rgba(mbrgba);
+
+    menubColorChooser.connect('color-set', (widget) => {
+        mbrgba = widget.get_rgba();
+        settings.set_strv('mbcolor', [
+            mbrgba.red.toString(),
+            mbrgba.green.toString(),
+            mbrgba.blue.toString(),
+        ]);
+    });
+
+    rowbar += 1;
+
+    // Add a menu alpha scale
+    let mbAlphaLbl = new Gtk.Label({
+        label: 'Menu Border Alpha',
+        halign: Gtk.Align.START,
+        // visible: true,
+    });
+    ubgrid.attach(mbAlphaLbl, 1, rowbar, 1, 1);
+
+    let mbAlpha = new Gtk.Scale({
+        orientation: Gtk.Orientation.HORIZONTAL,
+        adjustment: new Gtk.Adjustment({
+            lower: 0,
+            upper: 1,
+            step_increment: 0.01,
+        }),
+        digits: 2,
+        draw_value: true,
+        value_pos: Gtk.PositionType.RIGHT,
+        // visible: true,
+        width_request: 50,
+        hexpand: true,
+    });
+    ubgrid.attach(mbAlpha, 2, rowbar, 1, 1);
 
 
     ubprop.set_child(ubgrid);
@@ -876,6 +1080,12 @@ function buildPrefsWidget() {
         'value',
         Gio.SettingsBindFlags.DEFAULT
     );
+    // settings.bind(
+    //     'bordertype',
+    //     borderType,
+    //     'active-id',
+    //     Gio.SettingsBindFlags.DEFAULT
+    // );
     settings.bind(
         'bradius',
         bRadius.adjustment,
@@ -907,8 +1117,26 @@ function buildPrefsWidget() {
         Gio.SettingsBindFlags.DEFAULT
     );
     settings.bind(
-        'malpha',
-        mAlpha.adjustment,
+        'overview',
+        overviewSwitch,
+        'active',
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        'mfgalpha',
+        mfgAlpha.adjustment,
+        'value',
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        'mbgalpha',
+        mbgAlpha.adjustment,
+        'value',
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        'mbalpha',
+        mbAlpha.adjustment,
         'value',
         Gio.SettingsBindFlags.DEFAULT
     );

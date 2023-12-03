@@ -99,7 +99,8 @@ class Extension {
 
     updateStyle(panel) {
 
-        if(panel.has_style_pseudo_class('overview'))
+        let overview = this._settings.get_boolean('overview');
+        if(!overview && panel.has_style_pseudo_class('overview'))
             return this.resetStyle(panel);
 
         // Get the settings values
@@ -115,10 +116,15 @@ class Extension {
         let balpha = this._settings.get_double('balpha');
         let borderWidth = this._settings.get_double('bwidth');
         let borderRadius = this._settings.get_double('bradius');
+        let bordertype = this._settings.get_string('bordertype');
         let highlightColor = this._settings.get_strv('hcolor');
         let halpha = this._settings.get_double('halpha');
-        let menuColor = this._settings.get_strv('mcolor');
-        let malpha = this._settings.get_double('malpha');
+        let menufgColor = this._settings.get_strv('mfgcolor');
+        let mfgalpha = this._settings.get_double('mfgalpha');
+        let menubgColor = this._settings.get_strv('mbgcolor');
+        let mbgalpha = this._settings.get_double('mbgalpha');
+        let menubColor = this._settings.get_strv('mbcolor');
+        let mbalpha = this._settings.get_double('mbalpha');
         let islandsColor = this._settings.get_strv('iscolor');
         let isalpha = this._settings.get_double('isalpha');
         let neon = this._settings.get_boolean('neon');
@@ -151,9 +157,17 @@ class Extension {
         const hgreen = parseInt(parseFloat(highlightColor[1]) * 255);
         const hblue = parseInt(parseFloat(highlightColor[2]) * 255);
 
-        const mred = parseInt(parseFloat(menuColor[0]) * 255);
-        const mgreen = parseInt(parseFloat(menuColor[1]) * 255);
-        const mblue = parseInt(parseFloat(menuColor[2]) * 255);
+        const mfgred = parseInt(parseFloat(menufgColor[0]) * 255);
+        const mfggreen = parseInt(parseFloat(menufgColor[1]) * 255);
+        const mfgblue = parseInt(parseFloat(menufgColor[2]) * 255);
+
+        const mbgred = parseInt(parseFloat(menubgColor[0]) * 255);
+        const mbggreen = parseInt(parseFloat(menubgColor[1]) * 255);
+        const mbgblue = parseInt(parseFloat(menubgColor[2]) * 255);
+
+        const mbred = parseInt(parseFloat(menubColor[0]) * 255);
+        const mbgreen = parseInt(parseFloat(menubColor[1]) * 255);
+        const mbblue = parseInt(parseFloat(menubColor[2]) * 255);
     
         // log(bartype, bgcolor, bgalpha, fgcolor, borderColor, borderRadius, borderWidth, highlightColor, neon, shadow, font, height, margin, fgred, fggreen, fgblue, fgalpha, bgred, bggreen, bgblue, bred, bblue, bgreen, balpha, hred, hgreen, hblue, halpha);
     
@@ -164,19 +178,21 @@ class Extension {
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox]
         const onEvents = ['enter-event', 'key-focus-in'];
         const offEvents = ['leave-event', 'key-focus-out'];
-        let style, panelStyle, btnStyle, fontStyle, panelBGStyle, menuStyle;       
+        let style, panelStyle, btnStyle, fontStyle, startColor, menuStyle, highlightStyle, islandStyle;       
 
         // Create the style string
         style = `
-              
-            border: ${borderWidth}px solid rgba(${bred},${bgreen},${bblue},${balpha}); 
+            color: rgba(${fgred},${fggreen},${fgblue},${fgalpha});  
+            border: ${borderWidth}px ${bordertype} rgba(${bred},${bgreen},${bblue},${balpha}); 
             border-radius: ${borderRadius}px;
             height: ${height}px !important;
         `;
+        // if (bordertype == 'double')
+        //     style += ` outline: ${borderWidth}px ${bordertype} rgba(${bred},${bgreen},${bblue},${balpha}); `
 
-        panelStyle = ` color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}); `;
-        panelBGStyle = ` background-color: rgba(${bgred},${bggreen},${bgblue},${bgalpha}) !important; `;
-        menuStyle = ` background-color: rgba(${mred},${mgreen},${mblue},${malpha}); `;
+        panelStyle = ` background-color: rgba(${bgred},${bggreen},${bgblue},${bgalpha}) !important; `;
+        // panelBGStyle = ` background-color: rgba(${bgred},${bggreen},${bgblue},${bgalpha}) !important; `;
+        menuStyle = ` color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgalpha}); background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgalpha});  border-color: rgba(${mbred},${mbgreen},${mbblue},${mbalpha});`;
 
         if (font != ""){
             let fontDesc = Pango.font_description_from_string(font); 
@@ -190,24 +206,33 @@ class Extension {
             }
             fontStyle = ` font-family: ${fontFamily};  font-size: ${fontSize}px; font-weight: ${fontWeight}; `; 
         }
+        else
+            fontStyle = '';
+        panelStyle += fontStyle;
     
+        highlightStyle = ` background-color: rgba(${hred},${hgreen},${hblue},${halpha}); `;
+
         // Add the neon and shadow styles if enabled
         if (neon) {
             style += `
-                box-shadow: 0px 0px 2px 2px rgba(${bred},${bgreen},${bblue},0.4);
+                box-shadow: 0px 0px 2px 1px rgba(${bred},${bgreen},${bblue},0.45);
             `;
         }
     
         if (shadow) {
-            style += `
-                box-shadow: 0px 1px 2px 2px rgba(0, 0, 0, 0.2);
+            panelStyle += `
+                box-shadow: 0px 1px 4px 8px rgba(0, 0, 0, 0.15);
             `;
         }
 
         if (gradient) {
+            if(bartype == 'Islands')
+                startColor = `rgba(${isred},${isgreen},${isblue},${isalpha})`;
+            else
+                startColor = `rgba(${bgred},${bggreen},${bgblue},${bgalpha})`;
             style += ` 
                 background-color: transparent;
-                background-gradient-start: rgba(${bgred},${bggreen},${bgblue},${bgalpha});  
+                background-gradient-start: ${startColor};  
                 background-gradient-end: rgba(${bgred2},${bggreen2},${bgblue2},${bgalpha}); background-gradient-direction: ${grDirection}; 
             `;
         }
@@ -217,7 +242,7 @@ class Extension {
                 margin: none;
                 padding: 1px;
             `;
-            btnStyle = ` margin: 0px 2px; color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}); `;
+            btnStyle = ` margin: 0px 2px; color: rgba(${fgred},${fggreen},${fgblue},${fgalpha});`; // Need color for btns
         }
         if(bartype == 'Floating') {
             style += `
@@ -231,27 +256,28 @@ class Extension {
                 margin: 0px 3px;
                 padding: 1px;
             `;
-            panelStyle = ` margin: ${margin}px; `;
+            // panelStyle = ` margin: ${margin}px; `;
+            islandStyle = ` background-color: rgba(${isred},${isgreen},${isblue},${isalpha}); `;
 
-            panel.set_style(panelBGStyle + panelStyle + fontStyle );  //background-color: transparent; + ` height: ${height}px; `
+            panel.set_style( panelStyle + ` margin: ${margin}px; height: ${height}px; `);  //background-color: transparent; + ` height: ${height}px; `  panelBGStyle +  + fontStyle
 
             for(const box of panelBoxes) {
                 for(const btn of box) {
                     if(btn.child instanceof PanelMenu.Button) {
-                        btn.child.set_style(style + ` background-color: rgba(${isred},${isgreen},${isblue},${isalpha}); `);
+                        btn.child.set_style(style + islandStyle);
                         btn.child.menu.box?.set_style(menuStyle);
                         // btn.child.style = style;
                         // btn.child.add_style_class_name('panel-button');
                         // btn.child.add_style_pseudo_class('openbar-button');
                         onEvents.forEach(event => {
                             let eventId = btn.child.connect(event, () => {
-                                btn.child.set_style(style + ` background-color: rgba(${hred},${hgreen},${hblue},${halpha}); `); //hcolor
+                                btn.child.set_style(style + highlightStyle); //hcolor
                             });
                             this.eventIds.push([btn.child, eventId]);
                         });
                         offEvents.forEach(event => {
                             let eventId = btn.child.connect(event, () => {
-                                btn.child.set_style(style + ` background-color: rgba(${isred},${isgreen},${isblue},${isalpha}); `); //bgcolor
+                                btn.child.set_style(style + islandStyle); //bgcolor
                             });
                             this.eventIds.push([btn.child, eventId]);
                         });
@@ -271,18 +297,18 @@ class Extension {
         }
         else {
             // Apply the style to the panel
-            panel.set_style(panelBGStyle + style + fontStyle);
-
+            panel.set_style(panelStyle + style);
+            // log(panel.style);
             for(const box of panelBoxes) {
                 for(const btn of box) {
                     if(btn.child instanceof PanelMenu.Button) { //log('b radius = '+ borderRadius);
-                        btnStyle += ` border-radius: ${borderRadius+4}px; border-width: 0px;`;
+                        btnStyle += ` border-radius: ${max(borderRadius, 5)}px; border-width: 0px;`;
                         btn.child.set_style(btnStyle);
                         btn.child.menu.box?.set_style(menuStyle);
 
                         onEvents.forEach(event => {
                             let eventId = btn.child.connect(event, () => {
-                                btn.child.set_style(btnStyle + ` background-color: rgba(${hred},${hgreen},${hblue},${halpha}); `); //hcolor
+                                btn.child.set_style(btnStyle + highlightStyle); //hcolor
                             });
                             this.eventIds.push([btn.child, eventId]);
                         });

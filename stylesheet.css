@@ -16,10 +16,13 @@
 
 #panel.openbar .panel-button:hover.clock-display .clock {
     background-color: transparent;
+    box-shadow: none;
+    /* outline: 3px double rgba(143,240,164,0.64); */
 }
 
 #panel.openbar .panel-button:active.clock-display .clock, #panel .panel-button:overview.clock-display .clock, #panel .panel-button:focus.clock-display .clock, #panel .panel-button:checked.clock-display .clock {
     background-color: transparent;
+    box-shadow: none;
 }
 
 /* .popup-menu-content,

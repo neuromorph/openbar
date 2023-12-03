@@ -53,7 +53,11 @@
       <summary>Box Shadow</summary>
       <description>Box Shadow of Top Bar.</description>
     </key>
-
+    <key type="s" name="bordertype">
+      <default>"solid"</default>
+      <summary>Type of Border</summary>
+      <description>Type of Border.</description>
+    </key>
     <key type="d" name="bradius">
       <default>100.0</default>
       <summary>Border Radius</summary>
@@ -78,6 +82,11 @@
       <default>false</default>
       <summary>Neon Effect</summary>
       <description>Neon Effect.</description>
+    </key>
+    <key type="b" name="overview">
+      <default>false</default>
+      <summary>Apply in overview</summary>
+      <description>Whether customization is applied in overview.</description>
     </key>
     <key type="b" name="gradient">
       <default>false</default>
@@ -119,12 +128,32 @@
       <summary>Transparency (alpha) Highlight</summary>
       <description>Transparency of highlight.</description>
     </key>
-    <key type="as" name="mcolor">
+    <key type="as" name="mfgcolor">
       <default>['0.5', '0.5', '0.5']</default>
       <summary>Highlight Color (RGBA)</summary>
       <description>Highlight of Top Bar widgets.</description>
     </key>
-    <key type="d" name="malpha">
+    <key type="d" name="mfgalpha">
+      <default>1.0</default>
+      <summary>Transparency (alpha) Highlight</summary>
+      <description>Transparency of highlight.</description>
+    </key>
+    <key type="as" name="mbgcolor">
+      <default>['0.5', '0.5', '0.5']</default>
+      <summary>Highlight Color (RGBA)</summary>
+      <description>Highlight of Top Bar widgets.</description>
+    </key>
+    <key type="d" name="mbgalpha">
+      <default>1.0</default>
+      <summary>Transparency (alpha) Highlight</summary>
+      <description>Transparency of highlight.</description>
+    </key>
+    <key type="as" name="mbcolor">
+      <default>['0.5', '0.5', '0.5']</default>
+      <summary>Highlight Color (RGBA)</summary>
+      <description>Highlight of Top Bar widgets.</description>
+    </key>
+    <key type="d" name="mbalpha">
       <default>1.0</default>
       <summary>Transparency (alpha) Highlight</summary>
       <description>Transparency of highlight.</description>
