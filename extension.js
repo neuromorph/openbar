@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
+ * author: neuromorph
  */
 
 /* exported init */
@@ -23,6 +24,7 @@ const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
+
 
 // ConnectManager class to manage connections for events to trigger Openbar updatestyle
 // This class is from Floating Panel extension (Thanks Aylur!)
@@ -63,7 +65,6 @@ class Extension {
 
         panel.set_style(null);
         panel.remove_style_class_name('openbar');
-        // panel.remove_style_pseudo_class('openbar');
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox]
         for(const box of panelBoxes) {
@@ -71,8 +72,6 @@ class Extension {
                 if(btn.child instanceof PanelMenu.Button) {
                     btn.child.set_style(null);
                     btn.child.menu.box?.set_style(null);
-                    // btn.child.remove_style_pseudo_class('openbar-button');
-                    // btn.remove_style_class_name('openbar-container');
                 }
             }
         }
@@ -81,16 +80,6 @@ class Extension {
             event[0]?.disconnect(event[1]);
         });
         this.eventIds = [];
-        // for(const btn of panel._leftBox) {
-        //     btn.set_style(null);
-        // }
-        // for(const btn of panel._centerBox) {
-        //     btn.set_style(null);
-        // }
-        // for(const btn of panel._rightBox) {
-        //     btn.set_style(null);
-        // }
-
     }
 
     updatePanelStyle(panel) {
@@ -129,7 +118,7 @@ class Extension {
         let isalpha = this._settings.get_double('isalpha');
         let neon = this._settings.get_boolean('neon');
         let shadow = this._settings.get_boolean('shadow');
-        const font = this._settings.get_string("font");
+        let font = this._settings.get_string("font");
         let height = this._settings.get_double('height');
         let margin = this._settings.get_double('margin');
 
@@ -169,18 +158,16 @@ class Extension {
         const mbgreen = parseInt(parseFloat(menubColor[1]) * 255);
         const mbblue = parseInt(parseFloat(menubColor[2]) * 255);
     
-        // log(bartype, bgcolor, bgalpha, fgcolor, borderColor, borderRadius, borderWidth, highlightColor, neon, shadow, font, height, margin, fgred, fggreen, fgblue, fgalpha, bgred, bggreen, bgblue, bred, bblue, bgreen, balpha, hred, hgreen, hblue, halpha);
     
         this.resetStyle(panel);
         panel.add_style_class_name('openbar');
-        // panel.add_style_pseudo_class('openbar');
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox]
         const onEvents = ['enter-event', 'key-focus-in'];
         const offEvents = ['leave-event', 'key-focus-out'];
         let style, panelStyle, btnStyle, fontStyle, startColor, menuStyle, highlightStyle, islandStyle;       
 
-        // Create the style string
+        // Create the style string (applies dynamically to either the panel or the panel buttons as per bar type)
         style = `
             color: rgba(${fgred},${fggreen},${fgblue},${fgalpha});  
             border: ${borderWidth}px ${bordertype} rgba(${bred},${bgreen},${bblue},${balpha}); 
@@ -191,9 +178,12 @@ class Extension {
         //     style += ` outline: ${borderWidth}px ${bordertype} rgba(${bred},${bgreen},${bblue},${balpha}); `
 
         panelStyle = ` background-color: rgba(${bgred},${bggreen},${bgblue},${bgalpha}) !important; `;
-        // panelBGStyle = ` background-color: rgba(${bgred},${bggreen},${bgblue},${bgalpha}) !important; `;
-        menuStyle = ` color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgalpha}); background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgalpha});  border-color: rgba(${mbred},${mbgreen},${mbblue},${mbalpha});`;
+        menuStyle = ` color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgalpha}); 
+                        background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgalpha});  
+                        border-color: rgba(${mbred},${mbgreen},${mbblue},${mbalpha});`;
+        highlightStyle = ` background-color: rgba(${hred},${hgreen},${hblue},${halpha}); `;
 
+        // Add font style to panelstyle
         if (font != ""){
             let fontDesc = Pango.font_description_from_string(font); 
             let fontFamily = fontDesc.get_family();
@@ -210,12 +200,11 @@ class Extension {
             fontStyle = '';
         panelStyle += fontStyle;
     
-        highlightStyle = ` background-color: rgba(${hred},${hgreen},${hblue},${halpha}); `;
-
         // Add the neon and shadow styles if enabled
         if (neon) {
             style += `
-                box-shadow: 0px 0px 2px 1px rgba(${bred},${bgreen},${bblue},0.45);
+                
+                box-shadow: 0px 0px 7px 3px rgba(${bred},${bgreen},${bblue},0.55);
             `;
         }
     
@@ -225,6 +214,7 @@ class Extension {
             `;
         }
 
+        // Add gradient style
         if (gradient) {
             if(bartype == 'Islands')
                 startColor = `rgba(${isred},${isgreen},${isblue},${isalpha})`;
@@ -233,7 +223,8 @@ class Extension {
             style += ` 
                 background-color: transparent;
                 background-gradient-start: ${startColor};  
-                background-gradient-end: rgba(${bgred2},${bggreen2},${bgblue2},${bgalpha}); background-gradient-direction: ${grDirection}; 
+                background-gradient-end: rgba(${bgred2},${bggreen2},${bgblue2},${bgalpha}); 
+                background-gradient-direction: ${grDirection}; 
             `;
         }
 
@@ -249,26 +240,23 @@ class Extension {
                 margin: ${margin}px ${2*margin}px;
                 padding: 1px;
             `;
-            btnStyle = ` margin: 0px 2px; color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}); `;
+            btnStyle = ` margin: 0px 2px; color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}); `; // Need color for btns
         }
         if(bartype == 'Islands') {
             style += `
                 margin: 0px 3px;
                 padding: 1px;
             `;
-            // panelStyle = ` margin: ${margin}px; `;
             islandStyle = ` background-color: rgba(${isred},${isgreen},${isblue},${isalpha}); `;
 
-            panel.set_style( panelStyle + ` margin: ${margin}px; height: ${height}px; `);  //background-color: transparent; + ` height: ${height}px; `  panelBGStyle +  + fontStyle
+            panel.set_style( panelStyle + ` margin: ${margin}px; height: ${height}px; `);  
 
             for(const box of panelBoxes) {
                 for(const btn of box) {
                     if(btn.child instanceof PanelMenu.Button) {
                         btn.child.set_style(style + islandStyle);
                         btn.child.menu.box?.set_style(menuStyle);
-                        // btn.child.style = style;
-                        // btn.child.add_style_class_name('panel-button');
-                        // btn.child.add_style_pseudo_class('openbar-button');
+
                         onEvents.forEach(event => {
                             let eventId = btn.child.connect(event, () => {
                                 btn.child.set_style(style + highlightStyle); //hcolor
@@ -282,27 +270,19 @@ class Extension {
                             this.eventIds.push([btn.child, eventId]);
                         });
 
-                        // btn.add_style_class_name('openbar-container');
                     }
                 }
             }
             
-
-            // for(const btn of panel._centerBox) {
-            //     btn.set_style(style);
-            // }
-            // for(const btn of panel._rightBox) {
-            //     btn.set_style(style);
-            // }
         }
         else {
             // Apply the style to the panel
             panel.set_style(panelStyle + style);
-            // log(panel.style);
+            
             for(const box of panelBoxes) {
                 for(const btn of box) {
-                    if(btn.child instanceof PanelMenu.Button) { //log('b radius = '+ borderRadius);
-                        btnStyle += ` border-radius: ${max(borderRadius, 5)}px; border-width: 0px;`;
+                    if(btn.child instanceof PanelMenu.Button) { 
+                        btnStyle += ` border-radius: ${Math.max(borderRadius, 5)}px; border-width: 0px;`;
                         btn.child.set_style(btnStyle);
                         btn.child.menu.box?.set_style(menuStyle);
 
@@ -325,12 +305,14 @@ class Extension {
 
     }
 
-    //TODO: handle active checked etc with connect to signals (ask matrix?)
-    // Turn off settings code above one by one to chk what throws length property isn;t a number warning
+    // TODO: 
+    // Handle active/checked for highlight by connecting to signals (what signals?)
+    // Debug 'length property isn't a number' warning
+    // Error when unlocking screen: this._settings is null
 
     enable() {
 
-        this._settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.openbar'); 
+        this._settings = ExtensionUtils.getSettings(); 
 
         // Get the top panel
         let panel = Main.panel;
@@ -360,8 +342,9 @@ class Extension {
         // Get the top panel
         let panel = Main.panel;
 
-        // Reset the style
+        // Reset the style and disconnect onEvents and offEvents
         this.resetStyle(panel);
+
         this._settings = null;
 
         this._connections.disconnectAll();

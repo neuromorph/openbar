@@ -1,6 +1,6 @@
 {
   "name": "Open Bar",
-  "description": "Open the Top Bar and let the spirit flow",
+  "description": "Top Bar ( Top Panel ) customization / styling. Open the Top Bar and let the colors 🍹 flow.",
   "uuid": "openbar@neuromorph",
   "gettext-domain": "openbar",
   "shell-version": [
@@ -8,6 +8,10 @@
     "43",
     "44"
   ],
+  "donations": {
+    "buymeacoffee": "neuromorph"
+  },
+  "settings-schema": "org.gnome.shell.extensions.openbar",
   "url": "https://github.com/neuromorph/openbar",
   "version": 1
 }
