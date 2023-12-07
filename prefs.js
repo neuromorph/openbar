@@ -200,7 +200,7 @@ class OpenbarPrefs {
         });
         bargrid.attach(marginLabel, 1, rowbar, 1, 1);
 
-        let margin = this.createScaleWidget(0, 50, 0.5, 1, 'Not applicable for Mainland');
+        let margin = this.createScaleWidget(0, 50, 0.2, 1, 'Not applicable for Mainland');
         bargrid.attach(margin, 2, rowbar, 1, 1);
 
         rowbar += 1;

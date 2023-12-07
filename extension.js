@@ -47,7 +47,7 @@ class ConnectManager{
 
     disconnectAll(){
         this.connections.forEach(c => {
-            c.obj.disconnect(c.id)
+            c.obj.disconnect(c.id);
         })
     }
 }
@@ -58,7 +58,8 @@ class Extension {
     constructor() {
         this._settings = null;
         this._connections = null;
-        this.eventIds = [];
+        this.eventIds = {};
+        this.panelEventIds = [];
     }
 
     resetStyle(panel) {
@@ -66,20 +67,28 @@ class Extension {
         panel.set_style(null);
         panel.remove_style_class_name('openbar');
 
-        const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox]
+        const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
             for(const btn of box) {
                 if(btn.child instanceof PanelMenu.Button) {
                     btn.child.set_style(null);
                     btn.child.menu.box?.set_style(null);
+
+                    this.eventIds[btn]?.forEach(event => {
+                        event[0]?.disconnect(event[1]);
+                        // log(event[0], event[1]);
+                    });
                 }
             }
         }
+        this.eventIds = {};
 
-        this.eventIds.forEach(event => {
+        this.panelEventIds.forEach(event => {
             event[0]?.disconnect(event[1]);
+            // log(event[0], event[1]);
         });
-        this.eventIds = [];
+        this.panelEventIds = [];
+        
     }
 
     updatePanelStyle(panel) {
@@ -87,6 +96,8 @@ class Extension {
     }
 
     updateStyle(panel) {
+        if(!this._settings)
+            return;
 
         let overview = this._settings.get_boolean('overview');
         if(!overview && panel.has_style_pseudo_class('overview'))
@@ -162,7 +173,7 @@ class Extension {
         this.resetStyle(panel);
         panel.add_style_class_name('openbar');
 
-        const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox]
+        const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         const onEvents = ['enter-event', 'key-focus-in'];
         const offEvents = ['leave-event', 'key-focus-out'];
         let style, panelStyle, btnStyle, fontStyle, startColor, menuStyle, highlightStyle, islandStyle;       
@@ -201,17 +212,33 @@ class Extension {
         panelStyle += fontStyle;
     
         // Add the neon and shadow styles if enabled
-        if (neon) {
-            style += `
-                
-                box-shadow: 0px 0px 7px 3px rgba(${bred},${bgreen},${bblue},0.55);
-            `;
+        // Box shadow not working with rectangular box (for smaller radius), why??
+        // Fix: Negative/low spread to try to contain it in that range. Range depends on bar height
+        let radThreshold = Math.ceil((height/10.0 - 1)*5) - 1;
+        if (neon) {           
+            if (borderRadius < radThreshold) {
+                style += `               
+                    box-shadow: 0px 0px 6px -1px rgba(${bred},${bgreen},${bblue},0.55);
+                `;
+            }
+            else {
+                style += `               
+                    box-shadow: 0px 0px 7px 3px rgba(${bred},${bgreen},${bblue},0.55);
+                `;
+            }
         }
     
         if (shadow) {
-            panelStyle += `
-                box-shadow: 0px 1px 4px 8px rgba(0, 0, 0, 0.15);
-            `;
+            if (borderRadius < radThreshold) {
+                panelStyle += `
+                    box-shadow: 0px 2px 6px 4px rgba(0, 0, 0, 0.16);
+                `;
+            }
+            else {
+                panelStyle += `
+                    box-shadow: 0px 2px 6px 8px rgba(0, 0, 0, 0.16);
+                `;
+            }
         }
 
         // Add gradient style
@@ -257,22 +284,44 @@ class Extension {
                         btn.child.set_style(style + islandStyle);
                         btn.child.menu.box?.set_style(menuStyle);
 
+                        this.eventIds[btn] = [];
                         onEvents.forEach(event => {
                             let eventId = btn.child.connect(event, () => {
                                 btn.child.set_style(style + highlightStyle); //hcolor
                             });
-                            this.eventIds.push([btn.child, eventId]);
+                            this.eventIds[btn].push([btn.child, eventId]);
                         });
                         offEvents.forEach(event => {
                             let eventId = btn.child.connect(event, () => {
                                 btn.child.set_style(style + islandStyle); //bgcolor
                             });
-                            this.eventIds.push([btn.child, eventId]);
+                            this.eventIds[btn].push([btn.child, eventId]);
                         });
+
+                        let menuEventId = btn.child.menu.connect('open-state-changed', (actor, open) => { //menu open close
+                            if(open)
+                                btn.child.set_style(style + highlightStyle);
+                            else
+                                btn.child.set_style(style + islandStyle); 
+                        });
+                        this.eventIds[btn].push([btn.child.menu, menuEventId]);
 
                     }
                 }
             }
+
+            offEvents.forEach(event => {
+                let eventId = panel.connect(event, () => {  //panel leave event
+                    for(const box of panelBoxes) {
+                        for(const btn of box) {
+                            if(btn.child instanceof PanelMenu.Button) {
+                                btn.child.set_style(style + islandStyle);
+                            }
+                        }
+                    }
+                });
+                this.panelEventIds.push([panel, eventId]);
+            });
             
         }
         else {
@@ -286,29 +335,53 @@ class Extension {
                         btn.child.set_style(btnStyle);
                         btn.child.menu.box?.set_style(menuStyle);
 
+                        this.eventIds[btn] = [];
                         onEvents.forEach(event => {
                             let eventId = btn.child.connect(event, () => {
                                 btn.child.set_style(btnStyle + highlightStyle); //hcolor
                             });
-                            this.eventIds.push([btn.child, eventId]);
+                            this.eventIds[btn].push([btn.child, eventId]);
                         });
                         offEvents.forEach(event => {
                             let eventId = btn.child.connect(event, () => {
                                 btn.child.set_style(btnStyle + ` background-color: transparent; `); 
                             });
-                            this.eventIds.push([btn.child, eventId]);
+                            this.eventIds[btn].push([btn.child, eventId]);
                         });
+
+                        let eventId = btn.child.menu.connect('open-state-changed', (actor, open) => {  //menu open close
+                            if(open)
+                                btn.child.set_style(btnStyle + highlightStyle);
+                            else
+                                btn.child.set_style(btnStyle + ` background-color: transparent; `); 
+                        });
+                        this.eventIds[btn].push([btn.child.menu, eventId]);
+
                     }
                 }
             }
+
+            offEvents.forEach(event => {
+                let eventId = panel.connect(event, () => {  //panel leave event
+                    for(const box of panelBoxes) {
+                        for(const btn of box) {
+                            if(btn.child instanceof PanelMenu.Button) {
+                                btn.child.set_style(btnStyle + ` background-color: transparent; `);
+                            }
+                        }
+                    }
+                });
+                this.panelEventIds.push([panel, eventId]);
+            });
         }
 
+        // log(panel.style);
+        // log(style);
     }
 
     // TODO: 
-    // Handle active/checked for highlight by connecting to signals (what signals?)
     // Debug 'length property isn't a number' warning
-    // Error when unlocking screen: this._settings is null
+    // Tally the events being captured with the panel buttons 
 
     enable() {
 
@@ -350,7 +423,10 @@ class Extension {
         this._connections.disconnectAll();
         this._connections = null;
 
-        this.updateTimeoutId = null;
+        if(this.updateTimeoutId) {
+            clearTimeout(this.updateTimeoutId);
+        }
+        this.updateTimeoutId = null;        
 
     }
     

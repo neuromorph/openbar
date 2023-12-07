@@ -7,12 +7,12 @@ A GNOME Shell extension for customizing Gnome Top Bar / Panel.
 
 ## Installation
 
-### Recommended [Coming soon..]
+### Recommended
 
-[<img alt="" height="100" src="https://raw.githubusercontent.com/andyholmes/gnome-shell-extensions-badge/master/get-it-on-ego.svg?sanitize=true">](https://extensions.gnome.org/extension/)
+[<img alt="" height="100" src="https://raw.githubusercontent.com/andyholmes/gnome-shell-extensions-badge/master/get-it-on-ego.svg?sanitize=true">](https://extensions.gnome.org/extension/6580/open-bar/)
 
 It's recommended to install the extension from
-[extensions website](https://extensions.gnome.org/extension/), or from
+[extensions website](https://extensions.gnome.org/extension/6580/open-bar/), or from
 the _Extension Manager_ app.
 
 
