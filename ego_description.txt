@@ -1,0 +1,11 @@
+Top Bar ( Top Panel ) customization / styling. Open the Top Bar and let the colors 🍹 flow.
+
+Bar Type: Fixed, Floating or Islands
+Customize:
+- Bar height, margin
+- Bar foreground color, font
+- Bar background color, transparency, gradient, border
+- Shape rectangular to pill
+- Neon, shadow effects
+- Menu background color, transparency, border 
+etc.

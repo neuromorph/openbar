@@ -158,5 +158,40 @@
       <summary>Transparency (alpha) Highlight</summary>
       <description>Transparency of highlight.</description>
     </key>
+    <key type="as" name="mhcolor">
+      <default>['1.0', '1.0', '1.0']</default>
+      <summary>Menu highlight Color (RGBA)</summary>
+      <description>Highlight of Top Bar menus.</description>
+    </key>
+    <key type="d" name="mhalpha">
+      <default>0.25</default>
+      <summary>Transparency (alpha) Menu Highlight</summary>
+      <description>Transparency of menu highlight.</description>
+    </key>
+    <key type="as" name="mshcolor">
+      <default>['1.0', '1.0', '1.0']</default>
+      <summary>Menu shadow Color (RGBA)</summary>
+      <description>Shadow color of Top Bar menus.</description>
+    </key>
+    <key type="d" name="mshalpha">
+      <default>0.25</default>
+      <summary>Transparency (alpha) Menu shadow</summary>
+      <description>Transparency of menu shadow.</description>
+    </key>
+    <key type="b" name="menustyle">
+      <default>false</default>
+      <summary>Apply menu styles?</summary>
+      <description>Enable/disable menu style customizations.</description>
+    </key>
+    <key type="b" name="reloadstyle">
+      <default>false</default>
+      <summary>Reload stylesheet</summary>
+      <description>Reload stylesheet to apply menu style customizations.</description>
+    </key>
+    <key type="b" name="removestyle">
+      <default>false</default>
+      <summary>Remove menu style</summary>
+      <description>Remove menu style customizations.</description>
+    </key>
   </schema>
 </schemalist>
