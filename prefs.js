@@ -39,7 +39,17 @@ function fillPreferencesWindow(window) {
 
 class OpenbarPrefs {
 
+    colorMix(startColor, endColor, factor) {
+        let color = startColor + factor*(endColor - startColor);
+        color = (color < 0)? 0: (color>255)? 255: color;
+        return color;
+    }
+
     saveStylesheet() {
+
+        let hColor = this.settings.get_strv('hcolor');
+        let hAlpha = this.settings.get_double('halpha');
+
         let mfgColor = this.settings.get_strv('mfgcolor');
         let mfgAlpha = this.settings.get_double('mfgalpha');
         let mbgColor = this.settings.get_strv('mbgcolor');
@@ -48,18 +58,46 @@ class OpenbarPrefs {
         let mbAlpha = this.settings.get_double('mbalpha');
         let mhColor = this.settings.get_strv('mhcolor');
         let mhAlpha = this.settings.get_double('mhalpha');
+        let mshColor = this.settings.get_strv('mshcolor');
+        let mshAlpha = this.settings.get_double('mshalpha');
+        let msColor = this.settings.get_strv('mscolor');
+        let msAlpha = this.settings.get_double('msalpha');
 
-        // const mfgred = parseInt(parseFloat(menufgColor[0]) * 255);
-        // const mfggreen = parseInt(parseFloat(menufgColor[1]) * 255);
-        // const mfgblue = parseInt(parseFloat(menufgColor[2]) * 255);
+        const hred = parseInt(parseFloat(hColor[0]) * 255);
+        const hgreen = parseInt(parseFloat(hColor[1]) * 255);
+        const hblue = parseInt(parseFloat(hColor[2]) * 255);
 
-        // const mbgred = parseInt(parseFloat(menubgColor[0]) * 255);
-        // const mbggreen = parseInt(parseFloat(menubgColor[1]) * 255);
-        // const mbgblue = parseInt(parseFloat(menubgColor[2]) * 255);
+        const mfgred = parseInt(parseFloat(mfgColor[0]) * 255);
+        const mfggreen = parseInt(parseFloat(mfgColor[1]) * 255);
+        const mfgblue = parseInt(parseFloat(mfgColor[2]) * 255);
 
-        // const mbred = parseInt(parseFloat(menubColor[0]) * 255);
-        // const mbgreen = parseInt(parseFloat(menubColor[1]) * 255);
-        // const mbblue = parseInt(parseFloat(menubColor[2]) * 255);
+        const mbgred = parseInt(parseFloat(mbgColor[0]) * 255);
+        const mbggreen = parseInt(parseFloat(mbgColor[1]) * 255);
+        const mbgblue = parseInt(parseFloat(mbgColor[2]) * 255);
+
+        const mbred = parseInt(parseFloat(mbColor[0]) * 255);
+        const mbgreen = parseInt(parseFloat(mbColor[1]) * 255);
+        const mbblue = parseInt(parseFloat(mbColor[2]) * 255);
+
+        const mhred = parseInt(parseFloat(mhColor[0]) * 255);
+        const mhgreen = parseInt(parseFloat(mhColor[1]) * 255);
+        const mhblue = parseInt(parseFloat(mhColor[2]) * 255);
+
+        const mshred = parseInt(parseFloat(mshColor[0]) * 255);
+        const mshgreen = parseInt(parseFloat(mshColor[1]) * 255);
+        const mshblue = parseInt(parseFloat(mshColor[2]) * 255);
+
+        const msred = parseInt(parseFloat(msColor[0]) * 255);
+        const msgreen = parseInt(parseFloat(msColor[1]) * 255);
+        const msblue = parseInt(parseFloat(msColor[2]) * 255);
+
+        const mhfgred = this.colorMix(mfgred, mhred, -0.12);
+        const mhfggreen = this.colorMix(mfggreen, mhgreen, -0.12);
+        const mhfgblue = this.colorMix(mfgblue, mhblue, -0.12);
+
+        const smbgred = this.colorMix(mbgred, mfgred, 0.12);
+        const smbggreen = this.colorMix(mbggreen, mfggreen, 0.12);
+        const smbgblue = this.colorMix(mbgblue, mfgblue, 0.12);
 
                 // menuStyle = ` color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgalpha}); 
         //                 background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgalpha});  
@@ -78,15 +116,15 @@ class OpenbarPrefs {
         */
         `;
         
-        
+        // Panel and buttons styles
         stylesheet += `
             #panel.openbar .panel-button {
                 border-width: 0px;
             }
 
             #panel.openbar .panel-button:hover, #panel.openbar .panel-button:focus, #panel.openbar .panel-button:active {
-                background-color: rgba(203, 223, 19, 0.6) !important;
-                box-shadow: 0 0 0 0px rgba(203, 223, 19, 0.6) !important;
+                background-color: rgba(${hred},${hgreen},${hblue},${hAlpha}) !important;
+                box-shadow: 0 0 0 0px rgba(${hred},${hgreen},${hblue},${hAlpha}) !important;
             }
 
             #panel.openbar .panel-button:hover.clock-display .clock {
@@ -100,99 +138,96 @@ class OpenbarPrefs {
             }
         `;
 
+        // Menu styles
         stylesheet += `
-            .openmenu.popup-menu-boxpointer {
-                -arrow-rise: 10px;
-            }
-
             .openmenu.popup-menu {
-                color: #eb53e6;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
             }
 
             .openmenu.popup-menu-content, .openmenu.candidate-popup-content {
-                box-shadow: 0 5px 10px 0 rgba(255, 255, 255, 0.18); /* shadow */
-                border: 1px solid rgba(255, 255, 255, 0.75); /* border */
+                box-shadow: 0 5px 10px 0 rgba(${mshred},${mshgreen},${mshblue},${mshAlpha}); /* shadow */
+                border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${mbAlpha}); /* border */
                 font-size: 10.75pt;  /* font */
                 font-weight: 400;
-                background-color: rgba(30, 40, 50, 0.8);  /*  bg */
-                color: #eb53e6;
+                background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha});  /*  bg */
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
             }
         `;
 
         stylesheet += `
             .openmenu.popup-menu-item {
-                color: #eb53e6;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
             }
 
             .openmenu.popup-menu-item:checked {
-                color: #a2abbc !important;
-                background-color: rgba(70, 79, 96, 0.75) !important;
+                /* color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important; */
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
                 background-gradient-direction: none !important;
             }
 
             .openmenu.popup-menu-item:checked:focus, .openmenu.popup-menu-item:checked:hover, .openmenu.popup-menu-item:checked:selected {
-                color: white !important;
-                background-color: #5271ad !important;
+                color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
                 background-gradient-direction: none !important;
             }
               
             .openmenu.popup-menu-item:checked:active {
-                color: white !important;
-                background-color: #5976b0 !important;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
             }
             
             .openmenu.popup-menu-item:focus, .openmenu.popup-menu-item:hover, .openmenu.popup-menu-item:selected {
-                color: white !important;
-                background-color: #5271ad !important;
+                color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
                 transition-duration: 0ms !important;
             }
               
             .openmenu.popup-menu-item:active, .openmenu.popup-menu-item.selected:active {
-                color: white !important;
-                background-color: #5976b0 !important;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
             }
 
         `;
 
         stylesheet += `
             .openmenu.popup-sub-menu {
-                background-color: rgba(70, 79, 96, 0.75) !important;
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
                 border: none;
                 box-shadow: none;
             }
             
             .openmenu.popup-sub-menu .popup-menu-item {
                 margin: 0;
-                color: #eb53e6;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
             }
             
             .openmenu.popup-sub-menu .popup-menu-item:focus, .openmenu.popup-sub-menu .popup-menu-item:hover, .openmenu.popup-sub-menu .popup-menu-item:selected {
-                color: white !important;
-                background-color: #5271ad !important;
+                color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
             }
             
             .openmenu.popup-sub-menu .popup-menu-item:active {
-                color: white !important;
-                background-color: #5976b0 !important;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
             }
         
         
             .openmenu.popup-menu-section .popup-sub-menu {
-                background-color: rgba(70, 79, 96, 0.75) !important;
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
                 border: none;
                 box-shadow: none;
             }
             .openmenu.popup-menu-section .popup-menu-item {
                 margin: 0;
-                color: #eb53e6;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
             }
             .openmenu.popup-menu-section .popup-menu-item:focus, .openmenu.popup-menu-section .popup-menu-item:hover, .openmenu.popup-menu-section .popup-menu-item:selected {
-                color: white !important;
-                background-color: #5271ad !important;
+                color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
             }
             .openmenu.popup-menu-section .popup-menu-item:active {
-                color: white !important;
-                background-color: #5976b0 !important;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
             }
 
         `;
@@ -212,6 +247,17 @@ class OpenbarPrefs {
           log("Failed to write stylsheet file: " + stylepath);
         }
 
+    }
+
+    triggerStyleReload() {
+        // Save stylesheet from string to css file
+        this.saveStylesheet();
+        // Cause stylesheet to reload by toggling 'reloadstyle'
+        let reloadstyle = this.settings.get_boolean('reloadstyle');
+        if(reloadstyle)
+            this.settings.set_boolean('reloadstyle', false);
+        else
+            this.settings.set_boolean('reloadstyle', true);
     }
 
     createComboboxWidget(options) {
@@ -591,7 +637,10 @@ class OpenbarPrefs {
         });
         bggrid.attach(highlightColorLabel, 1, rowbar, 1, 1);
 
-        let highlightColorChooser = this.createColorWidget('Highlight Color', 'Background highlight color for hover, focus etc.', 'hcolor');
+        let highlightColorChooser = this.createColorWidget('Highlight Color', 'Highlight color for hover, focus etc.', 'hcolor');
+        highlightColorChooser.connect('color-set', () => {
+            this.triggerStyleReload();
+        });
         bggrid.attach(highlightColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -603,8 +652,49 @@ class OpenbarPrefs {
         });
         bggrid.attach(hgAlphaLbl, 1, rowbar, 1, 1);
 
-        let hgAlpha = this.createScaleWidget(0, 1, 0.01, 2);
+        let hgAlpha = this.createScaleWidget(0, 1, 0.05, 2);
+        hgAlpha.connect('change-value', () => {
+            this.triggerStyleReload();
+        });
         bggrid.attach(hgAlpha, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a shadow switch
+        let shadowLabel = new Gtk.Label({
+            label: `Panel Shadow`,
+            halign: Gtk.Align.START,
+        });
+        bggrid.attach(shadowLabel, 1, rowbar, 1, 1);
+
+        let shadowSwitch = new Gtk.Switch({
+            halign: Gtk.Align.END,
+        });
+        bggrid.attach(shadowSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a panel shadow color chooser
+        let shColorLabel = new Gtk.Label({
+            label: 'Shadow Color',
+            halign: Gtk.Align.START,
+        });
+        bggrid.attach(shColorLabel, 1, rowbar, 1, 1);
+
+        let shColorChooser = this.createColorWidget('Panel Shadow Color', 'Shadow color for the Panel', 'shcolor');
+        bggrid.attach(shColorChooser, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a panel shadow alpha scale
+        let shAlphaLbl = new Gtk.Label({
+            label: 'Shadow Alpha',
+            halign: Gtk.Align.START,
+        });
+        bggrid.attach(shAlphaLbl, 1, rowbar, 1, 1);
+
+        let shAlpha = this.createScaleWidget(0, 1, 0.01, 2);
+        bggrid.attach(shAlpha, 2, rowbar, 1, 1);
 
         bgprop.set_child(bggrid);
         prefsWidget.attach(bgprop, 1, rowNo, 2, 1);
@@ -689,6 +779,21 @@ class OpenbarPrefs {
         let bAlpha = this.createScaleWidget(0, 1, 0.01, 2);
         bgrid.attach(bAlpha, 2, rowbar, 1, 1);
 
+        rowbar += 1;
+
+        // Add a neon switch
+        let neonLbl = new Gtk.Label({
+            label: `Neon Glow`,
+            halign: Gtk.Align.START,
+        });
+        bgrid.attach(neonLbl, 1, rowbar, 1, 1);
+
+        let neon = new Gtk.Switch({
+            halign: Gtk.Align.END,
+            tooltip_text: 'Select bright/neon color for border and dark-opaque background',
+        });
+        bgrid.attach(neon, 2, rowbar, 1, 1);
+
         bprop.set_child(bgrid);
         prefsWidget.attach(bprop, 1, rowNo, 2, 1);
 
@@ -700,51 +805,22 @@ class OpenbarPrefs {
 
         ////////////////////////////////////////////////////////////////////
 
-        rowNo += 1;
-        const ubprop = new Gtk.Expander({
-            label: `<b>UNDER BAR</b>`,
-            expanded: false,
-            use_markup: true,
-        });
-        let ubgrid = this.createGridWidget();
+        // rowNo += 1;
+        // const phprop = new Gtk.Expander({
+        //     label: `<b>PANEL HIGHLIGHT</b>`,
+        //     expanded: false,
+        //     use_markup: true,
+        // });
+        // let phgrid = this.createGridWidget();
 
-        rowbar = 1;
-
-        // Add a neon switch
-        let neonLbl = new Gtk.Label({
-            label: `Neon Glow     \t\t\t`,
-            halign: Gtk.Align.START,
-        });
-        ubgrid.attach(neonLbl, 1, rowbar, 1, 1);
-
-        let neon = new Gtk.Switch({
-            halign: Gtk.Align.END,
-            tooltip_text: 'Select bright/neon color for border and dark/opaque background',
-        });
-        ubgrid.attach(neon, 2, rowbar, 1, 1);
-
-        rowbar += 1;
-
-        // Add a shadow switch
-        let shadowLabel = new Gtk.Label({
-            label: `Shadow Effect \t\t\t`,
-            halign: Gtk.Align.START,
-        });
-        ubgrid.attach(shadowLabel, 1, rowbar, 1, 1);
-
-        let shadowSwitch = new Gtk.Switch({
-            halign: Gtk.Align.END,
-        });
-        ubgrid.attach(shadowSwitch, 2, rowbar, 1, 1);
-
-        ubprop.set_child(ubgrid);
-        prefsWidget.attach(ubprop, 1, rowNo, 2, 1);
+        // phprop.set_child(phgrid);
+        // prefsWidget.attach(phprop, 1, rowNo, 2, 1);
 
         ////////////////////////////////////////////////////////////////////////////////
-        rowNo += 1
+        // rowNo += 1
 
-        let separator5 = this.createSeparatorWidget();
-        prefsWidget.attach(separator5, 1, rowNo, 2, 1);
+        // let separator5 = this.createSeparatorWidget();
+        // prefsWidget.attach(separator5, 1, rowNo, 2, 1);
 
         ////////////////////////////////////////////////////////////////////
 
@@ -758,20 +834,23 @@ class OpenbarPrefs {
 
         rowbar = 1;
 
-        // // Add a Menu style enable/disable switch 
-        // let menuLabel = new Gtk.Label({
-        //     label: 'Apply Menu styles?',
-        //     halign: Gtk.Align.START,
-        // });
-        // menugrid.attach(menuLabel, 1, rowbar, 1, 1);
+        // Add Menu style apply / remove info 
+        let menuInfoLabel = new Gtk.Label({
+            use_markup: true,
+            label: `<span allow_breaks="true">Click on Apply / Reset buttons below to apply or reset \nthe changes to the default Menu styles.</span>`,
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(menuInfoLabel, 1, rowbar, 2, 1);
 
-        // let menuSwitch = new Gtk.Switch({
-        //     halign: Gtk.Align.END,
-        //     tooltip_text: '⚗️ Experimental: Turn on to apply below menu styles',
-        // });
-        // menugrid.attach(menuSwitch, 2, rowbar, 1, 1);
+        rowbar += 2;
 
-        // rowbar += 1;
+        let menuSwitch = new Gtk.Switch({
+            halign: Gtk.Align.END,
+            tooltip_text: '⚗️ Experimental: Turn on to apply below menu styles',
+        });
+        menugrid.attach(menuSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 3;
 
         // Add a menu FG color chooser
         let menuFGColorLabel = new Gtk.Label({
@@ -785,7 +864,7 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a menu alpha scale
+        // Add a menu FG alpha scale
         let mfgAlphaLbl = new Gtk.Label({
             label: 'FG Alpha',
             halign: Gtk.Align.START,
@@ -809,7 +888,7 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a menu alpha scale
+        // Add a menu BG alpha scale
         let mbgAlphaLbl = new Gtk.Label({
             label: 'BG Alpha',
             halign: Gtk.Align.START,
@@ -834,7 +913,7 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a menu alpha scale
+        // Add a menu border alpha scale
         let mbAlphaLbl = new Gtk.Label({
             label: 'Border Alpha',
             halign: Gtk.Align.START,
@@ -846,15 +925,88 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
+        // Add a menu highlight color chooser
+        let menuhColorLabel = new Gtk.Label({
+            label: 'Highlight Color',
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(menuhColorLabel, 1, rowbar, 1, 1);
+
+        let menuhColorChooser = this.createColorWidget('Menu Highlight Color', 'Highlight color for the dropdown menus', 'mhcolor');
+        menugrid.attach(menuhColorChooser, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a menu highlight alpha scale
+        let mhAlphaLbl = new Gtk.Label({
+            label: 'Highlight Alpha',
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(mhAlphaLbl, 1, rowbar, 1, 1);
+
+        let mhAlpha = this.createScaleWidget(0, 1, 0.01, 2);
+        menugrid.attach(mhAlpha, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a menu selection color chooser
+        let menusColorLabel = new Gtk.Label({
+            label: 'Selected/Active Color',
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(menusColorLabel, 1, rowbar, 1, 1);
+
+        let menusColorChooser = this.createColorWidget('Menu Selected/Active Color', 'Selected/Active color for the dropdown menus', 'mscolor');
+        menugrid.attach(menusColorChooser, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a menu selection alpha scale
+        let msAlphaLbl = new Gtk.Label({
+            label: 'Active Alpha',
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(msAlphaLbl, 1, rowbar, 1, 1);
+
+        let msAlpha = this.createScaleWidget(0, 1, 0.01, 2);
+        menugrid.attach(msAlpha, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a menu shadow color chooser
+        let menushColorLabel = new Gtk.Label({
+            label: 'Shadow Color',
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(menushColorLabel, 1, rowbar, 1, 1);
+
+        let menushColorChooser = this.createColorWidget('Menu Shadow Color', 'Shadow color for the dropdown menus', 'mshcolor');
+        menugrid.attach(menushColorChooser, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a menu shadow alpha scale
+        let mshAlphaLbl = new Gtk.Label({
+            label: 'Shadow Alpha',
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(mshAlphaLbl, 1, rowbar, 1, 1);
+
+        let mshAlpha = this.createScaleWidget(0, 1, 0.01, 2);
+        menugrid.attach(mshAlpha, 2, rowbar, 1, 1);
+
+
+        rowbar += 1;
+
         // Add menu style apply/remove buttons
         const removeMenuLabel = new Gtk.Label({
             use_markup: true,
-            label: `${_("Remove Menu Styles")}`, 
+            label: `<span color="#f44336">${_("Reset Menu Styles")}</span>`, 
         });
         const removeMenuBtn = new Gtk.Button({
             child: removeMenuLabel,
             margin_top: 25,
-            tooltip_text: _("Remove the style settings for Menu"),
+            tooltip_text: _("Reset the style settings for Menu"),
             halign: Gtk.Align.END,
         });
         removeMenuBtn.connect('clicked', () => {
@@ -870,7 +1022,7 @@ class OpenbarPrefs {
 
         const applyMenuLabel = new Gtk.Label({
             use_markup: true,
-            label: `${_("Apply Menu Styles")}`, 
+            label: `<span color="#05c6d1">${_("Apply Menu Styles")}</span>`, 
         });
         const applyMenuBtn = new Gtk.Button({
             child: applyMenuLabel,
@@ -879,14 +1031,8 @@ class OpenbarPrefs {
             halign: Gtk.Align.END,
         });
         applyMenuBtn.connect('clicked', () => {
-            // Save stylesheet from string to css file
-            this.saveStylesheet();
-            // Cause stylesheet to reload by toggling 'reloadstyle'
-            let reloadstyle = this.settings.get_boolean('reloadstyle');
-            if(reloadstyle)
-                this.settings.set_boolean('reloadstyle', false);
-            else
-                this.settings.set_boolean('reloadstyle', true);
+            // Save stylesheet and trigger reload
+            this.triggerStyleReload();
             // Apply menustyle
             this.settings.set_boolean('menustyle', true);
 
@@ -995,6 +1141,12 @@ class OpenbarPrefs {
             Gio.SettingsBindFlags.DEFAULT
         );
         this.settings.bind(
+            'shalpha',
+            shAlpha.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this.settings.bind(
             'overview',
             overviewSwitch,
             'active',
@@ -1019,12 +1171,30 @@ class OpenbarPrefs {
             'value',
             Gio.SettingsBindFlags.DEFAULT
         );
-        // this.settings.bind(
-        //     'menustyle',
-        //     menuSwitch,
-        //     'active',
-        //     Gio.SettingsBindFlags.DEFAULT
-        // );
+        this.settings.bind(
+            'mhalpha',
+            mhAlpha.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this.settings.bind(
+            'msalpha',
+            msAlpha.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this.settings.bind(
+            'mshalpha',
+            mshAlpha.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this.settings.bind(
+            'menustyle',
+            menuSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
         
     }
 

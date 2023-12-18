@@ -19,12 +19,15 @@
 
 /* exported init */
 
-const { Clutter, Gio, GObject, St, Pango } = imports.gi;
+const { Clutter, Gio, GObject, St, Pango, Shell } = imports.gi;
 const Main = imports.ui.main;
+const Panel = imports.ui.panel;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
+const ExtensionManager = Main.extensionManager;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
+const Config = imports.misc.config;
 
 
 // ConnectManager class to manage connections for events to trigger Openbar updatestyle
@@ -40,17 +43,9 @@ class ConnectManager{
     }
 
     connect(obj, signal, callback){
-        let id;
-        // if(signal == 'actor-removed'){
-        //     id = obj.connect(signal, (container, actor) => {callback(actor)}); 
-        // }
-        // else if(signal == 'enter-event' || signal == 'leave-event')
-        //     id = obj.connect(signal, (actor, event) => {callback(event)});
-        // else
-            id = obj.connect(signal, callback);
         this.connections.push({
-            id: id,
-            obj : obj
+            id : obj.connect(signal, (actor, event) => {callback(actor, signal)}),
+            obj: obj
         })
     }
 
@@ -71,7 +66,7 @@ class Extension {
         this.panelEventIds = [];
     }
 
-    resetStyle(panel, disable) {
+    resetStyle(panel) {
 
         panel.set_style(null);
         panel.remove_style_class_name('openbar');
@@ -85,19 +80,14 @@ class Extension {
             }
         }
         
-        this.applyMenuStyles(panel, false);
+        // this.applyMenuStyles(panel, false);
     }
-
-    colorMix(startColor, endColor) {
-        let color = startColor + 0.12*(endColor - startColor);
-        return color;
-    }
-
 
     reloadStylesheet() {
+        // let extension = ExtensionManager.lookup(Me.uuid);
         // Unload stylesheet
         const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        theme.unload_stylesheet(Me.stylesheet); log('unloaded ', Me.stylesheet);
+        theme.unload_stylesheet(Me.dir.get_child('stylesheet.css')); log('unloaded ');
         delete Me.stylesheet;
 
         // Check extension enabled
@@ -108,7 +98,7 @@ class Extension {
         log('loading stylehseet');
         // Load stylesheet
         try {
-            const stylesheetFile = Me.dir.get_child('stylesheet.css'); log(stylesheetFile);
+            const stylesheetFile = Me.dir.get_child('stylesheet.css'); //log(stylesheetFile);
             theme.load_stylesheet(stylesheetFile);
             Me.stylesheet = stylesheetFile;
         } catch (e) {
@@ -118,20 +108,20 @@ class Extension {
         
     }
 
-    updatePanelStyle(panel, key) {
-        this.updateTimeoutId = setTimeout(() => {this.updateStyle(panel, key);}, 100);
-    }
-
     applyMenuClass(obj, add) {
         if(add) {
-            obj.add_style_class_name('openmenu');
+            if(obj.add_style_class_name)
+                obj.add_style_class_name('openmenu');
         }
         else {
-            obj.remove_style_class_name('openmenu');
+            if(obj.remove_style_class_name)
+                obj.remove_style_class_name('openmenu');
             // log('remove openmneu for ', obj);
         }
     }
+
     applyMenuStyles(panel, add) {
+        if(!add) log('removing openmenu class --------');
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
             for(const btn of box) {
@@ -149,6 +139,7 @@ class Extension {
                                 });
                             }
                             
+                            // if(this.gnomeVersion === 42) {
                             let subChildren = menuItem.get_children();
                             subChildren.forEach(menuchild => {
                                 this.applyMenuClass(menuchild, add);
@@ -159,6 +150,7 @@ class Extension {
                                     });
                                 }
                             });
+                            // }
             
                         });
                     }
@@ -168,13 +160,32 @@ class Extension {
         }
     }
 
-    updateStyle(panel, key) {
+    // updatePanelStyle(panel, actor, event) {
+    //     this.updateTimeoutId = setTimeout(() => {this.updateStyle(panel, actor, event);}, 0);
+    // }
+
+    updatePanelStyle(panel, actor, key) {
         if(!this._settings)
             return;
 
         let overview = this._settings.get_boolean('overview');
-        if(!overview && panel.has_style_pseudo_class('overview'))
-            return this.resetStyle(panel, false);
+        if(key == 'shown') { 
+            // log('show-overview===========');
+            if(!overview) {
+                this.resetStyle(panel);
+                this.applyMenuStyles(panel, false);
+            }
+            this.appMenuButton?.set_style(null);
+            return;
+        }
+        else if(key == 'hidden') {
+            if(overview) {
+                this.appMenuButton?.set_style(this.appMenuBtnStyle);
+                this.appMenuButton?.child.set_style(this.appMenuBtnChildStyle);
+                return;
+            }            
+        }
+             
 
         if(key == 'reloadstyle') { // A toggle key to trigger update for reload stylesheet
             log('reload stylesheet');
@@ -183,13 +194,21 @@ class Extension {
         
         let menustyle = this._settings.get_boolean('menustyle');
         this.applyMenuStyles(panel, menustyle);
+        // let menustyle = this._settings.get_boolean('menustyle');
+        // if(key == 'menustyle' || key == 'removestyle' || key == 'reloadstyle')
+        //     this.applyMenuStyles(panel, menustyle);
 
-        if(key=='removestyle')  // A toggle key to trigger update for removing menu style
-            log('removestyle with menustyle=', menustyle);
+        // if(key=='removestyle')  {// A toggle key to trigger update for removing menu style
+        //     log('removestyle with menustyle=', menustyle);
+        //     this.applyMenuStyles(panel, false);
+        // }
             
-        let menuKeys = ['reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 'mhcolor', 'mhalpha'];
-        if(menuKeys.includes(key))
+        let menuKeys = ['reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 'mhcolor', 'mhalpha', 'mscolor', 'msalpha'];
+        if(menuKeys.includes(key)) {
+            log('skipping updatestyle ===========');
             return;
+        }
+            
 
         // Get the settings values
         let bartype = this._settings.get_string('bartype');
@@ -205,8 +224,7 @@ class Extension {
         let borderWidth = this._settings.get_double('bwidth');
         let borderRadius = this._settings.get_double('bradius');
         let bordertype = this._settings.get_string('bordertype');
-        let highlightColor = this._settings.get_strv('hcolor');
-        let halpha = this._settings.get_double('halpha');
+        
  
         let islandsColor = this._settings.get_strv('iscolor');
         let isalpha = this._settings.get_double('isalpha');
@@ -237,12 +255,10 @@ class Extension {
         const bgreen = parseInt(parseFloat(borderColor[1]) * 255);
         const bblue = parseInt(parseFloat(borderColor[2]) * 255);
 
-        const hred = parseInt(parseFloat(highlightColor[0]) * 255);
-        const hgreen = parseInt(parseFloat(highlightColor[1]) * 255);
-        const hblue = parseInt(parseFloat(highlightColor[2]) * 255);
+        
    
     
-        this.resetStyle(panel, false);//==================
+        this.resetStyle(panel);//==================
         panel.add_style_class_name('openbar');
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
@@ -380,7 +396,17 @@ class Extension {
                             // btn.add_style_class_name('openbutton');                     
                             btn.set_style(btnContainerStyle + neonStyle);
                         }
+                        if(btn.child instanceof Panel.AppMenuButton) {
+                            // log('app menu button ====');
+                            this.appMenuButton = btn;
+                            this.appMenuBtnStyle = btnContainerStyle + neonStyle;
+                            this.appMenuBtnChildStyle = commonStyle + btnStyle + islandStyle + gradientStyle;
+                            // log('global key focus ', global.stage.get_key_focus());
+                            if(!btn.child.opacity)
+                                this.appMenuButton.visible = false;
+                        }
 
+                        
                         // log('btn ===== ', btn.child.style);
                         // log('btnContainer ==== ', btn.style);
                     }
@@ -411,8 +437,7 @@ class Extension {
                             // btn.add_style_class_name('openbutton');                     
                             btn.set_style(btnContainerStyle);
                         }
-                        // btn.add_style_class_name('openbutton');
-                        // btn.set_style(neonStyle);
+
                     }
                 }
             }
@@ -423,38 +448,24 @@ class Extension {
         // log(style);
     }
 
-    // removePanelBtn(btn) {
-    //     if(Object.keys(this.eventIds).includes(String(btn))) {
-    //         this.eventIds[btn].forEach(event => {
-    //             event[0]?.disconnect(event[1]);
-    //         });
-    //         log('removing events ', this.eventIds[btn]);
-    //         this.eventIds[btn] = [];
-    //     }
-    //     btn.child?.set_style(null);
-    // }
+    focusAppChanged(actor, event) {
+        if(this.appMenuButton) {
+            // if(!actor.focus_app)
+            //     this.appMenuButton.visible = false;
+            // else
+                this.appMenuButton.visible = true;
+        }
+        else
+            log('no app menu btn===');
+    }
 
-    // highlightEvents(event) {
-    //     const onEvents = ['enter-event', 'key-focus-in'];
-    //     const offEvents = ['leave-event', 'key-focus-out'];
-
-    //     const targetActor = global.stage.get_event_actor(event);
-    //     if (targetActor instanceof PanelMenu.Button) {
-    //         if(onEvents.includes(event))
-    //             targetActor.set_style(` background-color: rgba(255,255,255,0.5);`); //hcolor
-    //         else if(offEvents.includes(event))
-    //             targetActor.set_style(` background-color: rgba(255,255,255,0);`);
-    //         else
-    //             targetActor.set_style(` background-color: rgba(255,0,0,0.5);`);
-    //     }
-        
-    // }
-
-    // TODO: 
+    // ToDo: 
     // Debug 'length property isn't a number' warning
-    // Tally the events being captured with the panel buttons 
 
     enable() {
+        
+        const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
+        this.gnomeVersion = major;
 
         this._settings = ExtensionUtils.getSettings(); 
 
@@ -463,7 +474,7 @@ class Extension {
 
         // Connect to the settings changes
         this._settings.connect('changed', (settings, key) => {
-            this.updatePanelStyle(panel, key);
+            this.updatePanelStyle(panel, settings, key);
         });
 
         this._connections = new ConnectManager([
@@ -471,9 +482,11 @@ class Extension {
             [ Main.overview, 'shown', this.updatePanelStyle.bind(this, panel) ],
             [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this, panel) ],
             [ global.window_manager, 'switch-workspace', this.updatePanelStyle.bind(this, panel) ],
+            // [ global.display, 'workareas-changed', this.updatePanelStyle.bind(this, panel) ],
             [ panel._leftBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ panel._rightBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
+            [ Shell.WindowTracker.get_default(), 'notify::focus-app', this.focusAppChanged.bind(this) ],
             // [ panel._leftBox, 'actor-removed', this.removePanelBtn.bind(this) ],
             // [ panel._centerBox, 'actor-removed', this.removePanelBtn.bind(this) ],
             // [ panel._rightBox, 'actor-removed', this.removePanelBtn.bind(this) ],
@@ -483,6 +496,9 @@ class Extension {
             // [ global.window_group, 'actor-removed', this._onWindowRemoved.bind(this) ]
         ]);
 
+        let menustyle = this._settings.get_boolean('menustyle');
+        this.applyMenuStyles(panel, menustyle);
+        
         // Apply the initial style
         this.updatePanelStyle(panel);
     }
@@ -492,14 +508,16 @@ class Extension {
         let panel = Main.panel;
 
         // Reset the style and disconnect onEvents and offEvents
-        this.resetStyle(panel, true);
+        this.resetStyle(panel);
+        this.applyMenuStyles(panel, false);
+        if(this.appMenuButton) 
+            this.appMenuButton.visible = true;
 
         this._settings = null;
 
         this._connections.disconnectAll();
         this._connections = null;
 
-        /////////////////////////////////////////////////////////////////////////////////////////////if timeoutid
         if(this.updateTimeoutId)
             clearTimeout(this.updateTimeoutId);
         this.updateTimeoutId = null;

@@ -53,6 +53,16 @@
       <summary>Box Shadow</summary>
       <description>Box Shadow of Top Bar.</description>
     </key>
+    <key type="as" name="shcolor">
+      <default>['0', '0', '0']</default>
+      <summary>Panel shadow Color (RGBA)</summary>
+      <description>Shadow color of Top Bar.</description>
+    </key>
+    <key type="d" name="shalpha">
+      <default>0.2</default>
+      <summary>Transparency (alpha) shadow</summary>
+      <description>Transparency of panel shadow.</description>
+    </key>
     <key type="s" name="bordertype">
       <default>"solid"</default>
       <summary>Type of Border</summary>
@@ -174,9 +184,19 @@
       <description>Shadow color of Top Bar menus.</description>
     </key>
     <key type="d" name="mshalpha">
-      <default>0.25</default>
+      <default>0.2</default>
       <summary>Transparency (alpha) Menu shadow</summary>
       <description>Transparency of menu shadow.</description>
+    </key>
+    <key type="as" name="mscolor">
+      <default>['1.0', '1.0', '1.0']</default>
+      <summary>Menu selection Color (RGBA)</summary>
+      <description>Selection color of Top Bar menus.</description>
+    </key>
+    <key type="d" name="msalpha">
+      <default>0.25</default>
+      <summary>Transparency (alpha) Menu selection</summary>
+      <description>Transparency of menu selection.</description>
     </key>
     <key type="b" name="menustyle">
       <default>false</default>
