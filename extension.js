@@ -217,6 +217,7 @@ class Extension {
         let grDirection = this._settings.get_string('gradient-direction');
         let bgcolor2 = this._settings.get_strv('bgcolor2');
         let bgalpha = this._settings.get_double('bgalpha');
+        let bgalpha2 = this._settings.get_double('bgalpha2');
         let fgcolor = this._settings.get_strv('fgcolor');
         let fgalpha = this._settings.get_double('fgalpha');
         let borderColor = this._settings.get_strv('bcolor');
@@ -350,12 +351,11 @@ class Extension {
             let startColor, endColor;
             if(bartype == 'Islands') {
                 startColor = `rgba(${isred},${isgreen},${isblue},${isalpha})`;
-                endColor = `rgba(${bgred2},${bggreen2},${bgblue2},${isalpha})`;
             }
             else {
-                startColor = `rgba(${bgred},${bggreen},${bgblue},${bgalpha})`;
-                endColor = `rgba(${bgred2},${bggreen2},${bgblue2},${bgalpha})`;
+                startColor = `rgba(${bgred},${bggreen},${bgblue},${bgalpha})`;                
             }
+            endColor = `rgba(${bgred2},${bggreen2},${bgblue2},${bgalpha2})`;
             gradientStyle  = ` 
                 background-gradient-start: ${startColor};  
                 background-gradient-end: ${endColor}; 

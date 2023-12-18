@@ -34,9 +34,14 @@
     </key>
 
     <key type="d" name="bgalpha">
-      <default>0.0</default>
+      <default>0.5</default>
       <summary>Transparency (alpha)</summary>
       <description>Transparency of Top Bar.</description>
+    </key>
+    <key type="d" name="bgalpha2">
+      <default>0.5</default>
+      <summary>Transparency (alpha) gradient 2</summary>
+      <description>Transparency of gradient end color.</description>
     </key>
     <key type="as" name="iscolor">
       <default>['1.0', '1.0', '1.0']</default>

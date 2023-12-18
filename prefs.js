@@ -618,6 +618,18 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
+        // Add a gradient 2 alpha scale
+        let grAlphaLbl = new Gtk.Label({
+            label: 'Gradient End Alpha',
+            halign: Gtk.Align.START,
+        });
+        bggrid.attach(grAlphaLbl, 1, rowbar, 1, 1);
+
+        let grAlpha = this.createScaleWidget(0, 1, 0.01, 2);
+        bggrid.attach(grAlpha, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
         //Gradient direction
         let grDirecLbl = new Gtk.Label({
             label: 'Gradient Direction',
@@ -654,7 +666,10 @@ class OpenbarPrefs {
 
         let hgAlpha = this.createScaleWidget(0, 1, 0.05, 2);
         hgAlpha.connect('change-value', () => {
-            this.triggerStyleReload();
+            if(this.hgAlphaTimeoutId)
+                clearTimeout(this.hgAlphaTimeoutId);
+            this.hgAlphaTimeoutId = setTimeout(() => {this.triggerStyleReload();}, 300);
+            
         });
         bggrid.attach(hgAlpha, 2, rowbar, 1, 1);
 
@@ -1084,6 +1099,12 @@ class OpenbarPrefs {
             'gradient',
             gradient,
             'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this.settings.bind(
+            'bgalpha2',
+            grAlpha.adjustment,
+            'value',
             Gio.SettingsBindFlags.DEFAULT
         );
         this.settings.bind(
