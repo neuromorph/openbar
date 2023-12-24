@@ -19,15 +19,18 @@
 
 /* exported init */
 
-const { Clutter, Gio, GObject, St, Pango, Shell } = imports.gi;
-const Main = imports.ui.main;
-const Panel = imports.ui.panel;
-const PanelMenu = imports.ui.panelMenu;
-const PopupMenu = imports.ui.popupMenu;
-const ExtensionManager = Main.extensionManager;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Config = imports.misc.config;
+// import Clutter from 'gi://Clutter';
+import St from 'gi://St';
+// import Gio from 'gi://Gio';
+import Shell from 'gi://Shell';
+import Pango from 'gi://Pango';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as Panel from 'resource:///org/gnome/shell/ui/panel.js';
+import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
+// import * as ExtensionUtils from 'resource:///org/gnome/shell/misc/extensionUtils.js';
+import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+
+// const Config = imports.misc.config;
 
 
 // ConnectManager class to manage connections for events to trigger Openbar updatestyle
@@ -58,8 +61,9 @@ class ConnectManager{
 
 
 // Openbar Extension main class
-class Extension {
-    constructor() {
+export default class Openbar extends Extension {
+    constructor(metadata) {
+        super(metadata);
         this._settings = null;
         this._connections = null;
         this.eventIds = {};
@@ -87,8 +91,8 @@ class Extension {
         // let extension = ExtensionManager.lookup(Me.uuid);
         // Unload stylesheet
         const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        theme.unload_stylesheet(Me.dir.get_child('stylesheet.css')); log('unloaded ');
-        delete Me.stylesheet;
+        theme.unload_stylesheet(this.dir.get_child('stylesheet.css')); log('unloaded ');
+        delete this.stylesheet;
 
         // Check extension enabled
         // if (Me.state !== ExtensionState.ENABLED &&
@@ -98,9 +102,9 @@ class Extension {
         log('loading stylehseet');
         // Load stylesheet
         try {
-            const stylesheetFile = Me.dir.get_child('stylesheet.css'); //log(stylesheetFile);
+            const stylesheetFile = this.dir.get_child('stylesheet.css'); //log(stylesheetFile);
             theme.load_stylesheet(stylesheetFile);
-            Me.stylesheet = stylesheetFile;
+            this.stylesheet = stylesheetFile;
         } catch (e) {
             log('Error loading stylesheet: ', stylesheetFile);
             throw e;
@@ -181,7 +185,8 @@ class Extension {
         else if(key == 'hidden') {
             if(overview) {
                 this.appMenuButton?.set_style(this.appMenuBtnStyle);
-                this.appMenuButton?.child.set_style(this.appMenuBtnChildStyle);
+                this.appMenuButton?.child?.set_style(this.appMenuBtnChildStyle);
+                panel.set_style(this.panelStyle);
                 return;
             }            
         }
@@ -377,6 +382,7 @@ class Extension {
         if(bartype == 'Islands') {
             panelStyle += ` margin: ${margin}px ${1.5*margin}px; `;            
             panel.set_style(commonStyle + panelStyle);  
+            this.panelStyle = commonStyle + panelStyle;
 
             btnStyle += radiusStyle;
 
@@ -396,7 +402,7 @@ class Extension {
                             // btn.add_style_class_name('openbutton');                     
                             btn.set_style(btnContainerStyle + neonStyle);
                         }
-                        if(btn.child instanceof Panel.AppMenuButton) {
+                        if(btn.child.constructor.name === 'AppMenuButton') {
                             // log('app menu button ====');
                             this.appMenuButton = btn;
                             this.appMenuBtnStyle = btnContainerStyle + neonStyle;
@@ -418,6 +424,7 @@ class Extension {
 
             // Apply the style to the panel
             panel.set_style(commonStyle + panelStyle + borderStyle + gradientStyle + neonStyle);
+            this.panelStyle = commonStyle + panelStyle + borderStyle + gradientStyle + neonStyle;
 
             btnStyle += ` border-radius: ${Math.max(borderRadius, 5)}px; border-width: 0px; box-shadow: none; `;
 
@@ -437,6 +444,15 @@ class Extension {
                             // btn.add_style_class_name('openbutton');                     
                             btn.set_style(btnContainerStyle);
                         }
+                        if(btn.child.constructor.name === 'AppMenuButton') {
+                            // log('app menu button ====');
+                            this.appMenuButton = btn;
+                            this.appMenuBtnStyle = btnContainerStyle;
+                            this.appMenuBtnChildStyle = commonStyle + btnStyle;
+                            // log('global key focus ', global.stage.get_key_focus());
+                            if(!btn.child.opacity)
+                                this.appMenuButton.visible = false;
+                        }
 
                     }
                 }
@@ -450,9 +466,9 @@ class Extension {
 
     focusAppChanged(actor, event) {
         if(this.appMenuButton) {
-            // if(!actor.focus_app)
-            //     this.appMenuButton.visible = false;
-            // else
+            if(!actor.focus_app && global.stage.key_focus == null)
+                this.appMenuButton.visible = false;
+            else
                 this.appMenuButton.visible = true;
         }
         else
@@ -464,10 +480,10 @@ class Extension {
 
     enable() {
         
-        const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
-        this.gnomeVersion = major;
+        // const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
+        // this.gnomeVersion = major;
 
-        this._settings = ExtensionUtils.getSettings(); 
+        this._settings = this.getSettings(); 
 
         // Get the top panel
         let panel = Main.panel;
@@ -496,8 +512,8 @@ class Extension {
             // [ global.window_group, 'actor-removed', this._onWindowRemoved.bind(this) ]
         ]);
 
-        let menustyle = this._settings.get_boolean('menustyle');
-        this.applyMenuStyles(panel, menustyle);
+        // let menustyle = this._settings.get_boolean('menustyle');
+        // this.applyMenuStyles(panel, menustyle);
         
         // Apply the initial style
         this.updatePanelStyle(panel);
@@ -526,7 +542,7 @@ class Extension {
     
 }
 
-function init() {
-    return new Extension();
-}
+// function init() {
+//     return new Extension();
+// }
  

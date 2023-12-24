@@ -8,9 +8,7 @@
   "name": "Open Bar",
   "settings-schema": "org.gnome.shell.extensions.openbar",
   "shell-version": [
-    "42",
-    "43",
-    "44"
+    "45"
   ],
   "url": "https://github.com/neuromorph/openbar",
   "uuid": "openbar@neuromorph",

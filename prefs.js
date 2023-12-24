@@ -19,21 +19,29 @@
 
 /* exported init fillPreferencesWindow*/
 
-const { Gio, GObject, Gtk, Gdk, Adw, GLib } = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-
-const {gettext: _, pgettext} = ExtensionUtils;
+import Adw from 'gi://Adw'; 
+import Gtk from 'gi://Gtk';
+import Gdk from 'gi://Gdk';
+import Gio from 'gi://Gio';
+// const { Gio, GObject, Gtk, Gdk, Adw, GLib } = imports.gi;
+// const ExtensionUtils = imports.misc.extensionUtils;
+// const Me = ExtensionUtils.getCurrentExtension();
+import {ExtensionPreferences, gettext as _, pgettext} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+// const {gettext: _, pgettext} = ExtensionUtils;
 
 //-----------------------------------------------
 
-function init() {
-    ExtensionUtils.initTranslations();
-}
+// function init() {
+//     ExtensionUtils.initTranslations();
+// }
 
-function fillPreferencesWindow(window) {
-    let prefs = new OpenbarPrefs();
-    prefs.fillOpenbarPrefs(window);
+export default class OpenbarPreferences extends ExtensionPreferences {
+
+    fillPreferencesWindow(window) {
+        let prefs = new OpenbarPrefs();
+        prefs.fillOpenbarPrefs(window, this);
+    }
+
 }
 //-----------------------------------------------
 
@@ -233,7 +241,7 @@ class OpenbarPrefs {
         `;
 
         
-        let stylepath = Me.path + '/stylesheet.css';
+        let stylepath = this.openbar.path + '/stylesheet.css';
         let file = Gio.File.new_for_path(stylepath);
         let bytearray = new TextEncoder().encode(stylesheet);
 
@@ -336,14 +344,15 @@ class OpenbarPrefs {
         return separator;
     }
 
-    fillOpenbarPrefs(window) {
+    fillOpenbarPrefs(window, openbar) {
 
         window.set_title(_("Open Bar 🍹"));
         window.default_height = 750;
         window.default_width = 620;
 
+        this.openbar = openbar;
         // Get the settings object
-        this.settings = ExtensionUtils.getSettings();
+        this.settings = openbar.getSettings();
 
         const settingsPage = new Adw.PreferencesPage({
             name: 'settings',
@@ -361,7 +370,7 @@ class OpenbarPrefs {
         let rowNo = 1;
         // Add a logo image
         const aboutImage = new Gtk.Image({
-            file: Me.path + "/media/openbar.jpg",
+            file: this.openbar.path + "/media/openbar.jpg",
             vexpand: false,
             hexpand: false,
             pixel_size: 120,
@@ -372,7 +381,7 @@ class OpenbarPrefs {
 
         // Add a title label
         let titleLabel = new Gtk.Label({
-            label: `<span><b>Top Bar Customization</b></span>\n\n<span size="small" underline="none">${_('Version:')} ${Me.metadata.version}  |  <a href="${Me.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="https://www.buymeacoffee.com/neuromorph">☕</a></span>`,
+            label: `<span><b>Top Bar Customization</b></span>\n\n<span size="small" underline="none">${_('Version:')} ${this.openbar.metadata.version}  |  <a href="${this.openbar.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="https://www.buymeacoffee.com/neuromorph">☕</a></span>`,
             // halign: Gtk.Align.CENTER,
             use_markup: true,
             // visible: true,
