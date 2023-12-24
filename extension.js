@@ -24,9 +24,10 @@ const Main = imports.ui.main;
 const Panel = imports.ui.panel;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
-const ExtensionManager = Main.extensionManager;
+const Calendar = imports.ui.calendar;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
+const ExtensionState = ExtensionUtils.ExtensionState;
 const Config = imports.misc.config;
 
 
@@ -64,6 +65,7 @@ class Extension {
         this._connections = null;
         this.eventIds = {};
         this.panelEventIds = [];
+        this._injections = [];
     }
 
     resetStyle(panel) {
@@ -80,25 +82,25 @@ class Extension {
             }
         }
         
-        // this.applyMenuStyles(panel, false);
     }
 
     reloadStylesheet() {
-        // let extension = ExtensionManager.lookup(Me.uuid);
         // Unload stylesheet
         const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        theme.unload_stylesheet(Me.dir.get_child('stylesheet.css')); log('unloaded ');
+        theme.unload_stylesheet(Me.dir.get_child('stylesheet.css'));
         delete Me.stylesheet;
 
         // Check extension enabled
-        // if (Me.state !== ExtensionState.ENABLED &&
-        //     Me.state !== ExtensionState.ENABLING)
-        //     return;
+        if (Me.state !== ExtensionState.ENABLED &&
+            Me.state !== ExtensionState.ENABLING) {
+            console.log('Openbar: Cannot load stylesheet as extension is not enabled.')
+            return;
+        }
 
         log('loading stylehseet');
         // Load stylesheet
         try {
-            const stylesheetFile = Me.dir.get_child('stylesheet.css'); //log(stylesheetFile);
+            const stylesheetFile = Me.dir.get_child('stylesheet.css');
             theme.load_stylesheet(stylesheetFile);
             Me.stylesheet = stylesheetFile;
         } catch (e) {
@@ -109,6 +111,8 @@ class Extension {
     }
 
     applyMenuClass(obj, add) {
+        if(!obj)
+            return;
         if(add) {
             if(obj.add_style_class_name)
                 obj.add_style_class_name('openmenu');
@@ -116,7 +120,6 @@ class Extension {
         else {
             if(obj.remove_style_class_name)
                 obj.remove_style_class_name('openmenu');
-            // log('remove openmneu for ', obj);
         }
     }
 
@@ -139,7 +142,6 @@ class Extension {
                                 });
                             }
                             
-                            // if(this.gnomeVersion === 42) {
                             let subChildren = menuItem.get_children();
                             subChildren.forEach(menuchild => {
                                 this.applyMenuClass(menuchild, add);
@@ -150,8 +152,89 @@ class Extension {
                                     });
                                 }
                             });
-                            // }
             
+                        });
+                    }
+
+                    if(btn.child.constructor.name === 'DateMenuButton') {
+                        // log('found datemenubutton=====', btn.child.menu.box);
+                        btn.child.menu.box.get_children().forEach(bin => { 
+                            const hbox = bin.get_child_at_index(0); 
+
+                            const msgList = hbox.get_child_at_index(0);
+                            this.applyMenuClass(msgList, add);
+                            const placeholder = msgList.get_child_at_index(0);
+                            this.applyMenuClass(placeholder, add);
+                            const msgbox = msgList.get_child_at_index(1);
+                            const msgScroll = msgbox.get_child_at_index(0);
+                            const sectionList = msgScroll.child;
+                            const mediaSection = sectionList.get_child_at_index(0); 
+                            const mediaList = mediaSection.get_child_at_index(0); 
+                            if(add && !this.mediaListId) {
+                                this.mediaListId = mediaList.connect('actor-added', (container, actor) => {
+                                    // log('actor added ', actor.child);
+                                    this.applyMenuClass(actor.child, add);
+                                });
+                            }
+                            else if(!add && this.mediaListId) {
+                                mediaList.disconnect(this.mediaListId);
+                                this.mediaListId = null;
+                            }
+                            mediaList.get_children().forEach(media => { //log('media  ', media);
+                                this.applyMenuClass(media.child, add);
+                            });                      
+
+                            const notifSection = sectionList.get_child_at_index(1);
+                            const notifList = notifSection.get_child_at_index(0);
+                            if(add && !this.notifListId) {
+                                this.notifListId = notifList.connect('actor-added', (container, actor) => {
+                                    // log('actor added ', actor.child);
+                                    this.applyMenuClass(actor.child, add);
+                                });
+                            }
+                            else if(!add && this.notifListId) {
+                                notifList.disconnect(this.notifListId);
+                                this.notifListId = null;
+                            }
+                            notifList.get_children().forEach(message => {
+                                this.applyMenuClass(message.child, add);
+                            })
+                            const msgHbox = msgbox.get_child_at_index(1);
+                            const dndBtn = msgHbox.get_child_at_index(1);
+                            this.applyMenuClass(dndBtn, add);
+                            const clearBtn = msgHbox.get_child_at_index(2);
+                            this.applyMenuClass(clearBtn, add);
+
+                            const vbox = hbox.get_child_at_index(1);
+                            vbox.get_children().forEach(item => {
+                                this.applyMenuClass(item, add);
+                                item.get_children().forEach(child => {
+                                    this.applyMenuClass(child, add);
+                                    child.get_children().forEach(subch => {
+                                        this.applyMenuClass(subch, add);
+                                    })
+                                });
+
+                                if(item.constructor.name === 'Calendar') {
+                                    // log('calendaarrrrr');
+                                    // if(add && !this.calendarId) {
+                                    //     this.calendarId = item.connect('selected-date-changed', () => {
+                                    //         this.applyCalendarGridStyle(item, add);
+                                    //         this.calendarTimeoutId = setTimeout(() => {this.applyCalendarGridStyle(item, add);}, 25);                                           
+                                    //     });
+                                    // }
+                                    // else if(!add && this.calendarId) {
+                                    //     item.disconnect(this.calendarId);
+                                    //     this.calendarId = null;
+                                    //     if(this.calendarTimeoutId)
+                                    //         clearTimeout(this.calendarTimeoutId);
+                                    //     this.calendarTimeoutId=null;
+                                    // }
+                                    
+                                    this.applyCalendarGridStyle(item, add);
+                                    this.calendarTimeoutId = setTimeout(() => {this.applyCalendarGridStyle(item, add);}, 250);
+                                }
+                            });
                         });
                     }
                     
@@ -159,6 +242,34 @@ class Extension {
             }
         }
     }
+
+    applyCalendarGridStyle(item, add) {
+        for(let i=0; i<8; i++) {
+            for(let j=0; j<8; j++) {
+                const child = item.layout_manager.get_child_at(i, j);
+                this.applyMenuClass(child, add);
+             }
+        }
+    }
+
+    _injectToFunction(parent, name, func) {
+        let origin = parent[name];
+        parent[name] = function () {
+          let ret;
+          ret = origin.apply(this, arguments);
+          if (ret === undefined) ret = func.apply(this, arguments);
+          return ret;
+        };
+        return origin;
+    }
+    
+    _removeInjection(object, injection, name) {
+        if (injection[name] === undefined) delete object[name];
+        else object[name] = injection[name];
+    }
+
+
+
 
     // updatePanelStyle(panel, actor, event) {
     //     this.updateTimeoutId = setTimeout(() => {this.updateStyle(panel, actor, event);}, 0);
@@ -174,16 +285,24 @@ class Extension {
             if(!overview) {
                 this.resetStyle(panel);
                 this.applyMenuStyles(panel, false);
+                return;
             }
             this.appMenuButton?.set_style(null);
-            return;
+           //this.updateTimeoutId = setTimeout(() => {this.updatePanelStyle(panel, actor, 'post-shown')}, 200);
+           return;
+            
         }
         else if(key == 'hidden') {
-            if(overview) {
-                this.appMenuButton?.set_style(this.appMenuBtnStyle);
-                this.appMenuButton?.child.set_style(this.appMenuBtnChildStyle);
-                return;
-            }            
+        //    if(overview) {
+        //        this.appMenuButton?.set_style(this.appMenuBtnStyle);
+        //        this.appMenuButton?.child.set_style(this.appMenuBtnChildStyle);
+        //       // panel.set_style(this.panelStyle);
+        //        return;
+        //    }        
+            this.updateTimeoutId = setTimeout(() => {
+                this.updatePanelStyle(panel, actor, 'post-hidden');
+                this.focusAppChanged(Shell.WindowTracker.get_default(), null);
+            }, 50);    
         }
              
 
@@ -225,8 +344,8 @@ class Extension {
         let borderWidth = this._settings.get_double('bwidth');
         let borderRadius = this._settings.get_double('bradius');
         let bordertype = this._settings.get_string('bordertype');
-        
- 
+        let shcolor = this._settings.get_strv('shcolor');
+        let shalpha = this._settings.get_double('shalpha');
         let islandsColor = this._settings.get_strv('iscolor');
         let isalpha = this._settings.get_double('isalpha');
         let neon = this._settings.get_boolean('neon');
@@ -256,7 +375,9 @@ class Extension {
         const bgreen = parseInt(parseFloat(borderColor[1]) * 255);
         const bblue = parseInt(parseFloat(borderColor[2]) * 255);
 
-        
+        const shred = parseInt(parseFloat(shcolor[0]) * 255);
+        const shgreen = parseInt(parseFloat(shcolor[1]) * 255);
+        const shblue = parseInt(parseFloat(shcolor[2]) * 255);
    
     
         this.resetStyle(panel);//==================
@@ -279,11 +400,11 @@ class Extension {
             
         `;
         // panel style for panel only (all bar types)
-        panelStyle = ` background-color: rgba(${bgred},${bggreen},${bgblue},${bgalpha}) !important; height: ${height}px; `;
+        panelStyle = ` background-color: rgba(${bgred},${bggreen},${bgblue},${bgalpha}) !important; height: ${height}px !important; `;
         panelStyle += radiusStyle;
 
         // button style for buttons only (all bar types)
-        btnStyle = ` margin: none; height: ${height-4}px;  `;
+        btnStyle = ` margin: none; height: ${height}px !important; `;
 
         // island style for buttons (only island bar type)
         islandStyle = ` box-shadow: 0px 0px 0px -1px rgba(${isred},${isgreen},${isblue},${isalpha}); `;
@@ -323,7 +444,7 @@ class Extension {
             }
         }
         else {
-            neonStyle = ` box-shadow: none; `;
+            neonStyle = ` `; //box-shadow: none; 
         }
 
 
@@ -331,12 +452,12 @@ class Extension {
         if (shadow) {
             if (borderRadius < radThreshold) {
                 panelStyle += `
-                    box-shadow: 0px 2px 6px 4px rgba(0, 0, 0, 0.16);
+                    box-shadow: 0px 2px 6px 4px rgba(${shred},${shgreen},${shblue}, ${shalpha}); //0.16
                 `;
             }
             else {
                 panelStyle += `
-                    box-shadow: 0px 2px 6px 8px rgba(0, 0, 0, 0.16);
+                    box-shadow: 0px 2px 6px 8px rgba(${shred},${shgreen},${shblue}, ${shalpha});
                 `;
             }
         }
@@ -396,7 +517,7 @@ class Extension {
                             // btn.add_style_class_name('openbutton');                     
                             btn.set_style(btnContainerStyle + neonStyle);
                         }
-                        if(btn.child instanceof Panel.AppMenuButton) {
+                        if(btn.child.constructor.name === 'AppMenuButton') {
                             // log('app menu button ====');
                             this.appMenuButton = btn;
                             this.appMenuBtnStyle = btnContainerStyle + neonStyle;
@@ -422,10 +543,10 @@ class Extension {
             btnStyle += ` border-radius: ${Math.max(borderRadius, 5)}px; border-width: 0px; box-shadow: none; `;
 
             btnContainerStyle = ` 
-                padding: 0px 0px;
-                margin: 0 1px;
+                padding: ${borderWidth}px ${borderWidth}px;
+                margin: 0 0px;
             `;
-            btnContainerStyle += ` border: 2px solid transparent; border-radius: ${borderRadius+borderWidth}px; `;
+            btnContainerStyle += ` border-radius: ${borderRadius}px; `;
             
             for(const box of panelBoxes) {
                 for(const btn of box) {
@@ -437,6 +558,16 @@ class Extension {
                             // btn.add_style_class_name('openbutton');                     
                             btn.set_style(btnContainerStyle);
                         }
+                        if(btn.child.constructor.name === 'AppMenuButton') {
+                            // log('app menu button ====');
+                            this.appMenuButton = btn;
+                            this.appMenuBtnStyle = btnContainerStyle;
+                            this.appMenuBtnChildStyle = commonStyle + btnStyle;
+                            // log('global key focus ', global.stage.get_key_focus());
+                            if(!btn.child.opacity)
+                                this.appMenuButton.visible = false;
+                        }
+
 
                     }
                 }
@@ -450,9 +581,11 @@ class Extension {
 
     focusAppChanged(actor, event) {
         if(this.appMenuButton) {
-            // if(!actor.focus_app)
-            //     this.appMenuButton.visible = false;
-            // else
+           //log('focus ', actor.focus_app, 'opacity ', this.appMenuButton.child.opacity, 'child visible ', this.appMenuButton.child.visible);
+
+           if(!actor.focus_app && global.stage.key_focus == null) 
+                this.appMenuButton.visible = false;
+            else
                 this.appMenuButton.visible = true;
         }
         else
@@ -464,8 +597,8 @@ class Extension {
 
     enable() {
         
-        const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
-        this.gnomeVersion = major;
+        // const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
+        // this.gnomeVersion = major;
 
         this._settings = ExtensionUtils.getSettings(); 
 
@@ -496,8 +629,23 @@ class Extension {
             // [ global.window_group, 'actor-removed', this._onWindowRemoved.bind(this) ]
         ]);
 
-        let menustyle = this._settings.get_boolean('menustyle');
-        this.applyMenuStyles(panel, menustyle);
+        // let menustyle = this._settings.get_boolean('menustyle');
+        // this.applyMenuStyles(panel, menustyle);
+        // this.menuStyleTimeoutId = setTimeout(() => {this.applyMenuStyles(panel, menustyle);}, 50);
+
+        const obar = this;
+        this._injections["_rebuildCalendar"] = this._injectToFunction(
+            Calendar.Calendar.prototype,
+            "_rebuildCalendar",
+            function () {
+                let menustyle = obar._settings.get_boolean('menustyle');
+                let overview = obar._settings.get_boolean('overview');
+                if(menustyle) {  
+                    if(overview || !Main.panel.has_style_pseudo_class('overview'))
+                        obar.applyCalendarGridStyle(this, menustyle);            
+                }
+            }
+        );
         
         // Apply the initial style
         this.updatePanelStyle(panel);
@@ -521,6 +669,9 @@ class Extension {
         if(this.updateTimeoutId)
             clearTimeout(this.updateTimeoutId);
         this.updateTimeoutId = null;
+
+        this._removeInjection(Calendar.Calendar.prototype, this._injections, "_rebuildCalendar");
+        this._injections = [];
 
     }
     
