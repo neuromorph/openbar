@@ -11,8 +11,8 @@
             }
             /* Either uses background-color or box-shadow as per bar type */
             #panel.openbar .panel-button:hover, #panel.openbar .panel-button:focus, #panel.openbar .panel-button:active {
-                background-color: rgba(224,27,36,0.41) !important;
-                box-shadow: 0 0 0 0px rgba(224,27,36,0.41) !important;
+                background-color: rgba(255,255,255,0.18) !important;
+                box-shadow: inset 0 0 0 30px rgba(255,255,255,0.18) !important;
             }
 
             #panel.openbar .panel-button:hover.clock-display .clock {
@@ -41,33 +41,37 @@
             .openmenu.popup-menu-item {
                 color: rgba(255,255,255,0.98);
             }
-
-            .openmenu.popup-menu-item:checked {
-                /* color: rgba(28,172,166,0.66) !important; */
-                background-color: rgba(28,172,166,0.66) !important;
-            }
-
-            .openmenu.popup-menu-item:checked:focus, .openmenu.popup-menu-item:checked:hover, .openmenu.popup-menu-item:checked:selected {
-                color: rgba(255,255,255,1.0) !important;
-                /* background-color: rgba(220,138,221,0.71) !important; 
-                box-shadow: 0 0 0 0px rgba(220,138,221,0.71) !important; */
-                background-color: rgba(95,160,185,0.678) !important;
-            }
-              
-            .openmenu.popup-menu-item:checked:active {
-                color: rgba(255,255,255,1.0) !important;
-                background-color: rgba(28,172,166,0.66) !important;
-            }
-            
             .openmenu.popup-menu-item:focus, .openmenu.popup-menu-item:hover, .openmenu.popup-menu-item:selected {
                 color: rgba(255,255,255,1.0) !important;
                 background-color: rgba(220,138,221,0.71) !important;
                 transition-duration: 0ms !important;
             }
+
+            /* .openmenu.popup-menu-item:checked {
+                 color: rgba(28,172,166,0.66) !important; 
+                background-color: rgba(28,172,166,0.66) !important;
+            }*/
+
+            .openmenu.popup-menu-item:checked, .openmenu.popup-menu-item:checked:active {
+                color: rgba(255,255,255,1.0) !important;
+                background-color: rgba(28,172,166,0.66) !important;
+            }
+            .openmenu.popup-menu-item:checked:focus, .openmenu.popup-menu-item:checked:hover, .openmenu.popup-menu-item:checked:selected,
+            .openmenu.popup-menu-item:checked:active:focus, .openmenu.popup-menu-item:checked:active:hover, .openmenu.popup-menu-item:checked:active:selected {
+                color: rgba(255,255,255,1.0) !important;
+                /* background-color: rgba(220,138,221,0.71) !important; 
+                box-shadow: 0 0 0 0px rgba(220,138,221,0.71) !important; */
+                background-color: rgba(86,162,183,0.675) !important;
+            }
               
             .openmenu.popup-menu-item:active, .openmenu.popup-menu-item.selected:active {
                 color: rgba(255,255,255,1.0) !important;
                 background-color: rgba(28,172,166,0.66) !important;
+            }
+            .openmenu.popup-menu-item:active:hover, .openmenu.popup-menu-item:active:focus, 
+            .openmenu.popup-menu-item.selected:active:hover, .openmenu.popup-menu-item.selected:active:focus {
+                color: rgba(255,255,255,1.0) !important;
+                background-color: rgba(86,162,183,0.675) !important;
             }
 
         
@@ -98,7 +102,7 @@
             .openmenu.popup-sub-menu .popup-menu-item:active:hover, .openmenu.popup-sub-menu .popup-menu-item:active:focus, 
             .openmenu.popup-sub-menu .popup-submenu-menu-item:active:hover, .openmenu.popup-sub-menu .popup-submenu-menu-item:active:focus,
             .openmenu.popup-sub-menu .popup-submenu-menu-item:checked:hover, .openmenu.popup-sub-menu .popup-submenu-menu-item:checked:focus {
-                background-color: rgba(95,160,185,0.678) !important;
+                background-color: rgba(86,162,183,0.675) !important;
             }
         
         
@@ -125,7 +129,7 @@
             .openmenu.popup-menu-section .popup-menu-item:active:hover, .openmenu.popup-menu-section .popup-menu-item:active:focus, 
             .openmenu.popup-menu-section .popup-submenu-menu-item:active:hover, .openmenu.popup-menu-section .popup-submenu-menu-item:active:focus, 
             .openmenu.popup-menu-section .popup-submenu-menu-item:checked:hover, .openmenu.popup-menu-section .popup-submenu-menu-item:checked:focus {
-                background-color: rgba(95,160,185,0.678) !important;
+                background-color: rgba(86,162,183,0.675) !important;
             }
 
             .openmenu.popup-menu-item .toggle-switch:checked {
@@ -247,7 +251,7 @@
             .openmenu.calendar .calendar-today:hover, .openmenu.calendar .calendar-today:focus {
                 color: rgba(255,255,255,1.0) !important;
                 /* background-color: rgba(220,138,221,0.71) !important; */
-                background-color: rgba(95,160,185,0.678) !important;
+                background-color: rgba(86,162,183,0.675) !important;
             }
             .openmenu.calendar-week-number {
                 font-weight: bold;
@@ -331,7 +335,7 @@
             .openmenu.quick-toggle:checked:active:hover, .openmenu.quick-toggle:checked:active:focus, 
             .openmenu.quick-toggle .button:checked:hover, .openmenu.quick-toggle .button:checked:focus {
                 color: rgba(261,276,261,1.029) !important;
-                background-color: rgba(95,160,185,0.678) !important;
+                background-color: rgba(86,162,183,0.675) !important;
             }
 
             .openmenu.quick-menu-toggle .quick-toggle {
@@ -352,20 +356,23 @@
             .openmenu.quick-menu-toggle .quick-toggle:checked:hover, .openmenu.quick-menu-toggle .quick-toggle:checked:focus, 
             .openmenu.quick-menu-toggle .quick-toggle:active:hover, .openmenu.quick-menu-toggle .quick-toggle:active:focus {
                 color: rgba(261,276,261,1.029) !important;
-                background-color: rgba(95,160,185,0.678) !important;
+                background-color: rgba(86,162,183,0.675) !important;
             }
             
             .openmenu.quick-menu-toggle .quick-toggle-arrow {
                 color: rgba(255,255,255,0.98) !important;
                 background-color: rgba(79,75,90,1.056) !important;
             }
+            .openmenu.quick-menu-toggle .quick-toggle-arrow:hover, .openmenu.quick-menu-toggle .quick-toggle-arrow:focus {
+                color: rgba(261,276,261,1.029) !important;
+                background-color: rgba(220,138,221,0.71) !important;
+            }
             .openmenu.quick-menu-toggle .quick-toggle-arrow:checked {
                 color: rgba(255,255,255,1.0) !important;
                 background-color: rgba(28,172,166,0.792) !important;
             }
-            .openmenu.quick-menu-toggle .quick-toggle-arrow:hover, .openmenu.quick-menu-toggle .quick-toggle-arrow:focus {
-                color: rgba(261,276,261,1.029) !important;
-                background-color: rgba(220,138,221,0.71) !important;
+            .openmenu.quick-menu-toggle .quick-toggle-arrow:checked:hover, .openmenu.quick-menu-toggle .quick-toggle-arrow:checked:focus {
+                background-color: rgba(86,162,183,0.675) !important;
             }
 
             .openmenu.quick-toggle-menu {
@@ -374,18 +381,19 @@
             .openmenu.quick-toggle-menu .popup-menu-item {
                 color: rgba(255,255,255,0.98) !important;
             }
-            .openmenu.quick-toggle-menu .popup-menu-item:checked {
-                color: rgba(255,255,255,1.0) !important;
-                background-color: rgba(28,172,166,0.792) !important;
-            }
             .openmenu.quick-toggle-menu .popup-menu-item:hover, .openmenu.quick-toggle-menu .popup-menu-item:focus {
                 color: rgba(261,276,261,1.029) !important;
                 background-color: rgba(220,138,221,0.71) !important;
             }
+
+            .openmenu.quick-toggle-menu .popup-menu-item:checked {
+                color: rgba(255,255,255,1.0) !important;
+                background-color: rgba(28,172,166,0.792) !important;
+            }            
             .openmenu.quick-toggle-menu .popup-menu-item:checked:focus, .openmenu.quick-toggle-menu .popup-menu-item:checked:hover, 
             .openmenu.quick-toggle-menu .popup-menu-item:checked:selected {
                 color: rgba(261,276,261,1.029) !important;
-                background-color: rgba(95,160,185,0.678) !important;
+                background-color: rgba(86,162,183,0.675) !important;
             }
             .openmenu.quick-toggle-menu .header .title, .openmenu.quick-toggle-menu .header .subtitle  {
                 color: rgba(255,255,255,0.98) !important;

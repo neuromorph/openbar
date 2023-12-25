@@ -54,6 +54,7 @@ class OpenbarPrefs {
 
         let hColor = this.settings.get_strv('hcolor');
         let hAlpha = this.settings.get_double('halpha');
+        let height = this.settings.get_double('height');
 
         let mfgColor = this.settings.get_strv('mfgcolor');
         let mfgAlpha = this.settings.get_double('mfgalpha');
@@ -133,7 +134,7 @@ class OpenbarPrefs {
             /* Either uses background-color or box-shadow as per bar type */
             #panel.openbar .panel-button:hover, #panel.openbar .panel-button:focus, #panel.openbar .panel-button:active {
                 background-color: rgba(${hred},${hgreen},${hblue},${hAlpha}) !important;
-                box-shadow: 0 0 0 0px rgba(${hred},${hgreen},${hblue},${hAlpha}) !important;
+                box-shadow: inset 0 0 0 ${height}px rgba(${hred},${hgreen},${hblue},${hAlpha}) !important;
             }
 
             #panel.openbar .panel-button:hover.clock-display .clock {
@@ -1035,9 +1036,9 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a panel shadow alpha scale
+        // Add a panel shadow alpha and spread scale
         let shAlphaLbl = new Gtk.Label({
-            label: 'Shadow Alpha',
+            label: 'Shadow Spread',
             halign: Gtk.Align.START,
         });
         bggrid.attach(shAlphaLbl, 1, rowbar, 1, 1);

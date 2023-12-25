@@ -23,15 +23,14 @@ const { Clutter, Gio, GObject, St, Pango, Shell } = imports.gi;
 const Main = imports.ui.main;
 const Panel = imports.ui.panel;
 const PanelMenu = imports.ui.panelMenu;
-const PopupMenu = imports.ui.popupMenu;
 const Calendar = imports.ui.calendar;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const ExtensionState = ExtensionUtils.ExtensionState;
-const Config = imports.misc.config;
+// const Config = imports.misc.config;
 
 
-// ConnectManager class to manage connections for events to trigger Openbar updatestyle
+// ConnectManager class to manage connections for events to trigger Openbar style updates
 // This class is modified from Floating Panel extension (Thanks Aylur!)
 class ConnectManager{
     constructor(list = []){
@@ -63,13 +62,27 @@ class Extension {
     constructor() {
         this._settings = null;
         this._connections = null;
-        this.eventIds = {};
-        this.panelEventIds = [];
         this._injections = [];
     }
 
-    resetStyle(panel) {
+    _injectToFunction(parent, name, func) {
+        let origin = parent[name];
+        parent[name] = function () {
+          let ret;
+          ret = origin.apply(this, arguments);
+          if (ret === undefined) ret = func.apply(this, arguments);
+          return ret;
+        };
+        return origin;
+    }
+    
+    _removeInjection(object, injection, name) {
 
+        if (injection[name] === undefined) delete object[name];
+        else object[name] = injection[name];
+    }
+
+    resetStyle(panel) {
         panel.set_style(null);
         panel.remove_style_class_name('openbar');
 
@@ -78,10 +91,8 @@ class Extension {
             for(const btn of box) {
                     btn.set_style(null);
                     btn.child?.set_style(null);     
-                    btn.remove_style_class_name('openbutton');               
             }
-        }
-        
+        }        
     }
 
     reloadStylesheet() {
@@ -104,7 +115,7 @@ class Extension {
             theme.load_stylesheet(stylesheetFile);
             Me.stylesheet = stylesheetFile;
         } catch (e) {
-            log('Error loading stylesheet: ', stylesheetFile);
+            console.log('Openbar: Error loading stylesheet:');
             throw e;
         }
         
@@ -124,11 +135,11 @@ class Extension {
     }
 
     applyMenuStyles(panel, add) {
-        if(!add) log('removing openmenu class --------');
+        // if(!add) log('removing openmenu class --------');
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
-            for(const btn of box) {
-                if(btn.child instanceof PanelMenu.Button) {
+            for(const btn of box) { // btn is a bin, parent of indicator button
+                if(btn.child instanceof PanelMenu.Button) { // btn.child is the indicator
                     if(btn.child.menu.box) {
                         this.applyMenuClass(btn.child.menu.box, add);
 
@@ -142,7 +153,7 @@ class Extension {
                                 });
                             }
                             
-                            let subChildren = menuItem.get_children();
+                            let subChildren = menuItem.get_children(); // Required for submenus, at least in Gnome 42 settings menu
                             subChildren.forEach(menuchild => {
                                 this.applyMenuClass(menuchild, add);
                                 if(menuchild.menu) {
@@ -157,22 +168,20 @@ class Extension {
                     }
 
                     if(btn.child.constructor.name === 'DateMenuButton') {
-                        // log('found datemenubutton=====', btn.child.menu.box);
                         btn.child.menu.box.get_children().forEach(bin => { 
-                            const hbox = bin.get_child_at_index(0); 
+                            const hbox = bin.get_child_at_index(0); // hbox with left and right sections
 
-                            const msgList = hbox.get_child_at_index(0);
+                            const msgList = hbox.get_child_at_index(0); // left section with notifications etc
                             this.applyMenuClass(msgList, add);
                             const placeholder = msgList.get_child_at_index(0);
                             this.applyMenuClass(placeholder, add);
                             const msgbox = msgList.get_child_at_index(1);
                             const msgScroll = msgbox.get_child_at_index(0);
                             const sectionList = msgScroll.child;
-                            const mediaSection = sectionList.get_child_at_index(0); 
+                            const mediaSection = sectionList.get_child_at_index(0); // Media notifications (play music/video)
                             const mediaList = mediaSection.get_child_at_index(0); 
                             if(add && !this.mediaListId) {
                                 this.mediaListId = mediaList.connect('actor-added', (container, actor) => {
-                                    // log('actor added ', actor.child);
                                     this.applyMenuClass(actor.child, add);
                                 });
                             }
@@ -180,15 +189,14 @@ class Extension {
                                 mediaList.disconnect(this.mediaListId);
                                 this.mediaListId = null;
                             }
-                            mediaList.get_children().forEach(media => { //log('media  ', media);
+                            mediaList.get_children().forEach(media => {
                                 this.applyMenuClass(media.child, add);
                             });                      
 
-                            const notifSection = sectionList.get_child_at_index(1);
+                            const notifSection = sectionList.get_child_at_index(1); // Message notifications
                             const notifList = notifSection.get_child_at_index(0);
                             if(add && !this.notifListId) {
                                 this.notifListId = notifList.connect('actor-added', (container, actor) => {
-                                    // log('actor added ', actor.child);
                                     this.applyMenuClass(actor.child, add);
                                 });
                             }
@@ -199,13 +207,13 @@ class Extension {
                             notifList.get_children().forEach(message => {
                                 this.applyMenuClass(message.child, add);
                             })
-                            const msgHbox = msgbox.get_child_at_index(1);
+                            const msgHbox = msgbox.get_child_at_index(1); // hbox at botton for dnd and clear buttons
                             const dndBtn = msgHbox.get_child_at_index(1);
                             this.applyMenuClass(dndBtn, add);
                             const clearBtn = msgHbox.get_child_at_index(2);
                             this.applyMenuClass(clearBtn, add);
 
-                            const vbox = hbox.get_child_at_index(1);
+                            const vbox = hbox.get_child_at_index(1); // right section vbox for calendar etc
                             vbox.get_children().forEach(item => {
                                 this.applyMenuClass(item, add);
                                 item.get_children().forEach(child => {
@@ -215,22 +223,7 @@ class Extension {
                                     })
                                 });
 
-                                if(item.constructor.name === 'Calendar') {
-                                    // log('calendaarrrrr');
-                                    // if(add && !this.calendarId) {
-                                    //     this.calendarId = item.connect('selected-date-changed', () => {
-                                    //         this.applyCalendarGridStyle(item, add);
-                                    //         this.calendarTimeoutId = setTimeout(() => {this.applyCalendarGridStyle(item, add);}, 25);                                           
-                                    //     });
-                                    // }
-                                    // else if(!add && this.calendarId) {
-                                    //     item.disconnect(this.calendarId);
-                                    //     this.calendarId = null;
-                                    //     if(this.calendarTimeoutId)
-                                    //         clearTimeout(this.calendarTimeoutId);
-                                    //     this.calendarTimeoutId=null;
-                                    // }
-                                    
+                                if(item.constructor.name === 'Calendar') {                                    
                                     this.applyCalendarGridStyle(item, add);
                                     this.calendarTimeoutId = setTimeout(() => {this.applyCalendarGridStyle(item, add);}, 250);
                                 }
@@ -243,7 +236,7 @@ class Extension {
         }
     }
 
-    applyCalendarGridStyle(item, add) {
+    applyCalendarGridStyle(item, add) { // calendar days grid with week numbers
         for(let i=0; i<8; i++) {
             for(let j=0; j<8; j++) {
                 const child = item.layout_manager.get_child_at(i, j);
@@ -252,57 +245,30 @@ class Extension {
         }
     }
 
-    _injectToFunction(parent, name, func) {
-        let origin = parent[name];
-        parent[name] = function () {
-          let ret;
-          ret = origin.apply(this, arguments);
-          if (ret === undefined) ret = func.apply(this, arguments);
-          return ret;
-        };
-        return origin;
-    }
-    
-    _removeInjection(object, injection, name) {
-        if (injection[name] === undefined) delete object[name];
-        else object[name] = injection[name];
-    }
-
-
-
 
     // updatePanelStyle(panel, actor, event) {
     //     this.updateTimeoutId = setTimeout(() => {this.updateStyle(panel, actor, event);}, 0);
     // }
 
-    updatePanelStyle(panel, actor, key) {
+    updatePanelStyle(panel, actor, key) { log('update called with key ', key);
         if(!this._settings)
             return;
 
         let overview = this._settings.get_boolean('overview');
         if(key == 'shown') { 
-            // log('show-overview===========');
-            if(!overview) {
+            if(!overview) { // Reset in overview, if overview style disabled
                 this.resetStyle(panel);
                 this.applyMenuStyles(panel, false);
-                return;
             }
-            this.appMenuButton?.set_style(null);
-           //this.updateTimeoutId = setTimeout(() => {this.updatePanelStyle(panel, actor, 'post-shown')}, 200);
-           return;
-            
+            else
+                this.appMenuButton?.set_style(null);
+            return;           
         }
         else if(key == 'hidden') {
-        //    if(overview) {
-        //        this.appMenuButton?.set_style(this.appMenuBtnStyle);
-        //        this.appMenuButton?.child.set_style(this.appMenuBtnChildStyle);
-        //       // panel.set_style(this.panelStyle);
-        //        return;
-        //    }        
             this.updateTimeoutId = setTimeout(() => {
                 this.updatePanelStyle(panel, actor, 'post-hidden');
                 this.focusAppChanged(Shell.WindowTracker.get_default(), null);
-            }, 50);    
+            }, 10);        
         }
              
 
@@ -313,14 +279,6 @@ class Extension {
         
         let menustyle = this._settings.get_boolean('menustyle');
         this.applyMenuStyles(panel, menustyle);
-        // let menustyle = this._settings.get_boolean('menustyle');
-        // if(key == 'menustyle' || key == 'removestyle' || key == 'reloadstyle')
-        //     this.applyMenuStyles(panel, menustyle);
-
-        // if(key=='removestyle')  {// A toggle key to trigger update for removing menu style
-        //     log('removestyle with menustyle=', menustyle);
-        //     this.applyMenuStyles(panel, false);
-        // }
             
         let menuKeys = ['reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 'mhcolor', 'mhalpha', 'mscolor', 'msalpha'];
         if(menuKeys.includes(key)) {
@@ -349,8 +307,7 @@ class Extension {
         let islandsColor = this._settings.get_strv('iscolor');
         let isalpha = this._settings.get_double('isalpha');
         let neon = this._settings.get_boolean('neon');
-        let shadow = this._settings.get_boolean('shadow');
-        
+        let shadow = this._settings.get_boolean('shadow');      
         let font = this._settings.get_string("font");
         let height = this._settings.get_double('height');
         let margin = this._settings.get_double('margin');
@@ -380,7 +337,7 @@ class Extension {
         const shblue = parseInt(parseFloat(shcolor[2]) * 255);
    
     
-        this.resetStyle(panel);//==================
+        this.resetStyle(panel);
         panel.add_style_class_name('openbar');
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
@@ -407,7 +364,7 @@ class Extension {
         btnStyle = ` margin: none; height: ${height}px !important; `;
 
         // island style for buttons (only island bar type)
-        islandStyle = ` box-shadow: 0px 0px 0px -1px rgba(${isred},${isgreen},${isblue},${isalpha}); `;
+        islandStyle = ` background-color: rgba(${isred},${isgreen},${isblue},${isalpha}); `;
 
         // Add font style to panelstyle (works on all bar types)
         if (font != ""){
@@ -437,27 +394,27 @@ class Extension {
                     box-shadow: 0px 0px 6px -1px rgba(${bred},${bgreen},${bblue},0.55);
                 `;
             }
-            else {
+            else { //7 3
                 neonStyle = `               
-                    box-shadow: 0px 0px 7px 3px rgba(${bred},${bgreen},${bblue},0.55);
+                    box-shadow: 0px 0px 6px 3px rgba(${bred},${bgreen},${bblue},0.55); 
                 `;
             }
         }
         else {
-            neonStyle = ` `; //box-shadow: none; 
+            neonStyle = ` `; 
         }
 
 
-        // Add panel shadow if enabled
+        // Add panel shadow if enabled. Use alpha to decide offset, blur, spread and alpha
         if (shadow) {
             if (borderRadius < radThreshold) {
                 panelStyle += `
-                    box-shadow: 0px 2px 6px 4px rgba(${shred},${shgreen},${shblue}, ${shalpha}); //0.16
+                    box-shadow: 0px ${shalpha*20}px ${2+shalpha*30}px ${2+shalpha*20}px rgba(${shred},${shgreen},${shblue}, ${shalpha}); 
                 `;
             }
             else {
                 panelStyle += `
-                    box-shadow: 0px 2px 6px 8px rgba(${shred},${shgreen},${shblue}, ${shalpha});
+                    box-shadow: 0px ${shalpha*20}px ${2+shalpha*30}px ${2+shalpha*40}px rgba(${shred},${shgreen},${shblue}, ${shalpha});
                 `;
             }
         }
@@ -499,13 +456,13 @@ class Extension {
             panelStyle += ` margin: ${margin}px ${1.5*margin}px; `;            
             panel.set_style(commonStyle + panelStyle);  
 
-            btnStyle += radiusStyle;
+            btnStyle += borderStyle + radiusStyle;
 
             btnContainerStyle = ` 
                 padding: 0px 0px;
                 margin: 0 3px;
             `;
-            btnContainerStyle += borderStyle + ` border-radius: ${borderRadius+borderWidth}px; `;
+            btnContainerStyle +=  ` border-radius: ${borderRadius+borderWidth}px; `;
 
             for(const box of panelBoxes) {
                 for(const btn of box) {
@@ -514,7 +471,6 @@ class Extension {
                         // log(btn.child.style);
                         
                         if(btn.child.visible) {
-                            // btn.add_style_class_name('openbutton');                     
                             btn.set_style(btnContainerStyle + neonStyle);
                         }
                         if(btn.child.constructor.name === 'AppMenuButton') {
@@ -522,14 +478,10 @@ class Extension {
                             this.appMenuButton = btn;
                             this.appMenuBtnStyle = btnContainerStyle + neonStyle;
                             this.appMenuBtnChildStyle = commonStyle + btnStyle + islandStyle + gradientStyle;
-                            // log('global key focus ', global.stage.get_key_focus());
                             if(!btn.child.opacity)
                                 this.appMenuButton.visible = false;
                         }
 
-                        
-                        // log('btn ===== ', btn.child.style);
-                        // log('btnContainer ==== ', btn.style);
                     }
                 }
             }
@@ -540,7 +492,7 @@ class Extension {
             // Apply the style to the panel
             panel.set_style(commonStyle + panelStyle + borderStyle + gradientStyle + neonStyle);
 
-            btnStyle += ` border-radius: ${Math.max(borderRadius, 5)}px; border-width: 0px; box-shadow: none; `;
+            btnStyle += ` border-radius: ${Math.max(borderRadius, 5)}px; border-width: 0px;  `; //box-shadow: none;
 
             btnContainerStyle = ` 
                 padding: ${borderWidth}px ${borderWidth}px;
@@ -555,7 +507,6 @@ class Extension {
                         btn.child.set_style(commonStyle + btnStyle);
           
                         if(btn.child.visible) {
-                            // btn.add_style_class_name('openbutton');                     
                             btn.set_style(btnContainerStyle);
                         }
                         if(btn.child.constructor.name === 'AppMenuButton') {
@@ -563,11 +514,9 @@ class Extension {
                             this.appMenuButton = btn;
                             this.appMenuBtnStyle = btnContainerStyle;
                             this.appMenuBtnChildStyle = commonStyle + btnStyle;
-                            // log('global key focus ', global.stage.get_key_focus());
                             if(!btn.child.opacity)
                                 this.appMenuButton.visible = false;
                         }
-
 
                     }
                 }
@@ -614,17 +563,12 @@ class Extension {
             [ Main.overview, 'hidden', this.updatePanelStyle.bind(this, panel) ],
             [ Main.overview, 'shown', this.updatePanelStyle.bind(this, panel) ],
             [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this, panel) ],
-            [ global.window_manager, 'switch-workspace', this.updatePanelStyle.bind(this, panel) ],
+            // [ global.window_manager, 'switch-workspace', this.updatePanelStyle.bind(this, panel) ],
             // [ global.display, 'workareas-changed', this.updatePanelStyle.bind(this, panel) ],
             [ panel._leftBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ panel._rightBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ Shell.WindowTracker.get_default(), 'notify::focus-app', this.focusAppChanged.bind(this) ],
-            // [ panel._leftBox, 'actor-removed', this.removePanelBtn.bind(this) ],
-            // [ panel._centerBox, 'actor-removed', this.removePanelBtn.bind(this) ],
-            // [ panel._rightBox, 'actor-removed', this.removePanelBtn.bind(this) ],
-            // [ panel._leftBox, 'enter-event', this.highlightEvents.bind(this) ],
-            // [ panel._leftBox, 'leave-event', this.highlightEvents.bind(this) ],
             // [ global.window_group, 'actor-added', this._onWindowAdded.bind(this) ],
             // [ global.window_group, 'actor-removed', this._onWindowRemoved.bind(this) ]
         ]);
@@ -646,9 +590,31 @@ class Extension {
                 }
             }
         );
+        // this._injections["_updatePanel"] = this._injectToFunction(
+        //     Panel.Panel.prototype,
+        //     "_updatePanel",
+        //     function () {
+        //         // let menustyle = obar._settings.get_boolean('menustyle');
+        //         let overview = obar._settings.get_boolean('overview');
+        //         if(this.has_style_pseudo_class('overview')) {  log('in OVERVIEW ==');
+        //             if(!overview) { // Reset in overview, if overview style disabled
+        //                 obar.resetStyle(this);
+        //                 obar.applyMenuStyles(this, false);
+        //                 // return;
+        //             }
+        //             else
+        //                 obar.appMenuButton?.set_style(null);            
+        //         }
+        //         else {  log('Not in OVERVIEW ==');
+        //             obar.updatePanelStyle(this, null, 'update-panel');
+        //             obar.focusAppChanged(Shell.WindowTracker.get_default(), null);
+        //         }
+        //     }
+        // );
         
+
         // Apply the initial style
-        this.updatePanelStyle(panel);
+        this.updatePanelStyle(panel, null, 'enabled');
     }
 
     disable() {
@@ -671,6 +637,7 @@ class Extension {
         this.updateTimeoutId = null;
 
         this._removeInjection(Calendar.Calendar.prototype, this._injections, "_rebuildCalendar");
+        // this._removeInjection(Panel.Panel.prototype, this._injections, "_updatePanel");
         this._injections = [];
 
     }
