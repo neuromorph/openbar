@@ -19,7 +19,7 @@
 
 /* exported init fillPreferencesWindow*/
 
-const { Gio, GObject, Gtk, Gdk, Adw, GLib } = imports.gi;
+const { Gio, Gtk, Gdk, Adw } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
@@ -55,6 +55,8 @@ class OpenbarPrefs {
         let hColor = this.settings.get_strv('hcolor');
         let hAlpha = this.settings.get_double('halpha');
         let height = this.settings.get_double('height');
+        let fgcolor = this._settings.get_strv('fgcolor');
+        let fgalpha = this._settings.get_double('fgalpha');
 
         let mfgColor = this.settings.get_strv('mfgcolor');
         let mfgAlpha = this.settings.get_double('mfgalpha');
@@ -72,6 +74,10 @@ class OpenbarPrefs {
         const hred = parseInt(parseFloat(hColor[0]) * 255);
         const hgreen = parseInt(parseFloat(hColor[1]) * 255);
         const hblue = parseInt(parseFloat(hColor[2]) * 255);
+        
+        const fgred = parseInt(parseFloat(fgcolor[0]) * 255);
+        const fggreen = parseInt(parseFloat(fgcolor[1]) * 255);
+        const fgblue = parseInt(parseFloat(fgcolor[2]) * 255);
 
         const mfgred = parseInt(parseFloat(mfgColor[0]) * 255);
         const mfggreen = parseInt(parseFloat(mfgColor[1]) * 255);
@@ -146,6 +152,10 @@ class OpenbarPrefs {
             #panel.openbar .panel-button:focus.clock-display .clock, #panel.openbar .panel-button:checked.clock-display .clock {
                 background-color: transparent;
                 box-shadow: none;
+            }
+            
+            .openbar .workspace-dot {
+                background-color: rgba(${fgred},${fggreen},${fgblue},${fgalpha});
             }
         `;
 
@@ -311,7 +321,7 @@ class OpenbarPrefs {
             .openmenu.dnd-button {
                 border-color: ${smbg} !important;
             }
-            .openmenu.dnd-button:hover {
+            .openmenu.dnd-button:hover, .openmenu.dnd-button:focus {
                 border-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
             }
             .openmenu.message-list-clear-button {
@@ -370,7 +380,8 @@ class OpenbarPrefs {
             .openmenu.calendar-other-month:hover, .openmenu.calendar-other-month:focus, .openmenu.calendar-other-month:selected,
             .openmenu.calendar-nonwork-day:hover, .openmenu.calendar-nonwork-day:focus, .openmenu.calendar-nonwork-day:selected,
             .openmenu.calendar-work-day:hover, .openmenu.calendar-work-day:focus, .openmenu.calendar-work-day:selected,
-            .openmenu.calendar-weekday:hover, .openmenu.calendar-weekday:focus, .openmenu.calendar-weekday:selected {
+            .openmenu.calendar-weekday:hover, .openmenu.calendar-weekday:focus, .openmenu.calendar-weekday:selected,
+            .openmenu.calendar-weekend:hover, .openmenu.calendar-weekend:focus, .openmenu.calendar-weekend:selected  {
                 color: ${mhfg} !important;
                 background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
             }
@@ -550,6 +561,11 @@ class OpenbarPrefs {
                 color: ${mhfg} !important;
                 background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
             }
+            
+            .openmenu.quick-settings .button:checked:hover, .openmenu.quick-settings .button:checked:focus {
+                color: ${mhfg} !important;
+                background-color: ${mshg} !important;
+            }
 
             .openmenu.quick-settings-system-item .power-item:checked {
                 background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
@@ -710,7 +726,6 @@ class OpenbarPrefs {
             label: `<span><b>Top Bar Customization</b></span>\n\n<span size="small" underline="none">${_('Version:')} ${Me.metadata.version}  |  <a href="${Me.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="https://www.buymeacoffee.com/neuromorph">☕</a></span>`,
             // halign: Gtk.Align.CENTER,
             use_markup: true,
-            // visible: true,
         });
         prefsWidget.attach(titleLabel, 1, rowNo, 1, 1);
 
@@ -1306,7 +1321,7 @@ class OpenbarPrefs {
         });
         menugrid.attach(menusColorLabel, 1, rowbar, 1, 1);
 
-        let menusColorChooser = this.createColorWidget('Menu Selected/Active Color', 'Selected/Active color for the dropdown menus', 'mscolor');
+        let menusColorChooser = this.createColorWidget('Menu Selected/Active Color', 'Selected/Active color for the menu items', 'mscolor');
         menugrid.attach(menusColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;

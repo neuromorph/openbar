@@ -19,7 +19,7 @@
 
 /* exported init */
 
-const { Clutter, Gio, GObject, St, Pango, Shell } = imports.gi;
+const { St, Pango, Shell } = imports.gi;
 const Main = imports.ui.main;
 const Panel = imports.ui.panel;
 const PanelMenu = imports.ui.panelMenu;
@@ -77,7 +77,6 @@ class Extension {
     }
     
     _removeInjection(object, injection, name) {
-
         if (injection[name] === undefined) delete object[name];
         else object[name] = injection[name];
     }
@@ -102,11 +101,11 @@ class Extension {
         delete Me.stylesheet;
 
         // Check extension enabled
-        if (Me.state !== ExtensionState.ENABLED &&
-            Me.state !== ExtensionState.ENABLING) {
-            console.log('Openbar: Cannot load stylesheet as extension is not enabled.')
-            return;
-        }
+        // if (Me.state !== ExtensionState.ENABLED &&
+        //     Me.state !== ExtensionState.ENABLING) {
+        //     console.log('Openbar: Cannot load stylesheet as extension is not enabled.')
+        //     return;
+        // }
 
         log('loading stylehseet');
         // Load stylesheet
@@ -115,7 +114,7 @@ class Extension {
             theme.load_stylesheet(stylesheetFile);
             Me.stylesheet = stylesheetFile;
         } catch (e) {
-            console.log('Openbar: Error loading stylesheet:');
+            console.log('Openbar: Error loading stylesheet: ');
             throw e;
         }
         
@@ -476,10 +475,17 @@ class Extension {
                         if(btn.child.constructor.name === 'AppMenuButton') {
                             // log('app menu button ====');
                             this.appMenuButton = btn;
-                            this.appMenuBtnStyle = btnContainerStyle + neonStyle;
-                            this.appMenuBtnChildStyle = commonStyle + btnStyle + islandStyle + gradientStyle;
+                            // this.appMenuBtnStyle = btnContainerStyle + neonStyle;
+                            // this.appMenuBtnChildStyle = commonStyle + btnStyle + islandStyle + gradientStyle;
                             if(!btn.child.opacity)
                                 this.appMenuButton.visible = false;
+                        }
+                        if(btn.child.constructor.name === 'ActivitiesButton') {
+                            let list = btn.child.get_child_at_index(0);
+                            for(const indicator of list) { 
+                                let dot = indicator.get_child_at_index(0);
+                                dot?.add_style_class_name('openbar');
+                            }
                         }
 
                     }
@@ -498,7 +504,7 @@ class Extension {
                 padding: ${borderWidth}px ${borderWidth}px;
                 margin: 0 0px;
             `;
-            btnContainerStyle += ` border-radius: ${borderRadius}px; `;
+            btnContainerStyle += ` border-radius: ${borderRadius+borderWidth}px; `;
             
             for(const box of panelBoxes) {
                 for(const btn of box) {
@@ -512,10 +518,17 @@ class Extension {
                         if(btn.child.constructor.name === 'AppMenuButton') {
                             // log('app menu button ====');
                             this.appMenuButton = btn;
-                            this.appMenuBtnStyle = btnContainerStyle;
-                            this.appMenuBtnChildStyle = commonStyle + btnStyle;
+                            // this.appMenuBtnStyle = btnContainerStyle;
+                            // this.appMenuBtnChildStyle = commonStyle + btnStyle;
                             if(!btn.child.opacity)
                                 this.appMenuButton.visible = false;
+                        }
+                        if(btn.child.constructor.name === 'ActivitiesButton') {
+                            let list = btn.child.get_child_at_index(0);
+                            for(const indicator of list) { 
+                                let dot = indicator.get_child_at_index(0);
+                                dot?.add_style_class_name('openbar');
+                            }
                         }
 
                     }
