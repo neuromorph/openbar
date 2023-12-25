@@ -23,11 +23,8 @@ import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
 import Gdk from 'gi://Gdk';
 import Gio from 'gi://Gio';
-// const { Gio, GObject, Gtk, Gdk, Adw, GLib } = imports.gi;
-// const ExtensionUtils = imports.misc.extensionUtils;
-// const Me = ExtensionUtils.getCurrentExtension();
+
 import {ExtensionPreferences, gettext as _, pgettext} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
-// const {gettext: _, pgettext} = ExtensionUtils;
 
 //-----------------------------------------------
 
@@ -49,14 +46,22 @@ class OpenbarPrefs {
 
     colorMix(startColor, endColor, factor) {
         let color = startColor + factor*(endColor - startColor);
-        color = (color < 0)? 0: (color>255)? 255: color;
+        color = (color < 0)? 0: (color>255)? 255: parseInt(color);
         return color;
+    }
+
+    colorBlend(c0,c1,p) {
+        var i=parseInt,r=Math.round,P=1-p,[a,b,c,d]=c0.split(","),[e,f,g,h]=c1.split(","),x=d||h,j=x?","+(!d?h:!h?d:r((parseFloat(d)*P+parseFloat(h)*p)*1000)/1000+")"):")";
+        return"rgb"+(x?"a(":"(")+r(i(a[3]=="a"?a.slice(5):a.slice(4))*P+i(e[3]=="a"?e.slice(5):e.slice(4))*p)+","+r(i(b)*P+i(f)*p)+","+r(i(c)*P+i(g)*p)+j;
     }
 
     saveStylesheet() {
 
         let hColor = this.settings.get_strv('hcolor');
         let hAlpha = this.settings.get_double('halpha');
+        let height = this.settings.get_double('height');
+        let fgcolor = this._settings.get_strv('fgcolor');
+        let fgalpha = this._settings.get_double('fgalpha');
 
         let mfgColor = this.settings.get_strv('mfgcolor');
         let mfgAlpha = this.settings.get_double('mfgalpha');
@@ -74,6 +79,10 @@ class OpenbarPrefs {
         const hred = parseInt(parseFloat(hColor[0]) * 255);
         const hgreen = parseInt(parseFloat(hColor[1]) * 255);
         const hblue = parseInt(parseFloat(hColor[2]) * 255);
+
+        const fgred = parseInt(parseFloat(fgcolor[0]) * 255);
+        const fggreen = parseInt(parseFloat(fgcolor[1]) * 255);
+        const fgblue = parseInt(parseFloat(fgcolor[2]) * 255);
 
         const mfgred = parseInt(parseFloat(mfgColor[0]) * 255);
         const mfggreen = parseInt(parseFloat(mfgColor[1]) * 255);
@@ -99,21 +108,25 @@ class OpenbarPrefs {
         const msgreen = parseInt(parseFloat(msColor[1]) * 255);
         const msblue = parseInt(parseFloat(msColor[2]) * 255);
 
+        const mbg = `rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha})`;
+        const mfg = `rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha})`;
+        const mhg = `rgba(${mhred},${mhgreen},${mhblue},${mhAlpha})`;
+        const msc = `rgba(${msred},${msgreen},${msblue},${msAlpha})`;
+
         const mhfgred = this.colorMix(mfgred, mhred, -0.12);
         const mhfggreen = this.colorMix(mfggreen, mhgreen, -0.12);
         const mhfgblue = this.colorMix(mfgblue, mhblue, -0.12);
 
-        const smbgred = this.colorMix(mbgred, mfgred, 0.12);
-        const smbggreen = this.colorMix(mbggreen, mfggreen, 0.12);
-        const smbgblue = this.colorMix(mbgblue, mfgblue, 0.12);
+        const mhfg = this.colorBlend(mfg, mhg, -0.18);
 
-                // menuStyle = ` color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgalpha}); 
-        //                 background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgalpha});  
-        //                 border-color: rgba(${mbred},${mbgreen},${mbblue},${mbalpha});`;
-        // menuChildStyle = ` background-color: rgba(${this.colorMix(mbgred, mfgred)},${this.colorMix(mbggreen, mfggreen)},${this.colorMix(mbgblue, mfgblue)},${mbgalpha}); `;
+        const smbgred = this.colorMix(mbgred, mfgred, 0.2);
+        const smbggreen = this.colorMix(mbggreen, mfggreen, 0.2);
+        const smbgblue = this.colorMix(mbgblue, mfgblue, 0.2);
 
-        // for buttons only on highlight events (all bar types)
-        // highlightStyle = ` background-color: rgba(${hred},${hgreen},${hblue},${halpha}); box-shadow: none; `;
+        const smbg = this.colorBlend(mbg, mfg, 0.18);
+        // const msfg = this.colorBlend(mfg, msc, -0.2);
+        const mscbg = this.colorBlend(msc, mbg, -0.2);
+        const mshg = this.colorBlend(msc, mhg, 0.3);
 
         let stylesheet = `
         /* stylesheet.css
@@ -129,10 +142,10 @@ class OpenbarPrefs {
             #panel.openbar .panel-button {
                 border-width: 0px;
             }
-
+            /* Either uses background-color or box-shadow as per bar type */
             #panel.openbar .panel-button:hover, #panel.openbar .panel-button:focus, #panel.openbar .panel-button:active {
                 background-color: rgba(${hred},${hgreen},${hblue},${hAlpha}) !important;
-                box-shadow: 0 0 0 0px rgba(${hred},${hgreen},${hblue},${hAlpha}) !important;
+                box-shadow: inset 0 0 0 ${height}px rgba(${hred},${hgreen},${hblue},${hAlpha}) !important;
             }
 
             #panel.openbar .panel-button:hover.clock-display .clock {
@@ -140,9 +153,14 @@ class OpenbarPrefs {
                 box-shadow: none;
             }
             
-            #panel.openbar .panel-button:active.clock-display .clock, #panel.openbar .panel-button:overview.clock-display .clock, #panel.openbar .panel-button:focus.clock-display .clock, #panel.openbar .panel-button:checked.clock-display .clock {
+            #panel.openbar .panel-button:active.clock-display .clock, #panel.openbar .panel-button:overview.clock-display .clock, 
+            #panel.openbar .panel-button:focus.clock-display .clock, #panel.openbar .panel-button:checked.clock-display .clock {
                 background-color: transparent;
                 box-shadow: none;
+            }
+
+            .openbar .workspace-dot {
+                background-color: rgba(${fgred},${fggreen},${fgblue},${fgalpha});
             }
         `;
 
@@ -153,12 +171,11 @@ class OpenbarPrefs {
             }
 
             .openmenu.popup-menu-content, .openmenu.candidate-popup-content {
-                box-shadow: 0 5px 10px 0 rgba(${mshred},${mshgreen},${mshblue},${mshAlpha}); /* shadow */
-                border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${mbAlpha}); /* border */
+                box-shadow: 0 5px 10px 0 rgba(${mshred},${mshgreen},${mshblue},${mshAlpha}) !important; /* menu shadow */
+                border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${mbAlpha}) !important; /* menu border */
                 font-size: 10.75pt;  /* font */
-                font-weight: 400;
-                background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha});  /*  bg */
-                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
+                background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}); /* menu bg */
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}); /* menu fg */ 
             }
         `;
 
@@ -166,40 +183,44 @@ class OpenbarPrefs {
             .openmenu.popup-menu-item {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
             }
-
-            .openmenu.popup-menu-item:checked {
-                /* color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important; */
-                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-                background-gradient-direction: none !important;
-            }
-
-            .openmenu.popup-menu-item:checked:focus, .openmenu.popup-menu-item:checked:hover, .openmenu.popup-menu-item:checked:selected {
-                color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
-                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
-                background-gradient-direction: none !important;
-            }
-              
-            .openmenu.popup-menu-item:checked:active {
-                color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
-                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-            }
-            
             .openmenu.popup-menu-item:focus, .openmenu.popup-menu-item:hover, .openmenu.popup-menu-item:selected {
                 color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
                 background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
                 transition-duration: 0ms !important;
+            }
+
+            /* .openmenu.popup-menu-item:checked {
+                 color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important; 
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }*/
+
+            .openmenu.popup-menu-item:checked, .openmenu.popup-menu-item:checked:active {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            .openmenu.popup-menu-item:checked:focus, .openmenu.popup-menu-item:checked:hover, .openmenu.popup-menu-item:checked:selected,
+            .openmenu.popup-menu-item:checked:active:focus, .openmenu.popup-menu-item:checked:active:hover, .openmenu.popup-menu-item:checked:active:selected {
+                color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
+                /* background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important; 
+                box-shadow: 0 0 0 0px rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important; */
+                background-color: ${mshg} !important;
             }
               
             .openmenu.popup-menu-item:active, .openmenu.popup-menu-item.selected:active {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
                 background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
             }
+            .openmenu.popup-menu-item:active:hover, .openmenu.popup-menu-item:active:focus, 
+            .openmenu.popup-menu-item.selected:active:hover, .openmenu.popup-menu-item.selected:active:focus {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+                background-color: ${mshg} !important;
+            }
 
         `;
-
+            // rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha})
         stylesheet += `
             .openmenu.popup-sub-menu {
-                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
+                background-color: ${smbg} !important;
                 border: none;
                 box-shadow: none;
             }
@@ -209,14 +230,23 @@ class OpenbarPrefs {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
             }
             
-            .openmenu.popup-sub-menu .popup-menu-item:focus, .openmenu.popup-sub-menu .popup-menu-item:hover, .openmenu.popup-sub-menu .popup-menu-item:selected {
+            .openmenu.popup-sub-menu .popup-menu-item:focus, 
+            .openmenu.popup-sub-menu .popup-menu-item:hover, 
+            .openmenu.popup-sub-menu .popup-menu-item:selected {
                 color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
                 background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
             }
             
-            .openmenu.popup-sub-menu .popup-menu-item:active {
+            .openmenu.popup-sub-menu .popup-menu-item:active, 
+            .openmenu.popup-sub-menu .popup-submenu-menu-item:active, 
+            .openmenu.popup-sub-menu .popup-submenu-menu-item:checked {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
                 background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            .openmenu.popup-sub-menu .popup-menu-item:active:hover, .openmenu.popup-sub-menu .popup-menu-item:active:focus, 
+            .openmenu.popup-sub-menu .popup-submenu-menu-item:active:hover, .openmenu.popup-sub-menu .popup-submenu-menu-item:active:focus,
+            .openmenu.popup-sub-menu .popup-submenu-menu-item:checked:hover, .openmenu.popup-sub-menu .popup-submenu-menu-item:checked:focus {
+                background-color: ${mshg} !important;
             }
         
         
@@ -229,15 +259,334 @@ class OpenbarPrefs {
                 margin: 0;
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
             }
-            .openmenu.popup-menu-section .popup-menu-item:focus, .openmenu.popup-menu-section .popup-menu-item:hover, .openmenu.popup-menu-section .popup-menu-item:selected {
+            .openmenu.popup-menu-section .popup-menu-item:focus, .openmenu.popup-menu-section .popup-menu-item:hover, 
+            .openmenu.popup-menu-section .popup-menu-item:selected {
                 color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
                 background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
             }
-            .openmenu.popup-menu-section .popup-menu-item:active {
+            .openmenu.popup-menu-section .popup-menu-item:active, 
+            .openmenu.popup-menu-section .popup-submenu-menu-item:active, 
+            .openmenu.popup-menu-section .popup-submenu-menu-item:checked {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
                 background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
             }
+            .openmenu.popup-menu-section .popup-menu-item:active:hover, .openmenu.popup-menu-section .popup-menu-item:active:focus, 
+            .openmenu.popup-menu-section .popup-submenu-menu-item:active:hover, .openmenu.popup-menu-section .popup-submenu-menu-item:active:focus, 
+            .openmenu.popup-menu-section .popup-submenu-menu-item:checked:hover, .openmenu.popup-menu-section .popup-submenu-menu-item:checked:focus {
+                background-color: ${mshg} !important;
+            }
 
+            .openmenu.popup-menu-item .toggle-switch:checked {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+            }
+            .openmenu.popup-menu-item .button:hover, .openmenu.popup-menu-item .button:focus, .openmenu.popup-menu-item .button:selected {
+                color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            }
+            .openmenu .slider{     
+                color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.5}) !important;
+                -barlevel-background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*0.9}) !important;
+                -barlevel-active-background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;            
+            }
+            .openmenu.popup-separator-menu-item .popup-separator-menu-item-separator, .openmenu.popup-separator-menu-item .popup-sub-menu .popup-separator-menu-item-separator {
+                background-color: rgba(${mbred},${mbgreen},${mbblue},0.75) !important;
+            }
+
+        `;
+
+        stylesheet += `
+            .openmenu.message {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+            }
+            .openmenu.message .message-body {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.75}) !important;
+            }
+            .openmenu.message .event-time {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.75}) !important;
+            }
+            .openmenu.message .message-close-button {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
+            }
+            .openmenu.message:hover, .openmenu.message:focus {
+                color: ${mhfg} !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha*0.9}) !important;
+            }
+            .openmenu.message-media-control {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+            }
+            .openmenu.message-media-control:insensitive {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.75}) !important;
+            }
+            .openmenu.media-message-cover-icon .fallback {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
+            }
+            .openmenu.dnd-button {
+                border-color: ${smbg} !important;
+            }
+            .openmenu.dnd-button:hover, .openmenu.dnd-button:focus {
+                border-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            }
+            .openmenu.message-list-clear-button {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+            }
+            .openmenu.message-list-clear-button:hover, .openmenu.message-list-clear-button:focus {
+                color: ${mhfg} !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha*0.9}) !important;
+            }
+
+
+            .openmenu.datemenu-today-button .date-label, .openmenu.datemenu-today-button .day-label {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.25}) !important;
+            } 
+            .openmenu.datemenu-today-button:hover, .openmenu.datemenu-today-button:focus {
+                /* color: ${mscbg} !important; */
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha*0.9}) !important;
+            }
+
+            .openmenu.calendar {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+            }
+            .openmenu.calendar .calendar-month-header .pager-button:hover,
+            .openmenu.calendar .calendar-month-header .pager-button:focus {
+                color: ${mhfg} !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            }
+            .openmenu.calendar .calendar-month-label {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+            }
+            .openmenu.calendar-day-heading  {
+                /* background-color: transparent; */
+                /* color: $insensitive_fg_color; */
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+            }
+            .openmenu.calendar-day-heading:focus  {
+                color: ${mhfg} !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            }
+            .openmenu.calendar-weekday, .openmenu.calendar-work-day {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
+                font-weight: normal;
+            }
+            .openmenu.calendar-nonwork-day, .openmenu.calendar-weekend {
+                /* color: transparentize($insensitive_fg_color, 0.7) !important; */
+                color: rgba(${mfgred},${mfggreen},${mfgblue},0.7) !important;
+                font-weight: normal;
+            }
+            .openmenu.calendar-other-month-day, .openmenu.calendar-other-month {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},0.5) !important;
+                font-weight: normal;
+            }
+            .openmenu.calendar-other-month-day:hover, .openmenu.calendar-other-month-day:focus, .openmenu.calendar-other-month-day:selected,
+            .openmenu.calendar-other-month:hover, .openmenu.calendar-other-month:focus, .openmenu.calendar-other-month:selected,
+            .openmenu.calendar-nonwork-day:hover, .openmenu.calendar-nonwork-day:focus, .openmenu.calendar-nonwork-day:selected,
+            .openmenu.calendar-work-day:hover, .openmenu.calendar-work-day:focus, .openmenu.calendar-work-day:selected,
+            .openmenu.calendar-weekday:hover, .openmenu.calendar-weekday:focus, .openmenu.calendar-weekday:selected,
+            .openmenu.calendar-weekend:hover, .openmenu.calendar-weekend:focus, .openmenu.calendar-weekend:selected {
+                color: ${mhfg} !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            }
+            .openmenu.calendar .calendar-today, .openmenu.calendar .calendar-today:selected {
+                /* color: $selected_fg_color; override weekends */
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            .openmenu.calendar .calendar-today:hover, .openmenu.calendar .calendar-today:focus {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+                /* background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important; */
+                background-color: ${mshg} !important;
+            }
+            .openmenu.calendar-week-number {
+                font-weight: bold;
+                font-feature-settings: "tnum";
+                background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha*0.7}) !important;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.8}) !important;
+            }
+
+
+            .openmenu.events-button {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+            }
+            .openmenu.events-button:hover, .openmenu.events-button:focus {
+                color: ${mhfg} !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            }
+            .openmenu.events-button .events-list {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+            }            
+            .openmenu.events-button .events-title {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.9}) !important;
+            }            
+            .openmenu.events-button .event-time {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.85}) !important;
+            }
+            
+            .openmenu.world-clocks-button {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+            }
+            .openmenu.world-clocks-button:hover, .openmenu.world-clocks-button:focus {
+                color: ${mhfg} !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            }
+            .openmenu.world-clocks-button .world-clocks-header, .openmenu.world-clocks-button .world-clocks-timezone {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.9}) !important;
+            }
+            .openmenu.world-clocks-button .world-clocks-city, .openmenu.world-clocks-button .world-clocks-time {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.85}) !important;
+            }
+           
+            .openmenu.weather-button {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+            }
+            .openmenu.weather-button:hover, .openmenu.weather-button:focus {
+                color: ${mhfg} !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            }
+            .openmenu.weather-button .weather-header {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+            }
+            .openmenu.weather-button .weather-header.location {
+                font-weight: normal;
+            }
+            .openmenu.weather-button .weather-forecast-time {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.85}) !important;
+            }
+        `;
+
+        stylesheet += `
+            .openmenu.quick-slider .slider{
+                color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.5}) !important;
+                -barlevel-background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*0.9}) !important;
+                -barlevel-active-background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;                  
+            }
+
+            .openmenu.quick-toggle {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+                box-shadow: none;
+            }
+            .openmenu.quick-toggle:hover, .openmenu.quick-toggle:focus {
+                color: ${mhfg} !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            }   
+            .openmenu.quick-toggle:checked, .openmenu.quick-toggle:checked:active, .openmenu.quick-toggle .button:checked {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            .openmenu.quick-toggle:checked:hover, .openmenu.quick-toggle:checked:focus, 
+            .openmenu.quick-toggle:checked:active:hover, .openmenu.quick-toggle:checked:active:focus, 
+            .openmenu.quick-toggle .button:checked:hover, .openmenu.quick-toggle .button:checked:focus {
+                color: ${mhfg} !important;
+                background-color: ${mshg} !important;
+            }
+
+            .openmenu.quick-menu-toggle .quick-toggle {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+                box-shadow: none;
+            }
+            .openmenu.quick-menu-toggle .quick-toggle:hover, .openmenu.quick-menu-toggle .quick-toggle:focus {
+                color: ${mhfg} !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            }
+            .openmenu.quick-menu-toggle .quick-toggle:checked, 
+            .openmenu.quick-menu-toggle .quick-toggle:active {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+                box-shadow: none;
+            }
+            .openmenu.quick-menu-toggle .quick-toggle:checked:hover, .openmenu.quick-menu-toggle .quick-toggle:checked:focus, 
+            .openmenu.quick-menu-toggle .quick-toggle:active:hover, .openmenu.quick-menu-toggle .quick-toggle:active:focus {
+                color: ${mhfg} !important;
+                background-color: ${mshg} !important;
+            }
+            
+            .openmenu.quick-menu-toggle .quick-toggle-arrow {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
+            }
+            .openmenu.quick-menu-toggle .quick-toggle-arrow:hover, .openmenu.quick-menu-toggle .quick-toggle-arrow:focus {
+                color: ${mhfg} !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            }
+            .openmenu.quick-menu-toggle .quick-toggle-arrow:checked {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.2}) !important;
+            }
+            .openmenu.quick-menu-toggle .quick-toggle-arrow:checked:hover, .openmenu.quick-menu-toggle .quick-toggle-arrow:checked:focus {
+                background-color: ${mshg} !important;
+            }
+
+            .openmenu.quick-toggle-menu {
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
+            }
+            .openmenu.quick-toggle-menu .popup-menu-item {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+            }
+            .openmenu.quick-toggle-menu .popup-menu-item:hover, .openmenu.quick-toggle-menu .popup-menu-item:focus {
+                color: ${mhfg} !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            }
+
+            .openmenu.quick-toggle-menu .popup-menu-item:checked {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.2}) !important;
+            }            
+            .openmenu.quick-toggle-menu .popup-menu-item:checked:focus, .openmenu.quick-toggle-menu .popup-menu-item:checked:hover, 
+            .openmenu.quick-toggle-menu .popup-menu-item:checked:selected {
+                color: ${mhfg} !important;
+                background-color: ${mshg} !important;
+            }
+            .openmenu.quick-toggle-menu .header .title, .openmenu.quick-toggle-menu .header .subtitle  {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+            }
+            .openmenu.quick-toggle-menu .header .icon {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+
+
+            .openmenu.quick-settings-system-item .icon-button {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.2}) !important;
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
+            }
+            .openmenu.quick-settings .icon-button, .openmenu.quick-settings .button {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.2}) !important;
+            }
+            .openmenu.quick-settings-system-item .icon-button:hover, .openmenu.quick-settings-system-item .icon-button:focus,
+            .openmenu.quick-settings .icon-button:hover, .openmenu.quick-settings .icon-button:focus,
+            .openmenu.quick-settings .button:hover, .openmenu.quick-settings .button:focus {
+                color: ${mhfg} !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            }
+
+            .openmenu.quick-settings .button:checked:hover, .openmenu.quick-settings .button:checked:focus {
+                color: ${mhfg} !important;
+                background-color: ${mshg} !important;
+            }
+
+            .openmenu.quick-settings-system-item .power-item:checked {
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            .openmenu.nm-network-item:checked, .openmenu.nm-network-item:active {
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }          
+            .openmenu.bt-device-item:checked {
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            .openmenu.keyboard-brightness-level .button:checked {
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            .openmenu.background-apps-quick-toggle:checked {
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
         `;
 
         
@@ -384,7 +733,6 @@ class OpenbarPrefs {
             label: `<span><b>Top Bar Customization</b></span>\n\n<span size="small" underline="none">${_('Version:')} ${this.openbar.metadata.version}  |  <a href="${this.openbar.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="https://www.buymeacoffee.com/neuromorph">☕</a></span>`,
             // halign: Gtk.Align.CENTER,
             use_markup: true,
-            // visible: true,
         });
         prefsWidget.attach(titleLabel, 1, rowNo, 1, 1);
 
@@ -705,14 +1053,14 @@ class OpenbarPrefs {
         });
         bggrid.attach(shColorLabel, 1, rowbar, 1, 1);
 
-        let shColorChooser = this.createColorWidget('Panel Shadow Color', 'Shadow color for the Panel', 'shcolor');
+        let shColorChooser = this.createColorWidget('Panel Shadow Color', 'Shadow color for the Panel. Choose light color for dark theme and dark for light.', 'shcolor');
         bggrid.attach(shColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
         // Add a panel shadow alpha scale
         let shAlphaLbl = new Gtk.Label({
-            label: 'Shadow Alpha',
+            label: 'Shadow Spread',
             halign: Gtk.Align.START,
         });
         bggrid.attach(shAlphaLbl, 1, rowbar, 1, 1);
@@ -850,7 +1198,7 @@ class OpenbarPrefs {
 
         rowNo += 1;
         const menuprop = new Gtk.Expander({
-            label: `<b>MENUS ⚗️</b>`,
+            label: `<b>MENU ⚗️</b>`,
             expanded: false,
             use_markup: true,
         });
@@ -956,7 +1304,7 @@ class OpenbarPrefs {
         });
         menugrid.attach(menuhColorLabel, 1, rowbar, 1, 1);
 
-        let menuhColorChooser = this.createColorWidget('Menu Highlight Color', 'Highlight color for the dropdown menus', 'mhcolor');
+        let menuhColorChooser = this.createColorWidget('Menu Highlight Color', 'Highlight color for hover/focus on menu items', 'mhcolor');
         menugrid.attach(menuhColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -980,7 +1328,7 @@ class OpenbarPrefs {
         });
         menugrid.attach(menusColorLabel, 1, rowbar, 1, 1);
 
-        let menusColorChooser = this.createColorWidget('Menu Selected/Active Color', 'Selected/Active color for the dropdown menus', 'mscolor');
+        let menusColorChooser = this.createColorWidget('Menu Selected/Active Color', 'Selected/Active color for the menu items', 'mscolor');
         menugrid.attach(menusColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1004,7 +1352,7 @@ class OpenbarPrefs {
         });
         menugrid.attach(menushColorLabel, 1, rowbar, 1, 1);
 
-        let menushColorChooser = this.createColorWidget('Menu Shadow Color', 'Shadow color for the dropdown menus', 'mshcolor');
+        let menushColorChooser = this.createColorWidget('Menu Shadow Color', 'Shadow color for the dropdown menus. Choose light color for dark theme and dark for light.', 'mshcolor');
         menugrid.attach(menushColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;

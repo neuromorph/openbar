@@ -27,10 +27,13 @@ import Pango from 'gi://Pango';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Panel from 'resource:///org/gnome/shell/ui/panel.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
-// import * as ExtensionUtils from 'resource:///org/gnome/shell/misc/extensionUtils.js';
+import * as Calendar from 'resource:///org/gnome/shell/ui/calendar.js';
+import * as ExtensionUtils from 'resource:///org/gnome/shell/misc/extensionUtils.js';
+
 import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 // const Config = imports.misc.config;
+const ExtensionState = ExtensionUtils.ExtensionState;
 
 
 // ConnectManager class to manage connections for events to trigger Openbar updatestyle
@@ -66,12 +69,26 @@ export default class Openbar extends Extension {
         super(metadata);
         this._settings = null;
         this._connections = null;
-        this.eventIds = {};
-        this.panelEventIds = [];
+        this._injections = [];
+    }
+
+    _injectToFunction(parent, name, func) {
+        let origin = parent[name];
+        parent[name] = function () {
+          let ret;
+          ret = origin.apply(this, arguments);
+          if (ret === undefined) ret = func.apply(this, arguments);
+          return ret;
+        };
+        return origin;
+    }
+    
+    _removeInjection(object, injection, name) {
+        if (injection[name] === undefined) delete object[name];
+        else object[name] = injection[name];
     }
 
     resetStyle(panel) {
-
         panel.set_style(null);
         panel.remove_style_class_name('openbar');
 
@@ -80,39 +97,39 @@ export default class Openbar extends Extension {
             for(const btn of box) {
                     btn.set_style(null);
                     btn.child?.set_style(null);     
-                    btn.remove_style_class_name('openbutton');               
             }
-        }
-        
-        // this.applyMenuStyles(panel, false);
+        }        
     }
 
     reloadStylesheet() {
-        // let extension = ExtensionManager.lookup(Me.uuid);
         // Unload stylesheet
         const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
         theme.unload_stylesheet(this.dir.get_child('stylesheet.css')); log('unloaded ');
         delete this.stylesheet;
 
         // Check extension enabled
-        // if (Me.state !== ExtensionState.ENABLED &&
-        //     Me.state !== ExtensionState.ENABLING)
+        // if (this.state !== ExtensionState.ENABLED &&
+        //     this.state !== ExtensionState.ENABLING) {
+        //     console.log('Openbar: Cannot load stylesheet as extension is not enabled.')
         //     return;
+        // }
 
         log('loading stylehseet');
         // Load stylesheet
         try {
-            const stylesheetFile = this.dir.get_child('stylesheet.css'); //log(stylesheetFile);
+            const stylesheetFile = this.dir.get_child('stylesheet.css');
             theme.load_stylesheet(stylesheetFile);
             this.stylesheet = stylesheetFile;
         } catch (e) {
-            log('Error loading stylesheet: ', stylesheetFile);
+            log('Error loading stylesheet: ');
             throw e;
         }
         
     }
 
     applyMenuClass(obj, add) {
+        if(!obj)
+            return;
         if(add) {
             if(obj.add_style_class_name)
                 obj.add_style_class_name('openmenu');
@@ -120,16 +137,15 @@ export default class Openbar extends Extension {
         else {
             if(obj.remove_style_class_name)
                 obj.remove_style_class_name('openmenu');
-            // log('remove openmneu for ', obj);
         }
     }
 
     applyMenuStyles(panel, add) {
-        if(!add) log('removing openmenu class --------');
+        // if(!add) log('removing openmenu class --------');
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
-            for(const btn of box) {
-                if(btn.child instanceof PanelMenu.Button) {
+            for(const btn of box) {  // btn is a bin, parent of indicator button
+                if(btn.child instanceof PanelMenu.Button) {  // btn.child is the indicator
                     if(btn.child.menu.box) {
                         this.applyMenuClass(btn.child.menu.box, add);
 
@@ -143,8 +159,7 @@ export default class Openbar extends Extension {
                                 });
                             }
                             
-                            // if(this.gnomeVersion === 42) {
-                            let subChildren = menuItem.get_children();
+                            let subChildren = menuItem.get_children(); // Required for submenus, at least in Gnome 42 settings menu
                             subChildren.forEach(menuchild => {
                                 this.applyMenuClass(menuchild, add);
                                 if(menuchild.menu) {
@@ -154,8 +169,71 @@ export default class Openbar extends Extension {
                                     });
                                 }
                             });
-                            // }
             
+                        });
+                    }
+
+                    if(btn.child.constructor.name === 'DateMenuButton') {
+                        btn.child.menu.box.get_children().forEach(bin => { 
+                            const hbox = bin.get_child_at_index(0); // hbox with left and right sections
+
+                            const msgList = hbox.get_child_at_index(0); // left section with notifications etc
+                            this.applyMenuClass(msgList, add);
+                            const placeholder = msgList.get_child_at_index(0);
+                            this.applyMenuClass(placeholder, add);
+                            const msgbox = msgList.get_child_at_index(1);
+                            const msgScroll = msgbox.get_child_at_index(0);
+                            const sectionList = msgScroll.child;
+                            const mediaSection = sectionList.get_child_at_index(0); // Media notifications (play music/video)
+                            const mediaList = mediaSection.get_child_at_index(0); 
+                            if(add && !this.mediaListId) {
+                                this.mediaListId = mediaList.connect('actor-added', (container, actor) => {
+                                    this.applyMenuClass(actor.child, add);
+                                });
+                            }
+                            else if(!add && this.mediaListId) {
+                                mediaList.disconnect(this.mediaListId);
+                                this.mediaListId = null;
+                            }
+                            mediaList.get_children().forEach(media => {
+                                this.applyMenuClass(media.child, add);
+                            });                      
+
+                            const notifSection = sectionList.get_child_at_index(1); // Message notifications
+                            const notifList = notifSection.get_child_at_index(0);
+                            if(add && !this.notifListId) {
+                                this.notifListId = notifList.connect('actor-added', (container, actor) => {
+                                    this.applyMenuClass(actor.child, add);
+                                });
+                            }
+                            else if(!add && this.notifListId) {
+                                notifList.disconnect(this.notifListId);
+                                this.notifListId = null;
+                            }
+                            notifList.get_children().forEach(message => {
+                                this.applyMenuClass(message.child, add);
+                            })
+                            const msgHbox = msgbox.get_child_at_index(1); // hbox at botton for dnd and clear buttons
+                            const dndBtn = msgHbox.get_child_at_index(1);
+                            this.applyMenuClass(dndBtn, add);
+                            const clearBtn = msgHbox.get_child_at_index(2);
+                            this.applyMenuClass(clearBtn, add);
+
+                            const vbox = hbox.get_child_at_index(1); // right section vbox for calendar etc
+                            vbox.get_children().forEach(item => {
+                                this.applyMenuClass(item, add);
+                                item.get_children().forEach(child => {
+                                    this.applyMenuClass(child, add);
+                                    child.get_children().forEach(subch => {
+                                        this.applyMenuClass(subch, add);
+                                    })
+                                });
+
+                                if(item.constructor.name === 'Calendar') {                                    
+                                    this.applyCalendarGridStyle(item, add);
+                                    this.calendarTimeoutId = setTimeout(() => {this.applyCalendarGridStyle(item, add);}, 250);
+                                }
+                            });
                         });
                     }
                     
@@ -164,31 +242,38 @@ export default class Openbar extends Extension {
         }
     }
 
+    applyCalendarGridStyle(item, add) { // calendar days grid with week numbers
+        for(let i=0; i<8; i++) {
+            for(let j=0; j<8; j++) {
+                const child = item.layout_manager.get_child_at(i, j);
+                this.applyMenuClass(child, add);
+             }
+        }
+    }
+
     // updatePanelStyle(panel, actor, event) {
     //     this.updateTimeoutId = setTimeout(() => {this.updateStyle(panel, actor, event);}, 0);
     // }
 
-    updatePanelStyle(panel, actor, key) {
+    updatePanelStyle(panel, actor, key) { log('update called with key ', key);
         if(!this._settings)
             return;
 
         let overview = this._settings.get_boolean('overview');
         if(key == 'shown') { 
-            // log('show-overview===========');
-            if(!overview) {
+            if(!overview) { // Reset in overview, if overview style disabled
                 this.resetStyle(panel);
                 this.applyMenuStyles(panel, false);
             }
-            this.appMenuButton?.set_style(null);
-            return;
+            else
+                this.appMenuButton?.set_style(null);
+            return;           
         }
         else if(key == 'hidden') {
-            if(overview) {
-                this.appMenuButton?.set_style(this.appMenuBtnStyle);
-                this.appMenuButton?.child?.set_style(this.appMenuBtnChildStyle);
-                panel.set_style(this.panelStyle);
-                return;
-            }            
+            this.updateTimeoutId = setTimeout(() => {
+                this.updatePanelStyle(panel, actor, 'post-hidden');
+                this.focusAppChanged(Shell.WindowTracker.get_default(), null);
+            }, 10);        
         }
              
 
@@ -199,14 +284,6 @@ export default class Openbar extends Extension {
         
         let menustyle = this._settings.get_boolean('menustyle');
         this.applyMenuStyles(panel, menustyle);
-        // let menustyle = this._settings.get_boolean('menustyle');
-        // if(key == 'menustyle' || key == 'removestyle' || key == 'reloadstyle')
-        //     this.applyMenuStyles(panel, menustyle);
-
-        // if(key=='removestyle')  {// A toggle key to trigger update for removing menu style
-        //     log('removestyle with menustyle=', menustyle);
-        //     this.applyMenuStyles(panel, false);
-        // }
             
         let menuKeys = ['reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 'mhcolor', 'mhalpha', 'mscolor', 'msalpha'];
         if(menuKeys.includes(key)) {
@@ -230,13 +307,12 @@ export default class Openbar extends Extension {
         let borderWidth = this._settings.get_double('bwidth');
         let borderRadius = this._settings.get_double('bradius');
         let bordertype = this._settings.get_string('bordertype');
-        
- 
+        let shcolor = this._settings.get_strv('shcolor');
+        let shalpha = this._settings.get_double('shalpha'); 
         let islandsColor = this._settings.get_strv('iscolor');
         let isalpha = this._settings.get_double('isalpha');
         let neon = this._settings.get_boolean('neon');
-        let shadow = this._settings.get_boolean('shadow');
-        
+        let shadow = this._settings.get_boolean('shadow');        
         let font = this._settings.get_string("font");
         let height = this._settings.get_double('height');
         let margin = this._settings.get_double('margin');
@@ -261,10 +337,12 @@ export default class Openbar extends Extension {
         const bgreen = parseInt(parseFloat(borderColor[1]) * 255);
         const bblue = parseInt(parseFloat(borderColor[2]) * 255);
 
-        
+        const shred = parseInt(parseFloat(shcolor[0]) * 255);
+        const shgreen = parseInt(parseFloat(shcolor[1]) * 255);
+        const shblue = parseInt(parseFloat(shcolor[2]) * 255);
    
     
-        this.resetStyle(panel);//==================
+        this.resetStyle(panel);
         panel.add_style_class_name('openbar');
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
@@ -284,14 +362,14 @@ export default class Openbar extends Extension {
             
         `;
         // panel style for panel only (all bar types)
-        panelStyle = ` background-color: rgba(${bgred},${bggreen},${bgblue},${bgalpha}) !important; height: ${height}px; `;
+        panelStyle = ` background-color: rgba(${bgred},${bggreen},${bgblue},${bgalpha}) !important; height: ${height}px !important; `;
         panelStyle += radiusStyle;
 
         // button style for buttons only (all bar types)
-        btnStyle = ` margin: none; height: ${height-4}px;  `;
+        btnStyle = ` margin: none; height: ${height}px !important;  `;
 
         // island style for buttons (only island bar type)
-        islandStyle = ` box-shadow: 0px 0px 0px -1px rgba(${isred},${isgreen},${isblue},${isalpha}); `;
+        islandStyle = ` background-color: rgba(${isred},${isgreen},${isblue},${isalpha}); `;
 
         // Add font style to panelstyle (works on all bar types)
         if (font != ""){
@@ -323,25 +401,25 @@ export default class Openbar extends Extension {
             }
             else {
                 neonStyle = `               
-                    box-shadow: 0px 0px 7px 3px rgba(${bred},${bgreen},${bblue},0.55);
+                    box-shadow: 0px 0px 6px 3px rgba(${bred},${bgreen},${bblue},0.55);
                 `;
             }
         }
         else {
-            neonStyle = ` box-shadow: none; `;
+            neonStyle = ` `;
         }
 
 
-        // Add panel shadow if enabled
+        // Add panel shadow if enabled. Use alpha to decide offset, blur, spread and alpha
         if (shadow) {
             if (borderRadius < radThreshold) {
                 panelStyle += `
-                    box-shadow: 0px 2px 6px 4px rgba(0, 0, 0, 0.16);
+                box-shadow: 0px ${shalpha*20}px ${2+shalpha*30}px ${2+shalpha*20}px rgba(${shred},${shgreen},${shblue}, ${shalpha});
                 `;
             }
             else {
                 panelStyle += `
-                    box-shadow: 0px 2px 6px 8px rgba(0, 0, 0, 0.16);
+                box-shadow: 0px ${shalpha*20}px ${2+shalpha*30}px ${2+shalpha*40}px rgba(${shred},${shgreen},${shblue}, ${shalpha});
                 `;
             }
         }
@@ -382,15 +460,15 @@ export default class Openbar extends Extension {
         if(bartype == 'Islands') {
             panelStyle += ` margin: ${margin}px ${1.5*margin}px; `;            
             panel.set_style(commonStyle + panelStyle);  
-            this.panelStyle = commonStyle + panelStyle;
+            // this.panelStyle = commonStyle + panelStyle;
 
-            btnStyle += radiusStyle;
+            btnStyle += borderStyle + radiusStyle;
 
             btnContainerStyle = ` 
                 padding: 0px 0px;
                 margin: 0 3px;
             `;
-            btnContainerStyle += borderStyle + ` border-radius: ${borderRadius+borderWidth}px; `;
+            btnContainerStyle += ` border-radius: ${borderRadius+borderWidth}px; `;
 
             for(const box of panelBoxes) {
                 for(const btn of box) {
@@ -399,22 +477,24 @@ export default class Openbar extends Extension {
                         // log(btn.child.style);
                         
                         if(btn.child.visible) {
-                            // btn.add_style_class_name('openbutton');                     
                             btn.set_style(btnContainerStyle + neonStyle);
                         }
                         if(btn.child.constructor.name === 'AppMenuButton') {
                             // log('app menu button ====');
                             this.appMenuButton = btn;
-                            this.appMenuBtnStyle = btnContainerStyle + neonStyle;
-                            this.appMenuBtnChildStyle = commonStyle + btnStyle + islandStyle + gradientStyle;
-                            // log('global key focus ', global.stage.get_key_focus());
+                            // this.appMenuBtnStyle = btnContainerStyle + neonStyle;
+                            // this.appMenuBtnChildStyle = commonStyle + btnStyle + islandStyle + gradientStyle;
                             if(!btn.child.opacity)
                                 this.appMenuButton.visible = false;
                         }
+                        if(btn.child.constructor.name === 'ActivitiesButton') {
+                            let list = btn.child.get_child_at_index(0);
+                            for(const indicator of list) { 
+                                let dot = indicator.get_child_at_index(0);
+                                dot?.add_style_class_name('openbar');
+                            }
+                        }
 
-                        
-                        // log('btn ===== ', btn.child.style);
-                        // log('btnContainer ==== ', btn.style);
                     }
                 }
             }
@@ -424,15 +504,15 @@ export default class Openbar extends Extension {
 
             // Apply the style to the panel
             panel.set_style(commonStyle + panelStyle + borderStyle + gradientStyle + neonStyle);
-            this.panelStyle = commonStyle + panelStyle + borderStyle + gradientStyle + neonStyle;
+            // this.panelStyle = commonStyle + panelStyle + borderStyle + gradientStyle + neonStyle;
 
-            btnStyle += ` border-radius: ${Math.max(borderRadius, 5)}px; border-width: 0px; box-shadow: none; `;
+            btnStyle += ` border-radius: ${Math.max(borderRadius, 5)}px; border-width: 0px; `;
 
             btnContainerStyle = ` 
-                padding: 0px 0px;
-                margin: 0 1px;
+                padding: ${borderWidth}px ${borderWidth}px;
+                margin: 0 0px;
             `;
-            btnContainerStyle += ` border: 2px solid transparent; border-radius: ${borderRadius+borderWidth}px; `;
+            btnContainerStyle += ` border-radius: ${borderRadius+borderWidth}px; `;
             
             for(const box of panelBoxes) {
                 for(const btn of box) {
@@ -441,17 +521,22 @@ export default class Openbar extends Extension {
                         btn.child.set_style(commonStyle + btnStyle);
           
                         if(btn.child.visible) {
-                            // btn.add_style_class_name('openbutton');                     
                             btn.set_style(btnContainerStyle);
                         }
                         if(btn.child.constructor.name === 'AppMenuButton') {
                             // log('app menu button ====');
                             this.appMenuButton = btn;
-                            this.appMenuBtnStyle = btnContainerStyle;
-                            this.appMenuBtnChildStyle = commonStyle + btnStyle;
-                            // log('global key focus ', global.stage.get_key_focus());
+                            // this.appMenuBtnStyle = btnContainerStyle;
+                            // this.appMenuBtnChildStyle = commonStyle + btnStyle;
                             if(!btn.child.opacity)
                                 this.appMenuButton.visible = false;
+                        }
+                        if(btn.child.constructor.name === 'ActivitiesButton') {
+                            let list = btn.child.get_child_at_index(0);
+                            for(const indicator of list) { 
+                                let dot = indicator.get_child_at_index(0);
+                                dot?.add_style_class_name('openbar');
+                            }
                         }
 
                     }
@@ -497,17 +582,12 @@ export default class Openbar extends Extension {
             [ Main.overview, 'hidden', this.updatePanelStyle.bind(this, panel) ],
             [ Main.overview, 'shown', this.updatePanelStyle.bind(this, panel) ],
             [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this, panel) ],
-            [ global.window_manager, 'switch-workspace', this.updatePanelStyle.bind(this, panel) ],
+            // [ global.window_manager, 'switch-workspace', this.updatePanelStyle.bind(this, panel) ],
             // [ global.display, 'workareas-changed', this.updatePanelStyle.bind(this, panel) ],
             [ panel._leftBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ panel._rightBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ Shell.WindowTracker.get_default(), 'notify::focus-app', this.focusAppChanged.bind(this) ],
-            // [ panel._leftBox, 'actor-removed', this.removePanelBtn.bind(this) ],
-            // [ panel._centerBox, 'actor-removed', this.removePanelBtn.bind(this) ],
-            // [ panel._rightBox, 'actor-removed', this.removePanelBtn.bind(this) ],
-            // [ panel._leftBox, 'enter-event', this.highlightEvents.bind(this) ],
-            // [ panel._leftBox, 'leave-event', this.highlightEvents.bind(this) ],
             // [ global.window_group, 'actor-added', this._onWindowAdded.bind(this) ],
             // [ global.window_group, 'actor-removed', this._onWindowRemoved.bind(this) ]
         ]);
@@ -515,6 +595,20 @@ export default class Openbar extends Extension {
         // let menustyle = this._settings.get_boolean('menustyle');
         // this.applyMenuStyles(panel, menustyle);
         
+        const obar = this;
+        this._injections["_rebuildCalendar"] = this._injectToFunction(
+            Calendar.Calendar.prototype,
+            "_rebuildCalendar",
+            function () {
+                let menustyle = obar._settings.get_boolean('menustyle');
+                let overview = obar._settings.get_boolean('overview');
+                if(menustyle) {  
+                    if(overview || !Main.panel.has_style_pseudo_class('overview'))
+                        obar.applyCalendarGridStyle(this, menustyle);            
+                }
+            }
+        );
+
         // Apply the initial style
         this.updatePanelStyle(panel);
     }
@@ -537,6 +631,10 @@ export default class Openbar extends Extension {
         if(this.updateTimeoutId)
             clearTimeout(this.updateTimeoutId);
         this.updateTimeoutId = null;
+
+        this._removeInjection(Calendar.Calendar.prototype, this._injections, "_rebuildCalendar");
+        // this._removeInjection(Panel.Panel.prototype, this._injections, "_updatePanel");
+        this._injections = [];
 
     }
     
