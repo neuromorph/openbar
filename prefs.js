@@ -55,8 +55,8 @@ class OpenbarPrefs {
         let hColor = this.settings.get_strv('hcolor');
         let hAlpha = this.settings.get_double('halpha');
         let height = this.settings.get_double('height');
-        let fgcolor = this._settings.get_strv('fgcolor');
-        let fgalpha = this._settings.get_double('fgalpha');
+        let fgcolor = this.settings.get_strv('fgcolor');
+        let fgalpha = this.settings.get_double('fgalpha');
 
         let mfgColor = this.settings.get_strv('mfgcolor');
         let mfgAlpha = this.settings.get_double('mfgalpha');
@@ -290,6 +290,9 @@ class OpenbarPrefs {
         `;
 
         stylesheet += `
+            .openmenu.message-list-placeholder {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},0.5) !important;
+            }
             .openmenu.message {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
@@ -1207,13 +1210,13 @@ class OpenbarPrefs {
         });
         menugrid.attach(menuInfoLabel, 1, rowbar, 2, 1);
 
-        rowbar += 2;
-
-        let menuSwitch = new Gtk.Switch({
-            halign: Gtk.Align.END,
-            tooltip_text: '⚗️ Experimental: Turn on to apply below menu styles',
-        });
-        menugrid.attach(menuSwitch, 2, rowbar, 1, 1);
+        // rowbar += 2;
+        //
+        // let menuSwitch = new Gtk.Switch({
+        //     halign: Gtk.Align.END,
+        //     tooltip_text: '⚗️ Experimental: Turn on to apply below menu styles',
+        // });
+        // menugrid.attach(menuSwitch, 2, rowbar, 1, 1);
 
         rowbar += 3;
 
@@ -1560,12 +1563,12 @@ class OpenbarPrefs {
             'value',
             Gio.SettingsBindFlags.DEFAULT
         );
-        this.settings.bind(
-            'menustyle',
-            menuSwitch,
-            'active',
-            Gio.SettingsBindFlags.DEFAULT
-        );
+        // this.settings.bind(
+        //     'menustyle',
+        //     menuSwitch,
+        //     'active',
+        //     Gio.SettingsBindFlags.DEFAULT
+        // );
         
     }
 

@@ -25,6 +25,10 @@
                 background-color: transparent;
                 box-shadow: none;
             }
+            
+            .openbar .workspace-dot {
+                background-color: rgba(255,255,255,1);
+            }
         
             .openmenu.popup-menu {
                 color: rgba(255,255,255,0.98);
@@ -149,6 +153,9 @@
             }
 
         
+            .openmenu.message-list-placeholder {
+                color: rgba(255,255,255,0.5) !important;
+            }
             .openmenu.message {
                 color: rgba(255,255,255,0.98) !important;
                 background-color: rgba(75,71,86,0.898) !important;
@@ -180,7 +187,7 @@
             .openmenu.dnd-button {
                 border-color: rgba(75,71,86,0.898) !important;
             }
-            .openmenu.dnd-button:hover {
+            .openmenu.dnd-button:hover, .openmenu.dnd-button:focus {
                 border-color: rgba(220,138,221,0.71) !important;
             }
             .openmenu.message-list-clear-button {
@@ -239,7 +246,8 @@
             .openmenu.calendar-other-month:hover, .openmenu.calendar-other-month:focus, .openmenu.calendar-other-month:selected,
             .openmenu.calendar-nonwork-day:hover, .openmenu.calendar-nonwork-day:focus, .openmenu.calendar-nonwork-day:selected,
             .openmenu.calendar-work-day:hover, .openmenu.calendar-work-day:focus, .openmenu.calendar-work-day:selected,
-            .openmenu.calendar-weekday:hover, .openmenu.calendar-weekday:focus, .openmenu.calendar-weekday:selected {
+            .openmenu.calendar-weekday:hover, .openmenu.calendar-weekday:focus, .openmenu.calendar-weekday:selected,
+            .openmenu.calendar-weekend:hover, .openmenu.calendar-weekend:focus, .openmenu.calendar-weekend:selected  {
                 color: rgba(261,276,261,1.029) !important;
                 background-color: rgba(220,138,221,0.71) !important;
             }
@@ -416,6 +424,11 @@
             .openmenu.quick-settings .button:hover, .openmenu.quick-settings .button:focus {
                 color: rgba(261,276,261,1.029) !important;
                 background-color: rgba(220,138,221,0.71) !important;
+            }
+            
+            .openmenu.quick-settings .button:checked:hover, .openmenu.quick-settings .button:checked:focus {
+                color: rgba(261,276,261,1.029) !important;
+                background-color: rgba(86,162,183,0.675) !important;
             }
 
             .openmenu.quick-settings-system-item .power-item:checked {

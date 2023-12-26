@@ -178,14 +178,14 @@ class Extension {
                             const msgScroll = msgbox.get_child_at_index(0);
                             const sectionList = msgScroll.child;
                             const mediaSection = sectionList.get_child_at_index(0); // Media notifications (play music/video)
-                            const mediaList = mediaSection.get_child_at_index(0); 
+                            const mediaList = mediaSection?.get_child_at_index(0); 
                             if(add && !this.mediaListId) {
-                                this.mediaListId = mediaList.connect('actor-added', (container, actor) => {
+                                this.mediaListId = mediaList?.connect('actor-added', (container, actor) => {
                                     this.applyMenuClass(actor.child, add);
                                 });
                             }
                             else if(!add && this.mediaListId) {
-                                mediaList.disconnect(this.mediaListId);
+                                mediaList?.disconnect(this.mediaListId);
                                 this.mediaListId = null;
                             }
                             mediaList.get_children().forEach(media => {
@@ -193,14 +193,14 @@ class Extension {
                             });                      
 
                             const notifSection = sectionList.get_child_at_index(1); // Message notifications
-                            const notifList = notifSection.get_child_at_index(0);
+                            const notifList = notifSection?.get_child_at_index(0);
                             if(add && !this.notifListId) {
-                                this.notifListId = notifList.connect('actor-added', (container, actor) => {
+                                this.notifListId = notifList?.connect('actor-added', (container, actor) => {
                                     this.applyMenuClass(actor.child, add);
                                 });
                             }
                             else if(!add && this.notifListId) {
-                                notifList.disconnect(this.notifListId);
+                                notifList?.disconnect(this.notifListId);
                                 this.notifListId = null;
                             }
                             notifList.get_children().forEach(message => {
