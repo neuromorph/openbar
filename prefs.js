@@ -302,13 +302,16 @@ class OpenbarPrefs {
                 color: ${mhfg} !important;
                 background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha*0.9}) !important;
             }
-            .openmenu.message-media-control {
+            .openmenu.message .message-media-control {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
             }
-            .openmenu.message-media-control:insensitive {
-                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.75}) !important;
+            .openmenu.message .message-media-control:hover, .openmenu.message .message-media-control:focus {
+                background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
             }
-            .openmenu.media-message-cover-icon .fallback {
+            .openmenu.message .message-media-control:insensitive {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.5}) !important;
+            }
+            .openmenu.message .media-message-cover-icon .fallback {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
             }
