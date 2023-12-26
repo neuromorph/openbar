@@ -55,8 +55,6 @@ class OpenbarPrefs {
         let hColor = this.settings.get_strv('hcolor');
         let hAlpha = this.settings.get_double('halpha');
         let height = this.settings.get_double('height');
-        let fgcolor = this.settings.get_strv('fgcolor');
-        let fgalpha = this.settings.get_double('fgalpha');
 
         let mfgColor = this.settings.get_strv('mfgcolor');
         let mfgAlpha = this.settings.get_double('mfgalpha');
@@ -74,10 +72,6 @@ class OpenbarPrefs {
         const hred = parseInt(parseFloat(hColor[0]) * 255);
         const hgreen = parseInt(parseFloat(hColor[1]) * 255);
         const hblue = parseInt(parseFloat(hColor[2]) * 255);
-        
-        const fgred = parseInt(parseFloat(fgcolor[0]) * 255);
-        const fggreen = parseInt(parseFloat(fgcolor[1]) * 255);
-        const fgblue = parseInt(parseFloat(fgcolor[2]) * 255);
 
         const mfgred = parseInt(parseFloat(mfgColor[0]) * 255);
         const mfggreen = parseInt(parseFloat(mfgColor[1]) * 255);
@@ -154,9 +148,6 @@ class OpenbarPrefs {
                 box-shadow: none;
             }
             
-            .openbar .workspace-dot {
-                background-color: rgba(${fgred},${fggreen},${fgblue},${fgalpha});
-            }
         `;
 
         // Menu styles

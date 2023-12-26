@@ -19,7 +19,7 @@
 
 /* exported Openbar init */
 
-const { St, Pango, Shell } = imports.gi;
+const { St, Pango } = imports.gi;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const Calendar = imports.ui.calendar;
@@ -326,7 +326,7 @@ class Extension {
         panel.add_style_class_name('openbar');
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
-        let commonStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, islandStyle, neonStyle, gradientStyle;      
+        let commonStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, islandStyle, dotStyle, neonStyle, gradientStyle;      
 
         // style that applies dynamically to either the panel or the panel buttons as per bar type
         borderStyle = `
@@ -350,6 +350,9 @@ class Extension {
 
         // island style for buttons (only island bar type)
         islandStyle = ` background-color: rgba(${isred},${isgreen},${isblue},${isalpha}); `;
+
+        // Workspace dots style
+        dotStyle = ` background-color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}); `;
 
         // Add font style to panelstyle (works on all bar types)
         if (font != ""){
@@ -463,7 +466,7 @@ class Extension {
                             let list = btn.child.get_child_at_index(0);
                             for(const indicator of list) { 
                                 let dot = indicator.get_child_at_index(0);
-                                dot?.add_style_class_name('openbar');
+                                dot?.set_style(dotStyle);
                             }
                         }
 
@@ -499,7 +502,7 @@ class Extension {
                             let list = btn.child.get_child_at_index(0);
                             for(const indicator of list) { 
                                 let dot = indicator.get_child_at_index(0);
-                                dot?.add_style_class_name('openbar');
+                                dot?.set_style(dotStyle);
                             }
                         }
 
