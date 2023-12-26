@@ -164,7 +164,7 @@ class OpenbarPrefs {
             .openmenu.popup-menu-content, .openmenu.candidate-popup-content {
                 box-shadow: 0 5px 10px 0 rgba(${mshred},${mshgreen},${mshblue},${mshAlpha}) !important; /* menu shadow */
                 border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${mbAlpha}) !important; /* menu border */
-                font-size: 10.75pt;  /* font */
+                /* add menu font */
                 background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}); /* menu bg */
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}); /* menu fg */ 
             }
@@ -179,11 +179,6 @@ class OpenbarPrefs {
                 background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
                 transition-duration: 0ms !important;
             }
-
-            /* .openmenu.popup-menu-item:checked {
-                 color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important; 
-                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-            }*/
 
             .openmenu.popup-menu-item:checked, .openmenu.popup-menu-item:checked:active {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
