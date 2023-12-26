@@ -88,7 +88,15 @@ export default class Openbar extends Extension {
         for(const box of panelBoxes) {
             for(const btn of box) {
                     btn.set_style(null);
-                    btn.child?.set_style(null);     
+                    btn.child?.set_style(null);
+
+                    if(btn.child.constructor.name === 'ActivitiesButton') {
+                        let list = btn.child.get_child_at_index(0);
+                        for(const indicator of list) { 
+                            let dot = indicator.get_child_at_index(0);
+                            dot?.set_style(null);
+                        }
+                    }     
             }
         }        
     }
