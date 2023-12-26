@@ -1180,25 +1180,6 @@ class OpenbarPrefs {
 
         ////////////////////////////////////////////////////////////////////
 
-        // rowNo += 1;
-        // const phprop = new Gtk.Expander({
-        //     label: `<b>PANEL HIGHLIGHT</b>`,
-        //     expanded: false,
-        //     use_markup: true,
-        // });
-        // let phgrid = this.createGridWidget();
-
-        // phprop.set_child(phgrid);
-        // prefsWidget.attach(phprop, 1, rowNo, 2, 1);
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // rowNo += 1
-
-        // let separator5 = this.createSeparatorWidget();
-        // prefsWidget.attach(separator5, 1, rowNo, 2, 1);
-
-        ////////////////////////////////////////////////////////////////////
-
         rowNo += 1;
         const menuprop = new Gtk.Expander({
             label: `<b>MENU ⚗️</b>`,
