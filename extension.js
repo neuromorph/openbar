@@ -21,7 +21,6 @@
 
 import St from 'gi://St';
 import Pango from 'gi://Pango';
-import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as Calendar from 'resource:///org/gnome/shell/ui/calendar.js';
@@ -328,7 +327,7 @@ export default class Openbar extends Extension {
         panel.add_style_class_name('openbar');
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
-        let commonStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, islandStyle, neonStyle, gradientStyle;      
+        let commonStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, islandStyle, dotStyle, neonStyle, gradientStyle;      
 
         // style that applies dynamically to either the panel or the panel buttons as per bar type
         borderStyle = `
@@ -352,6 +351,9 @@ export default class Openbar extends Extension {
 
         // island style for buttons (only island bar type)
         islandStyle = ` background-color: rgba(${isred},${isgreen},${isblue},${isalpha}); `;
+
+        // Workspace dots style
+        dotStyle = ` background-color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}); `;
 
         // Add font style to panelstyle (works on all bar types)
         if (font != ""){
@@ -465,7 +467,7 @@ export default class Openbar extends Extension {
                             let list = btn.child.get_child_at_index(0);
                             for(const indicator of list) { 
                                 let dot = indicator.get_child_at_index(0);
-                                dot?.add_style_class_name('openbar');
+                                dot?.set_style(dotStyle);
                             }
                         }
 
@@ -501,7 +503,7 @@ export default class Openbar extends Extension {
                             let list = btn.child.get_child_at_index(0);
                             for(const indicator of list) { 
                                 let dot = indicator.get_child_at_index(0);
-                                dot?.add_style_class_name('openbar');
+                                dot?.set_style(dotStyle);
                             }
                         }
 
