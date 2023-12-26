@@ -178,7 +178,7 @@ class Extension {
                             this.mediaList?.disconnect(this.mediaListId);
                             this.mediaListId = null;
                         }
-                        this.mediaList.get_children().forEach(media => {
+                        this.mediaList?.get_children().forEach(media => {
                             this.applyMenuClass(media.child, add);
                         });                      
 
@@ -193,7 +193,7 @@ class Extension {
                             this.notifList?.disconnect(this.notifListId);
                             this.notifListId = null;
                         }
-                        this.notifList.get_children().forEach(message => {
+                        this.notifList?.get_children().forEach(message => {
                             this.applyMenuClass(message.child, add);
                         })
                         const msgHbox = msgbox.get_child_at_index(1); // hbox at botton for dnd and clear buttons
