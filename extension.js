@@ -17,16 +17,14 @@
  * author: neuromorph
  */
 
-/* exported init */
+/* exported Openbar init */
 
 const { St, Pango, Shell } = imports.gi;
 const Main = imports.ui.main;
-const Panel = imports.ui.panel;
 const PanelMenu = imports.ui.panelMenu;
 const Calendar = imports.ui.calendar;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const ExtensionState = ExtensionUtils.ExtensionState;
 // const Config = imports.misc.config;
 
 
@@ -100,14 +98,7 @@ class Extension {
         theme.unload_stylesheet(Me.dir.get_child('stylesheet.css'));
         delete Me.stylesheet;
 
-        // Check extension enabled
-        // if (Me.state !== ExtensionState.ENABLED &&
-        //     Me.state !== ExtensionState.ENABLING) {
-        //     console.log('Openbar: Cannot load stylesheet as extension is not enabled.')
-        //     return;
-        // }
-
-        log('loading stylehseet');
+        // log('loading stylehseet');
         // Load stylesheet
         try {
             const stylesheetFile = Me.dir.get_child('stylesheet.css');
@@ -134,7 +125,6 @@ class Extension {
     }
 
     applyMenuStyles(panel, add) {
-        // if(!add) log('removing openmenu class --------');
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
             for(const btn of box) { // btn is a bin, parent of indicator button
@@ -167,66 +157,65 @@ class Extension {
                     }
 
                     if(btn.child.constructor.name === 'DateMenuButton') {
-                        btn.child.menu.box.get_children().forEach(bin => { 
-                            const hbox = bin.get_child_at_index(0); // hbox with left and right sections
+                        const bin = btn.child.menu.box.get_child_at_index(0); // CalendarArea
+                        const hbox = bin.get_child_at_index(0); // hbox with left and right sections
 
-                            const msgList = hbox.get_child_at_index(0); // left section with notifications etc
-                            this.applyMenuClass(msgList, add);
-                            const placeholder = msgList.get_child_at_index(0);
-                            this.applyMenuClass(placeholder, add);
-                            const msgbox = msgList.get_child_at_index(1);
-                            const msgScroll = msgbox.get_child_at_index(0);
-                            const sectionList = msgScroll.child;
-                            const mediaSection = sectionList.get_child_at_index(0); // Media notifications (play music/video)
-                            const mediaList = mediaSection?.get_child_at_index(0); 
-                            if(add && !this.mediaListId) {
-                                this.mediaListId = mediaList?.connect('actor-added', (container, actor) => {
-                                    this.applyMenuClass(actor.child, add);
-                                });
-                            }
-                            else if(!add && this.mediaListId) {
-                                mediaList?.disconnect(this.mediaListId);
-                                this.mediaListId = null;
-                            }
-                            mediaList.get_children().forEach(media => {
-                                this.applyMenuClass(media.child, add);
-                            });                      
-
-                            const notifSection = sectionList.get_child_at_index(1); // Message notifications
-                            const notifList = notifSection?.get_child_at_index(0);
-                            if(add && !this.notifListId) {
-                                this.notifListId = notifList?.connect('actor-added', (container, actor) => {
-                                    this.applyMenuClass(actor.child, add);
-                                });
-                            }
-                            else if(!add && this.notifListId) {
-                                notifList?.disconnect(this.notifListId);
-                                this.notifListId = null;
-                            }
-                            notifList.get_children().forEach(message => {
-                                this.applyMenuClass(message.child, add);
-                            })
-                            const msgHbox = msgbox.get_child_at_index(1); // hbox at botton for dnd and clear buttons
-                            const dndBtn = msgHbox.get_child_at_index(1);
-                            this.applyMenuClass(dndBtn, add);
-                            const clearBtn = msgHbox.get_child_at_index(2);
-                            this.applyMenuClass(clearBtn, add);
-
-                            const vbox = hbox.get_child_at_index(1); // right section vbox for calendar etc
-                            vbox.get_children().forEach(item => {
-                                this.applyMenuClass(item, add);
-                                item.get_children().forEach(child => {
-                                    this.applyMenuClass(child, add);
-                                    child.get_children().forEach(subch => {
-                                        this.applyMenuClass(subch, add);
-                                    })
-                                });
-
-                                if(item.constructor.name === 'Calendar') {                                    
-                                    this.applyCalendarGridStyle(item, add);
-                                    this.calendarTimeoutId = setTimeout(() => {this.applyCalendarGridStyle(item, add);}, 250);
-                                }
+                        const msgList = hbox.get_child_at_index(0); // left section with notifications etc
+                        this.applyMenuClass(msgList, add);
+                        const placeholder = msgList.get_child_at_index(0); // placeholder for 'No Notifications'
+                        this.applyMenuClass(placeholder, add);
+                        const msgbox = msgList.get_child_at_index(1);
+                        const msgScroll = msgbox.get_child_at_index(0);
+                        const sectionList = msgScroll.child;
+                        const mediaSection = sectionList.get_child_at_index(0); // Media notifications (play music/video)
+                        this.mediaList = mediaSection?.get_child_at_index(0); 
+                        if(add && !this.mediaListId) {
+                            this.mediaListId = this.mediaList?.connect('actor-added', (container, actor) => {
+                                this.applyMenuClass(actor.child, add);
                             });
+                        }
+                        else if(!add && this.mediaListId) {
+                            this.mediaList?.disconnect(this.mediaListId);
+                            this.mediaListId = null;
+                        }
+                        this.mediaList.get_children().forEach(media => {
+                            this.applyMenuClass(media.child, add);
+                        });                      
+
+                        const notifSection = sectionList.get_child_at_index(1); // Message notifications
+                        this.notifList = notifSection?.get_child_at_index(0);
+                        if(add && !this.notifListId) {
+                            this.notifListId = this.notifList?.connect('actor-added', (container, actor) => {
+                                this.applyMenuClass(actor.child, add);
+                            });
+                        }
+                        else if(!add && this.notifListId) {
+                            this.notifList?.disconnect(this.notifListId);
+                            this.notifListId = null;
+                        }
+                        this.notifList.get_children().forEach(message => {
+                            this.applyMenuClass(message.child, add);
+                        })
+                        const msgHbox = msgbox.get_child_at_index(1); // hbox at botton for dnd and clear buttons
+                        const dndBtn = msgHbox.get_child_at_index(1);
+                        this.applyMenuClass(dndBtn, add);
+                        const clearBtn = msgHbox.get_child_at_index(2);
+                        this.applyMenuClass(clearBtn, add);
+
+                        const vbox = hbox.get_child_at_index(1); // right section vbox for calendar etc
+                        vbox.get_children().forEach(item => {
+                            this.applyMenuClass(item, add);
+                            item.get_children().forEach(child => {
+                                this.applyMenuClass(child, add);
+                                child.get_children().forEach(subch => {
+                                    this.applyMenuClass(subch, add);
+                                })
+                            });
+
+                            if(item.constructor.name === 'Calendar') {                                    
+                                this.applyCalendarGridStyle(item, add);
+                                this.calendarTimeoutId = setTimeout(() => {this.applyCalendarGridStyle(item, add);}, 250);
+                            }
                         });
                     }
                     
@@ -249,7 +238,8 @@ class Extension {
     //     this.updateTimeoutId = setTimeout(() => {this.updateStyle(panel, actor, event);}, 0);
     // }
 
-    updatePanelStyle(panel, actor, key) { log('update called with key ', key);
+    updatePanelStyle(panel, actor, key) { 
+        // log('update called with key ', key);
         if(!this._settings)
             return;
 
@@ -259,20 +249,16 @@ class Extension {
                 this.resetStyle(panel);
                 this.applyMenuStyles(panel, false);
             }
-            else
-                this.appMenuButton?.set_style(null);
             return;           
         }
         else if(key == 'hidden') {
             this.updateTimeoutId = setTimeout(() => {
                 this.updatePanelStyle(panel, actor, 'post-hidden');
-                this.focusAppChanged(Shell.WindowTracker.get_default(), null);
-            }, 10);        
-        }
-             
+            }, 20);        
+        }             
 
         if(key == 'reloadstyle') { // A toggle key to trigger update for reload stylesheet
-            log('reload stylesheet');
+            // log('reload stylesheet');
             this.reloadStylesheet();
         }
         
@@ -281,7 +267,7 @@ class Extension {
             
         let menuKeys = ['reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 'mhcolor', 'mhalpha', 'mscolor', 'msalpha'];
         if(menuKeys.includes(key)) {
-            log('skipping updatestyle ===========');
+            // log('skipping updatestyle');
             return;
         }
             
@@ -390,12 +376,12 @@ class Extension {
         if (neon) {           
             if (borderRadius < radThreshold) {
                 neonStyle = `               
-                    box-shadow: 0px 0px 6px -1px rgba(${bred},${bgreen},${bblue},0.55);
+                    box-shadow: 0px 0px 5px -1px rgba(${bred},${bgreen},${bblue},0.55);
                 `;
             }
             else { //7 3
                 neonStyle = `               
-                    box-shadow: 0px 0px 6px 3px rgba(${bred},${bgreen},${bblue},0.55); 
+                    box-shadow: 0px 0px 5px 3px rgba(${bred},${bgreen},${bblue},0.55); 
                 `;
             }
         }
@@ -472,14 +458,7 @@ class Extension {
                         if(btn.child.visible) {
                             btn.set_style(btnContainerStyle + neonStyle);
                         }
-                        if(btn.child.constructor.name === 'AppMenuButton') {
-                            // log('app menu button ====');
-                            this.appMenuButton = btn;
-                            // this.appMenuBtnStyle = btnContainerStyle + neonStyle;
-                            // this.appMenuBtnChildStyle = commonStyle + btnStyle + islandStyle + gradientStyle;
-                            if(!btn.child.opacity)
-                                this.appMenuButton.visible = false;
-                        }
+
                         if(btn.child.constructor.name === 'ActivitiesButton') {
                             let list = btn.child.get_child_at_index(0);
                             for(const indicator of list) { 
@@ -498,7 +477,7 @@ class Extension {
             // Apply the style to the panel
             panel.set_style(commonStyle + panelStyle + borderStyle + gradientStyle + neonStyle);
 
-            btnStyle += ` border-radius: ${Math.max(borderRadius, 5)}px; border-width: 0px;  `; //box-shadow: none;
+            btnStyle += ` border-radius: ${Math.max(borderRadius, 5)}px; border-width: 0px;  `;
 
             btnContainerStyle = ` 
                 padding: ${borderWidth}px ${borderWidth}px;
@@ -515,14 +494,7 @@ class Extension {
                         if(btn.child.visible) {
                             btn.set_style(btnContainerStyle);
                         }
-                        if(btn.child.constructor.name === 'AppMenuButton') {
-                            // log('app menu button ====');
-                            this.appMenuButton = btn;
-                            // this.appMenuBtnStyle = btnContainerStyle;
-                            // this.appMenuBtnChildStyle = commonStyle + btnStyle;
-                            if(!btn.child.opacity)
-                                this.appMenuButton.visible = false;
-                        }
+
                         if(btn.child.constructor.name === 'ActivitiesButton') {
                             let list = btn.child.get_child_at_index(0);
                             for(const indicator of list) { 
@@ -537,21 +509,6 @@ class Extension {
 
         }
 
-        // log(panel.style);
-        // log(style);
-    }
-
-    focusAppChanged(actor, event) {
-        if(this.appMenuButton) {
-           //log('focus ', actor.focus_app, 'opacity ', this.appMenuButton.child.opacity, 'child visible ', this.appMenuButton.child.visible);
-
-           if(!actor.focus_app && global.stage.key_focus == null) 
-                this.appMenuButton.visible = false;
-            else
-                this.appMenuButton.visible = true;
-        }
-        else
-            log('no app menu btn===');
     }
 
     // ToDo: 
@@ -581,14 +538,9 @@ class Extension {
             [ panel._leftBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ panel._rightBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
-            [ Shell.WindowTracker.get_default(), 'notify::focus-app', this.focusAppChanged.bind(this) ],
             // [ global.window_group, 'actor-added', this._onWindowAdded.bind(this) ],
             // [ global.window_group, 'actor-removed', this._onWindowRemoved.bind(this) ]
         ]);
-
-        // let menustyle = this._settings.get_boolean('menustyle');
-        // this.applyMenuStyles(panel, menustyle);
-        // this.menuStyleTimeoutId = setTimeout(() => {this.applyMenuStyles(panel, menustyle);}, 50);
 
         const obar = this;
         this._injections["_rebuildCalendar"] = this._injectToFunction(
@@ -602,29 +554,7 @@ class Extension {
                         obar.applyCalendarGridStyle(this, menustyle);            
                 }
             }
-        );
-        // this._injections["_updatePanel"] = this._injectToFunction(
-        //     Panel.Panel.prototype,
-        //     "_updatePanel",
-        //     function () {
-        //         // let menustyle = obar._settings.get_boolean('menustyle');
-        //         let overview = obar._settings.get_boolean('overview');
-        //         if(this.has_style_pseudo_class('overview')) {  log('in OVERVIEW ==');
-        //             if(!overview) { // Reset in overview, if overview style disabled
-        //                 obar.resetStyle(this);
-        //                 obar.applyMenuStyles(this, false);
-        //                 // return;
-        //             }
-        //             else
-        //                 obar.appMenuButton?.set_style(null);            
-        //         }
-        //         else {  log('Not in OVERVIEW ==');
-        //             obar.updatePanelStyle(this, null, 'update-panel');
-        //             obar.focusAppChanged(Shell.WindowTracker.get_default(), null);
-        //         }
-        //     }
-        // );
-        
+        );       
 
         // Apply the initial style
         this.updatePanelStyle(panel, null, 'enabled');
@@ -637,20 +567,29 @@ class Extension {
         // Reset the style and disconnect onEvents and offEvents
         this.resetStyle(panel);
         this.applyMenuStyles(panel, false);
-        if(this.appMenuButton) 
-            this.appMenuButton.visible = true;
 
         this._settings = null;
 
         this._connections.disconnectAll();
         this._connections = null;
 
-        if(this.updateTimeoutId)
-            clearTimeout(this.updateTimeoutId);
-        this.updateTimeoutId = null;
+        const timeouts = [this.calendarTimeoutId, this.updateTimeoutId];
+        timeouts.forEach(timeoutId => {
+            if(timeoutId)
+                clearTimeout(timeoutId);
+            timeoutId = null;
+        });
+
+        if(this.mediaListId) {
+            this.mediaList?.disconnect(this.mediaListId);
+            this.mediaListId = null;
+        }
+        if(this.notifListId) {
+            this.notifList?.disconnect(this.notifListId);
+            this.notifListId = null;
+        }
 
         this._removeInjection(Calendar.Calendar.prototype, this._injections, "_rebuildCalendar");
-        // this._removeInjection(Panel.Panel.prototype, this._injections, "_updatePanel");
         this._injections = [];
 
     }
