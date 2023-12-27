@@ -262,7 +262,7 @@ export default class Openbar extends Extension {
         else if(key == 'hidden') {
             this.updateTimeoutId = setTimeout(() => {
                 this.updatePanelStyle(panel, actor, 'post-hidden');
-            }, 20);        
+            }, 10);        
         }
              
 
