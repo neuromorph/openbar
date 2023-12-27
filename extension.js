@@ -262,7 +262,7 @@ class Extension {
         else if(key == 'hidden') {
             this.updateTimeoutId = setTimeout(() => {
                 this.updatePanelStyle(panel, actor, 'post-hidden');
-            }, 20);        
+            }, 10);        
         }             
 
         if(key == 'reloadstyle') { // A toggle key to trigger update for reload stylesheet

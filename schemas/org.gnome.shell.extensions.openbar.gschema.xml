@@ -203,7 +203,7 @@
       <description>Transparency of menu selection.</description>
     </key>
     <key type="b" name="menustyle">
-      <default>false</default>
+      <default>true</default>
       <summary>Apply menu styles?</summary>
       <description>Enable/disable menu style customizations.</description>
     </key>
