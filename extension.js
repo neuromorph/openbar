@@ -45,6 +45,14 @@ class ConnectManager{
             id : obj.connect(signal, (actor, event) => {callback(actor, signal)}),
             obj: obj
         })
+        obj.connect('destroy', () => {
+            this.removeObject(obj)
+        });
+    }
+
+    // remove an object WITHOUT disconnecting it, use only when you know the object is destroyed
+    removeObject(object){
+        this.connections = this.connections.filter(({id, obj}) => obj != object);
     }
 
     disconnectAll(){
@@ -133,36 +141,44 @@ export default class Openbar extends Extension {
         }
     }
 
+    applyPanelStyles(panel, add) {
+        this.applyMenuClass(panel, add);
+
+        let menuChildren = panel.get_children();
+        menuChildren.forEach(menuItem => {
+            this.applyMenuClass(menuItem, add);
+            if(menuItem.menu) {
+                this.applyMenuClass(menuItem.menu.box, add);
+                menuItem.menu.box.get_children().forEach(child => {
+                    this.applyMenuClass(child, add);
+                });
+            }
+
+            let subChildren = menuItem.get_children(); // Required for submenus, at least in Gnome 42 settings menu
+            subChildren.forEach(menuchild => {
+                this.applyMenuClass(menuchild, add);
+                if(menuchild.menu) {
+                    this.applyMenuClass(menuchild.menu.box, add);
+                    menuchild.menu.box.get_children().forEach(child => {
+                        this.applyMenuClass(child, add);
+                    });
+                }
+            });
+        });
+    }
+
     applyMenuStyles(panel, add) {
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
             for(const btn of box) {  // btn is a bin, parent of indicator button
                 if(btn.child instanceof PanelMenu.Button) {  // btn.child is the indicator
-                    if(btn.child.menu.box) {
-                        this.applyMenuClass(btn.child.menu.box, add);
-
-                        let menuChildren = btn.child.menu.box.get_children();
-                        menuChildren.forEach(menuItem => {
-                            this.applyMenuClass(menuItem, add);
-                            if(menuItem.menu) {
-                                this.applyMenuClass(menuItem.menu.box, add);
-                                menuItem.menu.box.get_children().forEach(child => {
-                                    this.applyMenuClass(child, add);
-                                });
-                            }
-                            
-                            let subChildren = menuItem.get_children(); // Required for submenus, at least in Gnome 42 settings menu
-                            subChildren.forEach(menuchild => {
-                                this.applyMenuClass(menuchild, add);
-                                if(menuchild.menu) {
-                                    this.applyMenuClass(menuchild.menu.box, add);
-                                    menuchild.menu.box.get_children().forEach(child => {
-                                        this.applyMenuClass(child, add);
-                                    });
-                                }
-                            });
-            
-                        });
+                    // special case for Quick Settings Audio Panel, because it changes the layout of the Quick Settings menu
+                    if(btn.child.menu.constructor.name == "PanelGrid") {
+                        for(const panel of btn.child.menu._get_panels()) {
+                            this.applyPanelStyles(panel, add);
+                        }
+                    } else if(btn.child.menu.box) {
+                        this.applyPanelStyles(btn.child.menu.box, add);
                     }
 
                     if(btn.child.constructor.name === 'DateMenuButton') {
@@ -523,6 +539,20 @@ export default class Openbar extends Extension {
 
     }
 
+    // listen for addition of new panels
+    // this allow theming QSAP panels when QSAP is enabled after Open Bar
+    setupLibpanel(menu, panel) {
+        if(menu.constructor.name != 'PanelGrid')
+            return;
+
+        for(const panelColumn of menu.box.get_children()) {
+            this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this, panel));
+        }
+        this._connections.connect(menu.box, 'actor-added', (panelColumn) => {
+            this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this, panel));
+        });
+    }
+
     // ToDo: 
     // Debug 'length property isn't a number' warning
 
@@ -552,7 +582,12 @@ export default class Openbar extends Extension {
             [ panel._rightBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             // [ global.window_group, 'actor-added', this._onWindowAdded.bind(this) ],
             // [ global.window_group, 'actor-removed', this._onWindowRemoved.bind(this) ]
+            [ Main.panel.statusArea.quickSettings, 'menu-set', () => {
+                this.setupLibpanel(Main.panel.statusArea.quickSettings.menu, panel);
+            } ],
         ]);
+
+        this.setupLibpanel(Main.panel.statusArea.quickSettings.menu, panel);
 
         // let menustyle = this._settings.get_boolean('menustyle');
         // this.applyMenuStyles(panel, menustyle);
