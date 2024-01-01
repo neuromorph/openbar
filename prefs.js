@@ -739,7 +739,7 @@ class OpenbarPrefs {
         });
         bargrid.attach(barTypeLbl, 1, rowbar, 1, 1);
 
-        let barType = this.createComboboxWidget([["Mainland", _("Mainland")], ["Floating", _("Floating")], ["Islands", _("Islands")]]);
+        let barType = this.createComboboxWidget([ ["Mainland", _("Mainland")], ["Floating", _("Floating")], ["Trilands", _("Trilands")], ["Islands", _("Islands")]]);
         bargrid.attach(barType, 2, rowbar, 1, 1);
 
         rowbar += 1;

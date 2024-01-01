@@ -28,6 +28,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 // const Config = imports.misc.config;
 
 
+
 // ConnectManager class to manage connections for events to trigger Openbar style updates
 // This class is modified from Floating Panel extension (Thanks Aylur!)
 class ConnectManager{
@@ -62,7 +63,7 @@ class Extension {
         this._connections = null;
         this._injections = [];
     }
-
+    
     _injectToFunction(parent, name, func) {
         let origin = parent[name];
         parent[name] = function () {
@@ -334,7 +335,7 @@ class Extension {
         panel.add_style_class_name('openbar');
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
-        let commonStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, islandStyle, dotStyle, neonStyle, gradientStyle;      
+        let commonStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, islandStyle, dotStyle, neonStyle, gradientStyle, triLeftStyle, triBothStyle, triRightStyle;      
 
         // style that applies dynamically to either the panel or the panel buttons as per bar type
         borderStyle = `
@@ -358,6 +359,13 @@ class Extension {
 
         // island style for buttons (only island bar type)
         islandStyle = ` background-color: rgba(${isred},${isgreen},${isblue},${isalpha}); `;
+        
+         // Triland style for left end btn of box (only triland bar type)
+        triLeftStyle = ` border-radius: ${borderRadius}px 0px 0px ${borderRadius}px; `;
+         // Triland style for single btn box (only triland bar type)
+        triBothStyle = radiusStyle;
+         // Triland style for right end btn of box (only triland bar type)
+        triRightStyle = ` border-radius: 0px ${borderRadius}px ${borderRadius}px 0px; `;
 
         // Workspace dots style
         dotStyle = ` background-color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}); `;
@@ -448,7 +456,7 @@ class Extension {
         if(bartype == 'Floating') {
             panelStyle += ` margin: ${margin}px ${3*margin}px; `;
         }
-        if(bartype == 'Islands') {
+        if(bartype == 'Islands' || bartype == 'Trilands') {
             panelStyle += ` margin: ${margin}px ${1.5*margin}px; `;            
             panel.set_style(commonStyle + panelStyle);  
 
@@ -476,9 +484,22 @@ class Extension {
                                 let dot = indicator.get_child_at_index(0);
                                 dot?.set_style(dotStyle);
                             }
+                            
                         }
-
+                        
+                        if(bartype == 'Trilands') {
+                            if(btn == box.first_child && btn == box.last_child)
+                                btn.child.style += triBothStyle;
+                            else if(btn == box.first_child)
+                                btn.child.style += triLeftStyle;
+                            else if(btn == box.last_child)
+                                btn.child.style += triRightStyle;
+                            else
+                                btn.child.style += ` border-radius: 0px; `;
+                        }
+                        
                     }
+                    
                 }
             }
            
