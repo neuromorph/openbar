@@ -25,8 +25,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as Calendar from 'resource:///org/gnome/shell/ui/calendar.js';
 import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
-
-// const Config = imports.misc.config;
+import * as Config from 'resource:///org/gnome/shell/misc/config.js';
 
 // ConnectManager class to manage connections for events to trigger Openbar updatestyle
 // This class is modified from Floating Panel extension (Thanks Aylur!)
@@ -44,7 +43,7 @@ class ConnectManager{
         this.connections.push({
             id : obj.connect(signal, (actor, event) => {callback(actor, signal)}),
             obj: obj
-        })
+        });
         obj.connect('destroy', () => {
             this.removeObject(obj)
         });
@@ -172,6 +171,7 @@ export default class Openbar extends Extension {
         for(const box of panelBoxes) {
             for(const btn of box) {  // btn is a bin, parent of indicator button
                 if(btn.child instanceof PanelMenu.Button) {  // btn.child is the indicator
+                    
                     // special case for Quick Settings Audio Panel, because it changes the layout of the Quick Settings menu
                     if(btn.child.menu.constructor.name == "PanelGrid") {
                         for(const panel of btn.child.menu._get_panels()) {
@@ -351,7 +351,7 @@ export default class Openbar extends Extension {
         panel.add_style_class_name('openbar');
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
-        let commonStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, islandStyle, dotStyle, neonStyle, gradientStyle;      
+        let commonStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, islandStyle, dotStyle, neonStyle, gradientStyle, triLeftStyle, triBothStyle, triRightStyle;      
 
         // style that applies dynamically to either the panel or the panel buttons as per bar type
         borderStyle = `
@@ -375,6 +375,13 @@ export default class Openbar extends Extension {
 
         // island style for buttons (only island bar type)
         islandStyle = ` background-color: rgba(${isred},${isgreen},${isblue},${isalpha}); `;
+
+        // Triland style for left end btn of box (only triland bar type)
+        triLeftStyle = ` border-radius: ${borderRadius}px 0px 0px ${borderRadius}px; `;
+         // Triland style for single btn box (only triland bar type)
+        triBothStyle = radiusStyle;
+         // Triland style for right end btn of box (only triland bar type)
+        triRightStyle = ` border-radius: 0px ${borderRadius}px ${borderRadius}px 0px; `;
 
         // Workspace dots style
         dotStyle = ` background-color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}); `;
@@ -465,7 +472,7 @@ export default class Openbar extends Extension {
         if(bartype == 'Floating') {
             panelStyle += ` margin: ${margin}px ${3*margin}px; `;
         }
-        if(bartype == 'Islands') {
+        if(bartype == 'Islands' || bartype == 'Trilands') {
             panelStyle += ` margin: ${margin}px ${1.5*margin}px; `;            
             panel.set_style(commonStyle + panelStyle);  
 
@@ -493,6 +500,17 @@ export default class Openbar extends Extension {
                                 let dot = indicator.get_child_at_index(0);
                                 dot?.set_style(dotStyle);
                             }
+                        }
+
+                        if(bartype == 'Trilands') {
+                            if(btn == box.first_child && btn == box.last_child)
+                                btn.child.style += triBothStyle;
+                            else if(btn == box.first_child)
+                                btn.child.style += triLeftStyle;
+                            else if(btn == box.last_child)
+                                btn.child.style += triRightStyle;
+                            else
+                                btn.child.style += ` border-radius: 0px; `;
                         }
 
                     }
@@ -558,8 +576,8 @@ export default class Openbar extends Extension {
 
     enable() {
         
-        // const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
-        // this.gnomeVersion = major;
+        const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
+        this.gnomeVersion = major; log('gnome version ', this.gnomeVersion);
 
         this._settings = this.getSettings(); 
 
@@ -571,26 +589,19 @@ export default class Openbar extends Extension {
             this.updatePanelStyle(panel, settings, key);
         });
 
-        this._connections = new ConnectManager([
+        let connections = [
             [ Main.overview, 'hidden', this.updatePanelStyle.bind(this, panel) ],
             [ Main.overview, 'shown', this.updatePanelStyle.bind(this, panel) ],
             [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this, panel) ],
-            // [ global.window_manager, 'switch-workspace', this.updatePanelStyle.bind(this, panel) ],
-            // [ global.display, 'workareas-changed', this.updatePanelStyle.bind(this, panel) ],
             [ panel._leftBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ panel._rightBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
-            // [ global.window_group, 'actor-added', this._onWindowAdded.bind(this) ],
-            // [ global.window_group, 'actor-removed', this._onWindowRemoved.bind(this) ]
-            [ Main.panel.statusArea.quickSettings, 'menu-set', () => {
-                this.setupLibpanel(Main.panel.statusArea.quickSettings.menu, panel);
-            } ],
-        ]);
-
-        this.setupLibpanel(Main.panel.statusArea.quickSettings.menu, panel);
-
-        // let menustyle = this._settings.get_boolean('menustyle');
-        // this.applyMenuStyles(panel, menustyle);
+        ];
+        if(this.gnomeVersion > 42) {
+            let qSettings = Main.panel.statusArea.quickSettings;
+            connections.push( [qSettings, 'menu-set', this.setupLibpanel.bind(this, qSettings.menu, panel)] );
+        }
+        this._connections = new ConnectManager(connections);
         
         const obar = this;
         this._injections["_rebuildCalendar"] = this._injectToFunction(
@@ -605,6 +616,10 @@ export default class Openbar extends Extension {
                 }
             }
         );
+
+        // Setup connections for QSAP extension panels
+        if(this.gnomeVersion > 42)
+            this.setupLibpanel(Main.panel.statusArea.quickSettings.menu, panel);
 
         // Apply the initial style
         this.updatePanelStyle(panel);
