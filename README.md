@@ -58,6 +58,7 @@ If the panel/menu isn't looking right, you need to tweak some settings. There ar
 
 
 ## What's New (recent first)
+- New Bar Type 'Trilands' and compatibility with 'Quick Settings Audio Panel' extension
 - New overhauled version with support for menus including Calendar, Notifications, Quick Settings etc.
 - Initial version created
 
@@ -65,11 +66,14 @@ If the panel/menu isn't looking right, you need to tweak some settings. There ar
 
 ## Screenshots
 
+![Screenshot](screens/ego2.png)
+![Screenshot](screens/github0.png)
+![Screenshot](screens/github1.png)
+![Screenshot](screens/github2.png)
+![Screenshot](screens/github10.png)  
 ![Screenshot](screens/b1.png) 
 ![Screenshot](screens/b2.png)
 ![Screenshot](screens/b3.png)
 ![Screenshot](screens/b4.png)
-![Screenshot](screens/openbar1.png)
-![Screenshot](screens/openbar2.png)
 
 
