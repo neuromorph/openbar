@@ -25,8 +25,7 @@ const PanelMenu = imports.ui.panelMenu;
 const Calendar = imports.ui.calendar;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-// const Config = imports.misc.config;
-
+const Config = imports.misc.config;
 
 
 // ConnectManager class to manage connections for events to trigger Openbar style updates
@@ -46,8 +45,16 @@ class ConnectManager{
             id : obj.connect(signal, (actor, event) => {callback(actor, signal)}),
             obj: obj
         })
+        obj.connect('destroy', () => {
+            this.removeObject(obj)
+        });
     }
 
+    // remove an object WITHOUT disconnecting it, use only when you know the object is destroyed
+    removeObject(object){
+        this.connections = this.connections.filter(({id, obj}) => obj != object);
+    }
+    
     disconnectAll(){
         this.connections.forEach(c => {
             c.obj.disconnect(c.id);
@@ -107,7 +114,6 @@ class Extension {
         theme.unload_stylesheet(Me.dir.get_child('stylesheet.css'));
         delete Me.stylesheet;
 
-        // log('loading stylehseet');
         // Load stylesheet
         try {
             const stylesheetFile = Me.dir.get_child('stylesheet.css');
@@ -132,39 +138,48 @@ class Extension {
                 obj.remove_style_class_name('openmenu');
         }
     }
+    
+    applyPanelStyles(panel, add) {
+        this.applyMenuClass(panel, add);
+
+        let menuChildren = panel.get_children();
+        menuChildren.forEach(menuItem => {
+            this.applyMenuClass(menuItem, add);
+            if(menuItem.menu) {
+                this.applyMenuClass(menuItem.menu.box, add);
+                menuItem.menu.box.get_children().forEach(child => {
+                    this.applyMenuClass(child, add);
+                });
+            }
+
+            let subChildren = menuItem.get_children(); // Required for submenus, at least in Gnome 42 settings menu
+            subChildren.forEach(menuchild => {
+                this.applyMenuClass(menuchild, add);
+                if(menuchild.menu) {
+                    this.applyMenuClass(menuchild.menu.box, add);
+                    menuchild.menu.box.get_children().forEach(child => {
+                        this.applyMenuClass(child, add);
+                    });
+                }
+            });
+        });
+    }
 
     applyMenuStyles(panel, add) {
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
             for(const btn of box) { // btn is a bin, parent of indicator button
                 if(btn.child instanceof PanelMenu.Button) { // btn.child is the indicator
-                    if(btn.child.menu.box) {
-                        this.applyMenuClass(btn.child.menu.box, add);
 
-                        let menuChildren = btn.child.menu.box.get_children();
-                        menuChildren.forEach(menuItem => {
-                            this.applyMenuClass(menuItem, add);
-                            if(menuItem.menu) {
-                                this.applyMenuClass(menuItem.menu.box, add);
-                                menuItem.menu.box.get_children().forEach(child => {
-                                    this.applyMenuClass(child, add);
-                                });
-                            }
-                            
-                            let subChildren = menuItem.get_children(); // Required for submenus, at least in Gnome 42 settings menu
-                            subChildren.forEach(menuchild => {
-                                this.applyMenuClass(menuchild, add);
-                                if(menuchild.menu) {
-                                    this.applyMenuClass(menuchild.menu.box, add);
-                                    menuchild.menu.box.get_children().forEach(child => {
-                                        this.applyMenuClass(child, add);
-                                    });
-                                }
-                            });
-            
-                        });
+                    // special case for Quick Settings Audio Panel, because it changes the layout of the Quick Settings menu
+                    if(btn.child.menu.constructor.name == "PanelGrid") {
+                        for(const panel of btn.child.menu._get_panels()) {
+                            this.applyPanelStyles(panel, add);
+                        }
+                    } else if(btn.child.menu.box) {
+                        this.applyPanelStyles(btn.child.menu.box, add);
                     }
-
+                    
                     if(btn.child.constructor.name === 'DateMenuButton') {
                         const bin = btn.child.menu.box.get_child_at_index(0); // CalendarArea
                         const hbox = bin.get_child_at_index(0); // hbox with left and right sections
@@ -267,7 +282,6 @@ class Extension {
         }             
 
         if(key == 'reloadstyle') { // A toggle key to trigger update for reload stylesheet
-            // log('reload stylesheet');
             this.reloadStylesheet();
         }
         
@@ -276,7 +290,6 @@ class Extension {
             
         let menuKeys = ['reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 'mhcolor', 'mhalpha', 'mscolor', 'msalpha'];
         if(menuKeys.includes(key)) {
-            // log('skipping updatestyle');
             return;
         }
             
@@ -472,7 +485,6 @@ class Extension {
                 for(const btn of box) {
                     if(btn.child instanceof PanelMenu.Button) {
                         btn.child.set_style(commonStyle + btnStyle + islandStyle + gradientStyle);
-                        // log(btn.child.style);
                         
                         if(btn.child.visible) {
                             btn.set_style(btnContainerStyle + neonStyle);
@@ -543,13 +555,27 @@ class Extension {
 
     }
 
+    // listen for addition of new panels
+    // this allow theming QSAP panels when QSAP is enabled after Open Bar
+    setupLibpanel(menu, panel) {
+        if(menu.constructor.name != 'PanelGrid')
+            return;
+
+        for(const panelColumn of menu.box.get_children()) {
+            this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this, panel));
+        }
+        this._connections.connect(menu.box, 'actor-added', (panelColumn) => {
+            this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this, panel));
+        });
+    }
+    
     // ToDo: 
     // Debug 'length property isn't a number' warning
 
     enable() {
         
-        // const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
-        // this.gnomeVersion = major;
+        const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
+        this.gnomeVersion = major;
 
         this._settings = ExtensionUtils.getSettings(); 
 
@@ -561,18 +587,19 @@ class Extension {
             this.updatePanelStyle(panel, settings, key);
         });
 
-        this._connections = new ConnectManager([
+        let connections = [
             [ Main.overview, 'hidden', this.updatePanelStyle.bind(this, panel) ],
             [ Main.overview, 'shown', this.updatePanelStyle.bind(this, panel) ],
             [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this, panel) ],
-            // [ global.window_manager, 'switch-workspace', this.updatePanelStyle.bind(this, panel) ],
-            // [ global.display, 'workareas-changed', this.updatePanelStyle.bind(this, panel) ],
             [ panel._leftBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ panel._rightBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
-            // [ global.window_group, 'actor-added', this._onWindowAdded.bind(this) ],
-            // [ global.window_group, 'actor-removed', this._onWindowRemoved.bind(this) ]
-        ]);
+        ];
+        if(this.gnomeVersion > 42) {
+            let qSettings = Main.panel.statusArea.quickSettings;
+            connections.push( [qSettings, 'menu-set', this.setupLibpanel.bind(this, qSettings.menu, panel)] );
+        }
+        this._connections = new ConnectManager(connections);
 
         const obar = this;
         this._injections["_rebuildCalendar"] = this._injectToFunction(
@@ -588,6 +615,10 @@ class Extension {
             }
         );       
 
+        // Setup connections for QSAP extension panels
+        if(this.gnomeVersion > 42)
+            this.setupLibpanel(Main.panel.statusArea.quickSettings.menu, panel);
+        
         // Apply the initial style
         this.updatePanelStyle(panel, null, 'enabled');
     }
