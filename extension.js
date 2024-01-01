@@ -114,14 +114,13 @@ export default class Openbar extends Extension {
         theme.unload_stylesheet(this.dir.get_child('stylesheet.css')); 
         delete this.stylesheet;
 
-        // log('loading stylehseet');
         // Load stylesheet
         try {
             const stylesheetFile = this.dir.get_child('stylesheet.css');
             theme.load_stylesheet(stylesheetFile);
             this.stylesheet = stylesheetFile;
         } catch (e) {
-            log('Error loading stylesheet: ');
+            console.log('Error loading stylesheet: ');
             throw e;
         }
         
@@ -263,7 +262,7 @@ export default class Openbar extends Extension {
     // }
 
     updatePanelStyle(panel, actor, key) { 
-        // log('update called with key ', key);
+        // console.log('update called with key ', key);
         if(!this._settings)
             return;
 
@@ -283,7 +282,6 @@ export default class Openbar extends Extension {
              
 
         if(key == 'reloadstyle') { // A toggle key to trigger update for reload stylesheet
-            // log('reload stylesheet');
             this.reloadStylesheet();
         }
         
@@ -292,7 +290,6 @@ export default class Openbar extends Extension {
             
         let menuKeys = ['reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 'mhcolor', 'mhalpha', 'mscolor', 'msalpha'];
         if(menuKeys.includes(key)) {
-            // log('skipping updatestyle');
             return;
         }
             
@@ -488,7 +485,6 @@ export default class Openbar extends Extension {
                 for(const btn of box) {
                     if(btn.child instanceof PanelMenu.Button) {
                         btn.child.set_style(commonStyle + btnStyle + islandStyle + gradientStyle);
-                        // log(btn.child.style);
                         
                         if(btn.child.visible) {
                             btn.set_style(btnContainerStyle + neonStyle);
@@ -577,7 +573,7 @@ export default class Openbar extends Extension {
     enable() {
         
         const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
-        this.gnomeVersion = major; log('gnome version ', this.gnomeVersion);
+        this.gnomeVersion = major;
 
         this._settings = this.getSettings(); 
 
