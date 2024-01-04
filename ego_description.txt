@@ -29,4 +29,6 @@ If the panel/menu isn't looking right, you need to tweak some settings. There ar
     = Lastly, menu settings do not apply as soon as changed. You need to press 'Apply Menu Styles' button to apply the changes. 'Remove Menu Styles' button will remove all menu styles and revert to your default theme.
 
 
-Update: New versions for Gnome 42-44 and Gnome 45 are up!
+Update: 
+- New Bar Type 'Trilands'
+- Compatibility with 'Quick Settings Audio Panel' extension (thanks @Rayzeq)
