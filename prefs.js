@@ -679,11 +679,51 @@ class OpenbarPrefs {
         return separator;
     }
 
+    rgbToHex(r, g, b) {
+        return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1);
+    }
+
+    createPalette(window, paletteBox, clipboard) {
+        for(let i=1; i<=8; i++) {
+            let paletteColor = this.settings.get_strv('palette'+i);
+            let hexCol = this.rgbToHex(paletteColor[0],paletteColor[1],paletteColor[2]);
+            let paletteLbl = new Gtk.Label({
+                label: `<span bgcolor="${hexCol}" font_size="180%">       </span>`,
+                sensitive: false,
+                use_markup: true,
+            });
+            let paletteBtn = new Gtk.Button({
+                child: paletteLbl,
+                sensitive: true,
+                tooltip_text: hexCol,
+            });        
+            paletteBtn.connect('clicked', () => {
+                let hexCol = paletteLbl.label.match(/bgcolor="(.*?)" font/i)[1]; log('hexcool '+ hexCol);
+                clipboard.set(hexCol);
+            });
+            paletteBox.append(paletteBtn);
+            window.paletteButtons.push(paletteBtn);
+        }
+    }
+
+    updatePalette(window, grey=false) {
+        let i = 1; log('update btns '+window.paletteButtons);
+        window.paletteButtons.forEach(btn => {
+            let paletteColor = grey? ['125','125','125'] : this.settings.get_strv('palette'+i);
+            let hexCol = this.rgbToHex(paletteColor[0],paletteColor[1],paletteColor[2]);
+            btn.child.label = `<span bgcolor="${hexCol}" font_size="180%">       </span>`;
+            btn.tooltip_text = hexCol;
+            i++; log('LABEL ' + btn.child.label);
+        });
+    }
+
     fillOpenbarPrefs(window) {
 
         window.set_title(_("Open Bar 🍹"));
         window.default_height = 750;
         window.default_width = 620;
+
+        window.paletteButtons = [];
 
         // Get the settings object
         this.settings = ExtensionUtils.getSettings();
@@ -707,19 +747,73 @@ class OpenbarPrefs {
             file: Me.path + "/media/openbar.jpg",
             vexpand: false,
             hexpand: false,
-            pixel_size: 120,
-            margin_bottom: 10,
+            pixel_size: 100,
+            margin_bottom: 15,
             halign: Gtk.Align.END,
         });
         prefsWidget.attach(aboutImage, 2, rowNo, 1, 1);
 
         // Add a title label
         let titleLabel = new Gtk.Label({
-            label: `<span><b>Top Bar Customization</b></span>\n\n<span size="small" underline="none">${_('Version:')} ${Me.metadata.version}  |  <a href="${Me.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="https://www.buymeacoffee.com/neuromorph">☕</a></span>`,
+            label: `<span size="large"><b>Top Bar Customization</b></span>\n\n<span size="small" underline="none">${_('Version:')} ${Me.metadata.version}  |  <a href="${Me.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="https://www.buymeacoffee.com/neuromorph">☕</a></span>`,
             // halign: Gtk.Align.CENTER,
             use_markup: true,
         });
         prefsWidget.attach(titleLabel, 1, rowNo, 1, 1);
+
+        rowNo += 1;
+
+        let paletteLabel = new Gtk.Label({
+            label: `<span><b>Desktop Background Color Palette ⚗️</b></span>\n<span size="small">Use color picker or click the color to copy its hex value. \nYou can paste it in the Custom(+) color pop up.</span>`,
+            use_markup: true,
+        });
+        prefsWidget.attach(paletteLabel, 1, rowNo, 1, 1);
+
+        const getPaletteBtn = new Gtk.Button({
+            label: `🔄 Get`,
+            halign: Gtk.Align.END,
+            tooltip_text: 'Generate Color Palette from desktop background'
+        });
+        getPaletteBtn.connect('clicked', () => {
+            // Gray out the palette
+            this.updatePalette(window, true);
+            // Trigger backgroundPalette() by toggling 'bgpalette'
+            let bgpalette = this.settings.get_boolean('bgpalette');
+            if(bgpalette)
+                this.settings.set_boolean('bgpalette', false);
+            else
+                this.settings.set_boolean('bgpalette', true);
+            // Update palette once it is updated in settings
+            setTimeout(() => {this.updatePalette(window, false)}, 500);
+        });
+        
+        prefsWidget.attach(getPaletteBtn, 2, rowNo, 1, 1);
+
+        rowNo += 1;
+
+        const paletteBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 4,
+            margin_top: 5,
+            margin_bottom: 15,
+            halign: Gtk.Align.CENTER,
+            homogeneous: false,
+        });
+
+        
+        // paletteBox.append(getPaletteBtn);
+
+        // In case palette computation took longer, trigger update as per settings-change
+        // Note - it will not trigger if new value of palette8 is same as old value
+        this.settings.connect('changed::palette8', () => {
+            this.updatePalette(window, false);
+        });
+        
+        let clipboard = Gdk.Display.get_default().get_clipboard();
+
+        this.createPalette(window, paletteBox, clipboard);
+
+        prefsWidget.attach(paletteBox, 1, rowNo, 2, 1);
 
         rowNo += 1;
 
@@ -1164,7 +1258,7 @@ class OpenbarPrefs {
 
         rowNo += 1;
         const menuprop = new Gtk.Expander({
-            label: `<b>MENU ⚗️</b>`,
+            label: `<b>MENUS</b>`,
             expanded: false,
             use_markup: true,
         });

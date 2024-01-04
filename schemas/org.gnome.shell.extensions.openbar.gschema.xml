@@ -217,5 +217,50 @@
       <summary>Remove menu style</summary>
       <description>Remove menu style customizations.</description>
     </key>
+    <key type="as" name="palette1">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 1 (RGB)</summary>
+      <description>Palette Color 1 of background image.</description>
+    </key>
+    <key type="as" name="palette2">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 2 (RGB)</summary>
+      <description>Palette Color 2 of background image.</description>
+    </key>
+    <key type="as" name="palette3">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 3 (RGB)</summary>
+      <description>Palette Color 3 of background image.</description>
+    </key>
+    <key type="as" name="palette4">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 4 (RGB)</summary>
+      <description>Palette Color 4 of background image.</description>
+    </key>
+    <key type="as" name="palette5">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 5 (RGB)</summary>
+      <description>Palette Color 5 of background image.</description>
+    </key>
+    <key type="as" name="palette6">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 6 (RGB)</summary>
+      <description>Palette Color 6 of background image.</description>
+    </key>
+    <key type="as" name="palette7">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 7 (RGB)</summary>
+      <description>Palette Color 7 of background image.</description>
+    </key>
+    <key type="as" name="palette8">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 8 (RGB)</summary>
+      <description>Palette Color 8 of background image.</description>
+    </key>
+    <key type="b" name="bgpalette">
+      <default>true</default>
+      <summary>Trigger generation BG palette</summary>
+      <description>Trigger generation of desktop background color palette.</description>
+    </key>
   </schema>
 </schemalist>

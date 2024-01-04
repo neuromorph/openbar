@@ -27,6 +27,11 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Config = imports.misc.config;
 
+// Import the required modules
+const Gio = imports.gi.Gio;
+const GdkPixbuf = imports.gi.GdkPixbuf;
+const Quantize = Me.imports.quantize;
+
 
 // ConnectManager class to manage connections for events to trigger Openbar style updates
 // This class is modified from Floating Panel extension (Thanks Aylur!)
@@ -69,6 +74,69 @@ class Extension {
         this._settings = null;
         this._connections = null;
         this._injections = [];
+    }
+
+    backgroundPalette() {
+        // Get the background image file 
+        let bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
+        let pictureUri = bgSettings.get_string('picture-uri');
+        let pictureFile = Gio.File.new_for_uri(pictureUri);
+    
+        // Load the image into a pixbuf
+        let pixbuf = GdkPixbuf.Pixbuf.new_from_file(pictureFile.get_path());
+        console.log('CHANNELS ', pixbuf.n_channels);
+        let nChannels = pixbuf.n_channels;
+    
+        // Get the width and height of the image
+        let width = pixbuf.get_width();
+        let height = pixbuf.get_height();
+        let pixelCount = width*height;
+        let offset;
+
+        if(pixelCount < 1000000)
+            offset = 1;
+        else
+            offset = parseInt(pixelCount/1000000);
+
+        // Get the pixel data as an array of bytes
+        let pixels = pixbuf.get_pixels();
+    
+        let pixelArray = [];
+    
+        // Loop through the pixels and get the rgba values
+        for (let i = 0, index, r, g, b, a; i < pixelCount; i = i + offset) {
+            index = i * nChannels;
+    
+            // Get the red, green, blue, and alpha values
+            r = pixels[index + 0];
+            g = pixels[index + 1];
+            b = pixels[index + 2];
+
+            a = nChannels==4? pixels[index + 3] : undefined;
+
+            // if (typeof a !== 'undefined' && a < 125)
+            //     continue;
+            // If pixel is mostly opaque and not white
+            if (typeof a === 'undefined' || a >= 125) {
+                if (!(r > 250 && g > 250 && b > 250)) {
+                    pixelArray.push([r, g, b]);
+                }
+            }
+            // pixelArray.push([r,g,b]);
+            // log(`Pixel at (${x}, ${y}) has rgba values: (${r}, ${g}, ${b}, ${a})`);
+        }
+        log('pixelarray len ', pixelArray.length);
+    
+        // Generate color palette using Quantize ()
+        const cmap = Quantize.quantize(pixelArray, 8);
+        const palette = cmap? cmap.palette() : null;
+    
+        console.log('PALETTE ', palette);
+        let i = 1;
+        palette.forEach(color => {
+            this._settings.set_strv('palette'+i, [String(color[0]), String(color[1]), String(color[2])]);
+            i++;
+        });
     }
     
     _injectToFunction(parent, name, func) {
@@ -267,6 +335,14 @@ class Extension {
         if(!this._settings)
             return;
 
+        if(key.startsWith('palette'))
+            return;
+
+        if(key == 'bgpalette') { log('calling backgroundPalette()');
+            this.backgroundPalette();
+            return;
+        }
+
         let overview = this._settings.get_boolean('overview');
         if(key == 'shown') { 
             if(!overview) { // Reset in overview, if overview style disabled
@@ -285,6 +361,7 @@ class Extension {
             this.reloadStylesheet();
         }
         
+        // if('reloadstyle', 'removestyle', 'menustyle')
         let menustyle = this._settings.get_boolean('menustyle');
         this.applyMenuStyles(panel, menustyle);
             
@@ -621,6 +698,8 @@ class Extension {
         
         // Apply the initial style
         this.updatePanelStyle(panel, null, 'enabled');
+
+        //backgroundPalette();
     }
 
     disable() {
@@ -663,3 +742,4 @@ function init() {
     return new Extension();
 }
  
+
