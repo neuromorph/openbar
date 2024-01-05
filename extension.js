@@ -337,7 +337,7 @@ class Extension {
         if(key.startsWith('palette'))
             return;
 
-        if(key == 'bgpalette') { log('calling backgroundPalette()');
+        if(key == 'bgpalette' || key == 'bguri') { log('calling backgroundPalette()');
             this.backgroundPalette();
             return;
         }

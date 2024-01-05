@@ -848,7 +848,7 @@ class OpenbarPrefs {
         rowNo += 1;
 
         let paletteLabel = new Gtk.Label({
-            label: `<span><b>Desktop Background Color Palette</b></span>\n<span size="small">Click 'Get' to refresh palette. Click color to copy its hex value. \nIt is also available, under default palette, in each color button popup.</span>`,
+            label: `<span><b>Desktop Background Color Palette</b></span>\n<span size="small">Click 'Get' to force refresh palette. Click color to copy its hex value. \nIt is also available, under default palette, in each color button popup.</span>`,
             use_markup: true,
         });
         prefsWidget.attach(paletteLabel, 1, rowNo, 1, 1);
@@ -862,7 +862,10 @@ class OpenbarPrefs {
             this.triggerBackgroundPalette(window);
         });
         // In case palette computation took longer, trigger update as per settings-change
-        // Note - this event will not trigger if new value of palette9 is same as old value
+        // Note - this event will not trigger if new value of palette1 and 9 is same as old value (rare)
+        this.settings.connect('changed::palette1', () => {
+            this.updatePalette(window, false);
+        });
         this.settings.connect('changed::palette9', () => {
             this.updatePalette(window, false);
         });
