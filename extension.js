@@ -78,8 +78,7 @@ class Extension {
 
     backgroundPalette() {
         // Get the background image file 
-        let bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
-        let pictureUri = bgSettings.get_string('picture-uri');
+        let pictureUri = this._settings.get_string('bguri');
         let pictureFile = Gio.File.new_for_uri(pictureUri);
     
         // Load the image into a pixbuf
@@ -108,7 +107,7 @@ class Extension {
             index = i * nChannels;
     
             // Get the red, green, blue, and alpha values
-            r = pixels[index + 0];
+            r = pixels[index];
             g = pixels[index + 1];
             b = pixels[index + 2];
 
@@ -116,7 +115,7 @@ class Extension {
 
             // if (typeof a !== 'undefined' && a < 125)
             //     continue;
-            // If pixel is mostly opaque and not white
+            // If pixel is not transparent and not white
             if (typeof a === 'undefined' || a >= 125) {
                 if (!(r > 250 && g > 250 && b > 250)) {
                     pixelArray.push([r, g, b]);
@@ -128,12 +127,12 @@ class Extension {
         log('pixelarray len ', pixelArray.length);
     
         // Generate color palette using Quantize ()
-        const cmap = Quantize.quantize(pixelArray, 8);
+        const cmap = Quantize.quantize(pixelArray, 9);
         const palette = cmap? cmap.palette() : null;
     
         console.log('PALETTE ', palette);
         let i = 1;
-        palette.forEach(color => {
+        palette?.forEach(color => {
             this._settings.set_strv('palette'+i, [String(color[0]), String(color[1]), String(color[2])]);
             i++;
         });
@@ -654,10 +653,10 @@ class Extension {
         const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
         this.gnomeVersion = major;
 
-        this._settings = ExtensionUtils.getSettings(); 
-
         // Get the top panel
         let panel = Main.panel;
+
+        this._settings = ExtensionUtils.getSettings(); 
 
         // Connect to the settings changes
         this._settings.connect('changed', (settings, key) => {
@@ -678,6 +677,19 @@ class Extension {
         }
         this._connections = new ConnectManager(connections);
 
+        // Settings for desktop background image
+        this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
+        this._bgSettings.connect('changed::picture-uri', () => {
+            this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
+        });
+        this._bgSettings.connect('changed::picture-uri-dark', () => {
+            this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
+        });
+        let bguri = this._settings.get_string('bguri');
+        if(bguri == '')
+            this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
+
+        // Update calendar style on Calendar rebuild
         const obar = this;
         this._injections["_rebuildCalendar"] = this._injectToFunction(
             Calendar.Calendar.prototype,

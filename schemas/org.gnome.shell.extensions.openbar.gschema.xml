@@ -257,10 +257,20 @@
       <summary>BG Palette Color 8 (RGB)</summary>
       <description>Palette Color 8 of background image.</description>
     </key>
+    <key type="as" name="palette9">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 9 (RGB)</summary>
+      <description>Palette Color 9 of background image.</description>
+    </key>
     <key type="b" name="bgpalette">
       <default>true</default>
       <summary>Trigger generation BG palette</summary>
       <description>Trigger generation of desktop background color palette.</description>
+    </key>
+    <key type="s" name="bguri">
+      <default>""</default>
+      <summary>Desktop Background uri</summary>
+      <description>Desktop background image file uri.</description>
     </key>
   </schema>
 </schemalist>

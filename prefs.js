@@ -611,7 +611,59 @@ class OpenbarPrefs {
         return comboBox;
     }
 
-    createColorWidget(title, tooltip_text="", gsetting) {
+    hexToRGBA(hex) {
+        let bigint = parseInt(hex, 16);
+        let r = ((bigint >> 16) & 255) / 255;
+        let g = ((bigint >> 8) & 255) / 255;
+        let b = (bigint & 255) / 255;
+      
+        let rgba = new Gdk.RGBA({
+            red: r, 
+            green: g, 
+            blue: b, 
+            alpha: 1.0
+        });
+        return rgba;
+    }      
+
+    createDefaultPaletteArray() {
+        const  defaultHexColors = [
+            "99c1f1", "62a0ea", "3584e4", "1c71d8", "1a5fb4", /* Blue */
+            "8ff0a4", "57e389", "33d17a", "2ec27e", "26a269", /* Green */
+            "f9f06b", "f8e45c", "f6d32d", "f5c211", "e5a50a", /* Yellow */
+            "ffbe6f", "ffa348", "ff7800", "e66100", "c64600", /* Orange */
+            "f66151", "ed333b", "e01b24", "c01c28", "a51d2d", /* Red */
+            "dc8add", "c061cb", "9141ac", "813d9c", "613583", /* Purple */
+            "cdab8f", "b5835a", "986a44", "865e3c", "63452c", /* Brown */
+            "ffffff", "f6f5f4", "deddda", "c0bfbc", "9a9996", /* Light */
+            "77767b", "5e5c64", "3d3846", "241f31", "000000"  /* Dark */
+        ];
+        
+        let defaultPaletteArray = [];
+        for(const hex of defaultHexColors) {
+            defaultPaletteArray.push(this.hexToRGBA(hex));
+        }
+        // Save default palette array to use when bgPalette is updated
+        this.defaultPaletteArray = defaultPaletteArray;
+        
+        return defaultPaletteArray;
+    }
+
+    createBgPaletteArray() {
+        let rgbaArray = [];
+        for(let i=1; i<=9; i++) {
+            let paletteColor = this.settings.get_strv('palette'+i);
+            let rgba = new Gdk.RGBA();
+            rgba.red = parseFloat(paletteColor[0])/255;
+            rgba.green = parseFloat(paletteColor[1])/255;
+            rgba.blue = parseFloat(paletteColor[2])/255;
+            rgba.alpha = 1.0;
+            rgbaArray.push(rgba);
+        }
+        return rgbaArray;
+    }
+
+    createColorWidget(window, title, tooltip_text="", gsetting) {
         let color = new Gtk.ColorButton({
             title: title,
             halign: Gtk.Align.END,
@@ -635,6 +687,14 @@ class OpenbarPrefs {
                 rgba.blue.toString(),
             ]);
         });
+
+        let defaultArray = this.createDefaultPaletteArray();
+        let bgPaletteArray = this.createBgPaletteArray();
+        color.add_palette(Gtk.Orientation.VERTICAL, 5, defaultArray);
+        color.add_palette(Gtk.Orientation.HORIZONTAL, 9, bgPaletteArray);
+
+        window.colorButtons.push(color);
+
         return color;
     }
 
@@ -684,11 +744,11 @@ class OpenbarPrefs {
     }
 
     createPalette(window, paletteBox, clipboard) {
-        for(let i=1; i<=8; i++) {
+        for(let i=1; i<=9; i++) {
             let paletteColor = this.settings.get_strv('palette'+i);
             let hexCol = this.rgbToHex(paletteColor[0],paletteColor[1],paletteColor[2]);
             let paletteLbl = new Gtk.Label({
-                label: `<span bgcolor="${hexCol}" font_size="180%">       </span>`,
+                label: `<span bgcolor="${hexCol}" font_size="150%">       </span>`,
                 sensitive: false,
                 use_markup: true,
             });
@@ -711,10 +771,33 @@ class OpenbarPrefs {
         window.paletteButtons.forEach(btn => {
             let paletteColor = grey? ['125','125','125'] : this.settings.get_strv('palette'+i);
             let hexCol = this.rgbToHex(paletteColor[0],paletteColor[1],paletteColor[2]);
-            btn.child.label = `<span bgcolor="${hexCol}" font_size="180%">       </span>`;
+            btn.child.label = `<span bgcolor="${hexCol}" font_size="150%">       </span>`;
             btn.tooltip_text = hexCol;
             i++; log('LABEL ' + btn.child.label);
         });
+
+        if(!grey) {
+            window.colorButtons.forEach(color => {
+                let defaultArray = this.defaultPaletteArray;
+                let bgPaletteArray = this.createBgPaletteArray();
+                color.add_palette(Gtk.Orientation.VERTICAL, 0, null);
+                color.add_palette(Gtk.Orientation.VERTICAL, 5, defaultArray);
+                color.add_palette(Gtk.Orientation.HORIZONTAL, 9, bgPaletteArray);
+            });
+        }
+    }
+
+    triggerBackgroundPalette(window) {
+        // Gray out the palette
+        this.updatePalette(window, true);
+        // Trigger backgroundPalette() by toggling 'bgpalette'
+        let bgpalette = this.settings.get_boolean('bgpalette');
+        if(bgpalette)
+            this.settings.set_boolean('bgpalette', false);
+        else
+            this.settings.set_boolean('bgpalette', true);
+        // Update palette once it is updated in settings
+        setTimeout(() => {this.updatePalette(window, false)}, 500);
     }
 
     fillOpenbarPrefs(window) {
@@ -724,6 +807,7 @@ class OpenbarPrefs {
         window.default_width = 620;
 
         window.paletteButtons = [];
+        window.colorButtons = [];
 
         // Get the settings object
         this.settings = ExtensionUtils.getSettings();
@@ -755,7 +839,7 @@ class OpenbarPrefs {
 
         // Add a title label
         let titleLabel = new Gtk.Label({
-            label: `<span size="large"><b>Top Bar Customization</b></span>\n\n<span size="small" underline="none">${_('Version:')} ${Me.metadata.version}  |  <a href="${Me.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="https://www.buymeacoffee.com/neuromorph">☕</a></span>`,
+            label: `<span size="large"><b>Top Bar Customization</b></span>\n\n<span size="small" underline="none">${_('Version:')} ${Me.metadata.version}  |  <a href="${Me.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕      </a></span>`,
             // halign: Gtk.Align.CENTER,
             use_markup: true,
         });
@@ -764,7 +848,7 @@ class OpenbarPrefs {
         rowNo += 1;
 
         let paletteLabel = new Gtk.Label({
-            label: `<span><b>Desktop Background Color Palette ⚗️</b></span>\n<span size="small">Use color picker or click the color to copy its hex value. \nYou can paste it in the Custom(+) color pop up.</span>`,
+            label: `<span><b>Desktop Background Color Palette</b></span>\n<span size="small">Click 'Get' to refresh palette. Click color to copy its hex value. \nIt is also available, under default palette, in each color button popup.</span>`,
             use_markup: true,
         });
         prefsWidget.attach(paletteLabel, 1, rowNo, 1, 1);
@@ -775,17 +859,14 @@ class OpenbarPrefs {
             tooltip_text: 'Generate Color Palette from desktop background'
         });
         getPaletteBtn.connect('clicked', () => {
-            // Gray out the palette
-            this.updatePalette(window, true);
-            // Trigger backgroundPalette() by toggling 'bgpalette'
-            let bgpalette = this.settings.get_boolean('bgpalette');
-            if(bgpalette)
-                this.settings.set_boolean('bgpalette', false);
-            else
-                this.settings.set_boolean('bgpalette', true);
-            // Update palette once it is updated in settings
-            setTimeout(() => {this.updatePalette(window, false)}, 500);
+            this.triggerBackgroundPalette(window);
         });
+        // In case palette computation took longer, trigger update as per settings-change
+        // Note - this event will not trigger if new value of palette9 is same as old value
+        this.settings.connect('changed::palette9', () => {
+            this.updatePalette(window, false);
+        });
+        this.triggerBackgroundPalette(window);
         
         prefsWidget.attach(getPaletteBtn, 2, rowNo, 1, 1);
 
@@ -800,14 +881,6 @@ class OpenbarPrefs {
             homogeneous: false,
         });
 
-        
-        // paletteBox.append(getPaletteBtn);
-
-        // In case palette computation took longer, trigger update as per settings-change
-        // Note - it will not trigger if new value of palette8 is same as old value
-        this.settings.connect('changed::palette8', () => {
-            this.updatePalette(window, false);
-        });
         
         let clipboard = Gdk.Display.get_default().get_clipboard();
 
@@ -902,7 +975,7 @@ class OpenbarPrefs {
         });
         fggrid.attach(fgColorLbl, 1, rowbar, 1, 1);
 
-        let fgColor = this.createColorWidget('Foreground Color', 'Foreground color for the bar', 'fgcolor')
+        let fgColor = this.createColorWidget(window, 'Foreground Color', 'Foreground color for the bar', 'fgcolor');
         fggrid.attach(fgColor, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -987,7 +1060,7 @@ class OpenbarPrefs {
         });
         bggrid.attach(bgColorLbl, 1, rowbar, 1, 1);
 
-        let bgColor = this.createColorWidget('Background Color', 'Background or gradient start color for the bar', 'bgcolor');
+        let bgColor = this.createColorWidget(window, 'Background Color', 'Background or gradient start color for the bar', 'bgcolor');
         bggrid.attach(bgColor, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1011,7 +1084,7 @@ class OpenbarPrefs {
         });
         bggrid.attach(islandsColorLabel, 1, rowbar, 1, 1);
 
-        let islandsColorChooser = this.createColorWidget('Islands Background Color', 'Background or gradient start color for Islands', 'iscolor');
+        let islandsColorChooser = this.createColorWidget(window, 'Islands Background Color', 'Background or gradient start color for Islands', 'iscolor');
         bggrid.attach(islandsColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1049,7 +1122,7 @@ class OpenbarPrefs {
         });
         bggrid.attach(grColorLbl, 1, rowbar, 1, 1);
 
-        let grColor = this.createColorWidget('Gradient End Color', 'Second color of gradient', 'bgcolor2');
+        let grColor = this.createColorWidget(window, 'Gradient End Color', 'Second color of gradient', 'bgcolor2');
         bggrid.attach(grColor, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1085,7 +1158,7 @@ class OpenbarPrefs {
         });
         bggrid.attach(highlightColorLabel, 1, rowbar, 1, 1);
 
-        let highlightColorChooser = this.createColorWidget('Highlight Color', 'Highlight color for hover, focus etc.', 'hcolor');
+        let highlightColorChooser = this.createColorWidget(window, 'Highlight Color', 'Highlight color for hover, focus etc.', 'hcolor');
         highlightColorChooser.connect('color-set', () => {
             this.triggerStyleReload();
         });
@@ -1132,7 +1205,7 @@ class OpenbarPrefs {
         });
         bggrid.attach(shColorLabel, 1, rowbar, 1, 1);
 
-        let shColorChooser = this.createColorWidget('Panel Shadow Color', 'Shadow color for the Panel. Choose light color for dark theme and dark for light.', 'shcolor');
+        let shColorChooser = this.createColorWidget(window, 'Panel Shadow Color', 'Shadow color for the Panel. Choose light color for dark theme and dark for light.', 'shcolor');
         bggrid.attach(shColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1215,7 +1288,7 @@ class OpenbarPrefs {
         });
         bgrid.attach(borderColorLabel, 1, rowbar, 1, 1);
 
-        let borderColorChooser = this.createColorWidget('Border Color', 'Border Color', 'bcolor');
+        let borderColorChooser = this.createColorWidget(window, 'Border Color', 'Border Color', 'bcolor');
         bgrid.attach(borderColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1291,7 +1364,7 @@ class OpenbarPrefs {
         });
         menugrid.attach(menuFGColorLabel, 1, rowbar, 1, 1);
 
-        let menuFGColorChooser = this.createColorWidget('Menu Foreground Color', 'Foreground color for the dropdown menus', 'mfgcolor');
+        let menuFGColorChooser = this.createColorWidget(window, 'Menu Foreground Color', 'Foreground color for the dropdown menus', 'mfgcolor');
         menugrid.attach(menuFGColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1315,7 +1388,7 @@ class OpenbarPrefs {
         });
         menugrid.attach(menuBGColorLabel, 1, rowbar, 1, 1);
 
-        let menuBGColorChooser = this.createColorWidget('Menu Background Color', 'Background color for the dropdown menus', 'mbgcolor');
+        let menuBGColorChooser = this.createColorWidget(window, 'Menu Background Color', 'Background color for the dropdown menus', 'mbgcolor');
         menugrid.attach(menuBGColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1339,7 +1412,7 @@ class OpenbarPrefs {
         });
         menugrid.attach(menubColorLabel, 1, rowbar, 1, 1);
 
-        let menubColorChooser = this.createColorWidget('Menu Border Color', 'Border color for the dropdown menus', 'mbcolor');
+        let menubColorChooser = this.createColorWidget(window, 'Menu Border Color', 'Border color for the dropdown menus', 'mbcolor');
         menugrid.attach(menubColorChooser, 2, rowbar, 1, 1);
 
 
@@ -1364,7 +1437,7 @@ class OpenbarPrefs {
         });
         menugrid.attach(menuhColorLabel, 1, rowbar, 1, 1);
 
-        let menuhColorChooser = this.createColorWidget('Menu Highlight Color', 'Highlight color for hover/focus on menu items', 'mhcolor');
+        let menuhColorChooser = this.createColorWidget(window, 'Menu Highlight Color', 'Highlight color for hover/focus on menu items', 'mhcolor');
         menugrid.attach(menuhColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1388,7 +1461,7 @@ class OpenbarPrefs {
         });
         menugrid.attach(menusColorLabel, 1, rowbar, 1, 1);
 
-        let menusColorChooser = this.createColorWidget('Menu Selected/Active Color', 'Selected/Active color for the menu items', 'mscolor');
+        let menusColorChooser = this.createColorWidget(window, 'Menu Selected/Active Color', 'Selected/Active color for the menu items', 'mscolor');
         menugrid.attach(menusColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1412,7 +1485,7 @@ class OpenbarPrefs {
         });
         menugrid.attach(menushColorLabel, 1, rowbar, 1, 1);
 
-        let menushColorChooser = this.createColorWidget('Menu Shadow Color', 'Shadow color for the dropdown menus. Choose light color for dark theme and dark for light.', 'mshcolor');
+        let menushColorChooser = this.createColorWidget(window, 'Menu Shadow Color', 'Shadow color for the dropdown menus. Choose light color for dark theme and dark for light.', 'mshcolor');
         menugrid.attach(menushColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;
