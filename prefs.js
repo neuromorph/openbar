@@ -943,6 +943,17 @@ class OpenbarPrefs {
         bargrid.attach(barType, 2, rowbar, 1, 1);
 
         rowbar += 1;
+        //Position of bar
+        let barPosLbl = new Gtk.Label({
+            label: 'Position of Bar',
+            halign: Gtk.Align.START,
+        });
+        bargrid.attach(barPosLbl, 1, rowbar, 1, 1);
+
+        let barPos = this.createComboboxWidget([ ["Top", _("Top")], ["Bottom", _("Bottom")] ]);
+        bargrid.attach(barPos, 2, rowbar, 1, 1);
+
+        rowbar += 1;
 
         // Add a bar height scale
         let heightLabel = new Gtk.Label({
@@ -1591,6 +1602,12 @@ class OpenbarPrefs {
         this.settings.bind(
             'bartype',
             barType,
+            'active-id',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this.settings.bind(
+            'position',
+            barPos,
             'active-id',
             Gio.SettingsBindFlags.DEFAULT
         );

@@ -7,6 +7,11 @@
       <summary>Type of Top Bar</summary>
       <description>Type of Top Bar.</description>
     </key>
+    <key type="s" name="position">
+      <default>"Top"</default>
+      <summary>Position of Top Bar</summary>
+      <description>Position of Top Bar.</description>
+    </key>
     <key type="as" name="fgcolor">
       <default>['1.0', '1.0', '1.0']</default>
       <summary>FG Color (RGBA)</summary>

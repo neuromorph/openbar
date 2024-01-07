@@ -326,6 +326,25 @@ class Extension {
         }
     }
 
+    setPanelPosition(panel, position, height, margin, bartype) {
+        let pMonitor = Main.layoutManager.primaryMonitor;
+        let panelBox = Main.layoutManager.panelBox; 
+        // let [paneltX, paneltY] = panel.get_transformed_position();     
+        // let [panelX, panelY] = panel.get_position();  
+        // log('pnaelx, pnaeltx, pnaely, panelty, pmonX, pmonY, panelHgt',panelX, paneltX, panelY, paneltY, pMonitor.x, pMonitor.y, panel.height);
+        if(position == 'Top'){       
+            let topX = pMonitor.x;
+            let topY = pMonitor.y;
+            panelBox.set_position(topX, topY);            
+        }
+        else if(position == 'Bottom') {
+            margin = (bartype == 'Mainland')? 0: margin;
+            let bottomX = pMonitor.x;
+            let bottomY = pMonitor.y + pMonitor.height - height - 2*margin;
+            panelBox.set_position(bottomX, bottomY);
+        }
+    }
+
 
     // updatePanelStyle(panel, actor, event) {
     //     this.updateTimeoutId = setTimeout(() => {this.updateStyle(panel, actor, event);}, 0);
@@ -374,6 +393,7 @@ class Extension {
 
         // Get the settings values
         let bartype = this._settings.get_string('bartype');
+        let position = this._settings.get_string('position');
         let bgcolor = this._settings.get_strv('bgcolor');
         let gradient = this._settings.get_boolean('gradient');
         let grDirection = this._settings.get_string('gradient-direction');
@@ -424,6 +444,9 @@ class Extension {
     
         this.resetStyle(panel);
         panel.add_style_class_name('openbar');
+
+        if(['position', 'height', 'margin', 'bartype'].includes(key))
+            this.setPanelPosition(panel, position, height, margin, bartype);
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         let commonStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, islandStyle, dotStyle, neonStyle, gradientStyle, triLeftStyle, triBothStyle, triRightStyle;      
