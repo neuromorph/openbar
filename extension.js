@@ -49,10 +49,13 @@ class ConnectManager{
         this.connections.push({
             id : obj.connect(signal, (actor, event) => {callback(actor, signal)}),
             obj: obj
-        })
-        obj.connect('destroy', () => {
-            this.removeObject(obj)
         });
+        // Remove obj on destroy except GSettings (doesn't have destroy signal)
+        if(!(obj instanceof Gio.Settings)) {
+            obj.connect('destroy', () => {
+                this.removeObject(obj)
+            });
+        }
     }
 
     // remove an object WITHOUT disconnecting it, use only when you know the object is destroyed
@@ -72,26 +75,28 @@ class ConnectManager{
 class Extension {
     constructor() {
         this._settings = null;
+        this._bgSettings = null;
         this._connections = null;
         this._injections = [];
     }
 
     backgroundPalette() {
-        // Get the background image file 
+        // Get the latest background image file (picture-uri Or picture-uri-dark)
         let pictureUri = this._settings.get_string('bguri');
         let pictureFile = Gio.File.new_for_uri(pictureUri);
     
         // Load the image into a pixbuf
         let pixbuf = GdkPixbuf.Pixbuf.new_from_file(pictureFile.get_path());
-        console.log('CHANNELS ', pixbuf.n_channels);
+        // console.log('CHANNELS ', pixbuf.n_channels);
         let nChannels = pixbuf.n_channels;
     
-        // Get the width and height of the image
+        // Get the width, height and pixel count of the image
         let width = pixbuf.get_width();
         let height = pixbuf.get_height();
         let pixelCount = width*height;
         let offset;
 
+        // Sample about a million pixels to quantize
         if(pixelCount < 1000000)
             offset = 1;
         else
@@ -113,18 +118,15 @@ class Extension {
 
             a = nChannels==4? pixels[index + 3] : undefined;
 
-            // if (typeof a !== 'undefined' && a < 125)
-            //     continue;
-            // If pixel is not transparent and not white
+            // Save pixles that are not transparent and not white
             if (typeof a === 'undefined' || a >= 125) {
                 if (!(r > 250 && g > 250 && b > 250)) {
                     pixelArray.push([r, g, b]);
                 }
             }
-            // pixelArray.push([r,g,b]);
             // log(`Pixel at (${x}, ${y}) has rgba values: (${r}, ${g}, ${b}, ${a})`);
         }
-        log('pixelarray len ', pixelArray.length);
+        console.log('pixelarray len ', pixelArray.length);
     
         // Generate color palette using Quantize ()
         const cmap = Quantize.quantize(pixelArray, 9);
@@ -671,23 +673,27 @@ class Extension {
             [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ panel._rightBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
         ];
+        // Connection specific to QSAP extension (Quick Settings)
         if(this.gnomeVersion > 42) {
             let qSettings = Main.panel.statusArea.quickSettings;
             connections.push( [qSettings, 'menu-set', this.setupLibpanel.bind(this, qSettings.menu, panel)] );
         }
-        this._connections = new ConnectManager(connections);
 
-        // Settings for desktop background image
+        // Settings for desktop background image (capture last changed uri)
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
-        this._bgSettings.connect('changed::picture-uri', () => {
-            this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
-        });
-        this._bgSettings.connect('changed::picture-uri-dark', () => {
-            this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
-        });
+        connections.push([this._bgSettings, 'changed::picture-uri', () => {
+            let uri = this._bgSettings.get_string('picture-uri');
+            this._settings.set_string('bguri', uri);}]);
+        connections.push([this._bgSettings, 'changed::picture-uri-dark', () => {
+            let uri = this._bgSettings.get_string('picture-uri-dark');
+            this._settings.set_string('bguri', uri);}]);
+        // Initially, use picture-uri
         let bguri = this._settings.get_string('bguri');
         if(bguri == '')
             this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
+
+        // Setup all connections
+        this._connections = new ConnectManager(connections);
 
         // Update calendar style on Calendar rebuild
         const obar = this;
@@ -723,6 +729,7 @@ class Extension {
         this.applyMenuStyles(panel, false);
 
         this._settings = null;
+        this._bgSettings = null;
 
         this._connections.disconnectAll();
         this._connections = null;

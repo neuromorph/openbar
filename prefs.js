@@ -847,16 +847,35 @@ class OpenbarPrefs {
 
         rowNo += 1;
 
-        let paletteLabel = new Gtk.Label({
-            label: `<span><b>Desktop Background Color Palette</b></span>\n<span size="small">Click 'Get' to force refresh palette. Click color to copy its hex value. \nIt is also available, under default palette, in each color button popup.</span>`,
+        // Background Palette
+        const paletteprop = new Gtk.Expander({
+            label: `<b>COLOR PALETTE</b>`,
+            expanded: false,
             use_markup: true,
         });
-        prefsWidget.attach(paletteLabel, 1, rowNo, 1, 1);
+        let palettegrid = this.createGridWidget();
+
+        let rowbar = 1;
+
+        let paletteLabel = new Gtk.Label({
+            label: `<span><b>Desktop Background Color Palette</b></span>\n<span size="small" allow_breaks="true">The palette will auto-refresh upon changing the background. It is available in each color \nbutton popup under the default palette. You may click a color below to copy its hex value.</span>`,
+            use_markup: true,
+        });
+        palettegrid.attach(paletteLabel, 1, rowbar, 2, 1);
+        
+        rowbar += 1;
+
+        let getPaletteLabel = new Gtk.Label({
+            label: `<span>Manual trigger to get/ refresh the palette</span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(getPaletteLabel, 1, rowbar, 1, 1);
 
         const getPaletteBtn = new Gtk.Button({
             label: `🔄 Get`,
             halign: Gtk.Align.END,
-            tooltip_text: 'Generate Color Palette from desktop background'
+            tooltip_text: 'Generate/ Refresh Color Palette from desktop background'
         });
         getPaletteBtn.connect('clicked', () => {
             this.triggerBackgroundPalette(window);
@@ -871,9 +890,9 @@ class OpenbarPrefs {
         });
         this.triggerBackgroundPalette(window);
         
-        prefsWidget.attach(getPaletteBtn, 2, rowNo, 1, 1);
+        palettegrid.attach(getPaletteBtn, 2, rowbar, 1, 1);
 
-        rowNo += 1;
+        rowbar += 1;
 
         const paletteBox = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
@@ -889,7 +908,18 @@ class OpenbarPrefs {
 
         this.createPalette(window, paletteBox, clipboard);
 
-        prefsWidget.attach(paletteBox, 1, rowNo, 2, 1);
+        palettegrid.attach(paletteBox, 1, rowbar, 2, 1);
+
+        paletteprop.set_child(palettegrid);
+        prefsWidget.attach(paletteprop, 1, rowNo, 2, 1);
+
+        ////////////////////////////////////////////////////////////////////////////////
+        rowNo += 1
+
+        let separator0 = this.createSeparatorWidget();
+        prefsWidget.attach(separator0, 1, rowNo, 2, 1);
+
+        //////////////////////////////////////////////////////////////////////////////////
 
         rowNo += 1;
 
@@ -901,7 +931,7 @@ class OpenbarPrefs {
         });
         let bargrid = this.createGridWidget();
 
-        let rowbar = 1;
+        rowbar = 1;
         //Type of bar
         let barTypeLbl = new Gtk.Label({
             label: 'Type of Bar',
