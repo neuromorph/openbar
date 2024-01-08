@@ -180,6 +180,18 @@ export default class Openbar extends Extension {
                         this.applyPanelStyles(btn.child.menu.box, add);
                     }
 
+                    if(btn.child.constructor.name === 'ArcMenuMenuButton') {
+                        let menu = btn.child.arcMenu;
+                        this.applyMenuClass(menu, add);
+                        if(menu.box)
+                            this.applyPanelStyles(menu.box, add);
+
+                        let ctxMenu = btn.child.arcMenuContextMenu;
+                        this.applyMenuClass(ctxMenu, add);
+                        if(ctxMenu.box)
+                            this.applyPanelStyles(ctxMenu.box, add);
+                    }
+
                     if(btn.child.constructor.name === 'DateMenuButton') {
                         const bin = btn.child.menu.box.get_child_at_index(0); // CalendarArea 
                         const hbox = bin.get_child_at_index(0); // hbox with left and right sections
