@@ -21,13 +21,16 @@
 
 import St from 'gi://St';
 import Pango from 'gi://Pango';
+import Gio from 'gi://Gio';
+import GdkPixbuf from 'gi://GdkPixbuf';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as Calendar from 'resource:///org/gnome/shell/ui/calendar.js';
-import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Config from 'resource:///org/gnome/shell/misc/config.js';
+import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+import * as Quantize from './quantize.js';
 
-// ConnectManager class to manage connections for events to trigger Openbar updatestyle
+// ConnectManager class to manage connections for events to trigger Openbar style updates
 // This class is modified from Floating Panel extension (Thanks Aylur!)
 class ConnectManager{
     constructor(list = []){
@@ -44,9 +47,12 @@ class ConnectManager{
             id : obj.connect(signal, (actor, event) => {callback(actor, signal)}),
             obj: obj
         });
-        obj.connect('destroy', () => {
-            this.removeObject(obj)
-        });
+        // Remove obj on destroy except GSettings (doesn't have destroy signal)
+        if(!(obj instanceof Gio.Settings)) {
+            obj.connect('destroy', () => {
+                this.removeObject(obj)
+            });
+        }
     }
 
     // remove an object WITHOUT disconnecting it, use only when you know the object is destroyed
@@ -67,8 +73,67 @@ export default class Openbar extends Extension {
     constructor(metadata) {
         super(metadata);
         this._settings = null;
+        this._bgSettings = null;
         this._connections = null;
         this._injections = [];
+    }
+
+    backgroundPalette() {
+        // Get the latest background image file (from picture-uri Or picture-uri-dark)
+        let pictureUri = this._settings.get_string('bguri');
+        let pictureFile = Gio.File.new_for_uri(pictureUri);
+    
+        // Load the image into a pixbuf
+        let pixbuf = GdkPixbuf.Pixbuf.new_from_file(pictureFile.get_path());
+        let nChannels = pixbuf.n_channels;
+    
+        // Get the width, height and pixel count of the image
+        let width = pixbuf.get_width();
+        let height = pixbuf.get_height();
+        let pixelCount = width*height;
+        let offset;
+
+        // Sample about a million pixels to quantize
+        if(pixelCount < 1000000)
+            offset = 1;
+        else
+            offset = parseInt(pixelCount/1000000);
+
+        // Get the pixel data as an array of bytes
+        let pixels = pixbuf.get_pixels();
+    
+        let pixelArray = [];
+    
+        // Loop through the pixels and get the rgba values
+        for (let i = 0, index, r, g, b, a; i < pixelCount; i = i + offset) {
+            index = i * nChannels;
+    
+            // Get the red, green, blue, and alpha values
+            r = pixels[index];
+            g = pixels[index + 1];
+            b = pixels[index + 2];
+
+            a = nChannels==4? pixels[index + 3] : undefined;
+
+            // Save pixles that are not transparent and not white
+            if (typeof a === 'undefined' || a >= 125) {
+                if (!(r > 250 && g > 250 && b > 250)) {
+                    pixelArray.push([r, g, b]);
+                }
+            }
+        }
+        // console.log('pixelarray len ', pixelArray.length);
+    
+        // Generate color palette using Quantize ()
+        const cmap = Quantize.quantize(pixelArray, 9);
+        const palette = cmap? cmap.palette() : null;
+    
+        // console.log('PALETTE ', palette);
+        let i = 1;
+        palette?.forEach(color => {
+            this._settings.set_strv('palette'+i, [String(color[0]), String(color[1]), String(color[2])]);
+            i++;
+        });
     }
 
     _injectToFunction(parent, name, func) {
@@ -97,7 +162,7 @@ export default class Openbar extends Extension {
                     btn.set_style(null);
                     btn.child?.set_style(null);
 
-                    if(btn.child.constructor.name === 'ActivitiesButton') {
+                    if(btn.child?.constructor.name === 'ActivitiesButton') {
                         let list = btn.child.get_child_at_index(0);
                         for(const indicator of list) { 
                             let dot = indicator.get_child_at_index(0);
@@ -139,10 +204,10 @@ export default class Openbar extends Extension {
         }
     }
 
-    applyPanelStyles(panel, add) {
-        this.applyMenuClass(panel, add);
+    applyBoxStyles(box, add) {
+        this.applyMenuClass(box, add);
 
-        let menuChildren = panel.get_children();
+        let menuChildren = box.get_children();
         menuChildren.forEach(menuItem => {
             this.applyMenuClass(menuItem, add);
             if(menuItem.menu) {
@@ -172,12 +237,24 @@ export default class Openbar extends Extension {
                 if(btn.child instanceof PanelMenu.Button) {  // btn.child is the indicator
                     
                     // special case for Quick Settings Audio Panel, because it changes the layout of the Quick Settings menu
-                    if(btn.child.menu.constructor.name == "PanelGrid") {
+                    if(btn.child.menu?.constructor.name == "PanelGrid") {
                         for(const panel of btn.child.menu._get_panels()) {
-                            this.applyPanelStyles(panel, add);
+                            this.applyBoxStyles(panel, add);
                         }
-                    } else if(btn.child.menu.box) {
-                        this.applyPanelStyles(btn.child.menu.box, add);
+                    } else if(btn.child.menu?.box) {
+                        this.applyBoxStyles(btn.child.menu.box, add);
+                    }
+
+                    if(btn.child.constructor.name === 'ArcMenuMenuButton') {
+                        let menu = btn.child.arcMenu;
+                        this.applyMenuClass(menu, add);
+                        if(menu.box)
+                            this.applyBoxStyles(menu.box, add);
+
+                        let ctxMenu = btn.child.arcMenuContextMenu;
+                        this.applyMenuClass(ctxMenu, add);
+                        if(ctxMenu.box)
+                            this.applyBoxStyles(ctxMenu.box, add);
                     }
 
                     if(btn.child.constructor.name === 'DateMenuButton') {
@@ -265,6 +342,14 @@ export default class Openbar extends Extension {
         // console.log('update called with key ', key);
         if(!this._settings)
             return;
+
+        if(key.startsWith('palette'))
+            return;
+
+        if(key == 'bgpalette' || key == 'bguri') {
+            this.backgroundPalette();
+            return;
+        }
 
         let overview = this._settings.get_boolean('overview');
         if(key == 'shown') { 
@@ -575,10 +660,10 @@ export default class Openbar extends Extension {
         const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
         this.gnomeVersion = major;
 
-        this._settings = this.getSettings(); 
-
         // Get the top panel
         let panel = Main.panel;
+
+        this._settings = this.getSettings(); 
 
         // Connect to the settings changes
         this._settings.connect('changed', (settings, key) => {
@@ -593,12 +678,29 @@ export default class Openbar extends Extension {
             [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
             [ panel._rightBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
         ];
+        // Connection specific to QSAP extension (Quick Settings)
         if(this.gnomeVersion > 42) {
             let qSettings = Main.panel.statusArea.quickSettings;
             connections.push( [qSettings, 'menu-set', this.setupLibpanel.bind(this, qSettings.menu, panel)] );
         }
+
+        // Settings for desktop background image (capture last changed uri)
+        this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
+        connections.push([this._bgSettings, 'changed::picture-uri', () => {
+            let uri = this._bgSettings.get_string('picture-uri');
+            this._settings.set_string('bguri', uri);}]);
+        connections.push([this._bgSettings, 'changed::picture-uri-dark', () => {
+            let uri = this._bgSettings.get_string('picture-uri-dark');
+            this._settings.set_string('bguri', uri);}]);
+        // Initially, use picture-uri
+        let bguri = this._settings.get_string('bguri');
+        if(bguri == '')
+            this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
+
+        // Setup all connections
         this._connections = new ConnectManager(connections);
         
+        // Update calendar style on Calendar rebuild
         const obar = this;
         this._injections["_rebuildCalendar"] = this._injectToFunction(
             Calendar.Calendar.prototype,
@@ -630,6 +732,7 @@ export default class Openbar extends Extension {
         this.applyMenuStyles(panel, false);
 
         this._settings = null;
+        this._bgSettings = null;
 
         this._connections.disconnectAll();
         this._connections = null;

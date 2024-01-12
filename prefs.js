@@ -28,10 +28,6 @@ import {ExtensionPreferences, gettext as _, pgettext} from 'resource:///org/gnom
 
 //-----------------------------------------------
 
-// function init() {
-//     ExtensionUtils.initTranslations();
-// }
-
 export default class OpenbarPreferences extends ExtensionPreferences {
 
     fillPreferencesWindow(window) {
