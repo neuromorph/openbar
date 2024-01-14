@@ -346,7 +346,7 @@ class OpenbarPrefs {
         // Add gradient to style if enabled
         if (gradient) {
             let startColor, endColor;
-            if(bartype == 'Islands') {
+            if(bartype == 'Islands' || bartype == 'Trilands') {
                 startColor = `rgba(${isred},${isgreen},${isblue},${isalpha})`;
             }
             else {
@@ -785,7 +785,7 @@ class OpenbarPrefs {
             }
             .openmenu.quick-toggle:hover, .openmenu.quick-toggle:focus {
                 color: ${mhfg} !important;
-                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+                background-color: ${smhbg} !important;
             }   
             .openmenu.quick-toggle:checked, .openmenu.quick-toggle:checked:active, .openmenu.quick-toggle .button:checked {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
@@ -805,7 +805,7 @@ class OpenbarPrefs {
             }
             .openmenu.quick-menu-toggle .quick-toggle:hover, .openmenu.quick-menu-toggle .quick-toggle:focus {
                 color: ${mhfg} !important;
-                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+                background-color: ${smhbg} !important;
             }
             .openmenu.quick-menu-toggle .quick-toggle:checked, 
             .openmenu.quick-menu-toggle .quick-toggle:active {
@@ -875,7 +875,7 @@ class OpenbarPrefs {
             .openmenu.quick-settings .icon-button:hover, .openmenu.quick-settings .icon-button:focus,
             .openmenu.quick-settings .button:hover, .openmenu.quick-settings .button:focus {
                 color: ${mhfg} !important;
-                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+                background-color: ${smhbg} !important;
             }
             
             .openmenu.quick-settings .button:checked:hover, .openmenu.quick-settings .button:checked:focus {
@@ -1292,6 +1292,7 @@ class OpenbarPrefs {
         let bargrid = this.createGridWidget();
 
         rowbar = 1;
+        
         //Type of bar
         let barTypeLbl = new Gtk.Label({
             label: 'Type of Bar',
@@ -1303,6 +1304,7 @@ class OpenbarPrefs {
         bargrid.attach(barType, 2, rowbar, 1, 1);
 
         rowbar += 1;
+        
         //Position of bar
         let barPosLbl = new Gtk.Label({
             label: 'Position of Bar',
@@ -1339,7 +1341,7 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a overview switch
+        // Add an overview switch
         let overviewLabel = new Gtk.Label({
             label: 'Apply in Overview',
             halign: Gtk.Align.START,

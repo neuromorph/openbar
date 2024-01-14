@@ -19,7 +19,7 @@
 
 /* exported Openbar init */
 
-const { St, Gio, GdkPixbuf } = imports.gi;
+const { St, Gio, GdkPixbuf, Meta } = imports.gi;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const Calendar = imports.ui.calendar;
@@ -48,7 +48,7 @@ class ConnectManager{
             obj: obj
         });
         // Remove obj on destroy except following that don't have destroy signal
-        if(!(obj instanceof Gio.Settings || obj instanceof LayoutManager.LayoutManager)) {
+        if(!(obj instanceof Gio.Settings || obj instanceof LayoutManager.LayoutManager || obj instanceof Meta.WorkspaceManager)) {
             obj.connect('destroy', () => {
                 this.removeObject(obj)
             });
@@ -78,7 +78,7 @@ class Extension {
     }
 
     backgroundPalette() {
-        // Get the latest background image file (picture-uri Or picture-uri-dark)
+        // Get the latest background image file (from picture-uri Or picture-uri-dark)
         let pictureUri = this._settings.get_string('bguri');
         let pictureFile = Gio.File.new_for_uri(pictureUri);
     
@@ -480,7 +480,7 @@ class Extension {
 
     // QSAP: listen for addition of new panels
     // this allows theming QSAP panels when QSAP is enabled after Open Bar
-    setupLibpanel(menu, panel) {
+    setupLibpanel(menu) {
         if(menu.constructor.name != 'PanelGrid')
             return;
 
@@ -522,7 +522,7 @@ class Extension {
         // Connection specific to QSAP extension (Quick Settings)
         if(this.gnomeVersion > 42) {
             let qSettings = Main.panel.statusArea.quickSettings;
-            connections.push( [qSettings, 'menu-set', this.setupLibpanel.bind(this, qSettings.menu, panel)] );
+            connections.push( [qSettings, 'menu-set', this.setupLibpanel.bind(this, qSettings.menu)] );
         }
         // Connection specific to Workspace indicator dots
         if(this.gnomeVersion > 44) {
@@ -549,7 +549,7 @@ class Extension {
 
         // Setup connections for addition of new QSAP extension panels
         if(this.gnomeVersion > 42)
-            this.setupLibpanel(Main.panel.statusArea.quickSettings.menu, panel);
+            this.setupLibpanel(Main.panel.statusArea.quickSettings.menu);
 
         // Update calendar style on Calendar rebuild through fn injection
         const obar = this;
