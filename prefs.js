@@ -318,12 +318,12 @@ class OpenbarPrefs {
         else {
             if(bartype == 'Mainland' || bartype == 'Floating')
                 btnHoverStyle = 
-                ` background-color: ${phbg} !important; box-shadow: none; `;
+                ` background-color: ${phbg} !important; `;
             else
                 btnHoverStyle = 
                 ` background-color: ${ihbg} !important; `;
         }
-        if(!neon) {
+        if(bartype == 'Mainland' || bartype == 'Floating' || !neon) {
             btnHoverStyle += ` box-shadow: none !important; `;
         }
 
