@@ -91,6 +91,7 @@ class OpenbarPrefs {
         let hColor = this._settings.get_strv('hcolor');
         let hAlpha = this._settings.get_double('halpha');
         let hPad = this._settings.get_double('hpad');
+        let vPad = this._settings.get_double('vpad');
         let hovereffect = this._settings.get_boolean('heffect');
         let mfgColor = this._settings.get_strv('mfgcolor');
         let mfgAlpha = this._settings.get_double('mfgalpha');
@@ -157,13 +158,20 @@ class OpenbarPrefs {
         const msgreen = parseInt(parseFloat(msColor[1]) * 255);
         const msblue = parseInt(parseFloat(msColor[2]) * 255);
 
+        const pbg = `rgba(${bgred},${bggreen},${bgblue},${bgalpha})`; // panel bg color
+        const phg = `rgba(${hred},${hgreen},${hblue},1.0)`; // panel highlight color
+        const phbg = this.colorBlend(pbg, phg, hAlpha); // panel highlight blended bg color
+        const isbg = `rgba(${isred},${isgreen},${isblue},${isalpha})`; // island bg color
+        const ihbg = this.colorBlend(isbg, phg, hAlpha); // island highlight blended bg color
+
+
         const mbg = `rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha})`; // menu bg
         const mfg = `rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha})`; // menu fg
         const mhg = `rgba(${mhred},${mhgreen},${mhblue},${mhAlpha})`; // menu highlight
         const msc = `rgba(${msred},${msgreen},${msblue},${msAlpha})`; // menu selection/active
 
         // Two ways to mix colors, currently both in use
-        // Menu highlight fgcolor
+        // Menu highlight fg color
         const mhfgred = this.colorMix(mfgred, mhred, -0.12);
         const mhfggreen = this.colorMix(mfggreen, mhgreen, -0.12);
         const mhfgblue = this.colorMix(mfgblue, mhblue, -0.12);
@@ -180,7 +188,11 @@ class OpenbarPrefs {
         const smbgblue = this.colorMix(mbgblue, bTarget, 0.18);
         const smbg = this.colorBlend(mbg, smbgTarget, 0.18);
         
-        // Menu selection fgcolor
+        // Submenu highlight bg color (notifications pane)
+        const mhg1 = `rgba(${mhred},${mhgreen},${mhblue},1)`; // menu highlight with 1 alpha
+        const smhbg = this.colorBlend(smbg, mhg1, mhAlpha); // sub menu blended highlight bg 
+        
+        // Menu selection fg color
         // const msfg = this.colorBlend(mfg, msc, -0.2);
 
         // Menu selection highlight color
@@ -188,7 +200,7 @@ class OpenbarPrefs {
 
         let fgStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, 
         islandStyle, dotStyle, neonStyle, gradientStyle, triLeftStyle, triBothStyle, triRightStyle, 
-        triNoneStyle, btnHoverStyle;      
+        triNoneStyle, triNoneNeonStyle, btnHoverStyle;      
 
         // style that applies dynamically to either the panel or the panel buttons as per bar type
         borderStyle = 
@@ -235,16 +247,7 @@ class OpenbarPrefs {
 
         // Workspace dots style
         dotStyle = 
-        ` background-color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}); `;
-
-        // Panel hover/focus style
-        if(hovereffect)
-            btnHoverStyle = 
-            ` box-shadow: none !important; 
-              border: ${height/10.0}px solid rgba(${hred},${hgreen},${hblue},${hAlpha}) !important; `;
-        else
-            btnHoverStyle = 
-            ` box-shadow: inset 0 0 0 ${height}px rgba(${hred},${hgreen},${hblue},${hAlpha}) !important; `;
+        ` background-color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}) !important; `;
 
         // Add font style to panelstyle (works on all bar types)
         if (font != ""){
@@ -276,23 +279,53 @@ class OpenbarPrefs {
     
         // Box shadow not working with rectangular box (for smaller radius), why Gnome??
         // Fix: Negative/low spread to try to contain it in that range. Range depends on bar height
-        let radThreshold = Math.ceil((height/10.0 - 1)*5) - 1;
+        // padmod: modify formula to account for container padding in islands/trilands
+        let padmod = (bartype == 'Mainland' || bartype == 'Floating')? -2: vPad;
+        let radThreshold = Math.ceil(((height-2*padmod)/10.0 - 1)*5) ; 
 
         // Add the neon style if enabled
-        if (neon) {           
-            if (borderRadius < radThreshold) {
-                neonStyle =               
-                ` box-shadow: 0px 0px 5px -1px rgba(${bred},${bgreen},${bblue},0.55); `;
+        if (neon) {
+            let spread;           
+            if(borderRadius <= radThreshold) {
+                spread = gradient? -3: 0;               
             }
-            else { //7 3
-                neonStyle = 
-                ` box-shadow: 0px 0px 5px 3px rgba(${bred},${bgreen},${bblue},0.55); `;
-            }
+            else
+                spread = 2;
+
+            neonStyle =               
+            ` box-shadow: 0px 0px 4px ${spread}px rgba(${bred},${bgreen},${bblue},0.55); `;
+            
+            spread = gradient? -3: 0; 
+            triNoneNeonStyle = 
+            ` box-shadow: 0px 0px 4px ${spread}px rgba(${bred},${bgreen},${bblue},0.55); `;
         }
         else {
             neonStyle = ``; 
+            triNoneNeonStyle = ``;
         }
+        triNoneStyle += triNoneNeonStyle;
 
+        // Panel hover/focus style
+        let triNoneNeonHoverStyle = ``;
+        if(hovereffect) {
+            btnHoverStyle = 
+            ` border: ${height/10.0}px solid rgba(${hred},${hgreen},${hblue},${hAlpha}) !important; `;
+            if(neon && (bartype == 'Islands' || bartype == 'Trilands')) {
+                btnHoverStyle += neonStyle.replace(`${bred},${bgreen},${bblue}`, `${hred},${hgreen},${hblue}`); 
+                triNoneNeonHoverStyle += triNoneNeonStyle.replace(`${bred},${bgreen},${bblue}`, `${hred},${hgreen},${hblue}`);
+            }
+        }
+        else {
+            if(bartype == 'Mainland' || bartype == 'Floating')
+                btnHoverStyle = 
+                ` background-color: ${phbg} !important; box-shadow: none; `;
+            else
+                btnHoverStyle = 
+                ` background-color: ${ihbg} !important; `;
+        }
+        if(!neon) {
+            btnHoverStyle += ` box-shadow: none !important; `;
+        }
 
         // Add panel shadow if enabled. Use alpha to decide offset, blur, spread and alpha
         if (shadow) {
@@ -341,7 +374,8 @@ class OpenbarPrefs {
         }
         if(bartype == 'Islands' || bartype == 'Trilands') {
             panelStyle += 
-            ` margin: ${margin}px ${1.5*margin}px;         
+            ` margin: ${margin}px ${1.5*margin}px;  
+              padding: 0px ${vPad}px;       
               ${fgStyle} `;  
 
             btnStyle += 
@@ -349,20 +383,22 @@ class OpenbarPrefs {
               ${radiusStyle}
               ${fgStyle}
               ${islandStyle}
-              ${gradientStyle} `;
+              ${gradientStyle}
+              ${neonStyle} `;
 
             btnContainerStyle = 
-            ` padding: ${hPad}px;
-              margin: 0 3px;
+            ` padding: ${vPad}px ${hPad}px;
+              margin: 0 1px;
               border-radius: ${borderRadius+borderWidth}px;
-              ${neonStyle} `;
+               `;
         }
         else {
             panelStyle += 
             ` ${fgStyle}
               ${borderStyle}
               ${gradientStyle}
-              ${neonStyle} `;
+              ${neonStyle} 
+              padding: 0px ${vPad}px; `;
             
             btnStyle += 
             ` ${fgStyle}
@@ -370,7 +406,7 @@ class OpenbarPrefs {
               border-width: 0px; `;
 
             btnContainerStyle = 
-            ` padding: ${borderWidth+hPad}px;
+            ` padding: ${borderWidth+vPad}px ${borderWidth+hPad}px;
               margin: 0 0px;
               border-radius: ${borderRadius+borderWidth}px; `; 
         }
@@ -403,6 +439,21 @@ class OpenbarPrefs {
                 ${btnStyle}
             }
 
+            #panel.openbar .panel-button:hover, #panel.openbar .panel-button:focus, #panel.openbar .panel-button:active, #panel.openbar .panel-button:checked {
+                ${btnHoverStyle}
+            }
+
+            #panel.openbar .panel-button:hover.clock-display .clock {
+                background-color: transparent;
+                box-shadow: none;
+            }
+            
+            #panel.openbar .panel-button:active.clock-display .clock, #panel.openbar .panel-button:overview.clock-display .clock, 
+            #panel.openbar .panel-button:focus.clock-display .clock, #panel.openbar .panel-button:checked.clock-display .clock {
+                background-color: transparent;
+                box-shadow: none;
+            }
+
             #panel.openbar .workspace-dot {
                 ${dotStyle}
             }
@@ -419,20 +470,8 @@ class OpenbarPrefs {
             #panel.openbar .trilands:none {
                 ${triNoneStyle}
             }
-
-            #panel.openbar .panel-button:hover, #panel.openbar .panel-button:focus, #panel.openbar .panel-button:active, #panel.openbar .panel-button:checked {
-                ${btnHoverStyle}
-            }
-
-            #panel.openbar .panel-button:hover.clock-display .clock {
-                background-color: transparent;
-                box-shadow: none;
-            }
-            
-            #panel.openbar .panel-button:active.clock-display .clock, #panel.openbar .panel-button:overview.clock-display .clock, 
-            #panel.openbar .panel-button:focus.clock-display .clock, #panel.openbar .panel-button:checked.clock-display .clock {
-                background-color: transparent;
-                box-shadow: none;
+            #panel.openbar .trilands:none:hover, #panel.openbar .trilands:none:focus, #panel.openbar .trilands:none:active, #panel.openbar .trilands:none:checked {
+                ${triNoneNeonHoverStyle}
             }
             
         `;
@@ -565,6 +604,7 @@ class OpenbarPrefs {
 
         `;
 
+        // rgba(${mhred},${mhgreen},${mhblue},${mhAlpha})
         stylesheet += `
             .openmenu.message-list-placeholder {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},0.5) !important;
@@ -585,7 +625,7 @@ class OpenbarPrefs {
             }
             .openmenu.message:hover, .openmenu.message:focus {
                 color: ${mhfg} !important;
-                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha*0.9}) !important;
+                background-color: ${smhbg} !important; /* 0.9*mhAlpha */
             }
             .openmenu.message .message-media-control {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
@@ -612,7 +652,7 @@ class OpenbarPrefs {
             }
             .openmenu.message-list-clear-button:hover, .openmenu.message-list-clear-button:focus {
                 color: ${mhfg} !important;
-                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha*0.9}) !important;
+                background-color: ${smhbg} !important; /* 0.9*mhAlpha */
             }
 
 
@@ -620,7 +660,7 @@ class OpenbarPrefs {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.25}) !important;
             } 
             .openmenu.datemenu-today-button:hover, .openmenu.datemenu-today-button:focus {
-                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha*0.9}) !important;
+                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;  /* 0.9*mhAlpha */
             }
 
             .openmenu.calendar {
@@ -685,7 +725,7 @@ class OpenbarPrefs {
             }
             .openmenu.events-button:hover, .openmenu.events-button:focus {
                 color: ${mhfg} !important;
-                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+                background-color: ${smhbg} !important;
             }
             .openmenu.events-button .events-list {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
@@ -703,7 +743,7 @@ class OpenbarPrefs {
             }
             .openmenu.world-clocks-button:hover, .openmenu.world-clocks-button:focus {
                 color: ${mhfg} !important;
-                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+                background-color: ${smhbg} !important;
             }
             .openmenu.world-clocks-button .world-clocks-header, .openmenu.world-clocks-button .world-clocks-timezone {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.9}) !important;
@@ -718,7 +758,7 @@ class OpenbarPrefs {
             }
             .openmenu.weather-button:hover, .openmenu.weather-button:focus {
                 color: ${mhfg} !important;
-                background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+                background-color: ${smhbg} !important;
             }
             .openmenu.weather-button .weather-header {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
@@ -1117,7 +1157,7 @@ class OpenbarPrefs {
         // Get the settings object
         this._settings = ExtensionUtils.getSettings();
         let settEvents = ['changed::bartype', 'changed::font', 'changed::gradient', 
-        'changed::gradient-direction', 'changed::shadow', 'changed::neon', 'changed::heffect']; //bordertype
+        'changed::gradient-direction', 'changed::shadow', 'changed::neon', 'changed::heffect']; 
         settEvents.forEach(event => {
             this._settings.connect(event, () => {this.triggerStyleReload();});
         });
@@ -1169,7 +1209,7 @@ class OpenbarPrefs {
         let rowbar = 1;
 
         let paletteLabel = new Gtk.Label({
-            label: `<span><b>Desktop Background Color Palette</b></span>\n<span size="small" allow_breaks="true">The palette will auto-refresh upon changing the background. It is available in each color \nbutton popup under the default palette. You may click a color below to copy its hex value.</span>`,
+            label: `<span><b>Desktop Background Color Palette</b></span>\n\n<span size="small" allow_breaks="true">The palette will auto-refresh upon changing the background. It is available in each color \nbutton popup under the default palette. You may click a color below to copy its hex value.</span>`,
             use_markup: true,
         });
         palettegrid.attach(paletteLabel, 1, rowbar, 2, 1);
@@ -1445,19 +1485,19 @@ class OpenbarPrefs {
 
         // Add a Islands color chooser
         let islandsColorLabel = new Gtk.Label({
-            label: 'Islands BG Color',
+            label: 'Tri/Islands BG Color',
             halign: Gtk.Align.START,
         });
         bggrid.attach(islandsColorLabel, 1, rowbar, 1, 1);
 
-        let islandsColorChooser = this.createColorWidget(window, 'Islands Background Color', 'Background or gradient start color for Islands', 'iscolor');
+        let islandsColorChooser = this.createColorWidget(window, 'Islands/Trilands Background Color', 'Background or gradient start color for Islands/Trilands', 'iscolor');
         bggrid.attach(islandsColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
         // Add a Islands alpha scale
         let isAlphaLbl = new Gtk.Label({
-            label: 'Islands Alpha',
+            label: 'Tri/Islands Alpha',
             halign: Gtk.Align.START,
         });
         bggrid.attach(isAlphaLbl, 1, rowbar, 1, 1);
@@ -1469,7 +1509,7 @@ class OpenbarPrefs {
 
         // Add a gradient switch
         let gradientLbl = new Gtk.Label({
-            label: 'Gradient',
+            label: 'BG Gradient',
             halign: Gtk.Align.START,
         });
         bggrid.attach(gradientLbl, 1, rowbar, 1, 1);
@@ -1515,57 +1555,6 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a highlight color chooser
-        let highlightColorLabel = new Gtk.Label({
-            label: 'Highlight Color',
-            halign: Gtk.Align.START,
-        });
-        bggrid.attach(highlightColorLabel, 1, rowbar, 1, 1);
-
-        let highlightColorChooser = this.createColorWidget(window, 'Highlight Color', 'Highlight color for hover, focus etc.', 'hcolor');
-        // highlightColorChooser.connect('color-set', () => {
-        //     this.triggerStyleReload();
-        // });
-        bggrid.attach(highlightColorChooser, 2, rowbar, 1, 1);
-
-        rowbar += 1;
-
-        // Add a highlight alpha scale
-        let hgAlphaLbl = new Gtk.Label({
-            label: 'Highlight Alpha',
-            halign: Gtk.Align.START,
-        });
-        bggrid.attach(hgAlphaLbl, 1, rowbar, 1, 1);
-
-        let hgAlpha = this.createScaleWidget(0, 1, 0.05, 2);
-        bggrid.attach(hgAlpha, 2, rowbar, 1, 1);
-
-        rowbar += 1;
-
-        // Add a highlight padding scale
-        let hgPadLbl = new Gtk.Label({
-            label: 'Highlight Padding',
-            halign: Gtk.Align.START,
-        });
-        bggrid.attach(hgPadLbl, 1, rowbar, 1, 1);
-
-        let hgPad = this.createScaleWidget(0, 30, 0.5, 1);
-        bggrid.attach(hgPad, 2, rowbar, 1, 1);
-
-        rowbar += 1;
-
-        // Add a hover effect switch
-        let hEffectLabel = new Gtk.Label({
-            label: `Highlight with Border`,
-            halign: Gtk.Align.START,
-        });
-        bggrid.attach(hEffectLabel, 1, rowbar, 1, 1);
-
-        let hEffectSwitch = this.createSwitchWidget();
-        bggrid.attach(hEffectSwitch, 2, rowbar, 1, 1);
-
-        rowbar += 1;
-
         // Add a shadow switch
         let shadowLabel = new Gtk.Label({
             label: `Panel Shadow`,
@@ -1608,6 +1597,90 @@ class OpenbarPrefs {
 
         let separator3 = this.createSeparatorWidget();
         prefsWidget.attach(separator3, 1, rowNo, 2, 1);
+
+        ////////////////////////////////////////////////////////////////////////////
+
+        rowNo += 1;
+
+        const hprop = new Gtk.Expander({
+            label: `<b>HIGHLIGHTS</b>`,
+            expanded: false,
+            use_markup: true,
+        });
+        let hgrid = this.createGridWidget();
+
+        rowbar = 1;
+
+        // Add a highlight color chooser
+        let highlightColorLabel = new Gtk.Label({
+            label: 'Highlight Color',
+            halign: Gtk.Align.START,
+        });
+        hgrid.attach(highlightColorLabel, 1, rowbar, 1, 1);
+
+        let highlightColorChooser = this.createColorWidget(window, 'Highlight Color', 'Highlight color for hover, focus etc.', 'hcolor');
+        // highlightColorChooser.connect('color-set', () => {
+        //     this.triggerStyleReload();
+        // });
+        hgrid.attach(highlightColorChooser, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a highlight alpha scale
+        let hgAlphaLbl = new Gtk.Label({
+            label: 'Highlight Alpha',
+            halign: Gtk.Align.START,
+        });
+        hgrid.attach(hgAlphaLbl, 1, rowbar, 1, 1);
+
+        let hgAlpha = this.createScaleWidget(0, 1, 0.05, 2);
+        hgrid.attach(hgAlpha, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a hover with border effect switch
+        let hEffectLabel = new Gtk.Label({
+            label: `Highlight with Border`,
+            halign: Gtk.Align.START,
+        });
+        hgrid.attach(hEffectLabel, 1, rowbar, 1, 1);
+
+        let hEffectSwitch = this.createSwitchWidget();
+        hgrid.attach(hEffectSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a horizontal button-padding scale
+        let hBtnPadLbl = new Gtk.Label({
+            label: 'Horizontal Padding',
+            halign: Gtk.Align.START,
+        });
+        hgrid.attach(hBtnPadLbl, 1, rowbar, 1, 1);
+
+        let hBtnPad = this.createScaleWidget(0, 30, 0.5, 1, 'Horizontal padding for panel buttons/highlights');
+        hgrid.attach(hBtnPad, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a vertical button-padding scale
+        let vBtnPadLbl = new Gtk.Label({
+            label: 'Vertical Padding',
+            halign: Gtk.Align.START,
+        });
+        hgrid.attach(vBtnPadLbl, 1, rowbar, 1, 1);
+
+        let vBtnPad = this.createScaleWidget(0, 30, 0.5, 1, 'Vertical padding for panel buttons/highlights');
+        hgrid.attach(vBtnPad, 2, rowbar, 1, 1);
+
+        hprop.set_child(hgrid);
+        prefsWidget.attach(hprop, 1, rowNo, 2, 1);
+
+        ////////////////////////////////////////////////////////////////////////////////
+        
+        rowNo += 1
+
+        let separator4 = this.createSeparatorWidget();
+        prefsWidget.attach(separator4, 1, rowNo, 2, 1);
 
         ////////////////////////////////////////////////////////////////////////////
 
@@ -1701,8 +1774,8 @@ class OpenbarPrefs {
         ////////////////////////////////////////////////////////////////////////////////
         rowNo += 1
 
-        let separator4 = this.createSeparatorWidget();
-        prefsWidget.attach(separator4, 1, rowNo, 2, 1);
+        let separator5 = this.createSeparatorWidget();
+        prefsWidget.attach(separator5, 1, rowNo, 2, 1);
 
         ////////////////////////////////////////////////////////////////////
 
@@ -1880,7 +1953,7 @@ class OpenbarPrefs {
         // Add menu style apply/remove buttons
         const removeMenuLabel = new Gtk.Label({
             use_markup: true,
-            label: `<span color="#f44336">${_("Reset Menu Styles")}</span>`, 
+            label: `<span color="#fa6555">${_("Reset Menu Styles")}</span>`, 
         });
         const removeMenuBtn = new Gtk.Button({
             child: removeMenuLabel,
@@ -1991,7 +2064,13 @@ class OpenbarPrefs {
         );
         this._settings.bind(
             'hpad',
-            hgPad.adjustment,
+            hBtnPad.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'vpad',
+            vBtnPad.adjustment,
             'value',
             Gio.SettingsBindFlags.DEFAULT
         );

@@ -359,7 +359,7 @@ class Extension {
     }
 
     updatePanelStyle(actor, key) { 
-        console.log('update called with key ', key);
+        // console.log('update called with key ', key);
         let panel = Main.panel;
 
         if(!this._settings)
@@ -403,7 +403,7 @@ class Extension {
             
         let menuKeys = ['reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 
         'mhcolor', 'mhalpha', 'mscolor', 'msalpha', 'mshcolor', 'mshalpha'];
-        let barKeys = ['bgcolor', 'gradient', 'grDirection', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'borderColor', 
+        let barKeys = ['bgcolor', 'gradient', 'gradient-direction', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'borderColor', 
         'balpha', 'borderWidth', 'borderRadius', 'bordertype', 'shcolor', 'shalpha', 'islandsColor', 'isalpha', 'neon', 'shadow', 'font',
         'hcolor', 'halpha', 'heffect'];
         let keys = [...barKeys, ...menuKeys];
@@ -411,7 +411,7 @@ class Extension {
             return;
         }    
 
-        console.log('going ahead update with key: ', key);
+        // console.log('going ahead update with key: ', key);
 
         let borderWidth = this._settings.get_double('bwidth');
         let height = this._settings.get_double('height');
