@@ -7,6 +7,11 @@
       <summary>Type of Top Bar</summary>
       <description>Type of Top Bar.</description>
     </key>
+    <key type="s" name="position">
+      <default>"Top"</default>
+      <summary>Position of Top Bar</summary>
+      <description>Position of Top Bar.</description>
+    </key>
     <key type="as" name="fgcolor">
       <default>['1.0', '1.0', '1.0']</default>
       <summary>FG Color (RGBA)</summary>
@@ -113,7 +118,7 @@
       <description>Monitors to show Top Bar display on.</description>
     </key>
     <key type="d" name="height">
-      <default>30.0</default>
+      <default>35.0</default>
       <summary>Top Bar height</summary>
       <description>Top Bar height.</description>
     </key>
@@ -138,9 +143,24 @@
       <description>Highlight of Top Bar widgets.</description>
     </key>
     <key type="d" name="halpha">
-      <default>0.35</default>
+      <default>0.55</default>
       <summary>Transparency (alpha) Highlight</summary>
       <description>Transparency of highlight.</description>
+    </key>
+    <key type="d" name="hpad">
+      <default>0</default>
+      <summary>Horizontal button-padding</summary>
+      <description>Horizontal button-padding.</description>
+    </key>
+    <key type="d" name="vpad">
+      <default>4</default>
+      <summary>Vertical button-padding</summary>
+      <description>Vertical button-padding.</description>
+    </key>
+    <key type="b" name="heffect">
+      <default>false</default>
+      <summary>Highlight effect</summary>
+      <description>Highlight effect of Top Bar buttons.</description>
     </key>
     <key type="as" name="mfgcolor">
       <default>['1.0', '1.0', '1.0']</default>
@@ -178,7 +198,7 @@
       <description>Highlight of Top Bar menus.</description>
     </key>
     <key type="d" name="mhalpha">
-      <default>0.4</default>
+      <default>0.45</default>
       <summary>Transparency (alpha) Menu Highlight</summary>
       <description>Transparency of menu highlight.</description>
     </key>
@@ -216,6 +236,76 @@
       <default>false</default>
       <summary>Remove menu style</summary>
       <description>Remove menu style customizations.</description>
+    </key>
+    <key type="as" name="palette1">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 1 (RGB)</summary>
+      <description>Palette Color 1 of background image.</description>
+    </key>
+    <key type="as" name="palette2">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 2 (RGB)</summary>
+      <description>Palette Color 2 of background image.</description>
+    </key>
+    <key type="as" name="palette3">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 3 (RGB)</summary>
+      <description>Palette Color 3 of background image.</description>
+    </key>
+    <key type="as" name="palette4">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 4 (RGB)</summary>
+      <description>Palette Color 4 of background image.</description>
+    </key>
+    <key type="as" name="palette5">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 5 (RGB)</summary>
+      <description>Palette Color 5 of background image.</description>
+    </key>
+    <key type="as" name="palette6">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 6 (RGB)</summary>
+      <description>Palette Color 6 of background image.</description>
+    </key>
+    <key type="as" name="palette7">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 7 (RGB)</summary>
+      <description>Palette Color 7 of background image.</description>
+    </key>
+    <key type="as" name="palette8">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 8 (RGB)</summary>
+      <description>Palette Color 8 of background image.</description>
+    </key>
+    <key type="as" name="palette9">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 9 (RGB)</summary>
+      <description>Palette Color 9 of background image.</description>
+    </key>
+    <key type="as" name="palette10">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 10 (RGB)</summary>
+      <description>Palette Color 10 of background image.</description>
+    </key>
+    <key type="as" name="palette11">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 11 (RGB)</summary>
+      <description>Palette Color 11 of background image.</description>
+    </key>
+    <key type="as" name="palette12">
+      <default>['100', '100', '100']</default>
+      <summary>BG Palette Color 12 (RGB)</summary>
+      <description>Palette Color 12 of background image.</description>
+    </key>
+    <key type="b" name="bgpalette">
+      <default>true</default>
+      <summary>Trigger generation BG palette</summary>
+      <description>Trigger generation of desktop background color palette.</description>
+    </key>
+    <key type="s" name="bguri">
+      <default>""</default>
+      <summary>Desktop Background uri</summary>
+      <description>Desktop background image file uri.</description>
     </key>
   </schema>
 </schemalist>

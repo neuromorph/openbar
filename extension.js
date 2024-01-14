@@ -20,12 +20,13 @@
 /* exported Openbar init */
 
 import St from 'gi://St';
-import Pango from 'gi://Pango';
 import Gio from 'gi://Gio';
 import GdkPixbuf from 'gi://GdkPixbuf';
+import Meta from 'gi://Meta';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as Calendar from 'resource:///org/gnome/shell/ui/calendar.js';
+import * as LayoutManager from 'resource:///org/gnome/shell/ui/layout.js';
 import * as Config from 'resource:///org/gnome/shell/misc/config.js';
 import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Quantize from './quantize.js';
@@ -47,8 +48,8 @@ class ConnectManager{
             id : obj.connect(signal, (actor, event) => {callback(actor, signal)}),
             obj: obj
         });
-        // Remove obj on destroy except GSettings (doesn't have destroy signal)
-        if(!(obj instanceof Gio.Settings)) {
+        // Remove obj on destroy except following that don't have destroy signal
+        if(!(obj instanceof Gio.Settings || obj instanceof LayoutManager.LayoutManager || obj instanceof Meta.WorkspaceManager)) {
             obj.connect('destroy', () => {
                 this.removeObject(obj)
             });
@@ -94,7 +95,7 @@ export default class Openbar extends Extension {
         let offset;
 
         // Sample about a million pixels to quantize
-        if(pixelCount < 1000000)
+        if(pixelCount <= 1000000)
             offset = 1;
         else
             offset = parseInt(pixelCount/1000000);
@@ -115,20 +116,19 @@ export default class Openbar extends Extension {
 
             a = nChannels==4? pixels[index + 3] : undefined;
 
-            // Save pixles that are not transparent and not white
+            // Save pixles that are not transparent and not full white/black
             if (typeof a === 'undefined' || a >= 125) {
-                if (!(r > 250 && g > 250 && b > 250)) {
+                if (!(r > 250 && g > 250 && b > 250) && !(r < 5 && g < 5 && b < 5)) {
                     pixelArray.push([r, g, b]);
                 }
             }
         }
         // console.log('pixelarray len ', pixelArray.length);
     
-        // Generate color palette using Quantize ()
-        const cmap = Quantize.quantize(pixelArray, 9);
+        // Generate color palette of 12 colors using Quantize ()
+        const cmap = Quantize.quantize(pixelArray, 12);
         const palette = cmap? cmap.palette() : null;
     
-        // console.log('PALETTE ', palette);
         let i = 1;
         palette?.forEach(color => {
             this._settings.set_strv('palette'+i, [String(color[0]), String(color[1]), String(color[2])]);
@@ -153,20 +153,22 @@ export default class Openbar extends Extension {
     }
 
     resetStyle(panel) {
-        panel.set_style(null);
         panel.remove_style_class_name('openbar');
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
             for(const btn of box) {
                     btn.set_style(null);
+                    btn.remove_style_class_name('openbar');
                     btn.child?.set_style(null);
+                    btn.child?.remove_style_class_name('openbar'); 
 
                     if(btn.child?.constructor.name === 'ActivitiesButton') {
                         let list = btn.child.get_child_at_index(0);
                         for(const indicator of list) { 
                             let dot = indicator.get_child_at_index(0);
                             dot?.set_style(null);
+                            dot?.remove_style_class_name('openbar');
                         }
                     }     
             }
@@ -245,6 +247,7 @@ export default class Openbar extends Extension {
                         this.applyBoxStyles(btn.child.menu.box, add);
                     }
 
+                    // special case for Arc Menu, because it removes default menu and creates its own menu
                     if(btn.child.constructor.name === 'ArcMenuMenuButton') {
                         let menu = btn.child.arcMenu;
                         this.applyMenuClass(menu, add);
@@ -257,13 +260,15 @@ export default class Openbar extends Extension {
                             this.applyBoxStyles(ctxMenu.box, add);
                     }
 
+                    // DateMenu: Notifications (messages and media), DND and Clear buttons
+                    //           Calendar Grid, Events, World Clock, Weather
                     if(btn.child.constructor.name === 'DateMenuButton') {
                         const bin = btn.child.menu.box.get_child_at_index(0); // CalendarArea 
                         const hbox = bin.get_child_at_index(0); // hbox with left and right sections
 
                         const msgList = hbox.get_child_at_index(0); // Left Pane/Section with notifications etc
                         this.applyMenuClass(msgList, add);
-                        const placeholder = msgList.get_child_at_index(0);
+                        const placeholder = msgList.get_child_at_index(0); // placeholder for 'No Notifications'
                         this.applyMenuClass(placeholder, add);
                         const msgbox = msgList.get_child_at_index(1);
                         const msgScroll = msgbox.get_child_at_index(0);
@@ -334,329 +339,162 @@ export default class Openbar extends Extension {
         }
     }
 
-    // updatePanelStyle(panel, actor, event) {
-    //     this.updateTimeoutId = setTimeout(() => {this.updateStyle(panel, actor, event);}, 0);
-    // }
+    setPanelBoxPosition(position, height, margin, borderWidth, bartype) {
+        let pMonitor = Main.layoutManager.primaryMonitor;
+        let panelBox = Main.layoutManager.panelBox; 
+        if(position == 'Top') {       
+            let topX = pMonitor.x;
+            let topY = pMonitor.y;
+            panelBox.set_position(topX, topY);
+            panelBox.set_size(pMonitor.width, -1);        
+        }
+        else if(position == 'Bottom') {
+            margin = (bartype == 'Mainland')? 0: margin;
+            borderWidth = (bartype == 'Trilands' || bartype == 'Islands')? 0: borderWidth;
+            let bottomX = pMonitor.x;
+            let bottomY = pMonitor.y + pMonitor.height - height - 2*borderWidth - 2*margin;
+            panelBox.set_position(bottomX, bottomY);
+            panelBox.set_size(pMonitor.width, height + 2*borderWidth + 2*margin);
+        }
+        
+    }
 
-    updatePanelStyle(panel, actor, key) { 
+    updatePanelStyle(actor, key) { 
         // console.log('update called with key ', key);
+        let panel = Main.panel;
+
         if(!this._settings)
             return;
 
         if(key.startsWith('palette'))
             return;
 
+        // Generate background color palette
         if(key == 'bgpalette' || key == 'bguri') {
             this.backgroundPalette();
             return;
         }
 
+        let bartype = this._settings.get_string('bartype');
+        // Update triland classes if actor (panel button) removed in triland mode else return
+        if(key == 'actor-removed' && bartype != 'Trilands')
+            return;
+
+        let position = this._settings.get_string('position');
         let overview = this._settings.get_boolean('overview');
-        if(key == 'shown') { 
-            if(!overview) { // Reset in overview, if overview style disabled
+        if(key == 'showing') { 
+            if(!overview) { // Reset in overview, if 'overview' style disabled
                 this.resetStyle(panel);
                 this.applyMenuStyles(panel, false);
+                this.setPanelBoxPosition(position, panel.height, 0, 0, 'Mainland');
             }
             return;           
         }
-        else if(key == 'hidden') {
-            this.updateTimeoutId = setTimeout(() => {
-                this.updatePanelStyle(panel, actor, 'post-hidden');
-            }, 10);        
-        }
-             
+        else if(key == 'hiding') {
+            // Continue to update style     
+        }            
 
         if(key == 'reloadstyle') { // A toggle key to trigger update for reload stylesheet
             this.reloadStylesheet();
         }
         
         let menustyle = this._settings.get_boolean('menustyle');
-        this.applyMenuStyles(panel, menustyle);
+        if(['reloadstyle', 'removestyle', 'menustyle', 'actor-added', 'hiding'].includes(key))
+            this.applyMenuStyles(panel, menustyle);
             
-        let menuKeys = ['reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 'mhcolor', 'mhalpha', 'mscolor', 'msalpha'];
-        if(menuKeys.includes(key)) {
+        let menuKeys = ['reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 
+        'mhcolor', 'mhalpha', 'mscolor', 'msalpha', 'mshcolor', 'mshalpha'];
+        let barKeys = ['bgcolor', 'gradient', 'gradient-direction', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'borderColor', 
+        'balpha', 'borderWidth', 'borderRadius', 'bordertype', 'shcolor', 'shalpha', 'islandsColor', 'isalpha', 'neon', 'shadow', 'font',
+        'hcolor', 'halpha', 'heffect'];
+        let keys = [...barKeys, ...menuKeys];
+        if(keys.includes(key)) {
             return;
-        }
-            
+        }    
 
-        // Get the settings values
-        let bartype = this._settings.get_string('bartype');
-        let bgcolor = this._settings.get_strv('bgcolor');
-        let gradient = this._settings.get_boolean('gradient');
-        let grDirection = this._settings.get_string('gradient-direction');
-        let bgcolor2 = this._settings.get_strv('bgcolor2');
-        let bgalpha = this._settings.get_double('bgalpha');
-        let bgalpha2 = this._settings.get_double('bgalpha2');
-        let fgcolor = this._settings.get_strv('fgcolor');
-        let fgalpha = this._settings.get_double('fgalpha');
-        let borderColor = this._settings.get_strv('bcolor');
-        let balpha = this._settings.get_double('balpha');
+        // console.log('going ahead update with key: ', key);
+
         let borderWidth = this._settings.get_double('bwidth');
-        let borderRadius = this._settings.get_double('bradius');
-        let bordertype = this._settings.get_string('bordertype');
-        let shcolor = this._settings.get_strv('shcolor');
-        let shalpha = this._settings.get_double('shalpha'); 
-        let islandsColor = this._settings.get_strv('iscolor');
-        let isalpha = this._settings.get_double('isalpha');
-        let neon = this._settings.get_boolean('neon');
-        let shadow = this._settings.get_boolean('shadow');        
-        let font = this._settings.get_string("font");
         let height = this._settings.get_double('height');
-        let margin = this._settings.get_double('margin');
-
-        const fgred = parseInt(parseFloat(fgcolor[0]) * 255);
-        const fggreen = parseInt(parseFloat(fgcolor[1]) * 255);
-        const fgblue = parseInt(parseFloat(fgcolor[2]) * 255);
-
-        const bgred = parseInt(parseFloat(bgcolor[0]) * 255);
-        const bggreen = parseInt(parseFloat(bgcolor[1]) * 255);
-        const bgblue = parseInt(parseFloat(bgcolor[2]) * 255);
-
-        const bgred2 = parseInt(parseFloat(bgcolor2[0]) * 255);
-        const bggreen2 = parseInt(parseFloat(bgcolor2[1]) * 255);
-        const bgblue2 = parseInt(parseFloat(bgcolor2[2]) * 255);
-
-        const isred = parseInt(parseFloat(islandsColor[0]) * 255);
-        const isgreen = parseInt(parseFloat(islandsColor[1]) * 255);
-        const isblue = parseInt(parseFloat(islandsColor[2]) * 255);
-
-        const bred = parseInt(parseFloat(borderColor[0]) * 255);
-        const bgreen = parseInt(parseFloat(borderColor[1]) * 255);
-        const bblue = parseInt(parseFloat(borderColor[2]) * 255);
-
-        const shred = parseInt(parseFloat(shcolor[0]) * 255);
-        const shgreen = parseInt(parseFloat(shcolor[1]) * 255);
-        const shblue = parseInt(parseFloat(shcolor[2]) * 255);
-   
+        let margin = this._settings.get_double('margin'); 
     
-        this.resetStyle(panel);
+        // this.resetStyle(panel);
+        // Main.layoutManager.panelBox.add_style_class_name('openbar');
         panel.add_style_class_name('openbar');
 
+        if(position == 'Bottom' || key == 'position' || key == 'monitors-changed') {
+            this.setPanelBoxPosition(position, height, margin, borderWidth, bartype);
+        }
+
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
-        let commonStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, islandStyle, dotStyle, neonStyle, gradientStyle, triLeftStyle, triBothStyle, triRightStyle;      
 
-        // style that applies dynamically to either the panel or the panel buttons as per bar type
-        borderStyle = `
-            border: ${borderWidth}px ${bordertype} rgba(${bred},${bgreen},${bblue},${balpha});            
-        `;
-        radiusStyle = ` border-radius: ${borderRadius}px; `;
-        // if (bordertype == 'double')
-        //     style += ` outline: ${borderWidth}px ${bordertype} rgba(${bred},${bgreen},${bblue},${balpha}); `;
+        for(const box of panelBoxes) {
+            for(const btn of box) {
+                if(btn.child instanceof PanelMenu.Button) {
+                    btn.child.add_style_class_name('openbar');
 
-        // common style needed for both panel and buttons (all bar types)
-        commonStyle = ` 
-            color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}); 
-            
-        `;
-        // panel style for panel only (all bar types)
-        panelStyle = ` background-color: rgba(${bgred},${bggreen},${bgblue},${bgalpha}) !important; height: ${height}px !important; `;
-        panelStyle += radiusStyle;
-
-        // button style for buttons only (all bar types)
-        btnStyle = ` margin: none; height: ${height}px !important;  `;
-
-        // island style for buttons (only island bar type)
-        islandStyle = ` background-color: rgba(${isred},${isgreen},${isblue},${isalpha}); `;
-
-        // Triland style for left end btn of box (only triland bar type)
-        triLeftStyle = ` border-radius: ${borderRadius}px 0px 0px ${borderRadius}px; `;
-         // Triland style for single btn box (only triland bar type)
-        triBothStyle = radiusStyle;
-         // Triland style for right end btn of box (only triland bar type)
-        triRightStyle = ` border-radius: 0px ${borderRadius}px ${borderRadius}px 0px; `;
-
-        // Workspace dots style
-        dotStyle = ` background-color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}); `;
-
-        // Add font style to panelstyle (works on all bar types)
-        if (font != ""){
-            let fontDesc = Pango.font_description_from_string(font); 
-            let fontFamily = fontDesc.get_family();
-            let fontSize = fontDesc.get_size() / Pango.SCALE;
-            let fontWeight;
-            try{
-              fontWeight = fontDesc.get_weight();
-            }catch(e){
-              fontWeight = Math.round(fontWeight/100)*100;
-            }
-            fontStyle = ` font-family: ${fontFamily};  font-size: ${fontSize}px; font-weight: ${fontWeight}; `; 
-        }
-        else
-            fontStyle = '';
-        panelStyle += fontStyle;
-    
-        // Box shadow not working with rectangular box (for smaller radius), why Gnome??
-        // Fix: Negative/low spread to try to contain it in that range. Range depends on bar height
-        let radThreshold = Math.ceil((height/10.0 - 1)*5) - 1;
-
-        // Add the neon style if enabled
-        if (neon) {           
-            if (borderRadius < radThreshold) {
-                neonStyle = `               
-                    box-shadow: 0px 0px 5px -1px rgba(${bred},${bgreen},${bblue},0.55);
-                `;
-            }
-            else {
-                neonStyle = `               
-                    box-shadow: 0px 0px 5px 3px rgba(${bred},${bgreen},${bblue},0.55);
-                `;
-            }
-        }
-        else {
-            neonStyle = ` `;
-        }
-
-
-        // Add panel shadow if enabled. Use alpha to decide offset, blur, spread and alpha
-        if (shadow) {
-            if (borderRadius < radThreshold) {
-                panelStyle += `
-                box-shadow: 0px ${shalpha*20}px ${2+shalpha*30}px ${2+shalpha*20}px rgba(${shred},${shgreen},${shblue}, ${shalpha});
-                `;
-            }
-            else {
-                panelStyle += `
-                box-shadow: 0px ${shalpha*20}px ${2+shalpha*30}px ${2+shalpha*40}px rgba(${shred},${shgreen},${shblue}, ${shalpha});
-                `;
-            }
-        }
-        else {
-            panelStyle += `
-                    box-shadow: none;
-                `;
-        }
-
-        // Add gradient to style if enabled
-        if (gradient) {
-            let startColor, endColor;
-            if(bartype == 'Islands') {
-                startColor = `rgba(${isred},${isgreen},${isblue},${isalpha})`;
-            }
-            else {
-                startColor = `rgba(${bgred},${bggreen},${bgblue},${bgalpha})`;                
-            }
-            endColor = `rgba(${bgred2},${bggreen2},${bgblue2},${bgalpha2})`;
-            gradientStyle  = ` 
-                background-gradient-start: ${startColor};  
-                background-gradient-end: ${endColor}; 
-                background-gradient-direction: ${grDirection}; 
-            `;
-
-            islandStyle = ``;
-        }
-        else
-            gradientStyle = ``;
-
-
-        if(bartype == 'Mainland') {
-            panelStyle += ` margin: none; `;            
-        }
-        if(bartype == 'Floating') {
-            panelStyle += ` margin: ${margin}px ${3*margin}px; `;
-        }
-        if(bartype == 'Islands' || bartype == 'Trilands') {
-            panelStyle += ` margin: ${margin}px ${1.5*margin}px; `;            
-            panel.set_style(commonStyle + panelStyle);  
-
-            btnStyle += borderStyle + radiusStyle;
-
-            btnContainerStyle = ` 
-                padding: 0px 0px;
-                margin: 0 3px;
-            `;
-            btnContainerStyle += ` border-radius: ${borderRadius+borderWidth}px; `;
-
-            for(const box of panelBoxes) {
-                for(const btn of box) {
-                    if(btn.child instanceof PanelMenu.Button) {
-                        btn.child.set_style(commonStyle + btnStyle + islandStyle + gradientStyle);
-                        
-                        if(btn.child.visible) {
-                            btn.set_style(btnContainerStyle + neonStyle);
-                        }
-
-                        if(btn.child.constructor.name === 'ActivitiesButton') {
-                            let list = btn.child.get_child_at_index(0);
-                            for(const indicator of list) { 
-                                let dot = indicator.get_child_at_index(0);
-                                dot?.set_style(dotStyle);
-                            }
-                        }
-
-                        if(bartype == 'Trilands') {
-                            if(btn == box.first_child && btn == box.last_child)
-                                btn.child.style += triBothStyle;
-                            else if(btn == box.first_child)
-                                btn.child.style += triLeftStyle;
-                            else if(btn == box.last_child)
-                                btn.child.style += triRightStyle;
-                            else
-                                btn.child.style += ` border-radius: 0px; `;
-                        }
-
+                    if(btn.child.visible) {
+                        btn.add_style_class_name('openbar button-container');
                     }
-                }
-            }
-           
-        }
-        else {
 
-            // Apply the style to the panel
-            panel.set_style(commonStyle + panelStyle + borderStyle + gradientStyle + neonStyle);
-
-            btnStyle += ` border-radius: ${Math.max(borderRadius, 5)}px; border-width: 0px; `;
-
-            btnContainerStyle = ` 
-                padding: ${borderWidth}px ${borderWidth}px;
-                margin: 0 0px;
-            `;
-            btnContainerStyle += ` border-radius: ${borderRadius+borderWidth}px; `;
-            
-            for(const box of panelBoxes) {
-                for(const btn of box) {
-                    if(btn.child instanceof PanelMenu.Button) { 
+                    if(btn.child.constructor.name === 'ActivitiesButton') {
+                        let list = btn.child.get_child_at_index(0);
+                        for(const indicator of list) { 
+                            let dot = indicator.get_child_at_index(0);
+                            dot?.add_style_class_name('openbar');
+                        }
                         
-                        btn.child.set_style(commonStyle + btnStyle);
-          
-                        if(btn.child.visible) {
-                            btn.set_style(btnContainerStyle);
-                        }
-
-                        if(btn.child.constructor.name === 'ActivitiesButton') {
-                            let list = btn.child.get_child_at_index(0);
-                            for(const indicator of list) { 
-                                let dot = indicator.get_child_at_index(0);
-                                dot?.set_style(dotStyle);
-                            }
-                        }
-
                     }
-                }
-            }
+                    
+                    if(btn.child.has_style_class_name('trilands'))
+                        btn.child.remove_style_class_name('trilands');
+                    if(bartype == 'Trilands') {
+                        btn.child.add_style_class_name('trilands');
 
+                        if(btn == box.first_child && btn == box.last_child)
+                            btn.child.add_style_pseudo_class('both');
+                        else
+                            btn.child.remove_style_pseudo_class('both');
+                        
+                        if(btn == box.first_child && btn != box.last_child)
+                            btn.child.add_style_pseudo_class('left');
+                        else
+                            btn.child.remove_style_pseudo_class('left');
+                            
+                        if(btn != box.first_child && btn == box.last_child)
+                            btn.child.add_style_pseudo_class('right');
+                        else
+                            btn.child.remove_style_pseudo_class('right');
+                        
+                        if(btn != box.first_child && btn != box.last_child)
+                            btn.child.add_style_pseudo_class('none');
+                        else
+                            btn.child.remove_style_pseudo_class('none');
+                    }
+                    
+                }
+                
+            }
         }
 
     }
 
-    // listen for addition of new panels
+    // QSAP: listen for addition of new panels
     // this allow theming QSAP panels when QSAP is enabled after Open Bar
-    setupLibpanel(menu, panel) {
+    setupLibpanel(menu) {
         if(menu.constructor.name != 'PanelGrid')
             return;
 
         for(const panelColumn of menu.box.get_children()) {
-            this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this, panel));
+            this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
         }
         this._connections.connect(menu.box, 'actor-added', (panelColumn) => {
-            this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this, panel));
+            this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
         });
     }
 
-    // ToDo: 
-    // Debug 'length property isn't a number' warning
-
     enable() {
-        
+        // Get Gnome version
         const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
         this.gnomeVersion = major;
 
@@ -667,31 +505,41 @@ export default class Openbar extends Extension {
 
         // Connect to the settings changes
         this._settings.connect('changed', (settings, key) => {
-            this.updatePanelStyle(panel, settings, key);
+            this.updatePanelStyle(settings, key);
         });
 
         let connections = [
-            [ Main.overview, 'hidden', this.updatePanelStyle.bind(this, panel) ],
-            [ Main.overview, 'shown', this.updatePanelStyle.bind(this, panel) ],
-            [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this, panel) ],
-            [ panel._leftBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
-            [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
-            [ panel._rightBox, 'actor-added', this.updatePanelStyle.bind(this, panel) ],
+            [ Main.overview, 'hiding', this.updatePanelStyle.bind(this) ],
+            [ Main.overview, 'showing', this.updatePanelStyle.bind(this) ],
+            // [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this) ],
+            [ Main.layoutManager, 'monitors-changed', this.updatePanelStyle.bind(this) ],
+            [ panel._leftBox, 'actor-added', this.updatePanelStyle.bind(this) ],
+            [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this) ],
+            [ panel._rightBox, 'actor-added', this.updatePanelStyle.bind(this) ],
+            [ panel._leftBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
+            [ panel._centerBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
+            [ panel._rightBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
         ];
         // Connection specific to QSAP extension (Quick Settings)
         if(this.gnomeVersion > 42) {
             let qSettings = Main.panel.statusArea.quickSettings;
-            connections.push( [qSettings, 'menu-set', this.setupLibpanel.bind(this, qSettings.menu, panel)] );
+            connections.push( [qSettings, 'menu-set', this.setupLibpanel.bind(this, qSettings.menu)] );
+        }
+        // Connection specific to Workspace indicator dots
+        if(this.gnomeVersion > 44) {
+            connections.push([global.workspace_manager, 'notify::n-workspaces', this.updatePanelStyle.bind(this)]);
         }
 
         // Settings for desktop background image (capture last changed uri)
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
         connections.push([this._bgSettings, 'changed::picture-uri', () => {
             let uri = this._bgSettings.get_string('picture-uri');
-            this._settings.set_string('bguri', uri);}]);
+            this._settings.set_string('bguri', uri);
+        }]);
         connections.push([this._bgSettings, 'changed::picture-uri-dark', () => {
             let uri = this._bgSettings.get_string('picture-uri-dark');
-            this._settings.set_string('bguri', uri);}]);
+            this._settings.set_string('bguri', uri);
+        }]);
         // Initially, use picture-uri
         let bguri = this._settings.get_string('bguri');
         if(bguri == '')
@@ -700,7 +548,11 @@ export default class Openbar extends Extension {
         // Setup all connections
         this._connections = new ConnectManager(connections);
         
-        // Update calendar style on Calendar rebuild
+        // Setup connections for addition of new QSAP extension panels
+        if(this.gnomeVersion > 42)
+            this.setupLibpanel(Main.panel.statusArea.quickSettings.menu);
+
+        // Update calendar style on Calendar rebuild through fn injection
         const obar = this;
         this._injections["_rebuildCalendar"] = this._injectToFunction(
             Calendar.Calendar.prototype,
@@ -715,34 +567,23 @@ export default class Openbar extends Extension {
             }
         );
 
-        // Setup connections for QSAP extension panels
-        if(this.gnomeVersion > 42)
-            this.setupLibpanel(Main.panel.statusArea.quickSettings.menu, panel);
-
         // Apply the initial style
-        this.updatePanelStyle(panel);
+        this.updatePanelStyle(null, 'enabled');
+        let menustyle = this._settings.get_boolean('menustyle');
+        this.applyMenuStyles(panel, menustyle);
     }
 
     disable() {
         // Get the top panel
         let panel = Main.panel;
 
-        // Reset the style and disconnect onEvents and offEvents
-        this.resetStyle(panel);
-        this.applyMenuStyles(panel, false);
-
-        this._settings = null;
-        this._bgSettings = null;
-
         this._connections.disconnectAll();
         this._connections = null;
 
-        const timeouts = [this.calendarTimeoutId, this.updateTimeoutId];
-        timeouts.forEach(timeoutId => {
-            if(timeoutId)
-                clearTimeout(timeoutId);
-            timeoutId = null;
-        });
+        if(this.calendarTimeoutId) {
+            clearTimeout(this.calendarTimeoutId);
+            this.calendarTimeoutId = null;
+        }
 
         if(this.mediaListId) {
             this.mediaList?.disconnect(this.mediaListId);
@@ -755,6 +596,15 @@ export default class Openbar extends Extension {
 
         this._removeInjection(Calendar.Calendar.prototype, this._injections, "_rebuildCalendar");
         this._injections = [];
+
+        // Reset the style for Panel and Menus
+        this.resetStyle(panel);
+        this.applyMenuStyles(panel, false);
+        // Reset panel position to Top
+        this.setPanelBoxPosition('Top');
+
+        this._settings = null;
+        this._bgSettings = null;
 
     }
     
