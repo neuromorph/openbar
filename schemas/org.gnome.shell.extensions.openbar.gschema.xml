@@ -118,7 +118,7 @@
       <description>Monitors to show Top Bar display on.</description>
     </key>
     <key type="d" name="height">
-      <default>30.0</default>
+      <default>35.0</default>
       <summary>Top Bar height</summary>
       <description>Top Bar height.</description>
     </key>
