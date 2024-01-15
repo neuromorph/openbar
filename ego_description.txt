@@ -1,12 +1,18 @@
 Top Bar ( Top Panel ) customization / styling. Open the Top Bar and let the colors 🍹 flow.
 
+Update: 
+- Addition of auto-generated Desktop Background color palette in every color palette pop up
+- Enhancements in fonts, highlights, backgrounds etc and new padding controls
+- Many fixes and compatibility with other extensions like QSAP, Arc Menu etc
+- Some users had reported extension crashes/error due to the Panel being modified by other extensions. Known cases are already fixed. If you find anything new, please report in Github.
+
 Feedback / suggestions are welcome.
 
 Customize:
-- Bar Type: Fixed, Floating or Islands
-- Bar height, margin
+- Bar Type: Fixed, Floating or Islands / Trilands
+- Bar position, height, margin, paddings
 - Bar foreground color, font
-- Bar background color, transparency, gradient,  shadow
+- Bar background color, transparency, gradient, shadow, highlights
 - Shape rectangular to pill, border width, color, neon glow
 - Menu customizations: foreground, background colors, transparency, border, shadow,  active/selection, hover colors
 etc.
@@ -14,21 +20,19 @@ etc.
 If the panel/menu isn't looking right, you need to tweak some settings. There are a lot of knobs to allow for differnt setups/tastes. It can also make it a bit overwhelming if you are not familiar with css styles but with some experimentation it will become a lot easier. Here are brief notes:
 - BG/FG color: Background or Foreground colors. Foreground is typically text and icons.
 - Alpha: Transparency for the color. 0 is transparent while 1 is opaque.
-- Panel BG will affect the bar while Islands BG will affect the individual indicator buttons/combos (in Islands mode).
+- Panel BG will affect the bar while Tri/Islands BG will affect the individual indicator buttons/combos (in Trilands/Islands mode).
 - Gradient goes from Start color to End color. If you want a single color fading, select same color for both with differnt Alphas. e.g. Setting end color alpha to 0 will form a gradient from Start color to transparent.
-- Highlight color: It is the background color upon hover or focus. 
+- Highlight color: It is the background color upon hover or focus. You can choose to highlight with border instead.
+- Vertical padding: Controls size of highlights in Mainland/Floating. Also controls size of Islands/Trilands. Increase height if padding squeezes the text.
 - Panel Shadow: a downward shadow for the panel bar. Shadow Spread controls both shadow trasparency and spread together.
 - Border: 
-    = Width controls thickness that grows inwards. Adjust bar height accordingly, after setting border width.  
+    = Width controls thickness (grows inwards for Islands). Adjust bar height accordingly, after setting border width.  
     = Radius will control the shape from rectangle at radius 0 to Pill at radius close to bar height. 
     = Neon glow: adds a neon-light like glow to the border. You need dark, relatively opaque background with bright/neon colored, relatively opaque border. Neon will override Panel shadow in Mainland and Floating mode.
  - Menus: 
     = FG/BG, border, highlight are similar to above but for menus.
     = Selected/active color is for menu items that are active e.g. Today's day in Calendar or WiFi in Quick Settings or even an active menu item with opened submenu. 
     = Shadow applies to the panel menu. Use white/bright color in dark theme and black/dark color in light theme for the effect to show and help with contrast. Using same color as menu border is also a good idea. Use the Alphas for both border and shadow to increase or reduce their effect.
-    = Lastly, menu settings do not apply as soon as changed. You need to press 'Apply Menu Styles' button to apply the changes. 'Remove Menu Styles' button will remove all menu styles and revert to your default theme.
+    = Once enabled, menu settings now also apply as soon as changed. You need to press 'Apply Menu Styles' button to enable the menu style. 'Reset Menu Styles' button will remove all menu styles and revert to your default theme.
 
-
-Update: 
-- New Bar Type 'Trilands'
-- Compatibility with 'Quick Settings Audio Panel' extension (thanks @Rayzeq)
+Lastly, be a tiny bit gentler with the sliders in the settings as they modify the stylesheet behind the scene for every update.
