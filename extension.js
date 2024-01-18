@@ -19,7 +19,7 @@
 
 /* exported Openbar init */
 
-const { St, Gio, GdkPixbuf, Meta } = imports.gi;
+const { St, Gio, GdkPixbuf, Meta, Clutter } = imports.gi;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const Calendar = imports.ui.calendar;
@@ -28,6 +28,7 @@ const Config = imports.misc.config;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Quantize = Me.imports.quantize;
+// const MessageTray = imports.ui.messageTray;
 
 
 // ConnectManager class to manage connections for events to trigger Openbar style updates
@@ -304,6 +305,8 @@ class Extension {
                         const msgHbox = msgbox.get_child_at_index(1); // hbox at botton for dnd and clear buttons
                         const dndBtn = msgHbox.get_child_at_index(1);
                         this.applyMenuClass(dndBtn, add);
+                        const toggleSwitch = dndBtn.get_child_at_index(0);
+                        this.applyMenuClass(toggleSwitch, add);
                         const clearBtn = msgHbox.get_child_at_index(2);
                         this.applyMenuClass(clearBtn, add);
 
@@ -359,7 +362,7 @@ class Extension {
     }
 
     updatePanelStyle(actor, key) { 
-        // console.log('update called with key ', key);
+        console.log('update called with key ', key);
         let panel = Main.panel;
 
         if(!this._settings)
@@ -380,9 +383,9 @@ class Extension {
             return;
 
         let position = this._settings.get_string('position');
-        let overview = this._settings.get_boolean('overview');
+        let setOverview = this._settings.get_boolean('set-overview');
         if(key == 'showing') { 
-            if(!overview) { // Reset in overview, if 'overview' style disabled
+            if(!setOverview) { // Reset in overview, if 'overview' style disabled
                 this.resetStyle(panel);
                 this.applyMenuStyles(panel, false);
                 this.setPanelBoxPosition(position, panel.height, 0, 0, 'Mainland');
@@ -424,6 +427,18 @@ class Extension {
         if(position == 'Bottom' || key == 'position' || key == 'monitors-changed') {
             this.setPanelBoxPosition(position, height, margin, borderWidth, bartype);
         }
+
+        let setNotifications = this._settings.get_boolean('set-notifications');
+        if(key == 'set-notifications' || key == 'position') {
+            if(setNotifications && position == 'Bottom')
+                Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.END;
+            else
+                Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
+        }
+        if(key == 'actor-added' && setNotifications) {
+            Main.messageTray._banner?.add_style_class_name('openmenu');
+        }
+
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
 
@@ -518,6 +533,7 @@ class Extension {
             [ panel._leftBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
             [ panel._centerBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
             [ panel._rightBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
+            [ Main.messageTray._bannerBin, 'actor-added', this.updatePanelStyle.bind(this) ],
         ];
         // Connection specific to QSAP extension (Quick Settings)
         if(this.gnomeVersion > 42) {
@@ -558,9 +574,9 @@ class Extension {
             "_rebuildCalendar",
             function () {
                 let menustyle = obar._settings.get_boolean('menustyle');
-                let overview = obar._settings.get_boolean('overview');
+                let setOverview = obar._settings.get_boolean('set-overview');
                 if(menustyle) {  
-                    if(overview || !Main.panel.has_style_pseudo_class('overview'))
+                    if(setOverview || !Main.panel.has_style_pseudo_class('overview'))
                         obar.applyCalendarGridStyle(this, menustyle);            
                 }
             }

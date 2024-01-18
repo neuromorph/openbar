@@ -102,10 +102,15 @@
       <summary>Neon Effect</summary>
       <description>Neon Effect.</description>
     </key>
-    <key type="b" name="overview">
+    <key type="b" name="set-overview">
       <default>false</default>
       <summary>Apply in overview</summary>
       <description>Whether customization is applied in overview.</description>
+    </key>
+    <key type="b" name="set-notifications">
+      <default>false</default>
+      <summary>Apply to notification popups</summary>
+      <description>Whether customization is applied to notifications.</description>
     </key>
     <key type="b" name="gradient">
       <default>false</default>

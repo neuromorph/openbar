@@ -482,7 +482,7 @@ class OpenbarPrefs {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
             }
 
-            .openmenu.popup-menu-content, .openmenu.candidate-popup-content {
+            .openmenu.popup-menu-content, .openmenu.candidate-popup-content, .openmenu.notification-banner {
                 box-shadow: 0 5px 10px 0 rgba(${mshred},${mshgreen},${mshblue},${mshAlpha}) !important; /* menu shadow */
                 border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${mbAlpha}) !important; /* menu border */
                 /* add menu font */
@@ -619,8 +619,12 @@ class OpenbarPrefs {
             .openmenu.message .event-time {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.75}) !important;
             }
-            .openmenu.message .message-close-button {
+            .openmenu.message .button, .openmenu.message .message-close-button {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+            }
+            .openmenu.message .button:hover, .openmenu.message .button:focus,
+            .openmenu.message .message-close-button:hover, .openmenu.message .message-close-button:focus {
                 background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
             }
             .openmenu.message:hover, .openmenu.message:focus {
@@ -646,6 +650,10 @@ class OpenbarPrefs {
             .openmenu.dnd-button:hover, .openmenu.dnd-button:focus {
                 border-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
             }
+            .openmenu .toggle-switch:checked {
+                background-image: url(media/toggle-on.svg);
+            }
+            
             .openmenu.message-list-clear-button {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
@@ -1145,6 +1153,40 @@ class OpenbarPrefs {
         setTimeout(() => {this.updatePalette(window, false)}, 500);
     }
 
+    saveToggleSVG() {
+        let svg = `
+        <svg viewBox="0 0 48 26" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(0 -291.18)">
+        <rect y="291.18" width="48" height="26" rx="13" ry="13" fill="#REPLACE"/>
+        <rect x="24" y="294.18" width="22" height="22" rx="11" ry="11" fill-opacity=".2"/>
+        <rect x="24" y="293.18" width="22" height="22" rx="11" ry="11" fill="#fff"/>
+        </g>
+        </svg>
+        `;
+        let msColor = this._settings.get_strv('mscolor');
+        const msred = parseInt(parseFloat(msColor[0]) * 255);
+        const msgreen = parseInt(parseFloat(msColor[1]) * 255);
+        const msblue = parseInt(parseFloat(msColor[2]) * 255);
+        const msHex = this.rgbToHex(msred, msgreen, msblue);
+
+        svg = svg.replace(`#REPLACE`, msHex);
+
+        let svgpath = Me.path + '/media/toggle-on.svg';
+        let file = Gio.File.new_for_path(svgpath);
+        let bytearray = new TextEncoder().encode(svg);
+
+        if (bytearray.length) {
+            let output = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
+            let outputStream = Gio.BufferedOutputStream.new_sized(output, 4096);
+            outputStream.write_all(bytearray, null);
+            outputStream.close(null);
+        }
+        else {
+          console.log("Failed to write toggle-on.svg file: " + svgpath);
+        }
+
+    }
+
     fillOpenbarPrefs(window) {
 
         window.set_title(_("Open Bar 🍹"));
@@ -1156,11 +1198,15 @@ class OpenbarPrefs {
 
         // Get the settings object
         this._settings = ExtensionUtils.getSettings();
+        // Connect settings to update/save/reload stylesheet
         let settEvents = ['changed::bartype', 'changed::font', 'changed::gradient', 
         'changed::gradient-direction', 'changed::shadow', 'changed::neon', 'changed::heffect']; 
         settEvents.forEach(event => {
             this._settings.connect(event, () => {this.triggerStyleReload();});
         });
+        // Connect settings to save toggle switch svg
+        this._settings.connect('changed::mscolor', this.saveToggleSVG.bind(this));
+
         this.timeoutId = null;
 
         const settingsPage = new Adw.PreferencesPage({
@@ -1350,6 +1396,18 @@ class OpenbarPrefs {
 
         let overviewSwitch = this.createSwitchWidget();
         bargrid.attach(overviewSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a notification popups switch
+        let notificationsLabel = new Gtk.Label({
+            label: 'Apply to notification popups',
+            halign: Gtk.Align.START,
+        });
+        bargrid.attach(notificationsLabel, 1, rowbar, 1, 1);
+
+        let notificationsSwitch = this.createSwitchWidget();
+        bargrid.attach(notificationsSwitch, 2, rowbar, 1, 1);
 
         barprop.set_child(bargrid);
         prefsWidget.attach(barprop, 1, rowNo, 2, 1);
@@ -2131,12 +2189,17 @@ class OpenbarPrefs {
             Gio.SettingsBindFlags.DEFAULT
         );
         this._settings.bind(
-            'overview',
+            'set-overview',
             overviewSwitch,
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
-        
+        this._settings.bind(
+            'set-notifications',
+            notificationsSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
         this._settings.bind(
             'mfgalpha',
             mfgAlpha.adjustment,
