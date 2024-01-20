@@ -312,5 +312,55 @@
       <summary>Desktop Background uri</summary>
       <description>Desktop background image file uri.</description>
     </key>
+    <key type="b" name="candybar">
+      <default>false</default>
+      <summary>Apply candybar pallete</summary>
+      <description>Apply candybar pallete to panel buttons.</description>
+    </key>
+    <key type="as" name="candy1">
+      <default>['38', '158', '202']</default>
+      <summary>Candy Palette Color 1 (RGB)</summary>
+      <description>Candy color 1 of candybar.</description>
+    </key>
+    <key type="as" name="candy2">
+      <default>['80', '45', '241']</default>
+      <summary>Candy Palette Color 2 (RGB)</summary>
+      <description>Candy color 2 of candybar.</description>
+    </key>
+    <key type="as" name="candy3">
+      <default>['238', '78', '139']</default>
+      <summary>Candy Palette Color 3 (RGB)</summary>
+      <description>Candy color 3 of candybar.</description>
+    </key>
+    <key type="as" name="candy4">
+      <default>['28', '113', '216']</default>
+      <summary>Candy Palette Color 4 (RGB)</summary>
+      <description>Candy color 4 of candybar.</description>
+    </key>
+    <key type="as" name="candy5">
+      <default>['46', '194', '126']</default>
+      <summary>Candy Palette Color 5 (RGB)</summary>
+      <description>Candy color 5 of candybar.</description>
+    </key>
+    <key type="as" name="candy6">
+      <default>['129', '61', '156']</default>
+      <summary>Candy Palette Color 6 (RGB)</summary>
+      <description>Candy color 6 of candybar.</description>
+    </key>
+    <key type="as" name="candy7">
+      <default>['255', '120', '0']</default>
+      <summary>Candy Palette Color 7 (RGB)</summary>
+      <description>Candy color 7 of candybar.</description>
+    </key>
+    <key type="as" name="candy8">
+      <default>['229', '165', '10']</default>
+      <summary>Candy Palette Color 8 (RGB)</summary>
+      <description>Candy color 8 of candybar.</description>
+    </key>
+    <key type="d" name="candyalpha">
+      <default>0.9</default>
+      <summary>Transparency (alpha) of candy colors</summary>
+      <description>Transparency of candy colors.</description>
+    </key>
   </schema>
 </schemalist>

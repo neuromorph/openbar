@@ -162,6 +162,9 @@ class Extension {
                 btn.remove_style_class_name('openbar');
                 btn.child?.set_style(null);
                 btn.child?.remove_style_class_name('openbar');   
+
+                for(let j=0; j<=8; j++)
+                    btn.child.remove_style_class_name('candy'+j);
                     
                 if(btn.child?.constructor.name === 'ActivitiesButton') {
                     let list = btn.child.get_child_at_index(0);
@@ -429,7 +432,8 @@ class Extension {
         }
 
         let setNotifications = this._settings.get_boolean('set-notifications');
-        if(key == 'set-notifications' || key == 'position') {
+        let notifKeys = ['set-notifications', 'position', 'monitors-changed', 'updated', 'enabled'];
+        if(notifKeys.includes(key)) {
             if(setNotifications && position == 'Bottom')
                 Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.END;
             else
@@ -439,18 +443,28 @@ class Extension {
             Main.messageTray._banner?.add_style_class_name('openmenu');
         }
 
-
+        const candybar = this._settings.get_boolean('candybar');
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
-
+        let i = 0;
         for(const box of panelBoxes) {
             for(const btn of box) {
-                if(btn.child instanceof PanelMenu.Button) {
-                    btn.child.add_style_class_name('openbar');
+                if(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) {
+                    btn.child.add_style_class_name('openbar');                    
 
                     if(btn.child.visible) {
                         btn.add_style_class_name('openbar button-container');
+
+                        // Add candybar classes if enabled else remove them
+                        for(let j=0; j<=8; j++)
+                            btn.child.remove_style_class_name('candy'+j);
+                        i++; i = i%8; i = i==0? 8: i; // Cycle through candybar palette
+                        if(candybar) {
+                            btn.child.add_style_class_name('candy'+i);
+                        }
+
                     }
 
+                    // Workspace dots
                     if(btn.child.constructor.name === 'ActivitiesButton') {
                         let list = btn.child.get_child_at_index(0);
                         for(const indicator of list) { 
@@ -460,6 +474,7 @@ class Extension {
                         
                     }
                     
+                    // Add trilands pseudo/classes if enabled else remove them
                     if(btn.child.has_style_class_name('trilands'))
                         btn.child.remove_style_class_name('trilands');
                     if(bartype == 'Trilands') {
@@ -525,7 +540,7 @@ class Extension {
         let connections = [
             [ Main.overview, 'hiding', this.updatePanelStyle.bind(this) ],
             [ Main.overview, 'showing', this.updatePanelStyle.bind(this) ],
-            // [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this) ],
+            [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this) ],
             [ Main.layoutManager, 'monitors-changed', this.updatePanelStyle.bind(this) ],
             [ panel._leftBox, 'actor-added', this.updatePanelStyle.bind(this) ],
             [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this) ],

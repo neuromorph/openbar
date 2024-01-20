@@ -364,6 +364,20 @@ class OpenbarPrefs {
             gradientStyle = ``;
 
 
+        // Candybar style 
+        let candyalpha = this._settings.get_double('candyalpha');
+        let candyStyleArr = [];
+        for(let i=1; i<=8; i++) {
+            let candyColor = this._settings.get_strv('candy'+i);
+            let cred = parseInt(parseFloat(candyColor[0]) * 255);
+            let cgreen = parseInt(parseFloat(candyColor[1]) * 255);
+            let cblue = parseInt(parseFloat(candyColor[2]) * 255);
+            let calpha = candyalpha;
+            let candyStyle = `background-color: rgba(${cred},${cgreen},${cblue},${calpha});`;
+            candyStyleArr.push(candyStyle);
+        }
+
+        
         if(bartype == 'Mainland') {
             panelStyle += 
             ` margin: 0px; `;         
@@ -439,6 +453,31 @@ class OpenbarPrefs {
                 ${btnStyle}
             }
 
+            #panel.openbar .panel-button.candy1 {
+                ${candyStyleArr[0]};
+            }
+            #panel.openbar .panel-button.candy2 {
+                ${candyStyleArr[1]};
+            }
+            #panel.openbar .panel-button.candy3 {
+                ${candyStyleArr[2]};
+            }
+            #panel.openbar .panel-button.candy4 {
+                ${candyStyleArr[3]};
+            }
+            #panel.openbar .panel-button.candy5 {
+                ${candyStyleArr[4]};
+            }
+            #panel.openbar .panel-button.candy6 {
+                ${candyStyleArr[5]};
+            }
+            #panel.openbar .panel-button.candy7 {
+                ${candyStyleArr[6]};
+            }
+            #panel.openbar .panel-button.candy8 {
+                ${candyStyleArr[7]};
+            }
+
             #panel.openbar .panel-button:hover, #panel.openbar .panel-button:focus, #panel.openbar .panel-button:active, #panel.openbar .panel-button:checked {
                 ${btnHoverStyle}
             }
@@ -452,6 +491,17 @@ class OpenbarPrefs {
             #panel.openbar .panel-button:focus.clock-display .clock, #panel.openbar .panel-button:checked.clock-display .clock {
                 background-color: transparent;
                 box-shadow: none;
+            }
+
+            #panel.openbar .panel-button.screen-recording-indicator {
+                transition-duration: 150ms;
+                font-weight: bold;
+                background-color: rgba(224, 27, 36, 0.8);
+            }
+            #panel.openbar .panel-button.screen-sharing-indicator {
+                transition-duration: 150ms;
+                font-weight: bold;
+                background-color: rgba(255, 90, 0, 0.9); 
             }
 
             #panel.openbar .workspace-dot {
@@ -482,7 +532,7 @@ class OpenbarPrefs {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
             }
 
-            .openmenu.popup-menu-content, .openmenu.candidate-popup-content, .openmenu.notification-banner {
+            .openmenu.popup-menu-content, .openmenu.candidate-popup-content {
                 box-shadow: 0 5px 10px 0 rgba(${mshred},${mshgreen},${mshblue},${mshAlpha}) !important; /* menu shadow */
                 border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${mbAlpha}) !important; /* menu border */
                 /* add menu font */
@@ -606,6 +656,10 @@ class OpenbarPrefs {
 
         // rgba(${mhred},${mhgreen},${mhblue},${mhAlpha})
         stylesheet += `
+            .openmenu.notification-banner {
+                background-color: ${smbg} !important;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+            }
             .openmenu.message-list-placeholder {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},0.5) !important;
             }
@@ -876,9 +930,18 @@ class OpenbarPrefs {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.2}) !important;
                 background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
             }
-            .openmenu.quick-settings .icon-button, .openmenu.quick-settings .button {
+            .openmenu.quick-settings .icon-button {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.2}) !important;
             }
+            .openmenu.quick-settings .button {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.2}) !important;
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
+            }
+            .openmenu.quick-settings .button:checked {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.2}) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+
             .openmenu.quick-settings-system-item .icon-button:hover, .openmenu.quick-settings-system-item .icon-button:focus,
             .openmenu.quick-settings .icon-button:hover, .openmenu.quick-settings .icon-button:focus,
             .openmenu.quick-settings .button:hover, .openmenu.quick-settings .button:focus {
@@ -1116,6 +1179,13 @@ class OpenbarPrefs {
             });
             i<=6? paletteBox1.append(paletteBtn): paletteBox2.append(paletteBtn);
             window.paletteButtons.push(paletteBtn);
+        }
+    }
+
+    createCandyPalette(window, paletteBox) {
+        for(let i=1; i<=8; i++) {            
+            let candyColor = this.createColorWidget(window, 'Candybar Color', '', 'candy'+i);
+            paletteBox.append(candyColor);
         }
     }
 
@@ -1401,7 +1471,7 @@ class OpenbarPrefs {
 
         // Add a notification popups switch
         let notificationsLabel = new Gtk.Label({
-            label: 'Apply to notification popups',
+            label: 'Apply to Notification Pop-ups',
             halign: Gtk.Align.START,
         });
         bargrid.attach(notificationsLabel, 1, rowbar, 1, 1);
@@ -1603,7 +1673,7 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        //Gradient direction
+        // Gradient direction
         let grDirecLbl = new Gtk.Label({
             label: 'Gradient Direction',
             halign: Gtk.Align.START,
@@ -1612,6 +1682,45 @@ class OpenbarPrefs {
 
         let grDirection = this.createComboboxWidget([["horizontal", _("Horizontal")], ["vertical", _("Vertical")]]);
         bggrid.attach(grDirection, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Candybar color palette
+        let candybarLbl = new Gtk.Label({
+            label: 'Apply Candybar Pallete',
+            halign: Gtk.Align.START,
+        });
+        bggrid.attach(candybarLbl, 1, rowbar, 1, 1);
+
+        // Add a candybar switch
+        let candybar = this.createSwitchWidget();
+        bggrid.attach(candybar, 2, rowbar, 1, 1);
+        
+        rowbar += 1;
+
+        // Add canybar color pallete in box
+        const candyPaletteBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 5,
+            margin_top: 5,
+            margin_bottom: 1,
+            halign: Gtk.Align.CENTER,
+            homogeneous: true,
+        });
+        this.createCandyPalette(window, candyPaletteBox);
+        bggrid.attach(candyPaletteBox, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add a candybar alpha scale
+        let candyAlphaLbl = new Gtk.Label({
+            label: 'Candy BG Alpha',
+            halign: Gtk.Align.START,
+        });
+        bggrid.attach(candyAlphaLbl, 1, rowbar, 1, 1);
+
+        let candyAlpha = this.createScaleWidget(0, 1, 0.01, 2);
+        bggrid.attach(candyAlpha, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
@@ -2233,6 +2342,18 @@ class OpenbarPrefs {
         this._settings.bind(
             'mshalpha',
             mshAlpha.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'candybar',
+            candybar,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'candyalpha',
+            candyAlpha.adjustment,
             'value',
             Gio.SettingsBindFlags.DEFAULT
         );
