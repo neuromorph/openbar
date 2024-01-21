@@ -105,6 +105,9 @@ class OpenbarPrefs {
         let mshAlpha = this._settings.get_double('mshalpha');
         let msColor = this._settings.get_strv('mscolor');
         let msAlpha = this._settings.get_double('msalpha');
+        let smbgColor = this._settings.get_strv('smbgcolor');
+        // let smbgAlpha = this._settings.get_double('smbgalpha');
+        let smbgOverride = this._settings.get_boolean('smbgoverride');
 
         const fgred = parseInt(parseFloat(fgcolor[0]) * 255);
         const fggreen = parseInt(parseFloat(fgcolor[1]) * 255);
@@ -158,6 +161,7 @@ class OpenbarPrefs {
         const msgreen = parseInt(parseFloat(msColor[1]) * 255);
         const msblue = parseInt(parseFloat(msColor[2]) * 255);
 
+
         const pbg = `rgba(${bgred},${bggreen},${bgblue},${bgalpha})`; // panel bg color
         const phg = `rgba(${hred},${hgreen},${hblue},1.0)`; // panel highlight color
         const phbg = this.colorBlend(pbg, phg, hAlpha); // panel highlight blended bg color
@@ -177,16 +181,24 @@ class OpenbarPrefs {
         const mhfgblue = this.colorMix(mfgblue, mhblue, -0.12);
         const mhfg = this.colorBlend(mfg, mhg, -0.18);
 
-        // Submenu color: from bgcolor move towards white/black based on bgcolor darkness
+        // Sub/Secondary menu color -
+        // Auto-generated: go from bgcolor move towards white/black based on bgcolor darkness
         const lightrgba = `rgba(${255},${255},${255},${1.0})`;
         const darkrgba = `rgba(${0},${0},${0},${1.0})`;
         let bgdark = this.getBgDark(mbgred, mbggreen, mbgblue);
         let smbgTarget = bgdark? lightrgba: darkrgba;
         let [rTarget, gTarget, bTarget] = bgdark? [255,255,255]: [0,0,0];
-        const smbgred = this.colorMix(mbgred, rTarget, 0.18);
-        const smbggreen = this.colorMix(mbggreen, gTarget, 0.18);
-        const smbgblue = this.colorMix(mbgblue, bTarget, 0.18);
-        const smbg = this.colorBlend(mbg, smbgTarget, 0.18);
+        let smbgred = this.colorMix(mbgred, rTarget, 0.18);
+        let smbggreen = this.colorMix(mbggreen, gTarget, 0.18);
+        let smbgblue = this.colorMix(mbgblue, bTarget, 0.18);
+        let smbg = this.colorBlend(mbg, smbgTarget, 0.18);
+        // Manual Override: If 'override' enabled, submenu color/alpha with user defined values
+        if(smbgOverride) {
+            smbgred = parseInt(parseFloat(smbgColor[0]) * 255);
+            smbggreen = parseInt(parseFloat(smbgColor[1]) * 255);
+            smbgblue = parseInt(parseFloat(smbgColor[2]) * 255);
+            smbg = `rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha})`;
+        }
         
         // Submenu highlight bg color (notifications pane)
         const mhg1 = `rgba(${mhred},${mhgreen},${mhblue},1)`; // menu highlight with 1 alpha
@@ -642,9 +654,11 @@ class OpenbarPrefs {
             .openmenu.popup-menu-item .button:hover, .openmenu.popup-menu-item .button:focus, .openmenu.popup-menu-item .button:selected {
                 color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
                 background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+                border-color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
             }
             .openmenu .slider{     
                 color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.5}) !important;
+                -slider-handle-border-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
                 -barlevel-background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*0.9}) !important;
                 -barlevel-active-background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;            
             }
@@ -836,6 +850,7 @@ class OpenbarPrefs {
         stylesheet += `
             .openmenu.quick-slider .slider{
                 color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.5}) !important;
+                -slider-handle-border-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
                 -barlevel-background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*0.9}) !important;
                 -barlevel-active-background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;                  
             }
@@ -1270,7 +1285,7 @@ class OpenbarPrefs {
         this._settings = ExtensionUtils.getSettings();
         // Connect settings to update/save/reload stylesheet
         let settEvents = ['changed::bartype', 'changed::font', 'changed::gradient', 
-        'changed::gradient-direction', 'changed::shadow', 'changed::neon', 'changed::heffect']; 
+        'changed::gradient-direction', 'changed::shadow', 'changed::neon', 'changed::heffect', 'changed::smbgoverride']; 
         settEvents.forEach(event => {
             this._settings.connect(event, () => {this.triggerStyleReload();});
         });
@@ -2021,6 +2036,31 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
+        // Secondary menu color Override
+        // Add an override switch
+        let smbgOLbl = new Gtk.Label({
+            label: `Override Secondary Menu BG Color`,
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(smbgOLbl, 1, rowbar, 1, 1);
+
+        let smbgOSwitch = this.createSwitchWidget();
+        menugrid.attach(smbgOSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a secondary menu BG color chooser
+        let smenuBGColorLabel = new Gtk.Label({
+            label: 'Secondary BG Color (override)',
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(smenuBGColorLabel, 1, rowbar, 1, 1);
+
+        let smenuBGColorChooser = this.createColorWidget(window, 'Secondary Menu Background Color', 'Secondary background color override for the dropdown menus', 'smbgcolor');
+        menugrid.attach(smenuBGColorChooser, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
         // Add a menu Border color chooser
         let menubColorLabel = new Gtk.Label({
             label: 'Border Color',
@@ -2319,6 +2359,12 @@ class OpenbarPrefs {
             'mbgalpha',
             mbgAlpha.adjustment,
             'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'smbgoverride',
+            smbgOSwitch,
+            'active',
             Gio.SettingsBindFlags.DEFAULT
         );
         this._settings.bind(

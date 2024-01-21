@@ -28,8 +28,6 @@ const Config = imports.misc.config;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Quantize = Me.imports.quantize;
-// const MessageTray = imports.ui.messageTray;
-
 
 // ConnectManager class to manage connections for events to trigger Openbar style updates
 // This class is modified from Floating Panel extension (Thanks Aylur!)
@@ -365,7 +363,7 @@ class Extension {
     }
 
     updatePanelStyle(actor, key) { 
-        console.log('update called with key ', key);
+        // console.log('update called with key ', key);
         let panel = Main.panel;
 
         if(!this._settings)
@@ -461,7 +459,6 @@ class Extension {
                         if(candybar) {
                             btn.child.add_style_class_name('candy'+i);
                         }
-
                     }
 
                     // Workspace dots
@@ -470,8 +467,7 @@ class Extension {
                         for(const indicator of list) { 
                             let dot = indicator.get_child_at_index(0);
                             dot?.add_style_class_name('openbar');
-                        }
-                        
+                        }                        
                     }
                     
                     // Add trilands pseudo/classes if enabled else remove them
@@ -499,10 +495,8 @@ class Extension {
                             btn.child.add_style_pseudo_class('none');
                         else
                             btn.child.remove_style_pseudo_class('none');
-                    }
-                    
-                }
-                
+                    }                    
+                }                
             }
         }
 
@@ -632,6 +626,7 @@ class Extension {
         this.applyMenuStyles(panel, false);
         // Reset panel position to Top
         this.setPanelBoxPosition('Top');
+        Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
 
         this._settings = null;
         this._bgSettings = null;
