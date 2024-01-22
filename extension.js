@@ -23,6 +23,7 @@ import St from 'gi://St';
 import Gio from 'gi://Gio';
 import GdkPixbuf from 'gi://GdkPixbuf';
 import Meta from 'gi://Meta';
+import Clutter from 'gi://Clutter';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as Calendar from 'resource:///org/gnome/shell/ui/calendar.js';
@@ -123,7 +124,7 @@ export default class Openbar extends Extension {
                 }
             }
         }
-        // console.log('pixelarray len ', pixelArray.length);
+        // console.log('pixelCount, pixelarray len ', pixelCount, pixelArray.length);
     
         // Generate color palette of 12 colors using Quantize ()
         const cmap = Quantize.quantize(pixelArray, 12);
@@ -163,6 +164,9 @@ export default class Openbar extends Extension {
                     btn.child?.set_style(null);
                     btn.child?.remove_style_class_name('openbar'); 
 
+                    for(let j=0; j<=8; j++)
+                    btn.child.remove_style_class_name('candy'+j);
+
                     if(btn.child?.constructor.name === 'ActivitiesButton') {
                         let list = btn.child.get_child_at_index(0);
                         for(const indicator of list) { 
@@ -187,7 +191,7 @@ export default class Openbar extends Extension {
             theme.load_stylesheet(stylesheetFile);
             this.stylesheet = stylesheetFile;
         } catch (e) {
-            console.log('Error loading stylesheet: ');
+            console.log('Openbar: Error loading stylesheet: ');
             throw e;
         }
         
@@ -305,6 +309,8 @@ export default class Openbar extends Extension {
                         const msgHbox = msgbox.get_child_at_index(1); // hbox at botton for dnd and clear buttons
                         const dndBtn = msgHbox.get_child_at_index(1);
                         this.applyMenuClass(dndBtn, add);
+                        const toggleSwitch = dndBtn.get_child_at_index(0);
+                        this.applyMenuClass(toggleSwitch, add);
                         const clearBtn = msgHbox.get_child_at_index(2);
                         this.applyMenuClass(clearBtn, add);
 
@@ -381,9 +387,9 @@ export default class Openbar extends Extension {
             return;
 
         let position = this._settings.get_string('position');
-        let overview = this._settings.get_boolean('overview');
+        let setOverview = this._settings.get_boolean('set-overview');
         if(key == 'showing') { 
-            if(!overview) { // Reset in overview, if 'overview' style disabled
+            if(!setOverview) { // Reset in overview, if 'overview' style disabled
                 this.resetStyle(panel);
                 this.applyMenuStyles(panel, false);
                 this.setPanelBoxPosition(position, panel.height, 0, 0, 'Mainland');
@@ -426,17 +432,39 @@ export default class Openbar extends Extension {
             this.setPanelBoxPosition(position, height, margin, borderWidth, bartype);
         }
 
-        const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
+        let setNotifications = this._settings.get_boolean('set-notifications');
+        let notifKeys = ['set-notifications', 'position', 'monitors-changed', 'updated', 'enabled'];
+        if(notifKeys.includes(key)) {
+            if(setNotifications && position == 'Bottom')
+                Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.END;
+            else
+                Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
+        }
+        if(key == 'actor-added' && setNotifications) {
+            Main.messageTray._banner?.add_style_class_name('openmenu');
+        }
 
+        const candybar = this._settings.get_boolean('candybar');
+        const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
+        let i=0;
         for(const box of panelBoxes) {
             for(const btn of box) {
-                if(btn.child instanceof PanelMenu.Button) {
+                if(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) {
                     btn.child.add_style_class_name('openbar');
 
                     if(btn.child.visible) {
                         btn.add_style_class_name('openbar button-container');
+
+                        // Add candybar classes if enabled else remove them
+                        for(let j=0; j<=8; j++)
+                            btn.child.remove_style_class_name('candy'+j);
+                        i++; i = i%8; i = i==0? 8: i; // Cycle through candybar palette
+                        if(candybar) {
+                            btn.child.add_style_class_name('candy'+i);
+                        }
                     }
 
+                    // Workspace dots
                     if(btn.child.constructor.name === 'ActivitiesButton') {
                         let list = btn.child.get_child_at_index(0);
                         for(const indicator of list) { 
@@ -446,6 +474,7 @@ export default class Openbar extends Extension {
                         
                     }
                     
+                    // Add trilands pseudo/classes if enabled else remove them
                     if(btn.child.has_style_class_name('trilands'))
                         btn.child.remove_style_class_name('trilands');
                     if(bartype == 'Trilands') {
@@ -480,7 +509,7 @@ export default class Openbar extends Extension {
     }
 
     // QSAP: listen for addition of new panels
-    // this allow theming QSAP panels when QSAP is enabled after Open Bar
+    // this allows theming QSAP panels when QSAP is enabled after Open Bar
     setupLibpanel(menu) {
         if(menu.constructor.name != 'PanelGrid')
             return;
@@ -488,7 +517,7 @@ export default class Openbar extends Extension {
         for(const panelColumn of menu.box.get_children()) {
             this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
         }
-        this._connections.connect(menu.box, 'actor-added', (panelColumn) => {
+        this._connections.connect(menu.box, 'actor-added', (panelColumn, event) => {
             this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
         });
     }
@@ -511,7 +540,7 @@ export default class Openbar extends Extension {
         let connections = [
             [ Main.overview, 'hiding', this.updatePanelStyle.bind(this) ],
             [ Main.overview, 'showing', this.updatePanelStyle.bind(this) ],
-            // [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this) ],
+            [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this) ],
             [ Main.layoutManager, 'monitors-changed', this.updatePanelStyle.bind(this) ],
             [ panel._leftBox, 'actor-added', this.updatePanelStyle.bind(this) ],
             [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this) ],
@@ -519,6 +548,7 @@ export default class Openbar extends Extension {
             [ panel._leftBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
             [ panel._centerBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
             [ panel._rightBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
+            [ Main.messageTray._bannerBin, 'actor-added', this.updatePanelStyle.bind(this) ],
         ];
         // Connection specific to QSAP extension (Quick Settings)
         if(this.gnomeVersion > 42) {
@@ -559,9 +589,9 @@ export default class Openbar extends Extension {
             "_rebuildCalendar",
             function () {
                 let menustyle = obar._settings.get_boolean('menustyle');
-                let overview = obar._settings.get_boolean('overview');
+                let setOverview = obar._settings.get_boolean('set-overview');
                 if(menustyle) {  
-                    if(overview || !Main.panel.has_style_pseudo_class('overview'))
+                    if(setOverview || !Main.panel.has_style_pseudo_class('overview'))
                         obar.applyCalendarGridStyle(this, menustyle);            
                 }
             }
@@ -602,6 +632,7 @@ export default class Openbar extends Extension {
         this.applyMenuStyles(panel, false);
         // Reset panel position to Top
         this.setPanelBoxPosition('Top');
+        Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
 
         this._settings = null;
         this._bgSettings = null;

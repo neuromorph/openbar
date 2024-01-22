@@ -107,6 +107,9 @@ class OpenbarPrefs {
         let mshAlpha = this._settings.get_double('mshalpha');
         let msColor = this._settings.get_strv('mscolor');
         let msAlpha = this._settings.get_double('msalpha');
+        let smbgColor = this._settings.get_strv('smbgcolor');
+        // let smbgAlpha = this._settings.get_double('smbgalpha');
+        let smbgOverride = this._settings.get_boolean('smbgoverride');
 
         const fgred = parseInt(parseFloat(fgcolor[0]) * 255);
         const fggreen = parseInt(parseFloat(fgcolor[1]) * 255);
@@ -159,6 +162,9 @@ class OpenbarPrefs {
         const msred = parseInt(parseFloat(msColor[0]) * 255);
         const msgreen = parseInt(parseFloat(msColor[1]) * 255);
         const msblue = parseInt(parseFloat(msColor[2]) * 255);
+        // Save menu selection hex for use in toggle on svg
+        this.msHex = this.rgbToHex(msred, msgreen, msblue);
+        this.msHex = this.msHex + parseInt(parseFloat(msAlpha)*255).toString(16);
 
         const pbg = `rgba(${bgred},${bggreen},${bgblue},${bgalpha})`; // panel bg color
         const phg = `rgba(${hred},${hgreen},${hblue},1.0)`; // panel highlight color
@@ -179,16 +185,27 @@ class OpenbarPrefs {
         const mhfgblue = this.colorMix(mfgblue, mhblue, -0.12);
         const mhfg = this.colorBlend(mfg, mhg, -0.18);
 
-        // Submenu color: from bgcolor move towards white/black based on bgcolor darkness
+        // Sub/Secondary menu color -
+        // Auto-generated: go from bgcolor move towards white/black based on bgcolor darkness
         const lightrgba = `rgba(${255},${255},${255},${1.0})`;
         const darkrgba = `rgba(${0},${0},${0},${1.0})`;
         let bgdark = this.getBgDark(mbgred, mbggreen, mbgblue);
         let smbgTarget = bgdark? lightrgba: darkrgba;
         let [rTarget, gTarget, bTarget] = bgdark? [255,255,255]: [0,0,0];
-        const smbgred = this.colorMix(mbgred, rTarget, 0.18);
-        const smbggreen = this.colorMix(mbggreen, gTarget, 0.18);
-        const smbgblue = this.colorMix(mbgblue, bTarget, 0.18);
-        const smbg = this.colorBlend(mbg, smbgTarget, 0.18);
+        let smbgred = this.colorMix(mbgred, rTarget, 0.18);
+        let smbggreen = this.colorMix(mbggreen, gTarget, 0.18);
+        let smbgblue = this.colorMix(mbgblue, bTarget, 0.18);
+        let smbg = this.colorBlend(mbg, smbgTarget, 0.18);
+        // Manual Override: If 'override' enabled, submenu color/alpha with user defined values
+        if(smbgOverride) {
+            smbgred = parseInt(parseFloat(smbgColor[0]) * 255);
+            smbggreen = parseInt(parseFloat(smbgColor[1]) * 255);
+            smbgblue = parseInt(parseFloat(smbgColor[2]) * 255);
+            smbg = `rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha})`;
+        }
+        // Save smbg hex for use in toggle off svg
+        this.smbgHex = this.rgbToHex(smbgred, smbggreen, smbgblue);
+        this.smbgHex = this.smbgHex + parseInt(parseFloat(mbgAlpha)*255).toString(16);
         
         // Submenu highlight bg color (notifications pane)
         const mhg1 = `rgba(${mhred},${mhgreen},${mhblue},1)`; // menu highlight with 1 alpha
@@ -364,6 +381,19 @@ class OpenbarPrefs {
         }
         else
             gradientStyle = ``;
+       
+        // Candybar style 
+        let candyalpha = this._settings.get_double('candyalpha');
+        let candyStyleArr = [];
+        for(let i=1; i<=8; i++) {
+            let candyColor = this._settings.get_strv('candy'+i);
+            let cred = parseInt(parseFloat(candyColor[0]) * 255);
+            let cgreen = parseInt(parseFloat(candyColor[1]) * 255);
+            let cblue = parseInt(parseFloat(candyColor[2]) * 255);
+            let calpha = candyalpha;
+            let candyStyle = `background-color: rgba(${cred},${cgreen},${cblue},${calpha});`;
+            candyStyleArr.push(candyStyle);
+        }
 
 
         if(bartype == 'Mainland') {
@@ -441,11 +471,36 @@ class OpenbarPrefs {
                 ${btnStyle}
             }
 
+            #panel.openbar .panel-button.candy1 {
+                ${candyStyleArr[0]};
+            }
+            #panel.openbar .panel-button.candy2 {
+                ${candyStyleArr[1]};
+            }
+            #panel.openbar .panel-button.candy3 {
+                ${candyStyleArr[2]};
+            }
+            #panel.openbar .panel-button.candy4 {
+                ${candyStyleArr[3]};
+            }
+            #panel.openbar .panel-button.candy5 {
+                ${candyStyleArr[4]};
+            }
+            #panel.openbar .panel-button.candy6 {
+                ${candyStyleArr[5]};
+            }
+            #panel.openbar .panel-button.candy7 {
+                ${candyStyleArr[6]};
+            }
+            #panel.openbar .panel-button.candy8 {
+                ${candyStyleArr[7]};
+            }
+
             #panel.openbar .panel-button:hover, #panel.openbar .panel-button:focus, #panel.openbar .panel-button:active, #panel.openbar .panel-button:checked {
                 ${btnHoverStyle}
             }
 
-            #panel.openbar .panel-button:hover.clock-display .clock {
+            #panel.openbar .panel-button.clock-display .clock, #panel.openbar .panel-button:hover.clock-display .clock {
                 background-color: transparent;
                 box-shadow: none;
             }
@@ -454,6 +509,17 @@ class OpenbarPrefs {
             #panel.openbar .panel-button:focus.clock-display .clock, #panel.openbar .panel-button:checked.clock-display .clock {
                 background-color: transparent;
                 box-shadow: none;
+            }
+
+            #panel.openbar .panel-button.screen-recording-indicator {
+                transition-duration: 150ms;
+                font-weight: bold;
+                background-color: rgba(224, 27, 36, 0.8);
+            }
+            #panel.openbar .panel-button.screen-sharing-indicator {
+                transition-duration: 150ms;
+                font-weight: bold;
+                background-color: rgba(255, 90, 0, 0.9); 
             }
 
             #panel.openbar .workspace-dot {
@@ -594,9 +660,12 @@ class OpenbarPrefs {
             .openmenu.popup-menu-item .button:hover, .openmenu.popup-menu-item .button:focus, .openmenu.popup-menu-item .button:selected {
                 color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
                 background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+                border-color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
             }
             .openmenu .slider{     
                 color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.5}) !important;
+                -slider-handle-border-width: 1px;
+                -slider-handle-border-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
                 -barlevel-background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*0.9}) !important;
                 -barlevel-active-background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;            
             }
@@ -608,6 +677,10 @@ class OpenbarPrefs {
 
         // rgba(${mhred},${mhgreen},${mhblue},${mhAlpha})
         stylesheet += `
+            .openmenu.notification-banner {
+                background-color: ${smbg} !important;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+            }
             .openmenu.message-list-placeholder {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},0.5) !important;
             }
@@ -621,8 +694,12 @@ class OpenbarPrefs {
             .openmenu.message .event-time {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.75}) !important;
             }
-            .openmenu.message .message-close-button {
+            .openmenu.message .button, .openmenu.message .message-close-button {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+            }
+            .openmenu.message .button:hover, .openmenu.message .button:focus,
+            .openmenu.message .message-close-button:hover, .openmenu.message .message-close-button:focus {
                 background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
             }
             .openmenu.message:hover, .openmenu.message:focus {
@@ -643,11 +720,18 @@ class OpenbarPrefs {
                 background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
             }
             .openmenu.dnd-button {
-                border-color: ${smbg} !important;
+                border-color: rgba(${mbgred},${mbggreen},${mbgblue},0.5) !important;
             }
             .openmenu.dnd-button:hover, .openmenu.dnd-button:focus {
                 border-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
             }
+            .openmenu .toggle-switch {
+                background-image: url(media/toggle-off.svg);
+            }
+            .openmenu .toggle-switch:checked {
+                background-image: url(media/toggle-on.svg);
+            }
+            
             .openmenu.message-list-clear-button {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
@@ -776,6 +860,8 @@ class OpenbarPrefs {
         stylesheet += `
             .openmenu.quick-slider .slider{
                 color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.5}) !important;
+                -slider-handle-border-width: 1px;
+                -slider-handle-border-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
                 -barlevel-background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*0.9}) !important;
                 -barlevel-active-background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;                  
             }
@@ -870,9 +956,18 @@ class OpenbarPrefs {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.2}) !important;
                 background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
             }
-            .openmenu.quick-settings .icon-button, .openmenu.quick-settings .button {
+            .openmenu.quick-settings .icon-button {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.2}) !important;
             }
+            .openmenu.quick-settings .button {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.2}) !important;
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
+            }
+            .openmenu.quick-settings .button:checked {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.2}) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+
             .openmenu.quick-settings-system-item .icon-button:hover, .openmenu.quick-settings-system-item .icon-button:focus,
             .openmenu.quick-settings .icon-button:hover, .openmenu.quick-settings .icon-button:focus,
             .openmenu.quick-settings .button:hover, .openmenu.quick-settings .button:focus {
@@ -1112,6 +1207,13 @@ class OpenbarPrefs {
         }
     }
 
+    createCandyPalette(window, paletteBox) {
+        for(let i=1; i<=8; i++) {            
+            let candyColor = this.createColorWidget(window, 'Candybar Color', '', 'candy'+i);
+            paletteBox.append(candyColor);
+        }
+    }
+
     updatePalette(window, grey=false) {
         let i = 1;
         window.paletteButtons.forEach(btn => {
@@ -1146,6 +1248,52 @@ class OpenbarPrefs {
         setTimeout(() => {this.updatePalette(window, false)}, 500);
     }
 
+    saveToggleSVG(toggleOn) {
+        let svg, svgpath, svgcolor;
+        if(toggleOn) {
+            svg = `
+            <svg viewBox="0 0 48 26" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(0 -291.18)">
+            <rect y="291.18" width="48" height="26" rx="13" ry="13" fill="#REPLACE"/>
+            <rect x="24" y="294.18" width="22" height="22" rx="11" ry="11" fill-opacity=".2"/>
+            <rect x="24" y="293.18" width="22" height="22" rx="11" ry="11" fill="#fff"/>
+            </g>
+            </svg>
+            `;
+
+            svgpath = this.openbar.path + '/media/toggle-on.svg';
+            svgcolor = this.msHex;
+        }
+        else {
+            svg = `
+            <svg width="48" height="26" xmlns="http://www.w3.org/2000/svg">
+            <rect style="fill:#REPLACE;fill-opacity:1;stroke:none;stroke-width:1;marker:none" width="48" height="26" x="-48" ry="13" fill="#3081e3" rx="13" transform="scale(-1 1)"/>
+            <rect ry="11" rx="11" y="3" x="-24" height="22" width="22" style="fill:#000;fill-opacity:.2;stroke:none;stroke-width:.999999;marker:none" fill="#f8f7f7" transform="scale(-1 1)"/>
+            <rect ry="11" rx="11" y="2" x="-24" height="22" width="22" style="fill:#fff;fill-opacity:1;stroke:none;stroke-width:.999999;marker:none" fill="#f8f7f7" transform="scale(-1 1)"/>
+            </svg>
+            `;
+
+            svgpath = this.openbar.path + '/media/toggle-off.svg';
+            svgcolor = this.smbgHex;
+        }
+        
+        svg = svg.replace(`#REPLACE`, svgcolor);
+       
+        let file = Gio.File.new_for_path(svgpath);
+        let bytearray = new TextEncoder().encode(svg);
+
+        if (bytearray.length) {
+            let output = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
+            let outputStream = Gio.BufferedOutputStream.new_sized(output, 4096);
+            outputStream.write_all(bytearray, null);
+            outputStream.close(null);
+        }
+        else {
+          console.log("Failed to write toggle-on/off.svg file: " + svgpath);
+        }
+
+    }
+
     fillOpenbarPrefs(window, openbar) {
 
         window.set_title(_("Open Bar 🍹"));
@@ -1159,10 +1307,24 @@ class OpenbarPrefs {
         // Get the settings object
         this._settings = openbar.getSettings();
         let settEvents = ['changed::bartype', 'changed::font', 'changed::gradient', 
-        'changed::gradient-direction', 'changed::shadow', 'changed::neon', 'changed::heffect']; 
+        'changed::gradient-direction', 'changed::shadow', 'changed::neon', 'changed::heffect', 'changed::smbgoverride']; 
         settEvents.forEach(event => {
             this._settings.connect(event, () => {this.triggerStyleReload();});
         });
+        // Connect settings to save toggle switch svg
+        this._settings.connect('changed::mscolor', () => {
+            setTimeout(() => {this.saveToggleSVG(true)}, 400);
+        });
+        this._settings.connect('changed::mbgcolor', () => {
+            setTimeout(() => {this.saveToggleSVG(false)}, 400);
+        });
+        this._settings.connect('changed::smbgcolor', () => {
+            setTimeout(() => {this.saveToggleSVG(false)}, 400);
+        });
+        this._settings.connect('changed::smbgoverride', () => {
+            setTimeout(() => {this.saveToggleSVG(false)}, 400);
+        });
+
         this.timeoutId = null;
 
         const settingsPage = new Adw.PreferencesPage({
@@ -1234,11 +1396,11 @@ class OpenbarPrefs {
             this.triggerBackgroundPalette(window);
         });
         // In case palette computation took longer, trigger update as per settings-change
-        // Note - this event will not trigger if new value of palette1 and 9 is same as old value (rare)
+        // Note - this event will not trigger if new value of palette1 and 12 is same as old value (rare)
         this._settings.connect('changed::palette1', () => {
             this.updatePalette(window, false);
         });
-        this._settings.connect('changed::palette9', () => {
+        this._settings.connect('changed::palette12', () => {
             this.updatePalette(window, false);
         });
         this.triggerBackgroundPalette(window);
@@ -1352,6 +1514,18 @@ class OpenbarPrefs {
 
         let overviewSwitch = this.createSwitchWidget();
         bargrid.attach(overviewSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a notification popups switch
+        let notificationsLabel = new Gtk.Label({
+            label: 'Apply to Notification Pop-ups',
+            halign: Gtk.Align.START,
+        });
+        bargrid.attach(notificationsLabel, 1, rowbar, 1, 1);
+
+        let notificationsSwitch = this.createSwitchWidget();
+        bargrid.attach(notificationsSwitch, 2, rowbar, 1, 1);
 
         barprop.set_child(bargrid);
         prefsWidget.attach(barprop, 1, rowNo, 2, 1);
@@ -1556,6 +1730,45 @@ class OpenbarPrefs {
 
         let grDirection = this.createComboboxWidget([["horizontal", _("Horizontal")], ["vertical", _("Vertical")]]);
         bggrid.attach(grDirection, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Candybar color palette
+        let candybarLbl = new Gtk.Label({
+            label: 'Apply Candybar Pallete',
+            halign: Gtk.Align.START,
+        });
+        bggrid.attach(candybarLbl, 1, rowbar, 1, 1);
+
+        // Add a candybar switch
+        let candybar = this.createSwitchWidget();
+        bggrid.attach(candybar, 2, rowbar, 1, 1);
+        
+        rowbar += 1;
+
+        // Add canybar color pallete in box
+        const candyPaletteBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 5,
+            margin_top: 5,
+            margin_bottom: 1,
+            halign: Gtk.Align.CENTER,
+            homogeneous: true,
+        });
+        this.createCandyPalette(window, candyPaletteBox);
+        bggrid.attach(candyPaletteBox, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add a candybar alpha scale
+        let candyAlphaLbl = new Gtk.Label({
+            label: 'Candy BG Alpha',
+            halign: Gtk.Align.START,
+        });
+        bggrid.attach(candyAlphaLbl, 1, rowbar, 1, 1);
+
+        let candyAlpha = this.createScaleWidget(0, 1, 0.01, 2);
+        bggrid.attach(candyAlpha, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
@@ -1856,6 +2069,31 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
+        // Secondary menu color Override
+        // Add an override switch
+        let smbgOLbl = new Gtk.Label({
+            label: `Override Secondary Menu BG Color`,
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(smbgOLbl, 1, rowbar, 1, 1);
+
+        let smbgOSwitch = this.createSwitchWidget();
+        menugrid.attach(smbgOSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a secondary menu BG color chooser
+        let smenuBGColorLabel = new Gtk.Label({
+            label: 'Secondary BG Color (override)',
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(smenuBGColorLabel, 1, rowbar, 1, 1);
+
+        let smenuBGColorChooser = this.createColorWidget(window, 'Secondary Menu Background Color', 'Secondary background color override for the dropdown menus', 'smbgcolor');
+        menugrid.attach(smenuBGColorChooser, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
         // Add a menu Border color chooser
         let menubColorLabel = new Gtk.Label({
             label: 'Border Color',
@@ -1865,7 +2103,6 @@ class OpenbarPrefs {
 
         let menubColorChooser = this.createColorWidget(window, 'Menu Border Color', 'Border color for the dropdown menus', 'mbcolor');
         menugrid.attach(menubColorChooser, 2, rowbar, 1, 1);
-
 
         rowbar += 1;
 
@@ -1950,7 +2187,6 @@ class OpenbarPrefs {
 
         let mshAlpha = this.createScaleWidget(0, 1, 0.01, 2);
         menugrid.attach(mshAlpha, 2, rowbar, 1, 1);
-
 
         rowbar += 1;
 
@@ -2133,12 +2369,17 @@ class OpenbarPrefs {
             Gio.SettingsBindFlags.DEFAULT
         );
         this._settings.bind(
-            'overview',
+            'set-overview',
             overviewSwitch,
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
-        
+        this._settings.bind(
+            'set-notifications',
+            notificationsSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
         this._settings.bind(
             'mfgalpha',
             mfgAlpha.adjustment,
@@ -2149,6 +2390,12 @@ class OpenbarPrefs {
             'mbgalpha',
             mbgAlpha.adjustment,
             'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'smbgoverride',
+            smbgOSwitch,
+            'active',
             Gio.SettingsBindFlags.DEFAULT
         );
         this._settings.bind(
@@ -2172,6 +2419,18 @@ class OpenbarPrefs {
         this._settings.bind(
             'mshalpha',
             mshAlpha.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'candybar',
+            candybar,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'candyalpha',
+            candyAlpha.adjustment,
             'value',
             Gio.SettingsBindFlags.DEFAULT
         );
