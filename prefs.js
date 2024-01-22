@@ -160,7 +160,9 @@ class OpenbarPrefs {
         const msred = parseInt(parseFloat(msColor[0]) * 255);
         const msgreen = parseInt(parseFloat(msColor[1]) * 255);
         const msblue = parseInt(parseFloat(msColor[2]) * 255);
-
+        // Save menu selection hex for use in toggle on svg
+        this.msHex = this.rgbToHex(msred, msgreen, msblue);
+        this.msHex = this.msHex + parseInt(parseFloat(msAlpha)*255).toString(16);
 
         const pbg = `rgba(${bgred},${bggreen},${bgblue},${bgalpha})`; // panel bg color
         const phg = `rgba(${hred},${hgreen},${hblue},1.0)`; // panel highlight color
@@ -199,6 +201,9 @@ class OpenbarPrefs {
             smbgblue = parseInt(parseFloat(smbgColor[2]) * 255);
             smbg = `rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha})`;
         }
+        // Save smbg hex for use in toggle off svg
+        this.smbgHex = this.rgbToHex(smbgred, smbggreen, smbgblue);
+        this.smbgHex = this.smbgHex + parseInt(parseFloat(mbgAlpha)*255).toString(16);
         
         // Submenu highlight bg color (notifications pane)
         const mhg1 = `rgba(${mhred},${mhgreen},${mhblue},1)`; // menu highlight with 1 alpha
@@ -375,7 +380,6 @@ class OpenbarPrefs {
         else
             gradientStyle = ``;
 
-
         // Candybar style 
         let candyalpha = this._settings.get_double('candyalpha');
         let candyStyleArr = [];
@@ -494,7 +498,7 @@ class OpenbarPrefs {
                 ${btnHoverStyle}
             }
 
-            #panel.openbar .panel-button:hover.clock-display .clock {
+            #panel.openbar .panel-button.clock-display .clock, #panel.openbar .panel-button:hover.clock-display .clock {
                 background-color: transparent;
                 box-shadow: none;
             }
@@ -658,7 +662,8 @@ class OpenbarPrefs {
             }
             .openmenu .slider{     
                 color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.5}) !important;
-                -slider-handle-border-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
+                -slider-handle-border-width: 1px;
+                -slider-handle-border-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
                 -barlevel-background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*0.9}) !important;
                 -barlevel-active-background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;            
             }
@@ -713,10 +718,13 @@ class OpenbarPrefs {
                 background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
             }
             .openmenu.dnd-button {
-                border-color: ${smbg} !important;
+                border-color: rgba(${mbgred},${mbggreen},${mbgblue},0.5) !important;
             }
             .openmenu.dnd-button:hover, .openmenu.dnd-button:focus {
                 border-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            }
+            .openmenu .toggle-switch {
+                background-image: url(media/toggle-off.svg);
             }
             .openmenu .toggle-switch:checked {
                 background-image: url(media/toggle-on.svg);
@@ -850,7 +858,8 @@ class OpenbarPrefs {
         stylesheet += `
             .openmenu.quick-slider .slider{
                 color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.5}) !important;
-                -slider-handle-border-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
+                -slider-handle-border-width: 1px;
+                -slider-handle-border-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
                 -barlevel-background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*0.9}) !important;
                 -barlevel-active-background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;                  
             }
@@ -1238,25 +1247,37 @@ class OpenbarPrefs {
         setTimeout(() => {this.updatePalette(window, false)}, 500);
     }
 
-    saveToggleSVG() {
-        let svg = `
-        <svg viewBox="0 0 48 26" xmlns="http://www.w3.org/2000/svg">
-        <g transform="translate(0 -291.18)">
-        <rect y="291.18" width="48" height="26" rx="13" ry="13" fill="#REPLACE"/>
-        <rect x="24" y="294.18" width="22" height="22" rx="11" ry="11" fill-opacity=".2"/>
-        <rect x="24" y="293.18" width="22" height="22" rx="11" ry="11" fill="#fff"/>
-        </g>
-        </svg>
-        `;
-        let msColor = this._settings.get_strv('mscolor');
-        const msred = parseInt(parseFloat(msColor[0]) * 255);
-        const msgreen = parseInt(parseFloat(msColor[1]) * 255);
-        const msblue = parseInt(parseFloat(msColor[2]) * 255);
-        const msHex = this.rgbToHex(msred, msgreen, msblue);
+    saveToggleSVG(toggleOn) {
+        let svg, svgpath, svgcolor;
+        if(toggleOn) {
+            svg = `
+            <svg viewBox="0 0 48 26" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(0 -291.18)">
+            <rect y="291.18" width="48" height="26" rx="13" ry="13" fill="#REPLACE"/>
+            <rect x="24" y="294.18" width="22" height="22" rx="11" ry="11" fill-opacity=".2"/>
+            <rect x="24" y="293.18" width="22" height="22" rx="11" ry="11" fill="#fff"/>
+            </g>
+            </svg>
+            `;
 
-        svg = svg.replace(`#REPLACE`, msHex);
+            svgpath = Me.path + '/media/toggle-on.svg';
+            svgcolor = this.msHex;
+        }
+        else {
+            svg = `
+            <svg width="48" height="26" xmlns="http://www.w3.org/2000/svg">
+            <rect style="fill:#REPLACE;fill-opacity:1;stroke:none;stroke-width:1;marker:none" width="48" height="26" x="-48" ry="13" fill="#3081e3" rx="13" transform="scale(-1 1)"/>
+            <rect ry="11" rx="11" y="3" x="-24" height="22" width="22" style="fill:#000;fill-opacity:.2;stroke:none;stroke-width:.999999;marker:none" fill="#f8f7f7" transform="scale(-1 1)"/>
+            <rect ry="11" rx="11" y="2" x="-24" height="22" width="22" style="fill:#fff;fill-opacity:1;stroke:none;stroke-width:.999999;marker:none" fill="#f8f7f7" transform="scale(-1 1)"/>
+            </svg>
+            `;
 
-        let svgpath = Me.path + '/media/toggle-on.svg';
+            svgpath = Me.path + '/media/toggle-off.svg';
+            svgcolor = this.smbgHex;
+        }
+        
+        svg = svg.replace(`#REPLACE`, svgcolor);
+       
         let file = Gio.File.new_for_path(svgpath);
         let bytearray = new TextEncoder().encode(svg);
 
@@ -1267,7 +1288,7 @@ class OpenbarPrefs {
             outputStream.close(null);
         }
         else {
-          console.log("Failed to write toggle-on.svg file: " + svgpath);
+          console.log("Failed to write toggle-on/off.svg file: " + svgpath);
         }
 
     }
@@ -1290,7 +1311,18 @@ class OpenbarPrefs {
             this._settings.connect(event, () => {this.triggerStyleReload();});
         });
         // Connect settings to save toggle switch svg
-        this._settings.connect('changed::mscolor', this.saveToggleSVG.bind(this));
+        this._settings.connect('changed::mscolor', () => {
+            setTimeout(() => {this.saveToggleSVG(true)}, 400);
+        });
+        this._settings.connect('changed::mbgcolor', () => {
+            setTimeout(() => {this.saveToggleSVG(false)}, 400);
+        });
+        this._settings.connect('changed::smbgcolor', () => {
+            setTimeout(() => {this.saveToggleSVG(false)}, 400);
+        });
+        this._settings.connect('changed::smbgoverride', () => {
+            setTimeout(() => {this.saveToggleSVG(false)}, 400);
+        });
 
         this.timeoutId = null;
 
@@ -1363,11 +1395,11 @@ class OpenbarPrefs {
             this.triggerBackgroundPalette(window);
         });
         // In case palette computation took longer, trigger update as per settings-change
-        // Note - this event will not trigger if new value of palette1 and 9 is same as old value (rare)
+        // Note - this event will not trigger if new value of palette1 and 12 is same as old value (rare)
         this._settings.connect('changed::palette1', () => {
             this.updatePalette(window, false);
         });
-        this._settings.connect('changed::palette9', () => {
+        this._settings.connect('changed::palette12', () => {
             this.updatePalette(window, false);
         });
         this.triggerBackgroundPalette(window);
@@ -2071,7 +2103,6 @@ class OpenbarPrefs {
         let menubColorChooser = this.createColorWidget(window, 'Menu Border Color', 'Border color for the dropdown menus', 'mbcolor');
         menugrid.attach(menubColorChooser, 2, rowbar, 1, 1);
 
-
         rowbar += 1;
 
         // Add a menu border alpha scale
@@ -2155,7 +2186,6 @@ class OpenbarPrefs {
 
         let mshAlpha = this.createScaleWidget(0, 1, 0.01, 2);
         menugrid.attach(mshAlpha, 2, rowbar, 1, 1);
-
 
         rowbar += 1;
 

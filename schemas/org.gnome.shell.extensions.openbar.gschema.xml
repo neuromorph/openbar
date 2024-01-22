@@ -333,42 +333,42 @@
       <description>Apply candybar pallete to panel buttons.</description>
     </key>
     <key type="as" name="candy1">
-      <default>['38', '158', '202']</default>
+      <default>['0.15', '0.62', '0.79']</default>
       <summary>Candy Palette Color 1 (RGB)</summary>
       <description>Candy color 1 of candybar.</description>
     </key>
     <key type="as" name="candy2">
-      <default>['80', '45', '241']</default>
+      <default>['0.313', '0.176', '0.945']</default>
       <summary>Candy Palette Color 2 (RGB)</summary>
       <description>Candy color 2 of candybar.</description>
     </key>
     <key type="as" name="candy3">
-      <default>['238', '78', '139']</default>
+      <default>['0.93', '0.30', '0.54']</default>
       <summary>Candy Palette Color 3 (RGB)</summary>
       <description>Candy color 3 of candybar.</description>
     </key>
     <key type="as" name="candy4">
-      <default>['28', '113', '216']</default>
+      <default>['0.11', '0.44', '0.85']</default>
       <summary>Candy Palette Color 4 (RGB)</summary>
       <description>Candy color 4 of candybar.</description>
     </key>
     <key type="as" name="candy5">
-      <default>['46', '194', '126']</default>
+      <default>['0.18', '0.76', '0.49']</default>
       <summary>Candy Palette Color 5 (RGB)</summary>
       <description>Candy color 5 of candybar.</description>
     </key>
     <key type="as" name="candy6">
-      <default>['129', '61', '156']</default>
+      <default>['0.51', '0.24', '0.61']</default>
       <summary>Candy Palette Color 6 (RGB)</summary>
       <description>Candy color 6 of candybar.</description>
     </key>
     <key type="as" name="candy7">
-      <default>['255', '120', '0']</default>
+      <default>['1', '0.47', '0']</default>
       <summary>Candy Palette Color 7 (RGB)</summary>
       <description>Candy color 7 of candybar.</description>
     </key>
     <key type="as" name="candy8">
-      <default>['229', '165', '10']</default>
+      <default>['0.9', '0.65', '0.04']</default>
       <summary>Candy Palette Color 8 (RGB)</summary>
       <description>Candy color 8 of candybar.</description>
     </key>

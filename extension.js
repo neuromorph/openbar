@@ -511,7 +511,7 @@ class Extension {
         for(const panelColumn of menu.box.get_children()) {
             this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
         }
-        this._connections.connect(menu.box, 'actor-added', (panelColumn) => {
+        this._connections.connect(menu.box, 'actor-added', (panelColumn, event) => {
             this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
         });
     }
