@@ -62,6 +62,10 @@ Use the settings panel of the extension for customizations. If the panel/menu is
 Lastly, be a tiny bit gentler with the sliders in the settings as they modify the stylesheet behind the scene for every update.
 
 ## What's New (recent first)
+- Apply style to notification popups
+- Candy-bar palette for panel buttons
+- Menu secondary color override to allow selecting custom (high contrast) colors within the menu
+- Fixes for screencast/ remote sharing/ battery indicators and DND toggle switch etc.
 - Rewrite to fully use stylesheet approach. Several enhancements and fixes. New additions: 
     - Desktop background color palette in every color button popup. This makes it very easy to select colors according to current wallpaper.
     - Highlights with border.
