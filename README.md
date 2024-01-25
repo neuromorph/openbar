@@ -76,6 +76,7 @@ Lastly, be a tiny bit gentler with the sliders in the settings as they modify th
 
 ## Screenshots
 
+![Screenshot](screens/ego1.png)
 ![Screenshot](screens/ego2.png)
 ![Screenshot](screens/github0.png)
 ![Screenshot](screens/github1.png)

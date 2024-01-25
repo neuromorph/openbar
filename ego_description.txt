@@ -1,10 +1,11 @@
 Top Bar ( Top Panel ) customization / styling. Open the Top Bar and let the colors 🍹 flow.
 
-Update: 
-- Addition of auto-generated Desktop Background color palette in every color palette pop up
-- Enhancements in fonts, highlights, backgrounds etc and new padding controls
-- Many fixes and compatibility with other extensions like QSAP, Arc Menu etc
-- Some users had reported extension crashes/error due to the Panel being modified by other extensions. Known cases are already fixed. If you find anything new, please report in Github.
+Update (v10/v11): 
+** Please click on 'Apply Menu Styles' (or change some setting) once you upgrade the extension. This will refresh the stylesheet as per your saved settings.
+- Apply style to notification popups
+- Candy-bar palette for panel buttons
+- Menu secondary color override to allow selecting custom (high contrast) colors within the menu
+- Fixes for screencast/ remote sharing/ battery indicators and DND toggle switch etc.
 
 Feedback / suggestions are welcome.
 
@@ -16,6 +17,8 @@ Customize:
 - Shape rectangular to pill, border width, color, neon glow
 - Menu customizations: foreground, background colors, transparency, border, shadow,  active/selection, hover colors
 etc.
+
+* Includes a custom color palette in each color button popup. The palette is auto-generated from the desktop background.
 
 If the panel/menu isn't looking right, you need to tweak some settings. There are a lot of knobs to allow for differnt setups/tastes. It can also make it a bit overwhelming if you are not familiar with css styles but with some experimentation it will become a lot easier. Here are brief notes:
 - BG/FG color: Background or Foreground colors. Foreground is typically text and icons.
