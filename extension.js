@@ -162,7 +162,7 @@ class Extension {
                 btn.child?.remove_style_class_name('openbar');   
 
                 for(let j=0; j<=8; j++)
-                    btn.child.remove_style_class_name('candy'+j);
+                    btn.child?.remove_style_class_name('candy'+j);
                     
                 if(btn.child?.constructor.name === 'ActivitiesButton') {
                     let list = btn.child.get_child_at_index(0);
