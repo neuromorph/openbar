@@ -26,16 +26,41 @@
             }
 
             #panel.openbar .panel-button {
-                 margin: 0px; height: 30px !important;   color: rgba(255,255,255,1); 
+                 margin: 0px; height: 35px !important;   color: rgba(255,255,255,1); 
               border-radius: 30px; 
               border-width: 0px; 
+            }
+
+            #panel.openbar .panel-button.candy1 {
+                background-color: rgba(38,158,201,0.9);;
+            }
+            #panel.openbar .panel-button.candy2 {
+                background-color: rgba(79,44,240,0.9);;
+            }
+            #panel.openbar .panel-button.candy3 {
+                background-color: rgba(237,76,137,0.9);;
+            }
+            #panel.openbar .panel-button.candy4 {
+                background-color: rgba(28,112,216,0.9);;
+            }
+            #panel.openbar .panel-button.candy5 {
+                background-color: rgba(45,193,124,0.9);;
+            }
+            #panel.openbar .panel-button.candy6 {
+                background-color: rgba(130,61,155,0.9);;
+            }
+            #panel.openbar .panel-button.candy7 {
+                background-color: rgba(255,119,0,0.9);;
+            }
+            #panel.openbar .panel-button.candy8 {
+                background-color: rgba(229,165,10,0.9);;
             }
 
             #panel.openbar .panel-button:hover, #panel.openbar .panel-button:focus, #panel.openbar .panel-button:active, #panel.openbar .panel-button:checked {
                  background-color: rgba(14,112,140,0.955) !important;  box-shadow: none !important; 
             }
 
-            #panel.openbar .panel-button:hover.clock-display .clock {
+            #panel.openbar .panel-button.clock-display .clock, #panel.openbar .panel-button:hover.clock-display .clock {
                 background-color: transparent;
                 box-shadow: none;
             }
@@ -44,6 +69,17 @@
             #panel.openbar .panel-button:focus.clock-display .clock, #panel.openbar .panel-button:checked.clock-display .clock {
                 background-color: transparent;
                 box-shadow: none;
+            }
+
+            #panel.openbar .panel-button.screen-recording-indicator {
+                transition-duration: 150ms;
+                font-weight: bold;
+                background-color: rgba(224, 27, 36, 0.8);
+            }
+            #panel.openbar .panel-button.screen-sharing-indicator {
+                transition-duration: 150ms;
+                font-weight: bold;
+                background-color: rgba(255, 90, 0, 0.9); 
             }
 
             #panel.openbar .workspace-dot {
@@ -177,9 +213,12 @@
             .openmenu.popup-menu-item .button:hover, .openmenu.popup-menu-item .button:focus, .openmenu.popup-menu-item .button:selected {
                 color: rgba(255,255,255,1.0) !important;
                 background-color: rgba(0,178,229,0.45) !important;
+                border-color: rgba(255,255,255,1);
             }
             .openmenu .slider{     
                 color: rgba(0,178,191,1.0499999999999998) !important;
+                -slider-handle-border-width: 1px;
+                -slider-handle-border-color: rgba(31,31,31,0.9) !important;
                 -barlevel-background-color: rgba(71,71,71,0.81) !important;
                 -barlevel-active-background-color: rgba(0,178,191,0.7) !important;            
             }
@@ -188,6 +227,10 @@
             }
 
         
+            .openmenu.notification-banner {
+                background-color: rgba(71,71,71,0.918) !important;
+                color: rgba(255,255,255,1) !important;
+            }
             .openmenu.message-list-placeholder {
                 color: rgba(255,255,255,0.5) !important;
             }
@@ -201,8 +244,12 @@
             .openmenu.message .event-time {
                 color: rgba(255,255,255,0.75) !important;
             }
-            .openmenu.message .message-close-button {
+            .openmenu.message .button, .openmenu.message .message-close-button {
                 color: rgba(255,255,255,1) !important;
+                background-color: rgba(71,71,71,0.918) !important;
+            }
+            .openmenu.message .button:hover, .openmenu.message .button:focus,
+            .openmenu.message .message-close-button:hover, .openmenu.message .message-close-button:focus {
                 background-color: rgba(31,31,31,0.9) !important;
             }
             .openmenu.message:hover, .openmenu.message:focus {
@@ -223,11 +270,18 @@
                 background-color: rgba(31,31,31,0.9) !important;
             }
             .openmenu.dnd-button {
-                border-color: rgba(71,71,71,0.918) !important;
+                border-color: rgba(31,31,31,0.5) !important;
             }
             .openmenu.dnd-button:hover, .openmenu.dnd-button:focus {
                 border-color: rgba(0,178,229,0.45) !important;
             }
+            .openmenu .toggle-switch {
+                background-image: url(media/toggle-off.svg);
+            }
+            .openmenu .toggle-switch:checked {
+                background-image: url(media/toggle-on.svg);
+            }
+            
             .openmenu.message-list-clear-button {
                 color: rgba(255,255,255,1) !important;
                 background-color: rgba(71,71,71,0.918) !important;
@@ -354,6 +408,8 @@
         
             .openmenu.quick-slider .slider{
                 color: rgba(0,178,191,1.0499999999999998) !important;
+                -slider-handle-border-width: 1px;
+                -slider-handle-border-color: rgba(31,31,31,0.9) !important;
                 -barlevel-background-color: rgba(71,71,71,0.81) !important;
                 -barlevel-active-background-color: rgba(0,178,191,0.7) !important;                  
             }
@@ -365,7 +421,7 @@
             }
             .openmenu.quick-toggle:hover, .openmenu.quick-toggle:focus {
                 color: rgba(301,269,260,1.099) !important;
-                background-color: rgba(0,178,229,0.45) !important;
+                background-color: rgba(39,119,142,0.955) !important;
             }   
             .openmenu.quick-toggle:checked, .openmenu.quick-toggle:checked:active, .openmenu.quick-toggle .button:checked {
                 color: rgba(255,255,255,1.0) !important;
@@ -385,7 +441,7 @@
             }
             .openmenu.quick-menu-toggle .quick-toggle:hover, .openmenu.quick-menu-toggle .quick-toggle:focus {
                 color: rgba(301,269,260,1.099) !important;
-                background-color: rgba(0,178,229,0.45) !important;
+                background-color: rgba(39,119,142,0.955) !important;
             }
             .openmenu.quick-menu-toggle .quick-toggle:checked, 
             .openmenu.quick-menu-toggle .quick-toggle:active {
@@ -448,14 +504,23 @@
                 color: rgba(255,255,255,1.2) !important;
                 background-color: rgba(71,71,71,1.08) !important;
             }
-            .openmenu.quick-settings .icon-button, .openmenu.quick-settings .button {
+            .openmenu.quick-settings .icon-button {
                 color: rgba(255,255,255,1.2) !important;
             }
+            .openmenu.quick-settings .button {
+                color: rgba(255,255,255,1.2) !important;
+                background-color: rgba(71,71,71,1.08) !important;
+            }
+            .openmenu.quick-settings .button:checked {
+                color: rgba(255,255,255,1.2) !important;
+                background-color: rgba(0,178,191,0.7) !important;
+            }
+
             .openmenu.quick-settings-system-item .icon-button:hover, .openmenu.quick-settings-system-item .icon-button:focus,
             .openmenu.quick-settings .icon-button:hover, .openmenu.quick-settings .icon-button:focus,
             .openmenu.quick-settings .button:hover, .openmenu.quick-settings .button:focus {
                 color: rgba(301,269,260,1.099) !important;
-                background-color: rgba(0,178,229,0.45) !important;
+                background-color: rgba(39,119,142,0.955) !important;
             }
             
             .openmenu.quick-settings .button:checked:hover, .openmenu.quick-settings .button:checked:focus {
