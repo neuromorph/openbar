@@ -19,7 +19,7 @@
 
 /* exported Openbar init */
 
-const { St, Gio, GdkPixbuf, Meta, Clutter } = imports.gi;
+const { St, Gio, GdkPixbuf, Meta, Clutter, Shell } = imports.gi;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const Calendar = imports.ui.calendar;
@@ -182,11 +182,18 @@ class Extension {
         theme.unload_stylesheet(Me.dir.get_child('stylesheet.css'));
         delete Me.stylesheet;
 
+        theme.unload_stylesheet(Me.dir.get_child('stylesheet-2.css'));
+        delete Me.stylesheet2;
+
         // Load stylesheet
         try {
             const stylesheetFile = Me.dir.get_child('stylesheet.css');
             theme.load_stylesheet(stylesheetFile);
             Me.stylesheet = stylesheetFile;
+
+            const stylesheetFile2 = Me.dir.get_child('stylesheet-2.css');
+            theme.load_stylesheet(stylesheetFile2);
+            Me.stylesheet2 = stylesheetFile2;
         } catch (e) {
             console.log('Openbar: Error loading stylesheet: ');
             throw e;
@@ -265,6 +272,7 @@ class Extension {
                     //           Calendar Grid, Events, World Clock, Weather
                     if(btn.child.constructor.name === 'DateMenuButton') {
                         const bin = btn.child.menu.box.get_child_at_index(0); // CalendarArea
+
                         const hbox = bin.get_child_at_index(0); // hbox with left and right sections
 
                         const msgList = hbox.get_child_at_index(0); // left section with notifications etc
@@ -595,6 +603,15 @@ class Extension {
         this.updatePanelStyle(null, 'enabled');
         let menustyle = this._settings.get_boolean('menustyle');
         this.applyMenuStyles(panel, menustyle);
+
+        // let panelBox = Main.layoutManager.panelBox;
+        // const effect = new Shell.BlurEffect({
+        //     name: 'openbar-panelblur',
+        //     sigma: 50,
+        //     brightness: 0.8,
+        //     mode: Shell.BlurMode.BACKGROUND
+        // });
+        // panelBox.add_effect(effect);
     }
 
     disable() {

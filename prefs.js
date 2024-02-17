@@ -19,11 +19,12 @@
 
 /* exported init fillPreferencesWindow*/
 
-const { Gio, Gtk, Gdk, Adw, Pango } = imports.gi;
+const { Gio, Gtk, Gdk, Adw, Pango, GLib } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 const {gettext: _, pgettext} = ExtensionUtils;
+const SCHEMA_PATH = '/org/gnome/shell/extensions/openbar/';
 
 //-----------------------------------------------
 
@@ -66,6 +67,7 @@ class OpenbarPrefs {
     saveStylesheet() {
 
         let bartype = this._settings.get_string('bartype');
+        let position = this._settings.get_string('position');
         let bgcolor = this._settings.get_strv('bgcolor');
         let gradient = this._settings.get_boolean('gradient');
         let grDirection = this._settings.get_string('gradient-direction');
@@ -108,6 +110,16 @@ class OpenbarPrefs {
         let smbgColor = this._settings.get_strv('smbgcolor');
         // let smbgAlpha = this._settings.get_double('smbgalpha');
         let smbgOverride = this._settings.get_boolean('smbgoverride');
+        // let wmaxbar = this._settings.get_boolean('wmaxbar');
+        // let bartypeWMax = this._settings.get_string('bartype-wmax');
+        let bgcolorWMax = this._settings.get_strv('bgcolor-wmax');
+        let bgalphaWMax = this._settings.get_double('bgalpha-wmax');
+        let marginWMax = this._settings.get_double('margin-wmax');
+        let neonWMax = this._settings.get_boolean('neon-wmax');
+        let borderWMax = this._settings.get_boolean('border-wmax');
+
+        // if(wmaxbar)
+        //     bartype = bartypeWMax;
 
         const fgred = parseInt(parseFloat(fgcolor[0]) * 255);
         const fggreen = parseInt(parseFloat(fgcolor[1]) * 255);
@@ -120,6 +132,10 @@ class OpenbarPrefs {
         const bgred2 = parseInt(parseFloat(bgcolor2[0]) * 255);
         const bggreen2 = parseInt(parseFloat(bgcolor2[1]) * 255);
         const bgblue2 = parseInt(parseFloat(bgcolor2[2]) * 255);
+
+        const bgredwmax = parseInt(parseFloat(bgcolorWMax[0]) * 255);
+        const bggreenwmax = parseInt(parseFloat(bgcolorWMax[1]) * 255);
+        const bgbluewmax = parseInt(parseFloat(bgcolorWMax[2]) * 255);
 
         const isred = parseInt(parseFloat(islandsColor[0]) * 255);
         const isgreen = parseInt(parseFloat(islandsColor[1]) * 255);
@@ -217,7 +233,7 @@ class OpenbarPrefs {
 
         let fgStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, 
         islandStyle, dotStyle, neonStyle, gradientStyle, triLeftStyle, triBothStyle, triRightStyle, 
-        triNoneStyle, triNoneNeonStyle, btnHoverStyle;      
+        triNoneStyle, triNoneNeonStyle, btnHoverStyle, windowMaxStyle;      
 
         // style that applies dynamically to either the panel or the panel buttons as per bar type
         borderStyle = 
@@ -418,7 +434,7 @@ class OpenbarPrefs {
 
             btnContainerStyle = 
             ` padding: ${vPad}px ${hPad}px;
-              margin: 0 1px;
+              margin: 0px 0px;
               border-radius: ${borderRadius+borderWidth}px;
                `;
         }
@@ -437,8 +453,18 @@ class OpenbarPrefs {
 
             btnContainerStyle = 
             ` padding: ${borderWidth+vPad}px ${borderWidth+hPad}px;
-              margin: 0 0px;
+              margin: 0px 0px;
               border-radius: ${borderRadius+borderWidth}px; `; 
+        }
+
+        let boxPtrStyle;
+        if(position == 'Bottom') {
+            boxPtrStyle = `
+            -arrow-rise: -20px; `;
+        }
+        else {
+            boxPtrStyle = `
+            -arrow-rise: 0px; `;
         }
 
         // Create Stylesheet string to write to file
@@ -453,6 +479,7 @@ class OpenbarPrefs {
         
         // Panel and buttons styles
         stylesheet += `
+        
             #panelBox.openbar {
                
             }
@@ -460,13 +487,28 @@ class OpenbarPrefs {
             #panel.openbar {
                 ${panelStyle}
             }
+            #panel.openbar:windowmax {
+                background-color: rgba(${bgredwmax},${bggreenwmax},${bgbluewmax},${bgalphaWMax}) !important;
+                border-radius: 0px;
+                border: none;
+                box-shadow: none;
+                margin: 0px;
+                height: ${height + 2*marginWMax}px !important;
+            }
 
             #panel.openbar .button-container {
                 ${btnContainerStyle}
             }
+            #panel.openbar:windowmax .button-container {
+                margin: ${marginWMax}px 0px;
+            }
 
             #panel.openbar .panel-button {
                 ${btnStyle}
+            }
+            #panel.openbar:windowmax .panel-button {
+                ${borderWMax? '': 'border: none;'}
+                ${neonWMax? '': 'box-shadow: none;'}                
             }
 
             #panel.openbar .panel-button.candy1 {
@@ -523,20 +565,23 @@ class OpenbarPrefs {
             #panel.openbar .workspace-dot {
                 ${dotStyle}
             }
-
-            #panel.openbar .trilands:left {
+            
+            #panel.openbar .trilands:left1 {
                 ${triLeftStyle}
             }
-            #panel.openbar .trilands:right {
+            #panel.openbar .trilands:right1 {
                 ${triRightStyle}
             }
-            #panel.openbar .trilands:both {
+            #panel.openbar .trilands:both1 {
                 ${triBothStyle}
             }
-            #panel.openbar .trilands:none {
+            #panel.openbar .trilands:none1 {
                 ${triNoneStyle}
             }
-            #panel.openbar .trilands:none:hover, #panel.openbar .trilands:none:focus, #panel.openbar .trilands:none:active, #panel.openbar .trilands:none:checked {
+            #panel.openbar:windowmax .trilands:none1 {
+                ${neonWMax? '': 'box-shadow: none;'}
+            }
+            #panel.openbar .trilands:none1:hover, #panel.openbar .trilands:none1:focus, #panel.openbar .trilands:none1:active, #panel.openbar .trilands:none1:checked {
                 ${triNoneNeonHoverStyle}
             }
             
@@ -544,6 +589,10 @@ class OpenbarPrefs {
 
         // Menu styles
         stylesheet += `
+            .popup-menu-boxpointer {
+                ${boxPtrStyle} 
+            }
+
             .openmenu.popup-menu {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
             }
@@ -1013,7 +1062,7 @@ class OpenbarPrefs {
 
     triggerStyleReload() {
         // Save stylesheet from string to css file
-        this.saveStylesheet();
+        // this.saveStylesheet();
         // Cause stylesheet to reload by toggling 'reloadstyle'
         let reloadstyle = this._settings.get_boolean('reloadstyle');
         if(reloadstyle)
@@ -1117,6 +1166,17 @@ class OpenbarPrefs {
             this.triggerStyleReload();
         });
 
+        this._settings.connect(`changed::${gsetting}`, () => {
+            const colorArray = this._settings.get_strv(gsetting);
+            const rgba = color.get_rgba();
+            rgba.red = parseFloat(colorArray[0]);
+            rgba.green = parseFloat(colorArray[1]);
+            rgba.blue = parseFloat(colorArray[2]);
+            rgba.alpha = 1.0;
+            color.set_rgba(rgba);
+            log('SETTING COLOR WIDGET - ' + gsetting);
+        });
+
         // Add palette removes default array so add it back first
         let defaultArray = this.createDefaultPaletteArray();
         let bgPaletteArray = this.createBgPaletteArray();
@@ -1214,6 +1274,7 @@ class OpenbarPrefs {
     }
 
     updatePalette(window, grey=false) {
+        log('Update Palette gor '+ this._settings.get_string('bguri'));
         let i = 1;
         window.paletteButtons.forEach(btn => {
             let paletteColor = grey? ['125','125','125'] : this._settings.get_strv('palette'+i);
@@ -1305,10 +1366,10 @@ class OpenbarPrefs {
         // Get the settings object
         this._settings = ExtensionUtils.getSettings();
         // Connect settings to update/save/reload stylesheet
-        let settEvents = ['changed::bartype', 'changed::font', 'changed::gradient', 
-        'changed::gradient-direction', 'changed::shadow', 'changed::neon', 'changed::heffect', 'changed::smbgoverride']; 
+        let settEvents = ['bartype', 'position', 'font', 'gradient', 'border-wmax', 'neon-wmax',
+        'gradient-direction', 'shadow', 'neon', 'heffect', 'smbgoverride']; 
         settEvents.forEach(event => {
-            this._settings.connect(event, () => {this.triggerStyleReload();});
+            this._settings.connect('changed::'+event, () => {this.triggerStyleReload();});
         });
         // Connect settings to save toggle switch svg
         this._settings.connect('changed::mscolor', () => {
@@ -1532,6 +1593,110 @@ class OpenbarPrefs {
         ////////////////////////////////////////////////////////////////////////////////
         rowNo += 1
 
+        let separator01 = this.createSeparatorWidget();
+        prefsWidget.attach(separator01, 1, rowNo, 2, 1);
+
+        //////////////////////////////////////////////////////////////////////////////////
+
+        rowNo += 1;
+
+        // WMAX BAR PROPERTIES
+        const barpropwmax = new Gtk.Expander({
+            label: `<b>BAR PROPS: WINDOW-MAX</b>`,
+            expanded: false,
+            use_markup: true,
+        });
+        let bargridwmax = this.createGridWidget();
+
+        rowbar = 1;
+
+        // Add a WMax Bar label
+        let wmaxBarLabel = new Gtk.Label({
+            use_markup: true,
+            label: `<span size="small" allow_breaks="true">When enabled, following properties will apply to the Bar when a window is maximized</span>`,
+            halign: Gtk.Align.START,
+        });
+        bargridwmax.attach(wmaxBarLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add a WMax Bar switch
+        let wmaxLabel = new Gtk.Label({
+            label: 'Enable Window-Max Bar',
+            halign: Gtk.Align.START,
+        });
+        bargridwmax.attach(wmaxLabel, 1, rowbar, 1, 1);
+
+        let wmaxSwitch = this.createSwitchWidget();
+        bargridwmax.attach(wmaxSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a WMax BG Color button
+        let wmaxBgLabel = new Gtk.Label({
+            label: 'Bar BG Color (WMax)',
+            halign: Gtk.Align.START,
+        });
+        bargridwmax.attach(wmaxBgLabel, 1, rowbar, 1, 1);
+
+        let wmaxBg = this.createColorWidget(window, 'Background Color', 'Background color for the WMax bar', 'bgcolor-wmax');
+        bargridwmax.attach(wmaxBg, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a WMax BG Alpha scale
+        let wmaxAlphaLabel = new Gtk.Label({
+            label: 'BG Alpha (WMax)',
+            halign: Gtk.Align.START,
+        });
+        bargridwmax.attach(wmaxAlphaLabel, 1, rowbar, 1, 1);
+
+        let wmaxAlpha = this.createScaleWidget(0, 1, 0.01, 2);
+        bargridwmax.attach(wmaxAlpha, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a bar margin scale
+        let wmaxmarginLabel = new Gtk.Label({
+            label: 'Bar Margins (WMax)',
+            halign: Gtk.Align.START,
+        });
+        bargridwmax.attach(wmaxmarginLabel, 1, rowbar, 1, 1);
+
+        let wmaxmargin = this.createScaleWidget(0, 50, 0.2, 1, 'Not applicable for Mainland');
+        bargridwmax.attach(wmaxmargin, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a WMax border switch
+        let wmaxBorderLabel = new Gtk.Label({
+            label: 'Border (WMax)',
+            halign: Gtk.Align.START,
+        });
+        bargridwmax.attach(wmaxBorderLabel, 1, rowbar, 1, 1);
+
+        let wmaxBorderSwitch = this.createSwitchWidget();
+        bargridwmax.attach(wmaxBorderSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a WMax neon switch
+        let wmaxNeonLabel = new Gtk.Label({
+            label: 'Neon Glow (WMax)',
+            halign: Gtk.Align.START,
+        });
+        bargridwmax.attach(wmaxNeonLabel, 1, rowbar, 1, 1);
+
+        let wmaxNeonSwitch = this.createSwitchWidget();
+        bargridwmax.attach(wmaxNeonSwitch, 2, rowbar, 1, 1);
+
+        barpropwmax.set_child(bargridwmax);
+        prefsWidget.attach(barpropwmax, 1, rowNo, 2, 1);
+
+
+        ////////////////////////////////////////////////////////////////////////////////
+        rowNo += 1
+
         let separator1 = this.createSeparatorWidget();
         prefsWidget.attach(separator1, 1, rowNo, 2, 1);
 
@@ -1599,6 +1764,13 @@ class OpenbarPrefs {
                 // obar.triggerStyleReload();
             }
         );
+
+        // ????????????????????????CYCLIC???
+        this._settings.connect('changed::font', () => {
+            let font = obar._settings.get_string('font');
+            fontBtn.set_font(font);
+        });
+
         fggrid.attach(fontBtn, 2, rowbar, 1, 1);
 
         const resetFontBtn = new Gtk.Button({
@@ -2198,7 +2370,7 @@ class OpenbarPrefs {
             child: removeMenuLabel,
             margin_top: 25,
             tooltip_text: _("Reset the style settings for Menu"),
-            halign: Gtk.Align.END,
+            halign: Gtk.Align.START,
         });
         removeMenuBtn.connect('clicked', () => {
             this._settings.set_boolean('menustyle', false);
@@ -2230,9 +2402,49 @@ class OpenbarPrefs {
         });
         menugrid.attach(applyMenuBtn, 1, rowbar, 2, 1);
 
-
         menuprop.set_child(menugrid);
         prefsWidget.attach(menuprop, 1, rowNo, 2, 1);
+
+        ////////////////////////////////////////////////////////////////////////////////
+        rowNo += 1
+
+        let separator6 = this.createSeparatorWidget();
+        prefsWidget.attach(separator6, 1, rowNo, 2, 1);
+
+        ////////////////////////////////////////////////////////////////////
+
+        rowNo += 1;
+
+        // Add buttons to Import Settings and Export Settings
+        const importLabel = new Gtk.Label({
+            use_markup: true,
+            label: `<span color="#05c6d1">${_("Import Settings")}</span>`, 
+        });
+        const importBtn = new Gtk.Button({
+            child: importLabel,
+            margin_top: 25,
+            tooltip_text: _("Import settings from a file"),
+            halign: Gtk.Align.START,
+        });
+        importBtn.connect('clicked', () => {
+            this.importSettings(window);
+        });
+        prefsWidget.attach(importBtn, 1, rowNo, 1, 1);
+
+        const exportLabel = new Gtk.Label({
+            use_markup: true,
+            label: `<span color="#05c6d1">${_("Export Settings")}</span>`, 
+        });
+        const exportBtn = new Gtk.Button({
+            child: exportLabel,
+            margin_top: 25,
+            tooltip_text: _("Export current settings to a file"),
+            halign: Gtk.Align.END,
+        });
+        exportBtn.connect('clicked', () => {
+            this.exportSettings(window);
+        });
+        prefsWidget.attach(exportBtn, 2, rowNo, 1, 1);
 
         settingsGroup.add(prefsWidget);
 
@@ -2433,6 +2645,36 @@ class OpenbarPrefs {
             'value',
             Gio.SettingsBindFlags.DEFAULT
         );
+        this._settings.bind(
+            'wmaxbar',
+            wmaxSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'margin-wmax',
+            wmaxmargin.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'bgalpha-wmax',
+            wmaxAlpha.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'border-wmax',
+            wmaxBorderSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'neon-wmax',
+            wmaxNeonSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
         // this._settings.bind(
         //     'menustyle',
         //     menuSwitch,
@@ -2440,6 +2682,77 @@ class OpenbarPrefs {
         //     Gio.SettingsBindFlags.DEFAULT
         // );
         
+    }
+
+    importSettings(window) {
+        let fileChooser = new Gtk.FileChooserDialog({
+            title: _("Import Settings Profile"),
+            action: Gtk.FileChooserAction.OPEN,
+            transient_for: window,
+        });
+        fileChooser.add_button(_("Cancel"), Gtk.ResponseType.CANCEL);
+        fileChooser.add_button(_("Open"), Gtk.ResponseType.ACCEPT);
+          
+        fileChooser.connect('response', (self, response) => {   
+          if (response == Gtk.ResponseType.ACCEPT) {
+            // Save current BG uri since the one in imported file maybe invalid
+            let bguri = this._settings.get_string('bguri');
+            let filePath = fileChooser.get_file().get_path();
+            if (filePath && GLib.file_test(filePath, GLib.FileTest.EXISTS)) {
+                let file = Gio.File.new_for_path(filePath);
+
+                let [success_, pid_, stdin, stdout, stderr] =
+                GLib.spawn_async_with_pipes(
+                    null,
+                    ['dconf', 'load', SCHEMA_PATH],
+                    null,
+                    GLib.SpawnFlags.SEARCH_PATH | GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+                    null
+                );
+
+                stdin = new Gio.UnixOutputStream({fd: stdin, close_fd: true});
+                GLib.close(stdout);
+                GLib.close(stderr);
+
+                stdin.splice(file.read(null),
+                    Gio.OutputStreamSpliceFlags.CLOSE_SOURCE | Gio.OutputStreamSpliceFlags.CLOSE_TARGET, null);
+
+                // Replace BG uri with saved uri and update background palette
+                this._settings.set_string('bguri', bguri);
+                this.triggerBackgroundPalette(window);
+                // Trigger stylesheet reload to apply new settings
+                this.triggerStyleReload();
+            }
+          }
+          fileChooser.destroy();
+        });
+
+        fileChooser.show();      
+    }
+
+    exportSettings(window) {
+        let fileChooser = new Gtk.FileChooserDialog({
+            title: _("Export Settings Profile"),
+            action: Gtk.FileChooserAction.SAVE,
+            transient_for: window,
+        });
+        fileChooser.add_button(_("Cancel"), Gtk.ResponseType.CANCEL);
+        fileChooser.add_button(_("Save"), Gtk.ResponseType.ACCEPT);
+          
+        fileChooser.connect('response', (self, response) => {   
+          if (response == Gtk.ResponseType.ACCEPT) {
+            let filePath = fileChooser.get_file().get_path();
+            const file = Gio.file_new_for_path(filePath);
+            const raw = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
+            const out = Gio.BufferedOutputStream.new_sized(raw, 4096);
+
+            out.write_all(GLib.spawn_command_line_sync(`dconf dump ${SCHEMA_PATH}`)[1], null);
+            out.close(null);
+          }
+          fileChooser.destroy();
+        });
+
+        fileChooser.show();
     }
 
 }
