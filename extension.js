@@ -19,7 +19,7 @@
 
 /* exported Openbar init */
 
-const { St, Gio, GdkPixbuf, Meta, Clutter, Shell } = imports.gi;
+const { St, Gio, GdkPixbuf, Meta, Clutter } = imports.gi;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const Calendar = imports.ui.calendar;
@@ -43,7 +43,7 @@ class ConnectManager{
 
     connect(obj, signal, callback){
         this.connections.push({
-            id : obj.connect(signal, (actor, event) => {callback(actor, signal)}),
+            id : obj.connect(signal, (obj, param) => {callback(obj, signal, param)}),
             obj: obj
         });
         // Remove obj on destroy except following that don't have destroy signal
@@ -122,15 +122,48 @@ class Extension {
         }
         // console.log('pixelCount, pixelarray len ', pixelCount, pixelArray.length);
     
-        // Generate color palette of 12 colors using Quantize ()
-        const cmap = Quantize.quantize(pixelArray, 12);
-        const palette = cmap? cmap.palette() : null;
-    
+        // Generate color palette of 6 colors using Quantize to get prominant colors
+        const cmap6 = Quantize.quantize(pixelArray, 6);
+        const palette6 = cmap6? cmap6.palette() : null;
+
         let i = 1;
-        palette?.forEach(color => {
+        palette6?.forEach(color => {
+            this._settings.set_strv('prominent'+i, [String(color[0]), String(color[1]), String(color[2])]);
+            i++;
+        });
+
+        // Generate color palette of 12 colors using Quantize to possibly get all colors for color-button
+        const cmap12 = Quantize.quantize(pixelArray, 12);
+        const palette12 = cmap12? cmap12.palette() : null;
+
+        // let palettePixels = pixelArray.map(function(p) { 
+        //     return cmap.map(p); 
+        // });
+        // log('PALEtte Pixels ', palettePixels.length);
+        // for(let i=0; i<100; i++) {
+        //     log(palettePixels[i]);
+        // }
+        
+        // Count pixels in palettePixels with same values
+        // let paletteCount = palettePixels.reduce(function(p, c) { 
+        //     p[c] = (p[c] || 0) + 1; 
+        //     return p; 
+        // }, {});
+        // log('COUNTS paletteCount: ', paletteCount.length, paletteCount[0]);
+
+    
+        i = 1;
+        palette12?.forEach(color => {
             this._settings.set_strv('palette'+i, [String(color[0]), String(color[1]), String(color[2])]);
             i++;
         });
+
+        // Toggle setting 'bg-change' to indicate background change
+        let bgchange = this._settings.get_boolean('bg-change');
+        if(bgchange)
+            this._settings.set_boolean('bg-change', false);
+        else
+            this._settings.set_boolean('bg-change', true);
     }
     
     _injectToFunction(parent, name, func) {
@@ -182,8 +215,8 @@ class Extension {
         theme.unload_stylesheet(Me.dir.get_child('stylesheet.css'));
         delete Me.stylesheet;
 
-        theme.unload_stylesheet(Me.dir.get_child('stylesheet-2.css'));
-        delete Me.stylesheet2;
+        // theme.unload_stylesheet(Me.dir.get_child('stylesheet-2.css'));
+        // delete Me.stylesheet2;
 
         // Load stylesheet
         try {
@@ -191,9 +224,9 @@ class Extension {
             theme.load_stylesheet(stylesheetFile);
             Me.stylesheet = stylesheetFile;
 
-            const stylesheetFile2 = Me.dir.get_child('stylesheet-2.css');
-            theme.load_stylesheet(stylesheetFile2);
-            Me.stylesheet2 = stylesheetFile2;
+            // const stylesheetFile2 = Me.dir.get_child('stylesheet-2.css');
+            // theme.load_stylesheet(stylesheetFile2);
+            // Me.stylesheet2 = stylesheetFile2;
         } catch (e) {
             console.log('Openbar: Error loading stylesheet: ');
             throw e;
@@ -370,7 +403,7 @@ class Extension {
         
     }
 
-    updatePanelStyle(actor, key) { 
+    updatePanelStyle(obj, key, param) { 
         // console.log('update called with key ', key);
         let panel = Main.panel;
 
@@ -383,6 +416,11 @@ class Extension {
         // Generate background color palette
         if(key == 'bgpalette' || key == 'bguri') {
             this.backgroundPalette();
+            return;
+        }
+
+        if(key == 'wmaxbar') {
+            this.setWindowMaxBar('wmaxbar');
             return;
         }
 
@@ -445,7 +483,7 @@ class Extension {
             else
                 Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
         }
-        if(key == 'actor-added' && setNotifications) {
+        if(key == 'actor-added' && setNotifications) { //check emitter obj
             Main.messageTray._banner?.add_style_class_name('openmenu');
         }
 
@@ -479,31 +517,33 @@ class Extension {
                     }
                     
                     // Add trilands pseudo/classes if enabled else remove them
-                    if(btn.child.has_style_class_name('trilands'))
-                        btn.child.remove_style_class_name('trilands');
+                    // if(btn.child.has_style_class_name('trilands'))
+                    //     btn.child.remove_style_class_name('trilands');
                     if(bartype == 'Trilands') {
                         btn.child.add_style_class_name('trilands');
 
                         if(btn == box.first_child && btn == box.last_child)
-                            btn.child.add_style_pseudo_class('both');
+                            btn.child.add_style_pseudo_class('both1');
                         else
-                            btn.child.remove_style_pseudo_class('both');
+                            btn.child.remove_style_pseudo_class('both1');
                         
                         if(btn == box.first_child && btn != box.last_child)
-                            btn.child.add_style_pseudo_class('left');
+                            btn.child.add_style_pseudo_class('left1');
                         else
-                            btn.child.remove_style_pseudo_class('left');
+                            btn.child.remove_style_pseudo_class('left1');
                             
                         if(btn != box.first_child && btn == box.last_child)
-                            btn.child.add_style_pseudo_class('right');
+                            btn.child.add_style_pseudo_class('right1');
                         else
-                            btn.child.remove_style_pseudo_class('right');
+                            btn.child.remove_style_pseudo_class('right1');
                         
                         if(btn != box.first_child && btn != box.last_child)
-                            btn.child.add_style_pseudo_class('none');
+                            btn.child.add_style_pseudo_class('none1');
                         else
-                            btn.child.remove_style_pseudo_class('none');
-                    }                    
+                            btn.child.remove_style_pseudo_class('none1');
+                    }
+                    else
+                        btn.child.remove_style_class_name('trilands');                    
                 }                
             }
         }
@@ -512,16 +552,77 @@ class Extension {
 
     // QSAP: listen for addition of new panels
     // this allows theming QSAP panels when QSAP is enabled after Open Bar
-    setupLibpanel(menu) {
+    setupLibpanel(obj, signal, param, menu) {
         if(menu.constructor.name != 'PanelGrid')
             return;
 
         for(const panelColumn of menu.box.get_children()) {
             this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
         }
-        this._connections.connect(menu.box, 'actor-added', (panelColumn, event) => {
+        this._connections.connect(menu.box, 'actor-added', (obj, signal, panelColumn) => {
             this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
         });
+    }
+
+    setWindowMaxBar(signal) {
+        log('setWindowMaxBar====: ', signal);
+
+        if(!this._settings)
+            return;
+        const wmaxbar = this._settings.get_boolean('wmaxbar');
+        if(!wmaxbar) {
+            Main.panel.remove_style_pseudo_class('windowmax');
+            return;
+        }
+        
+        // const scale = St.ThemeContext.get_for_stage(global.stage).scale_factor;
+
+        const workspace = global.workspace_manager.get_active_workspace();
+        const windows = workspace.list_windows().filter(window =>
+            window.get_monitor() == Main.layoutManager.primaryMonitor.index
+            && window.showing_on_its_workspace()
+            && !window.is_hidden()
+            && window.get_window_type() !== Meta.WindowType.DESKTOP
+            // exclude Desktop Icons NG
+            && window.get_gtk_application_id() !== "com.rastersoft.ding"
+            && (window.maximized_horizontally 
+                || window.maximized_vertically 
+                // || window.get_frame_rect().width >= window.get_work_area_current_monitor().width-2*scale
+                // || window.get_frame_rect().height >= window.get_work_area_current_monitor().height-2*scale
+                ) 
+        );
+        // log('setWindowMaxBar=WindowsLength====: ', windows.length);
+        if(windows.length) {
+            Main.panel.add_style_pseudo_class('windowmax');
+        }
+        else {
+            Main.panel.remove_style_pseudo_class('windowmax');
+        }
+    }
+
+    onWindowAdded(obj, signal, windowActor){
+        // log('obj, signal, window ', obj, signal, windowActor);
+        if(windowActor?.meta_window) {
+            this._windowSignals.set(windowActor, [
+                // windowActor.connect('notify::allocation', () => this.setWindowMaxBar('allocation') ),
+                windowActor.connect('notify::visible', () => this.setWindowMaxBar('visible') ),
+                // windowActor.meta_window.connect('notify::maximized_horizontally', () => this.setWindowMaxBar('horizontally') ),
+                // windowActor.meta_window.connect('notify::maximized_vertically', () => this.setWindowMaxBar('vertically') ),
+                windowActor.meta_window.connect('notify::minimized', () => this.setWindowMaxBar('minimized') ),
+                windowActor.meta_window.connect('size-changed', () => this.setWindowMaxBar('size-changed') ),
+                windowActor.meta_window.connect('shown', () => this.setWindowMaxBar('shown') ),
+                //Add hidden or visible signal for minimize
+            ]);
+        }
+        this.setWindowMaxBar('actor-added');
+    }
+
+    onWindowRemoved(obj, signal, windowActor){
+        for (const id of this._windowSignals.get(windowActor)){
+            windowActor.meta_window?.disconnect(id);
+        }
+        this._windowSignals.delete(windowActor);
+        this.setWindowMaxBar('actor-removed');
     }
 
     enable() {
@@ -531,6 +632,11 @@ class Extension {
 
         // Get the top panel
         let panel = Main.panel;
+
+        this._windowSignals = new Map();
+        for (const window of global.get_window_actors()){
+            this.onWindowAdded(window, null);
+        }
 
         this._settings = ExtensionUtils.getSettings(); 
 
@@ -551,6 +657,8 @@ class Extension {
             [ panel._centerBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
             [ panel._rightBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
             [ Main.messageTray._bannerBin, 'actor-added', this.updatePanelStyle.bind(this) ],
+            [ global.window_group, 'actor-added', this.onWindowAdded.bind(this) ],
+            [ global.window_group, 'actor-removed', this.onWindowRemoved.bind(this) ],
         ];
         // Connection specific to QSAP extension (Quick Settings)
         if(this.gnomeVersion > 42) {
@@ -597,21 +705,19 @@ class Extension {
                         obar.applyCalendarGridStyle(this, menustyle);            
                 }
             }
-        );       
+        );
+
+        // Cause stylesheet to save and reload on Enable by toggling 'savestyle'
+        let savestyle = this._settings.get_boolean('savestyle');
+        if(savestyle)
+            this._settings.set_boolean('savestyle', false);
+        else
+            this._settings.set_boolean('savestyle', true);
 
         // Apply the initial style
         this.updatePanelStyle(null, 'enabled');
         let menustyle = this._settings.get_boolean('menustyle');
         this.applyMenuStyles(panel, menustyle);
-
-        // let panelBox = Main.layoutManager.panelBox;
-        // const effect = new Shell.BlurEffect({
-        //     name: 'openbar-panelblur',
-        //     sigma: 50,
-        //     brightness: 0.8,
-        //     mode: Shell.BlurMode.BACKGROUND
-        // });
-        // panelBox.add_effect(effect);
     }
 
     disable() {
@@ -620,6 +726,13 @@ class Extension {
 
         this._connections.disconnectAll();
         this._connections = null;
+
+        for (const [windowActor, ids] of this._windowSignals) {
+            for (const id of ids) {
+                windowActor.meta_window?.disconnect(id);
+            }
+        }
+        this._windowSignals = null;
 
         if(this.calendarTimeoutId) {
             clearTimeout(this.calendarTimeoutId);
