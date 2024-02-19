@@ -46,9 +46,26 @@ class OpenbarPrefs {
         return color;
     }
 
-    colorBlend(c0,c1,p) {
+    colorBlend(c0, c1, p) {
         var i=parseInt,r=Math.round,P=1-p,[a,b,c,d]=c0.split(","),[e,f,g,h]=c1.split(","),x=d||h,j=x?","+(!d?h:!h?d:r((parseFloat(d)*P+parseFloat(h)*p)*1000)/1000+")"):")";
         return"rgb"+(x?"a(":"(")+r(i(a[3]=="a"?a.slice(5):a.slice(4))*P+i(e[3]=="a"?e.slice(5):e.slice(4))*p)+","+r(i(b)*P+i(f)*p)+","+r(i(c)*P+i(g)*p)+j;
+    }
+
+    // rgb(Math.round(parseInt(r)*0.8 + 255*0.2)),...(Lighten: take 0.8 of C and add 0.2 of white Darken: just take 0.8 of C)
+    colorShade(c, p) {
+        var i=parseInt,r=Math.round,[a,b,c,d]=c.split(","),P=p<0,t=P?0:255*p,P=P?1+p:1-p;
+        return"rgb"+(d?"a(":"(")+r(i(a[3]=="a"?a.slice(5):a.slice(4))*P+t)+","+r(i(b)*P+t)+","+r(i(c)*P+t)+(d?","+d:")");
+    }
+    
+    getHSP(r, g, b) {
+        // HSP equation for perceived brightness from http://alienryderflex.com/hsp.html
+        let hsp = Math.sqrt(
+            0.299 * (r * r) +
+            0.587 * (g * g) +
+            0.114 * (b * b)
+        );
+        return hsp;
+
     }
     
     getBgDark(r, g, b) {
@@ -1238,6 +1255,84 @@ class OpenbarPrefs {
         });
         return separator;
     }
+    
+    compareHSP(A, B) {
+        let hspA = this.getHSP(parseInt(A[0]), parseInt(A[1]), parseInt(A[2]));
+        let hspB = this.getHSP(parseInt(B[0]), parseInt(B[1]), parseInt(B[2]));
+
+        return (hspA < hspB)? -1 : (hspA > hspB)? 1 : 0;
+    }
+
+    colorMove(A, B, factor) {
+        let [r1, g1, b1] = [parseInt(A[0]), parseInt(A[1]), parseInt(A[2])];
+        let [r2, g2, b2] = [parseInt(B[0]), parseInt(B[1]), parseInt(B[2])];
+        
+        let r = (r2 - r1); 
+        let g = (g2 - g1); 
+        let b = (b2 - b1);
+        if(r==0 && factor < 0)
+            r = factor*255;
+        if(g==0 && factor < 0)
+            g = factor*255;
+        if(b==0 && factor < 0)
+            b = factor*255;
+
+        let rmean = (r1 + r2)/2;
+        let rFactor = Math.sqrt((512 + rmean)/ 256);
+        let gFactor = 2;
+        let bFactor = Math.sqrt((767 - rmean)/ 256);
+        let sumFactor = rFactor + gFactor + bFactor;
+
+        let rMove = r * factor * rFactor / sumFactor;
+        let gMove = g * factor * gFactor / sumFactor;
+        let bMove = b * factor * bFactor / sumFactor;
+
+        let newR = (r1 + rMove);
+        let newG = (g1 + gMove);
+        let newB = (b1 + bMove);
+        newR = newR>255? 255 : newR<0? 0 : parseInt(newR);
+        newG = newG>255? 255 : newG<0? 0 : parseInt(newG);
+        newB = newB>255? 255 : newB<0? 0 : parseInt(newB);
+
+        log('COLOR MOVE - ' + A + ' - ' + B + ' - ' + newR + ' ' + newG + ' ' + newB);
+        return [String(newR), String(newG), String(newB)];
+    }
+
+    getColorDist(A, B) {
+        let [r1, g1, b1] = [parseInt(A[0]), parseInt(A[1]), parseInt(A[2])];
+        let [r2, g2, b2] = [parseInt(B[0]), parseInt(B[1]), parseInt(B[2])];
+
+        let rmean = (r1 + r2)/2;
+        let r = r1 - r2;
+        let g = g1 - g2;
+        let b = b1 - b2;
+        // Approx color distance based on http://www.compuphase.com/cmetric.htm, range: 0-765
+        let dist =  Math.sqrt((((512 + rmean) * r * r) >> 8) + 4 * g * g + (((767 - rmean) * b * b) >> 8));
+        log('COLOR DIST - ' + B + ' - ' + dist);
+        return dist;
+    }
+
+    compareColorfulness(A, B) {
+        // We consider greater difference between the R, G, B values to indicate colorfulness
+        // while similar values for R,G,B to indicate greyscale
+        let [r, g, b] = [parseInt(A[0]), parseInt(A[1]), parseInt(A[2])];
+        let colorDistA = Math.max(r, g, b) - Math.min(r, g, b);
+        [r, g, b] = [parseInt(B[0]), parseInt(B[1]), parseInt(B[2])];
+        let colorDistB = Math.max(r, g, b) - Math.min(r, g, b);
+        return (colorDistA < colorDistB)? -1 : (colorDistA > colorDistB)? 1 : 0;
+    }
+
+    getStrv(strInt) {
+        // Color settings are stored as RGB in range 0-1 so we convert from 0-255
+        let [r, g, b] = [parseInt(strInt[0]), parseInt(strInt[1]), parseInt(strInt[2])];
+        return [String(r/255), String(g/255), String(b/255)];
+    }
+
+    getRGBStr(str255) {
+        let rgb = `rgb(${str255[0]}, ${str255[1]}, ${str255[2]})`;
+        return rgb;
+    }
+
 
     rgbToHex(r, g, b) {
         return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1);
