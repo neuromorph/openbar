@@ -618,10 +618,13 @@ class Extension {
     }
 
     onWindowRemoved(obj, signal, windowActor){
-        for (const id of this._windowSignals.get(windowActor)){
-            windowActor.meta_window?.disconnect(id);
+        let windowSignals = this._windowSignals.get(windowActor);
+        if(windowSignals) {
+            for (const id of windowSignals){
+                windowActor.meta_window?.disconnect(id);
+            }
+            this._windowSignals.delete(windowActor);
         }
-        this._windowSignals.delete(windowActor);
         this.setWindowMaxBar('actor-removed');
     }
 

@@ -67,14 +67,9 @@ class OpenbarPrefs {
         return hsp;
 
     }
-    
+
     getBgDark(r, g, b) {
-        // HSP equation for perceived brightness from http://alienryderflex.com/hsp.html
-        let hsp = Math.sqrt(
-            0.299 * (r * r) +
-            0.587 * (g * g) +
-            0.114 * (b * b)
-        );
+        let hsp = this.getHSP(r, g, b);
         if(hsp > 127.5)
             return false;
         else
@@ -134,6 +129,8 @@ class OpenbarPrefs {
         let marginWMax = this._settings.get_double('margin-wmax');
         let neonWMax = this._settings.get_boolean('neon-wmax');
         let borderWMax = this._settings.get_boolean('border-wmax');
+        let qtoggleRadius = this._settings.get_double('qtoggle-radius');
+        let sliderHeight = this._settings.get_double('slider-height');
 
         // if(wmaxbar)
         //     bartype = bartypeWMax;
@@ -477,11 +474,10 @@ class OpenbarPrefs {
         let boxPtrStyle;
         if(position == 'Bottom') {
             boxPtrStyle = `
-            -arrow-rise: -20px; `;
+            -arrow-rise: -10px; `;
         }
         else {
-            boxPtrStyle = `
-            -arrow-rise: 0px; `;
+            boxPtrStyle = ``;
         }
 
         // Create Stylesheet string to write to file
@@ -507,7 +503,7 @@ class OpenbarPrefs {
             #panel.openbar:windowmax {
                 background-color: rgba(${bgredwmax},${bggreenwmax},${bgbluewmax},${bgalphaWMax}) !important;
                 border-radius: 0px;
-                border: none;
+                border-color: transparent;
                 box-shadow: none;
                 margin: 0px;
                 height: ${height + 2*marginWMax}px !important;
@@ -524,33 +520,33 @@ class OpenbarPrefs {
                 ${btnStyle}
             }
             #panel.openbar:windowmax .panel-button {
-                ${borderWMax? '': 'border: none;'}
+                ${borderWMax? '': 'border-color: transparent;'}
                 ${neonWMax? '': 'box-shadow: none;'}                
             }
 
             #panel.openbar .panel-button.candy1 {
-                ${candyStyleArr[0]};
+                ${candyStyleArr[0]}
             }
             #panel.openbar .panel-button.candy2 {
-                ${candyStyleArr[1]};
+                ${candyStyleArr[1]}
             }
             #panel.openbar .panel-button.candy3 {
-                ${candyStyleArr[2]};
+                ${candyStyleArr[2]}
             }
             #panel.openbar .panel-button.candy4 {
-                ${candyStyleArr[3]};
+                ${candyStyleArr[3]}
             }
             #panel.openbar .panel-button.candy5 {
-                ${candyStyleArr[4]};
+                ${candyStyleArr[4]}
             }
             #panel.openbar .panel-button.candy6 {
-                ${candyStyleArr[5]};
+                ${candyStyleArr[5]}
             }
             #panel.openbar .panel-button.candy7 {
-                ${candyStyleArr[6]};
+                ${candyStyleArr[6]}
             }
             #panel.openbar .panel-button.candy8 {
-                ${candyStyleArr[7]};
+                ${candyStyleArr[7]}
             }
 
             #panel.openbar .panel-button:hover, #panel.openbar .panel-button:focus, #panel.openbar .panel-button:active, #panel.openbar .panel-button:checked {
@@ -606,8 +602,8 @@ class OpenbarPrefs {
 
         // Menu styles
         stylesheet += `
-            .popup-menu-boxpointer {
-                ${boxPtrStyle} 
+            .openmenu.popup-menu-boxpointer {
+               ${boxPtrStyle}
             }
 
             .openmenu.popup-menu {
@@ -726,12 +722,13 @@ class OpenbarPrefs {
                 background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
                 border-color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
             }
-            .openmenu .slider{     
-                color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.5}) !important;
-                -slider-handle-border-width: 1px;
-                -slider-handle-border-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
-                -barlevel-background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*0.9}) !important;
-                -barlevel-active-background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;            
+            .openmenu .slider{ 
+                color: rgba(255,255,255,0.9) !important;
+                -barlevel-height: ${sliderHeight}px;
+                -slider-handle-border-width: 3px;
+                -slider-handle-border-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+                -barlevel-background-color: rgba(${0.8*smbgred+0.2*mfgred},${0.8*smbggreen+0.2*mfggreen},${0.8*smbgblue+0.2*mfgblue},${mbgAlpha}) !important;
+                -barlevel-active-background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;  
             }
             .openmenu.popup-separator-menu-item .popup-separator-menu-item-separator, .openmenu.popup-separator-menu-item .popup-sub-menu .popup-separator-menu-item-separator {
                 background-color: rgba(${mbred},${mbgreen},${mbblue},0.75) !important;
@@ -752,11 +749,14 @@ class OpenbarPrefs {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
             }
+            .openmenu.message .message-title {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+            }
             .openmenu.message .message-body {
-                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.75}) !important;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.85}) !important;
             }
             .openmenu.message .event-time {
-                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.75}) !important;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.85}) !important;
             }
             .openmenu.message .button, .openmenu.message .message-close-button {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
@@ -795,6 +795,15 @@ class OpenbarPrefs {
             .openmenu .toggle-switch:checked {
                 background-image: url(media/toggle-on.svg);
             }
+            .openmenu .check-box StBin {
+                background-image: url(media/checkbox-off.svg);
+            }
+            .openmenu .check-box:checked StBin {
+                background-image: url(media/checkbox-on.svg);
+            }
+            .openmenu .check-box:focus StBin, .openmenu .check-box:focus:checked StBin {
+                border-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            }
             
             .openmenu.message-list-clear-button {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
@@ -816,6 +825,10 @@ class OpenbarPrefs {
             .openmenu.calendar {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
+            }
+            .openmenu.calendar .calendar-month-header .pager-button,
+            .openmenu.calendar .calendar-month-header .pager-button {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
             }
             .openmenu.calendar .calendar-month-header .pager-button:hover,
             .openmenu.calendar .calendar-month-header .pager-button:focus {
@@ -922,18 +935,20 @@ class OpenbarPrefs {
         `;
 
         stylesheet += `
-            .openmenu.quick-slider .slider{
-                color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.5}) !important;
-                -slider-handle-border-width: 1px;
-                -slider-handle-border-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
-                -barlevel-background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*0.9}) !important;
-                -barlevel-active-background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;                  
+            .openmenu.quick-slider .slider{                
+                color: rgba(255,255,255,0.9) !important;
+                -barlevel-height: ${sliderHeight}px;
+                -slider-handle-border-width: 3px;
+                -slider-handle-border-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+                -barlevel-background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
+                -barlevel-active-background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
             }
 
             .openmenu.quick-toggle {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
                 box-shadow: none;
+                border-radius: ${qtoggleRadius}px;
             }
             .openmenu.quick-toggle:hover, .openmenu.quick-toggle:focus {
                 color: ${mhfg} !important;
@@ -974,6 +989,20 @@ class OpenbarPrefs {
             .openmenu.quick-menu-toggle .quick-toggle-arrow {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
+            }
+            /* adjust borders in expandable menu button */
+            .openmenu.quick-menu-toggle .quick-toggle-arrow:ltr {
+                border-radius: 0 ${qtoggleRadius}px ${qtoggleRadius}px 0;
+            }
+            .openmenu.quick-menu-toggle .quick-toggle-arrow:rtl {
+                border-radius: ${qtoggleRadius}px 0 0 ${qtoggleRadius}px;
+            }
+            /* adjust borders if quick toggle has expandable menu button (quick-toggle-arrow)[44+] */
+            .openmenu.quick-menu-toggle .quick-toggle:ltr { border-radius: ${qtoggleRadius}px 0 0 ${qtoggleRadius}px; }
+            .openmenu.quick-menu-toggle .quick-toggle:rtl { border-radius: 0 ${qtoggleRadius}px ${qtoggleRadius}px 0; }
+            /* if quick toggle has no expandable menu button (quick-toggle-arrow)[44+] */
+            .openmenu.quick-menu-toggle .quick-toggle:last-child {
+                border-radius: ${qtoggleRadius}px;
             }
             .openmenu.quick-menu-toggle .quick-toggle-arrow:hover, .openmenu.quick-menu-toggle .quick-toggle-arrow:focus {
                 color: ${mhfg} !important;
@@ -1079,7 +1108,7 @@ class OpenbarPrefs {
 
     triggerStyleReload() {
         // Save stylesheet from string to css file
-        // this.saveStylesheet();
+        this.saveStylesheet();
         // Cause stylesheet to reload by toggling 'reloadstyle'
         let reloadstyle = this._settings.get_boolean('reloadstyle');
         if(reloadstyle)
@@ -1191,7 +1220,7 @@ class OpenbarPrefs {
             rgba.blue = parseFloat(colorArray[2]);
             rgba.alpha = 1.0;
             color.set_rgba(rgba);
-            log('SETTING COLOR WIDGET - ' + gsetting);
+            // log('SETTING COLOR WIDGET - ' + gsetting);
         });
 
         // Add palette removes default array so add it back first
@@ -1255,7 +1284,7 @@ class OpenbarPrefs {
         });
         return separator;
     }
-    
+
     compareHSP(A, B) {
         let hspA = this.getHSP(parseInt(A[0]), parseInt(A[1]), parseInt(A[2]));
         let hspB = this.getHSP(parseInt(B[0]), parseInt(B[1]), parseInt(B[2]));
@@ -1333,6 +1362,566 @@ class OpenbarPrefs {
         return rgb;
     }
 
+    autoApplyBGPalette() {
+        // console.trace('autoApplyBGPalette called==> ' + this.autoApplyBGPalette.caller);
+        let red = ['255', '0', '0'];
+        let white = ['255', '255', '255'];
+        let darkgrey = ['50', '50', '50'];
+        let black = ['0', '0', '0'];
+        let iters = 6;
+        let delta = 0.06;
+        let theme = this._settings.get_string('autotheme');
+        let variation = this._settings.get_string('variation');
+
+        if(theme == 'Select Theme' || variation == 'Select Variation')
+            return;
+
+        // const toRGBArray = rgbStr => rgbStr.match(/\d+/g);
+
+        let prominentArr = [], paletteArr = [];
+        let allArr = [];
+        for(let i=1; i<=18; i++) {
+            if(i<=6) {
+                prominentArr.push(this._settings.get_strv('prominent'+i));
+                allArr.push(this._settings.get_strv('prominent'+i));
+            }
+            else {
+                paletteArr.push(this._settings.get_strv('palette'+(i-6)));
+                allArr.push(this._settings.get_strv('palette'+(i-6)));
+            }
+        }
+        let prominentRaw1 = prominentArr[0];
+        let prominentRaw2 = prominentArr[1];
+
+        // log('ALL-ARR ' + allArr);
+        // log('PROMINENT-ARR ' + prominentArr);
+
+        // Sort prominentArr as per the color HSP (brightness) 
+        let prominentHSP = prominentArr.slice(0).sort(this.compareHSP.bind(this)); //log(prominentHSP);
+        if(theme == 'Light')
+            prominentHSP = prominentHSP.reverse();
+
+        let prominent1, prominent2, prominent3;
+        prominent1 = prominentHSP[0];
+
+        if(theme == 'Light') { // Merge with White (50%)
+            let prom1 = [0.5*parseInt(prominent1[0]) + 127, 
+                         0.5*parseInt(prominent1[1]) + 127, 
+                         0.5*parseInt(prominent1[2]) + 127]; 
+            prominent1 = [prom1[0].toString(), prom1[1].toString(), prom1[2].toString()];
+        }
+        else if(theme == 'Dark') { // Merge with DarkGrey (50%)
+            let prom1 = [0.5*parseInt(prominent1[0]) + 25, 
+                         0.5*parseInt(prominent1[1]) + 25, 
+                         0.5*parseInt(prominent1[2]) + 25]; 
+            prominent1 = [prom1[0].toString(), prom1[1].toString(), prom1[2].toString()];
+        }
+
+        // Sort allArr as per the colorfulness* for each color in array
+        let allColorful = paletteArr.slice(0).sort(this.compareColorfulness); //log(allColorful);
+        let colorful1, colorful2, colorful3;
+        // Select the color with highest colorfulness and closer to Red as Accent
+        // and next color as Highlight for the Bar and Menu
+        
+        let l = allColorful.length;
+        let c1c2HCandidates;
+        let overrideAccent = this._settings.get_boolean('accent-override');
+        if(overrideAccent) {
+            colorful1 = this._settings.get_strv('accent-color');
+            colorful1 = [parseFloat(colorful1[0])*255, parseFloat(colorful1[1])*255, parseFloat(colorful1[2])*255];
+            colorful1 = [parseInt(colorful1[0]).toString(), parseInt(colorful1[1]).toString(), parseInt(colorful1[2]).toString()];
+            c1c2HCandidates = [allColorful[l-1], allColorful[l-2]];
+        }
+        else {  
+            // Select Accent from two colors with highest colorfulness, the one that is closer to Red and is bright
+            // and next color as Highlight candidate for bar and menu      
+            if(this.getColorDist(allColorful[l-1], red) - this.getHSP(parseInt(allColorful[l-1][0]), parseInt(allColorful[l-1][1]), parseInt(allColorful[l-1][2])) <= 
+                this.getColorDist(allColorful[l-2], red) - this.getHSP(parseInt(allColorful[l-2][0]), parseInt(allColorful[l-2][1]), parseInt(allColorful[l-2][2]))) {
+                colorful1 = allColorful[l-1];
+                colorful2 = allColorful[l-2];
+            }
+            else {
+                colorful1 = allColorful[l-2];
+                colorful2 = allColorful[l-1];
+            }
+
+            log('COLORFUL-10 ' + colorful1);
+            // Dealta Factor logic (everywhere): 
+            // Compute distance from threshold as percentage (e.g. (180-c1Hsp)/180 )
+            // Add one to it (e.g. if % dist is 0.25 make it 1.25. 1+(180-c1Hsp)/180) = 2-c1Hsp/180
+            // Then multiply delta with it (e.g. delta*1.25)
+            for(let i=0; i<iters; i++) {
+                let c1Hsp = this.getHSP(parseInt(colorful1[0]), parseInt(colorful1[1]), parseInt(colorful1[2]));
+                log('COLORFUL1 HSP ' + c1Hsp);
+                if(c1Hsp < 180) {            
+                    colorful1 = this.colorMove(colorful1, white, delta*(2-c1Hsp/180));
+                    log('COLORFUL-11 ' + colorful1);
+                }
+            }
+            c1c2HCandidates = [colorful2];
+        }        
+
+        // Menu and Bar highlight candidates colors
+        let highlightCandidates = c1c2HCandidates.concat([allColorful[l-3], allColorful[l-4], allColorful[l-5], allColorful[l-6]]);
+
+        let btFactor;
+        if(variation == "Default") {
+            // Brighter highlight color (can lead to darker backgrounds)
+            btFactor = 2;
+        }
+        else if(variation == "Alt") {
+            // Darker highlight color (can lead to lighter backgrounds)
+            btFactor = -2;
+        }
+        // Menu Highlight color should be away from Accent color with brightness as per btFactor
+        highlightCandidates.sort((A,B) => {
+            let distA = this.getColorDist(A, colorful1) + btFactor*this.getHSP(parseInt(A[0]), parseInt(A[1]), parseInt(A[2]));// + 1*Math.abs(this.getHSP(parseInt(A[0]), parseInt(A[1]), parseInt(A[2])) - 165);
+            let distB = this.getColorDist(B, colorful1) + btFactor*this.getHSP(parseInt(B[0]), parseInt(B[1]), parseInt(B[2]));// + 1*Math.abs(this.getHSP(parseInt(B[0]), parseInt(B[1]), parseInt(B[2])) - 165);
+            return (distA > distB)? -1 : (distA < distB)? 1 : 0;
+        });
+        colorful2 = highlightCandidates[0];
+        log('COLORFUL2 dist to Coloful1 ' + this.getColorDist(colorful2, colorful1));
+        log('COLORFUL2 HSP ' + this.getHSP(parseInt(colorful2[0]), parseInt(colorful2[1]), parseInt(colorful2[2])));
+
+        // Bar Highlight color should be away from bar BG color with brightness as per btFactor
+        highlightCandidates.splice(0, 1);
+        highlightCandidates.sort((A,B) => {
+            let distA = this.getColorDist(A, prominent1) + btFactor*this.getHSP(parseInt(A[0]), parseInt(A[1]), parseInt(A[2]));// + 1*Math.abs(this.getHSP(parseInt(A[0]), parseInt(A[1]), parseInt(A[2])) - 165);
+            let distB = this.getColorDist(B, prominent1) + btFactor*this.getHSP(parseInt(B[0]), parseInt(B[1]), parseInt(B[2]));// + 1*Math.abs(this.getHSP(parseInt(B[0]), parseInt(B[1]), parseInt(B[2])) - 165);
+            return (distA > distB)? -1 : (distA < distB)? 1 : 0;
+        });
+        colorful3 = highlightCandidates[0];
+
+        // Identify colors for BG (prominent2) and SMBG (prominent3) such that they are:
+        // At least a Min dist away from Accent (colorful1), Highlight (colorful2) and FG (white/black)
+        let fgCol;
+        if(theme == 'Color' || theme == 'Dark') {
+            fgCol = white;
+        }
+        else if(theme == 'Light') {
+            fgCol = black;
+        }
+        function compareColrDist(A, B) {
+            let accentDistA = this.getColorDist(A, colorful1);
+            let highlightDistA = this.getColorDist(A, colorful2);
+            let fgDistA = this.getColorDist(A, fgCol);
+            let accentDistB = this.getColorDist(B, colorful1);
+            let highlightDistB = this.getColorDist(B, colorful2);
+            let fgDistB = this.getColorDist(B, fgCol);
+            let distA = Math.min(accentDistA + highlightDistA + fgDistA);
+            let distB = Math.min(accentDistB + highlightDistB + fgDistB);
+            return (distA > distB)? -1 : (distA < distB)? 1 : 0;
+        }
+
+        let threshold = 120;
+        // if(theme == 'Light' || theme == 'Dark') {
+        //     threshold = 100;
+        // }
+        let menuBGCandidates = prominentHSP.slice(1);
+        if(theme == 'Light' || theme == 'Dark') {
+            menuBGCandidates = menuBGCandidates.concat(paletteArr);
+        }
+        for(let i=0; i<menuBGCandidates.length; i++) {
+            if(this.getColorDist(menuBGCandidates[i], colorful1) < threshold || 
+                this.getColorDist(menuBGCandidates[i], colorful2) < threshold || 
+                this.getColorDist(menuBGCandidates[i], fgCol) < threshold) {
+                menuBGCandidates.splice(i, 1);
+                i--;
+            }
+        }
+        log('Filtered menuBGCandidates ' + menuBGCandidates);        
+
+        let assignedMenuBG = false, assignedSubMenuBG = false;
+        if(menuBGCandidates.length >= 2) {
+            menuBGCandidates.sort(compareColrDist.bind(this));
+            prominent2 = menuBGCandidates[0]; // Menu BG
+            prominent3 = menuBGCandidates[1]; // Sub Menu BG
+
+            // In case both prominent2 and prominent3 are too close to each other
+            // change prominent3 to next in line that works
+            for(const c of menuBGCandidates) {
+                if(this.getColorDist(c, prominent2) > 75) {
+                    prominent3 = c; log('New Prominent 3 ' + prominent3);
+                    break;
+                }
+            }
+
+            assignedMenuBG = true;
+            assignedSubMenuBG = true;
+        }
+        else if(menuBGCandidates.length == 1) {
+            prominent2 = menuBGCandidates[0];
+            assignedMenuBG = true;
+        }
+        if(!assignedMenuBG || !assignedSubMenuBG) { 
+            log('PROM-DARK 2 and/or 3 Not found !!');
+            menuBGCandidates = prominentHSP.slice(1); 
+            if(assignedMenuBG)
+                menuBGCandidates.splice(menuBGCandidates.indexOf(prominent2), 1);
+            log('Again menuBGCandidates ' + menuBGCandidates);
+            let mBGCandidates = menuBGCandidates.concat(paletteArr);
+            menuBGCandidates = mBGCandidates.slice(0);
+
+            for(let i=0; i<menuBGCandidates.length; i++) {
+                if(this.getColorDist(menuBGCandidates[i], colorful1) < threshold || 
+                    this.getColorDist(menuBGCandidates[i], colorful2) < threshold || 
+                    this.getColorDist(menuBGCandidates[i], white) < threshold) {
+                    menuBGCandidates.splice(i, 1);
+                    i--;
+                }
+            }
+            if(menuBGCandidates.length >= 2) {
+                menuBGCandidates.sort(compareColrDist.bind(this));
+                if(assignedMenuBG) {
+                    prominent3 = menuBGCandidates[0];
+                }
+                else {
+                    prominent2 = menuBGCandidates[0];
+                    prominent3 = menuBGCandidates[1];
+                }
+    
+                // In case both prominent2 and prominent3 are too close to each other
+                // change prominent3 to next in line that works
+                for(const c of menuBGCandidates) {
+                    if(this.getColorDist(c, prominent2) > 75) {
+                        prominent3 = c; log('New Else Prominent 3 ' + prominent3);
+                        break;
+                    }
+                }
+
+                assignedMenuBG = true;
+                assignedSubMenuBG = true;
+            }
+            else {
+                log('LAST RESORTT!! Check Logic Dark2');
+                menuBGCandidates = mBGCandidates.slice(0);
+                menuBGCandidates.sort(compareColrDist.bind(this));
+
+                prominent2 = menuBGCandidates[0];
+                prominent3 = menuBGCandidates[1];
+
+                // menuBGCandidates = [prominent2].concat(menuBGCandidates.slice(2));
+                menuBGCandidates = menuBGCandidates.slice(1);
+                for(const c of menuBGCandidates) {
+                    // if(this.getColorDist(c, prominent1) > 50 && this.getColorDist(c, prominent3) > 50 && this.getColorDist(c, colorful2) > 80) {
+                    if(this.getColorDist(c, prominent2) > 75 && this.getColorDist(c, colorful2) > 75) {
+                        prominent3 = c; log('New Last Prominent 3 ' + prominent3);
+                        break;
+                    }
+                }
+            }
+
+        }
+
+        if(theme == 'Color') {
+            if(!assignedMenuBG || !assignedSubMenuBG)
+                delta = 0.09;
+            else
+                delta = 0.06;
+
+            // Adjust BG color prominent2 as needed
+            for(let i=0; i<iters; i++) {
+                let c1Dist = this.getColorDist(prominent2, colorful1);
+                // let c2Dist = this.getColorDist(prominent2, colorful2);
+                // let wDist = this.getColorDist(prominent2, white);
+                if(c1Dist < threshold) {               
+                    prominent2 = this.colorMove(prominent2, colorful1, -delta*(2-c1Dist/threshold)); //-delta
+                    log('PROM_DARK2 accent ' + prominent2);
+                }
+                let c2Dist = this.getColorDist(prominent2, colorful2);
+                if(c2Dist < 100) {               
+                    prominent2 = this.colorMove(prominent2, colorful2, -delta*(2-c2Dist/100));
+                    log('PROM_DARK2 highlight ' + prominent2);
+                }
+                let prom3Dist = this.getColorDist(prominent2, prominent3);
+                if(prom3Dist < 75) {               
+                    prominent2 = this.colorMove(prominent2, prominent3, -delta*(2-prom3Dist/75));
+                    log('PROM_DARK2 sub ' + prominent2);
+                }
+                // if(this.getColorDist(prominent2, white) < 200) {               
+                //     prominent2 = this.colorMove(prominent2, white, -delta);
+                //     log('PROM_DARK2 white ' + prominent2);
+                // }
+                let pDark2Hsp = this.getHSP(parseInt(prominent2[0]), parseInt(prominent2[1]), parseInt(prominent2[2]));
+                log('prominent2 HSP ' + pDark2Hsp);
+                if(pDark2Hsp < 50) {               
+                    prominent2 = this.colorMove(prominent2, white, delta*(2-pDark2Hsp/50)); //delta
+                    log('prominent2-White1 ' + prominent2);
+                }
+                if(pDark2Hsp > 175) {               
+                    prominent2 = this.colorMove(prominent2, white, -delta*(pDark2Hsp)/175); //-delta
+                    log('prominent2-White2 ' + prominent2);
+                }
+            }
+            
+            // Adjust SMBG color prominent3 as needed
+            for(let i=0; i<iters; i++) {
+                let c1Dist = this.getColorDist(prominent3, colorful1);
+                // let c2Dist = this.getColorDist(prominent3, colorful2);
+                // let wDist = this.getColorDist(prominent3, white);
+                if(c1Dist < threshold) {               
+                    prominent3 = this.colorMove(prominent3, colorful1, -delta*(2-c1Dist/threshold));
+                    log('PROM_DARK3 accent ' + prominent3);
+                }
+                let c2Dist = this.getColorDist(prominent3, colorful2);
+                if(c2Dist < 100) {               
+                    prominent3 = this.colorMove(prominent3, colorful2, -delta*(2-c2Dist/100));
+                    log('PROM_DARK3 highlight ' + prominent3);
+                }
+                let prom2Dist = this.getColorDist(prominent3, prominent2);
+                if(prom2Dist < 75) {               
+                    prominent3 = this.colorMove(prominent3, prominent2, -delta*(2-prom2Dist/75));
+                    log('PROM_DARK3 sub ' + prominent3);
+                }
+                // if(this.getColorDist(prominent3, white) < 150) {               
+                //     prominent3 = this.colorMove(prominent3, white, delta);
+                //     log('PROM_DARK3 white ' + prominent3);
+                // }
+                
+                let pDark3Hsp = this.getHSP(parseInt(prominent3[0]), parseInt(prominent3[1]), parseInt(prominent3[2]));
+                log('prominent3 HSP ' + pDark3Hsp);
+
+                if(pDark3Hsp < 50) {               
+                    prominent3 = this.colorMove(prominent3, white, delta*(2-pDark3Hsp/50));
+                    log('prominent3-White1 ' + prominent3);
+                }
+                if(pDark3Hsp > 175) {               
+                    prominent3 = this.colorMove(prominent3, white, -delta*(pDark3Hsp)/175);
+                    log('prominent3-White2 ' + prominent3);
+                }
+            }
+        }
+        else if(theme == 'Light') {
+            // let prom2Hsp = this.getHSP(parseInt(prominent2[0]), parseInt(prominent2[1]), parseInt(prominent2[2]));
+            // log('prominent2 HSP ' + prom2Hsp);
+            // prominent2 = this.colorMove(prominent2, white, 2*(1-prom2Hsp/255));  
+            
+            // let prom3Hsp = this.getHSP(parseInt(prominent3[0]), parseInt(prominent3[1]), parseInt(prominent3[2]));
+            // log('prominent3 HSP ' + prom3Hsp);
+            // prominent3 = this.colorMove(prominent3, white, 2*(0.8-prom3Hsp/255)); 
+
+            let prom2 = [0.5*parseInt(prominent2[0]) + 127, 
+                         0.5*parseInt(prominent2[1]) + 127, 
+                         0.5*parseInt(prominent2[2]) + 127]; 
+            prominent2 = [prom2[0].toString(), prom2[1].toString(), prom2[2].toString()];
+
+            let prom3 = [0.5*parseInt(prominent3[0]) + 127, 
+                         0.5*parseInt(prominent3[1]) + 127, 
+                         0.5*parseInt(prominent3[2]) + 127];
+            prominent3 = [prom3[0].toString(), prom3[1].toString(), prom3[2].toString()];
+
+            for(let i=0; i<3; i++) {
+                let prom2Dist = this.getColorDist(prominent3, prominent2);
+                if(prom2Dist < 75) {               
+                    prominent3 = this.colorMove(prominent3, prominent2, -delta*(2-prom2Dist/75));
+                    log('PROM_DARK3 sub ' + prominent3);
+                }
+                let prom3Dist = this.getColorDist(prominent2, prominent3);
+                if(prom3Dist < 75) {               
+                    prominent2 = this.colorMove(prominent2, prominent3, -delta*(2-prom3Dist/75));
+                    log('PROM_DARK2 sub ' + prominent2);
+                }
+            }
+        }
+        else if(theme == 'Dark') {
+            // let prom2Hsp = this.getHSP(parseInt(prominent2[0]), parseInt(prominent2[1]), parseInt(prominent2[2]));
+            // log('prominent2 HSP ' + prom2Hsp);
+            // prominent2 = this.colorMove(prominent2, darkgrey, 2*(1-prom2Hsp/255));
+            // let prom3Hsp = this.getHSP(parseInt(prominent3[0]), parseInt(prominent3[1]), parseInt(prominent3[2]));
+            // log('prominent3 HSP ' + prom3Hsp);
+            // prominent3 = this.colorMove(prominent3, darkgrey, 2*(0.8-prom3Hsp/255));     
+            
+            let prom2 = [0.5*parseInt(prominent2[0]) + 25, 
+                         0.5*parseInt(prominent2[1]) + 25, 
+                         0.5*parseInt(prominent2[2]) + 25]; 
+            prominent2 = [prom2[0].toString(), prom2[1].toString(), prom2[2].toString()];
+
+            let prom3 = [0.5*parseInt(prominent3[0]) + 25, 
+                         0.5*parseInt(prominent3[1]) + 25, 
+                         0.5*parseInt(prominent3[2]) + 25];
+            prominent3 = [prom3[0].toString(), prom3[1].toString(), prom3[2].toString()];
+
+            for(let i=0; i<3; i++) {
+                let prom2Dist = this.getColorDist(prominent3, prominent2);
+                if(prom2Dist < 75) {               
+                    prominent3 = this.colorMove(prominent3, prominent2, -delta*(2-prom2Dist/75));
+                    log('PROM_DARK3 sub ' + prominent3);
+                }
+                let prom3Dist = this.getColorDist(prominent2, prominent3);
+                if(prom3Dist < 75) {               
+                    prominent2 = this.colorMove(prominent2, prominent3, -delta*(2-prom3Dist/75));
+                    log('PROM_DARK2 sub ' + prominent2);
+                }
+            }
+        }
+        
+        delta = 0.06;
+        log('COLORFUL-20 ' + colorful2);
+        // Adjust Menu Highlight colorful2 as needed
+        for(let i=0; i<iters; i++) {
+            let c1Dist = this.getColorDist(colorful2, colorful1);
+            if(c1Dist < 100) {               
+                colorful2 = this.colorMove(colorful2, colorful1, -delta*(2-c1Dist/100));
+                log('COLORFUL-21 ' + colorful2);
+            }
+            let pDark2Dist = this.getColorDist(colorful2, prominent2);           
+            if(pDark2Dist < 100) {               
+                colorful2 = this.colorMove(colorful2, prominent2, -delta*(2-pDark2Dist/100)); 
+                log('COLORFUL-22 ' + colorful2);
+            }
+            let pDark3Dist = this.getColorDist(colorful2, prominent3);
+            if(pDark3Dist < 100) {               
+                colorful2 = this.colorMove(colorful2, prominent3, -delta*(2-pDark3Dist/100));
+                log('COLORFUL-23 ' + colorful2);
+            }
+
+            let c2Hsp = this.getHSP(parseInt(colorful2[0]), parseInt(colorful2[1]), parseInt(colorful2[2]));
+            if(theme == 'Light') {
+                if(c2Hsp < 150) {               
+                    colorful2 = this.colorMove(colorful2, white, 2*delta*(2-c2Hsp/100));
+                    log('COLORFUL-24 ' + colorful2);
+                }
+            }
+            else {
+                if(c2Hsp < 100) {               
+                    colorful2 = this.colorMove(colorful2, white, delta*(2-c2Hsp/100));
+                    log('COLORFUL-24 ' + colorful2);
+                }           
+                log('COLORFUL2 HSP ' + c2Hsp);
+                if(c2Hsp > 200) {               
+                    colorful2 = this.colorMove(colorful2, white, -delta*(c2Hsp)/200);
+                    log('COLORFUL-25 ' + colorful2);
+                }
+            }
+        }
+        
+        log('COLORFUL-30 ' + colorful3);
+        for(let i=0; i<iters; i++) {
+            let pDark1Dist = this.getColorDist(colorful3, prominent1);
+            if(pDark1Dist < 100) {               
+                colorful3 = this.colorMove(colorful3, prominent1, -delta*(2-pDark1Dist/100));
+                log('COLORFUL-31 ' + colorful3);
+            }
+            
+            let c3Hsp = this.getHSP(parseInt(colorful3[0]), parseInt(colorful3[1]), parseInt(colorful3[2]));
+            if(theme == 'Light') {
+                if(c3Hsp < 150) {               
+                    colorful3 = this.colorMove(colorful3, white, 2*delta*(2-c3Hsp/100));
+                    log('COLORFUL-32 ' + colorful3);
+                }
+            }
+            else {
+                log('COLORFUL3 HSP ' + this.getHSP(parseInt(colorful3[0]), parseInt(colorful3[1]), parseInt(colorful3[2])));
+                if(c3Hsp < 100) {               
+                    colorful3 = this.colorMove(colorful3, white, delta*(2-c3Hsp/100));
+                    log('COLORFUL-32 ' + colorful3);
+                }
+                if(c3Hsp > 200) {               
+                    colorful3 = this.colorMove(colorful3, white, -delta*(c3Hsp)/200);
+                    log('COLORFUL-33 ' + colorful3);
+                }
+            }
+        }
+
+        let allHSP = allArr.slice(0).sort(this.compareHSP.bind(this));
+        if(theme == 'Light')
+            allHSP = allHSP.reverse();
+        let allLight1 = allHSP[17]; // Bar border color
+        let allLight2 = allHSP[16]; // Menu border and shadow color
+
+        
+        // let allLight1rgb = this.getRGBStr(allLight1);
+        for(let i=0; i<iters; i++) {
+            if(this.getColorDist(allLight1, fgCol) > 90) {               
+                allLight1 = this.colorMove(allLight1, fgCol, 2*delta);
+                log('AllLight1 ' + allLight1);
+            }
+        }
+
+        let fgcolor, fgalpha, bgcolor, bgalpha, iscolor, isalpha, bradius, bwidth, bcolor, balpha, hcolor, halpha,
+        mfgcolor, mfgalpha, mbgcolor, mbgalpha, smbgcolor, smbgalpha, mbcolor, mbalpha, mhcolor, mhalpha,
+        mshcolor, mshalpha, mscolor, msalpha;
+        let bartype = this._settings.get_string('bartype');
+
+        
+        if(fgCol == white) {
+            fgcolor = ['1.0', '1.0', '1.0'];
+            mfgcolor = ['1.0', '1.0', '1.0'];
+        }
+        else {
+            fgcolor = ['0.0', '0.0', '0.0'];
+            mfgcolor = ['0.0', '0.0', '0.0'];
+        }
+
+        fgalpha = 1.0;
+        bgcolor = this.getStrv(prominent1);
+        if(bartype == 'Mainland') {
+            bgalpha = 0.9;
+            bradius = 0;
+            bwidth = 0;
+        }
+        else if(bartype == 'Floating') {
+            bgalpha = 0.9;
+            bradius = 40;
+            bwidth = 2;
+        }
+        else {
+            bgalpha = 0;
+            bradius = 40;
+            bwidth = 2;
+        }
+        iscolor = this.getStrv(prominent1);
+        isalpha = 0.9;
+        bcolor = this.getStrv(allLight1);
+        balpha = 0.7;
+        hcolor = this.getStrv(colorful3);
+        halpha = 0.8;
+
+        
+        mfgalpha = 1.0; 
+        mbgcolor = this.getStrv(prominent2);
+        mbgalpha = 0.95;
+        smbgcolor = this.getStrv(prominent3);
+        smbgalpha = 0.95;
+        mbcolor = this.getStrv(allLight2);
+        mbalpha = 0.6;
+        mhcolor = this.getStrv(colorful2);
+        mhalpha = 0.7;
+        mshcolor = this.getStrv(allLight2);
+        mshalpha = 0.16;
+        mscolor = this.getStrv(colorful1);
+        msalpha = 0.9;
+
+
+        this._settings.set_strv('fgcolor', fgcolor);
+        this._settings.set_double('fgalpha', fgalpha);
+        this._settings.set_strv('bgcolor', bgcolor);
+        this._settings.set_double('bgalpha', bgalpha);
+        this._settings.set_strv('iscolor', iscolor);
+        this._settings.set_double('isalpha', isalpha);
+        this._settings.set_boolean('shadow', false);
+        this._settings.set_double('bradius', bradius);
+        this._settings.set_double('bwidth', bwidth);
+        this._settings.set_strv('bcolor', bcolor);
+        this._settings.set_double('balpha', balpha);
+        this._settings.set_strv('hcolor', hcolor);
+        this._settings.set_double('halpha', halpha);
+
+        this._settings.set_strv('mfgcolor', mfgcolor);
+        this._settings.set_double('mfgalpha', mfgalpha);
+        this._settings.set_strv('mbgcolor', mbgcolor);
+        this._settings.set_double('mbgalpha', mbgalpha);
+        this._settings.set_strv('smbgcolor', smbgcolor);
+        this._settings.set_double('smbgalpha', smbgalpha);
+        this._settings.set_strv('mbcolor', mbcolor);
+        this._settings.set_double('mbalpha', mbalpha);
+        this._settings.set_strv('mhcolor', mhcolor);
+        this._settings.set_double('mhalpha', mhalpha);
+        this._settings.set_strv('mshcolor', mshcolor);
+        this._settings.set_double('mshalpha', mshalpha);
+        this._settings.set_strv('mscolor', mscolor);
+        this._settings.set_double('msalpha', msalpha);
+    }
 
     rgbToHex(r, g, b) {
         return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1);
@@ -1343,8 +1932,8 @@ class OpenbarPrefs {
             let paletteColor = this._settings.get_strv('palette'+i);
             let hexCol = this.rgbToHex(paletteColor[0],paletteColor[1],paletteColor[2]);
             let paletteLbl = new Gtk.Label({
-                label: `<span bgcolor="${hexCol}" font_size="150%">          </span>`,
-                sensitive: false,
+                label: `<span bgcolor="${hexCol}" font_size="150%">       </span>`,
+                sensitive: true,
                 use_markup: true,
             });
             let paletteBtn = new Gtk.Button({
@@ -1369,7 +1958,7 @@ class OpenbarPrefs {
     }
 
     updatePalette(window, grey=false) {
-        log('Update Palette gor '+ this._settings.get_string('bguri'));
+        // log('Update Palette for '+ this._settings.get_string('bguri'));
         let i = 1;
         window.paletteButtons.forEach(btn => {
             let paletteColor = grey? ['125','125','125'] : this._settings.get_strv('palette'+i);
@@ -1400,7 +1989,7 @@ class OpenbarPrefs {
         else
             this._settings.set_boolean('bgpalette', true);
         // Update palette once it is updated in settings
-        setTimeout(() => {this.updatePalette(window, false)}, 500);
+        setTimeout(() => {this.updatePalette(window, false)}, 1000);
     }
 
     saveToggleSVG(toggleOn) {
@@ -1448,7 +2037,7 @@ class OpenbarPrefs {
         }
 
     }
-    
+
     saveCheckboxSVG(checked) {
         let svg, svgpath, svgcolor;
         if(checked) {
@@ -1519,22 +2108,44 @@ class OpenbarPrefs {
         this._settings = ExtensionUtils.getSettings();
         // Connect settings to update/save/reload stylesheet
         let settEvents = ['bartype', 'position', 'font', 'gradient', 'border-wmax', 'neon-wmax',
-        'gradient-direction', 'shadow', 'neon', 'heffect', 'smbgoverride']; 
+        'gradient-direction', 'shadow', 'neon', 'heffect', 'smbgoverride', 'savestyle']; 
         settEvents.forEach(event => {
             this._settings.connect('changed::'+event, () => {this.triggerStyleReload();});
         });
         // Connect settings to save toggle switch svg
         this._settings.connect('changed::mscolor', () => {
-            setTimeout(() => {this.saveToggleSVG(true)}, 400);
+            setTimeout(() => {this.saveToggleSVG(true); 
+                              this.saveCheckboxSVG(true);}, 400);
         });
         this._settings.connect('changed::mbgcolor', () => {
-            setTimeout(() => {this.saveToggleSVG(false)}, 400);
+            setTimeout(() => {this.saveToggleSVG(false);
+                              this.saveCheckboxSVG(false);}, 400);
         });
         this._settings.connect('changed::smbgcolor', () => {
-            setTimeout(() => {this.saveToggleSVG(false)}, 400);
+            setTimeout(() => {this.saveToggleSVG(false);
+                              this.saveCheckboxSVG(false);}, 400);
         });
         this._settings.connect('changed::smbgoverride', () => {
-            setTimeout(() => {this.saveToggleSVG(false)}, 400);
+            setTimeout(() => {this.saveToggleSVG(false);
+                              this.saveCheckboxSVG(false);}, 400);
+        });
+        this._settings.connect('changed::bg-change', () => {
+            setTimeout(() => {
+                if(this._settings.get_boolean('autotheme-refresh')) {
+                    this.autoApplyBGPalette();
+                    this.triggerStyleReload();
+                }
+            }, 200);
+        });
+        this._settings.connect('changed::accent-override', () => {
+            let theme = this._settings.get_string('autotheme');
+            let variation = this._settings.get_string('variation');
+            if(theme == 'Select Theme' || variation == 'Select Variation')
+                return;
+            setTimeout(() => {                
+                this.autoApplyBGPalette();
+                this.triggerStyleReload();
+            }, 200);
         });
 
         this.timeoutId = null;
@@ -1566,7 +2177,7 @@ class OpenbarPrefs {
 
         // Add a title label
         let titleLabel = new Gtk.Label({
-            label: `<span size="large"><b>Top Bar Customization</b></span>\n\n<span size="small" underline="none">${_('Version:')} ${Me.metadata.version}  |  <a href="${Me.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕      </a></span>`,
+            label: `<span size="large"><b>Top Bar Customization</b></span>\n\n<span size="small" underline="none" color="#04c5d0">${_('Version:')} ${Me.metadata.version}  |  <a href="${Me.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${Me.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕      </a></span>`,
             // halign: Gtk.Align.CENTER,
             use_markup: true,
         });
@@ -1574,9 +2185,9 @@ class OpenbarPrefs {
 
         rowNo += 1;
 
-        // Background Palette
+        // Auto Theme and Background Palette
         const paletteprop = new Gtk.Expander({
-            label: `<b>COLOR PALETTE</b>`,
+            label: `<b>AUTO THEMING</b>`,
             expanded: false,
             use_markup: true,
         });
@@ -1584,9 +2195,123 @@ class OpenbarPrefs {
 
         let rowbar = 1;
 
-        let paletteLabel = new Gtk.Label({
-            label: `<span><b>Desktop Background Color Palette</b></span>\n\n<span size="small" allow_breaks="true">The palette will auto-refresh upon changing the background. It is available in each color \nbutton popup under the default palette. You may click a color below to copy its hex value.</span>`,
+        let autoThemeLabel = new Gtk.Label({
+            label: `<span><b>Automatic Themes and Variations</b></span>\n\n<span size="small" allow_breaks="true">Themes below are auto-generated from Desktop Background. \nSelect a theme and its variation (default or alt) and click 'Apply'.\nNote: Select desired 'Type of Bar' in 'Bar Props' below before applying a theme.</span>`,
             use_markup: true,
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(autoThemeLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1; 
+
+        const themeBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 5,
+            margin_top: 5,
+            margin_bottom: 5,
+            halign: Gtk.Align.CENTER,
+            homogeneous: true,
+        });
+
+        let themeType = this.createComboboxWidget([ ["Select Theme", _("Select Theme")], ["Color", _("Color")], ["Dark", _("Dark")], ["Light", _("Light")]]);
+        themeType.set_active_id(this._settings.get_string('autotheme'));
+        themeBox.append(themeType);
+
+        let themeVariation = this.createComboboxWidget([ ["Select Variation", _("Select Variation")], ["Default", _("Default")], ["Alt", _("Alt")]]);
+        themeVariation.set_active_id(this._settings.get_string('variation'));
+        themeBox.append(themeVariation);       
+
+        const applyThemeBtn = new Gtk.Button({
+            label: 'Apply',
+            tooltip_text: 'Apply/ Refresh selected theme and variation'
+        });
+        themeBox.append(applyThemeBtn);
+
+        palettegrid.attach(themeBox, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        let applyThemeErrLbl = new Gtk.Label({
+            label: ``,
+            sensitive: false,
+            halign: Gtk.Align.CENTER,
+            use_markup: true,
+        });
+        palettegrid.attach(applyThemeErrLbl, 1, rowbar, 2, 1);
+
+        applyThemeBtn.connect('clicked', () => {
+            // this.triggerBackgroundPalette(window);
+            let theme = themeType.get_active_id();
+            let variation = themeVariation.get_active_id();
+            if(theme == 'Select Theme' || variation == 'Select Variation') {
+                applyThemeErrLbl.label = `<span color="#ff8c00">Please select a theme and a variation to apply.</span>`;
+                applyThemeErrLbl.sensitive = true;
+                setTimeout(() => { applyThemeErrLbl.label = ``;
+                                    applyThemeErrLbl.sensitive = false;}, 3000);
+                return;
+            }
+            this._settings.set_string('autotheme', theme);
+            this._settings.set_string('variation', variation);
+            this.autoApplyBGPalette();
+            this.triggerStyleReload();
+        });
+        
+        rowbar += 1;
+
+        let autoThemeChgLabel = new Gtk.Label({
+            label: `<span>Auto Refresh theme on Background change</span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(autoThemeChgLabel, 1, rowbar, 1, 1);
+
+        let autoThemeChgSwitch = this.createSwitchWidget();
+        palettegrid.attach(autoThemeChgSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Secondary menu color Override
+        // Add a secondary color override switch
+        let autosmbgOLbl = new Gtk.Label({
+            label: `Alternate Secondary Menu BG Color (auto)`,
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(autosmbgOLbl, 1, rowbar, 1, 1);
+
+        let autosmbgOSwitch = this.createSwitchWidget('Auto-Theme will choose alternate secondary color instead of deriving from BG color');
+        palettegrid.attach(autosmbgOSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add an accent color override switch
+        let accentOLbl = new Gtk.Label({
+            label: `Override Auto theme Accent Color`,
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(accentOLbl, 1, rowbar, 1, 1);
+
+        let accentOSwitch = this.createSwitchWidget();
+        palettegrid.attach(accentOSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a accent override color chooser
+        let accentOColorLabel = new Gtk.Label({
+            label: 'Accent Color (override)',
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(accentOColorLabel, 1, rowbar, 1, 1);
+
+        let accentOColorChooser = this.createColorWidget(window, 'Auto Theme Accent Color', 'Select preferred accent color', 'accent-color');
+        palettegrid.attach(accentOColorChooser, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+
+        let paletteLabel = new Gtk.Label({
+            label: `<span><b>Desktop Background Color Palette</b></span>\n\n<span size="small" allow_breaks="true">The palette will auto-refresh upon changing the background. It is available in each color \nbutton popup under the default palette. It is shown here only for reference (visual feedback).</span>`,
+            use_markup: true,
+            margin_top: 15,
         });
         palettegrid.attach(paletteLabel, 1, rowbar, 2, 1);
         
@@ -1607,15 +2332,16 @@ class OpenbarPrefs {
         getPaletteBtn.connect('clicked', () => {
             this.triggerBackgroundPalette(window);
         });
-        // In case palette computation took longer, trigger update as per settings-change
+        // In case palette computation took longer, trigger the update as per settings-change
         // Note - this event will not trigger if new value of palette1 and 12 is same as old value (rare)
         this._settings.connect('changed::palette1', () => {
             this.updatePalette(window, false);
         });
         this._settings.connect('changed::palette12', () => {
             this.updatePalette(window, false);
+
         });
-        this.triggerBackgroundPalette(window);
+        // this.triggerBackgroundPalette(window);
         
         palettegrid.attach(getPaletteBtn, 2, rowbar, 1, 1);
 
@@ -1822,7 +2548,7 @@ class OpenbarPrefs {
 
         // Add a WMax border switch
         let wmaxBorderLabel = new Gtk.Label({
-            label: 'Border (WMax)',
+            label: 'Keep Border (Tri/Islands)',
             halign: Gtk.Align.START,
         });
         bargridwmax.attach(wmaxBorderLabel, 1, rowbar, 1, 1);
@@ -1834,7 +2560,7 @@ class OpenbarPrefs {
 
         // Add a WMax neon switch
         let wmaxNeonLabel = new Gtk.Label({
-            label: 'Neon Glow (WMax)',
+            label: 'Keep Neon Glow (Tri/Islands)',
             halign: Gtk.Align.START,
         });
         bargridwmax.attach(wmaxNeonLabel, 1, rowbar, 1, 1);
@@ -1917,7 +2643,7 @@ class OpenbarPrefs {
             }
         );
 
-        // ????????????????????????CYCLIC???
+        // Update font widget when font changed from settings (due to import file)
         this._settings.connect('changed::font', () => {
             let font = obar._settings.get_string('font');
             fontBtn.set_font(font);
@@ -2395,19 +3121,19 @@ class OpenbarPrefs {
         // Secondary menu color Override
         // Add an override switch
         let smbgOLbl = new Gtk.Label({
-            label: `Override Secondary Menu BG Color`,
+            label: `Override Secondary?`,
             halign: Gtk.Align.START,
         });
         menugrid.attach(smbgOLbl, 1, rowbar, 1, 1);
 
-        let smbgOSwitch = this.createSwitchWidget();
+        let smbgOSwitch = this.createSwitchWidget('Override Secondary Menu BG Color?');
         menugrid.attach(smbgOSwitch, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
         // Add a secondary menu BG color chooser
         let smenuBGColorLabel = new Gtk.Label({
-            label: 'Secondary BG Color (override)',
+            label: 'Override Color',
             halign: Gtk.Align.START,
         });
         menugrid.attach(smenuBGColorLabel, 1, rowbar, 1, 1);
@@ -2467,12 +3193,12 @@ class OpenbarPrefs {
 
         // Add a menu selection color chooser
         let menusColorLabel = new Gtk.Label({
-            label: 'Selected/Active Color',
+            label: 'Accent Color',
             halign: Gtk.Align.START,
         });
         menugrid.attach(menusColorLabel, 1, rowbar, 1, 1);
 
-        let menusColorChooser = this.createColorWidget(window, 'Menu Selected/Active Color', 'Selected/Active color for the menu items', 'mscolor');
+        let menusColorChooser = this.createColorWidget(window, 'Menu Selected/Accent Color', 'Selected/Active color for the menu items', 'mscolor');
         menugrid.attach(menusColorChooser, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -2513,6 +3239,30 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
+        // Add a slider height scale
+        let mSliderHtLbl = new Gtk.Label({
+            label: 'Slider Height',
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(mSliderHtLbl, 1, rowbar, 1, 1);
+
+        let mSliderHt = this.createScaleWidget(1, 30, 1, 0);
+        menugrid.attach(mSliderHt, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a Quick Toggle buttons radius scale
+        let qToggleRadLbl = new Gtk.Label({
+            label: 'Quick Toggle Radius',
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(qToggleRadLbl, 1, rowbar, 1, 1);
+
+        let qToggleRad = this.createScaleWidget(0, 50, 1, 0);
+        menugrid.attach(qToggleRad, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
         // Add menu style apply/remove buttons
         const removeMenuLabel = new Gtk.Label({
             use_markup: true,
@@ -2537,7 +3287,7 @@ class OpenbarPrefs {
 
         const applyMenuLabel = new Gtk.Label({
             use_markup: true,
-            label: `<span color="#05c6d1">${_("Apply Menu Styles")}</span>`, 
+            label: `<span color="#04c5d0">${_("Apply Menu Styles")}</span>`, 
         });
         const applyMenuBtn = new Gtk.Button({
             child: applyMenuLabel,
@@ -2570,7 +3320,7 @@ class OpenbarPrefs {
         // Add buttons to Import Settings and Export Settings
         const importLabel = new Gtk.Label({
             use_markup: true,
-            label: `<span color="#05c6d1">${_("Import Settings")}</span>`, 
+            label: `<span>${_("Import Settings")}</span>`, 
         });
         const importBtn = new Gtk.Button({
             child: importLabel,
@@ -2585,7 +3335,7 @@ class OpenbarPrefs {
 
         const exportLabel = new Gtk.Label({
             use_markup: true,
-            label: `<span color="#05c6d1">${_("Export Settings")}</span>`, 
+            label: `<span>${_("Export Settings")}</span>`, 
         });
         const exportBtn = new Gtk.Button({
             child: exportLabel,
@@ -2827,6 +3577,36 @@ class OpenbarPrefs {
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
+        this._settings.bind(
+            'autotheme-refresh',
+            autoThemeChgSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'smbgoverride',
+            autosmbgOSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'accent-override',
+            accentOSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'qtoggle-radius',
+            qToggleRad.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'slider-height',
+            mSliderHt.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
         // this._settings.bind(
         //     'menustyle',
         //     menuSwitch,
@@ -2847,7 +3627,7 @@ class OpenbarPrefs {
           
         fileChooser.connect('response', (self, response) => {   
           if (response == Gtk.ResponseType.ACCEPT) {
-            // Save current BG uri since the one in imported file maybe invalid
+            // Save current BG uri since the one in imported file maybe old/invalid
             let bguri = this._settings.get_string('bguri');
             let filePath = fileChooser.get_file().get_path();
             if (filePath && GLib.file_test(filePath, GLib.FileTest.EXISTS)) {
