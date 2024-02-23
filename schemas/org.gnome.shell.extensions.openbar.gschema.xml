@@ -257,6 +257,36 @@
       <summary>Remove menu style</summary>
       <description>Remove menu style customizations.</description>
     </key>
+    <key type="as" name="prominent1">
+      <default>['100', '100', '100']</default>
+      <summary>BG Prominent Color 1 (RGB)</summary>
+      <description>Prominent Color 1 of background image.</description>
+    </key>
+    <key type="as" name="prominent2">
+      <default>['100', '100', '100']</default>
+      <summary>BG Prominent Color 2 (RGB)</summary>
+      <description>Prominent Color 2 of background image.</description>
+    </key>
+    <key type="as" name="prominent3">
+      <default>['100', '100', '100']</default>
+      <summary>BG Prominent Color 3 (RGB)</summary>
+      <description>Prominent Color 3 of background image.</description>
+    </key>
+    <key type="as" name="prominent4">
+      <default>['100', '100', '100']</default>
+      <summary>BG Prominent Color 4 (RGB)</summary>
+      <description>Prominent Color 4 of background image.</description>
+    </key>
+    <key type="as" name="prominent5">
+      <default>['100', '100', '100']</default>
+      <summary>BG Prominent Color 5 (RGB)</summary>
+      <description>Prominent Color 5 of background image.</description>
+    </key>
+    <key type="as" name="prominent6">
+      <default>['100', '100', '100']</default>
+      <summary>BG Prominent Color 6 (RGB)</summary>
+      <description>Prominent Color 6 of background image.</description>
+    </key>
     <key type="as" name="palette1">
       <default>['100', '100', '100']</default>
       <summary>BG Palette Color 1 (RGB)</summary>
@@ -376,6 +406,81 @@
       <default>0.9</default>
       <summary>Transparency (alpha) of candy colors</summary>
       <description>Transparency of candy colors.</description>
+    </key>
+    <key type="b" name="wmaxbar">
+      <default>false</default>
+      <summary>Change bar when window maximized</summary>
+      <description>Change bar when window maximized.</description>
+    </key>
+    <key type="as" name="bgcolor-wmax">
+      <default>['0.125', '0.125', '0.125']</default>
+      <summary>BG Color (RGB) WMax</summary>
+      <description>Background Color of WMax Top Bar.</description>
+    </key>
+    <key type="d" name="bgalpha-wmax">
+      <default>0.9</default>
+      <summary>Transparency (alpha) WMax</summary>
+      <description>Transparency of WMax Top Bar.</description>
+    </key>
+    <key type="d" name="margin-wmax">
+      <default>2</default>
+      <summary>WMax bar margin for panel buttons</summary>
+      <description>WMax bar margin for panel buttons.</description>
+    </key>
+    <key type="b" name="border-wmax">
+      <default>false</default>
+      <summary>Border for buttons when window maximized</summary>
+      <description>Border for buttons when window maximized.</description>
+    </key>
+    <key type="b" name="neon-wmax">
+      <default>false</default>
+      <summary>Neon for buttons when window maximized</summary>
+      <description>Neon for buttons when window maximized.</description>
+    </key>
+    <key type="b" name="savestyle">
+      <default>false</default>
+      <summary>Save stylesheet on extension enabled</summary>
+      <description>Save stylesheet on extension enabled and trigger reload.</description>
+    </key>
+    <key type="s" name="autotheme">
+      <default>"Select Theme"</default>
+      <summary>Desktop Background based auto theme type</summary>
+      <description>Desktop Background based auto theme type.</description>
+    </key>
+    <key type="s" name="variation">
+      <default>"Select Variation"</default>
+      <summary>Desktop Background based auto theme variation</summary>
+      <description>Desktop Background based auto theme variation.</description>
+    </key>
+    <key type="b" name="autotheme-refresh">
+      <default>false</default>
+      <summary>Refresh auto theme on change of Desktop Background</summary>
+      <description>Refresh auto theme on change of Desktop Background.</description>
+    </key>
+    <key type="b" name="bg-change">
+      <default>false</default>
+      <summary>Toggle setting to indicate background change</summary>
+      <description>Toggle setting to indicate background change.</description>
+    </key>
+    <key type="b" name="accent-override">
+      <default>false</default>
+      <summary>Whether to override accent color in auto theme</summary>
+      <description>Whether to override accent color in auto theme.</description>
+    </key>
+    <key type="as" name="accent-color">
+      <default>['0', '0.75', '0.75']</default>
+      <summary>Accent color (Override) in auto theme (RGB)</summary>
+      <description>Accent color (Override) in auto theme.</description>
+    </key>
+    <key type="d" name="qtoggle-radius">
+      <default>50</default>
+      <summary>Radius of Quick toggle buttons</summary>
+      <description>Radius of Quick toggle buttons in Quick Panel.</description>
+    </key>
+    <key type="d" name="slider-height">
+      <default>4</default>
+      <summary>Height of sliders (px)</summary>
+      <description>Height of sliders (px).</description>
     </key>
   </schema>
 </schemalist>

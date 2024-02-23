@@ -46,8 +46,9 @@ class ConnectManager{
 
     connect(obj, signal, callback){
         this.connections.push({
-            id : obj.connect(signal, (actor, event) => {callback(actor, signal)}),
-            obj: obj
+            id : obj.connect(signal, (obj, param) => {callback(obj, signal, param)}),
+            obj: obj,
+            sig: signal
         });
         // Remove obj on destroy except following that don't have destroy signal
         if(!(obj instanceof Gio.Settings || obj instanceof LayoutManager.LayoutManager || obj instanceof Meta.WorkspaceManager)) {
@@ -59,7 +60,15 @@ class ConnectManager{
 
     // remove an object WITHOUT disconnecting it, use only when you know the object is destroyed
     removeObject(object){
-        this.connections = this.connections.filter(({id, obj}) => obj != object);
+        this.connections = this.connections.filter(({id, obj, sig}) => obj != object);
+    }
+    
+    disconnect(object, signal){
+        let disconnections = this.connections.filter(({id, obj, sig}) => obj == object && sig == signal);
+        disconnections.forEach(c => {
+            c.obj.disconnect(c.id);
+        });
+        this.connections = this.connections.filter(({id, obj, sig}) => obj != object || sig != signal);
     }
 
     disconnectAll(){
@@ -126,15 +135,32 @@ export default class Openbar extends Extension {
         }
         // console.log('pixelCount, pixelarray len ', pixelCount, pixelArray.length);
     
-        // Generate color palette of 12 colors using Quantize ()
-        const cmap = Quantize.quantize(pixelArray, 12);
-        const palette = cmap? cmap.palette() : null;
-    
+        // Generate color palette of 6 colors using Quantize to get prominant colors
+        const cmap6 = Quantize.quantize(pixelArray, 6);
+        const palette6 = cmap6? cmap6.palette() : null;
+
         let i = 1;
-        palette?.forEach(color => {
+        palette6?.forEach(color => {
+            this._settings.set_strv('prominent'+i, [String(color[0]), String(color[1]), String(color[2])]);
+            i++;
+        });
+
+        // Generate color palette of 12 colors using Quantize to possibly get all colors for color-button
+        const cmap12 = Quantize.quantize(pixelArray, 12);
+        const palette12 = cmap12? cmap12.palette() : null;
+    
+        i = 1;
+        palette12?.forEach(color => {
             this._settings.set_strv('palette'+i, [String(color[0]), String(color[1]), String(color[2])]);
             i++;
         });
+
+        // Toggle setting 'bg-change' to indicate background change
+        let bgchange = this._settings.get_boolean('bg-change');
+        if(bgchange)
+            this._settings.set_boolean('bg-change', false);
+        else
+            this._settings.set_boolean('bg-change', true);
     }
 
     _injectToFunction(parent, name, func) {
@@ -239,15 +265,21 @@ export default class Openbar extends Extension {
     applyMenuStyles(panel, add) {
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
-            for(const btn of box) {  // btn is a bin, parent of indicator button
-                if(btn.child instanceof PanelMenu.Button) {  // btn.child is the indicator
-                    
+            for(const btn of box) { // btn is a bin, parent of indicator button
+                if(btn.child instanceof PanelMenu.Button) { // btn.child is the indicator
+
+                    // box pointer case, to update -arrow-rise for bottom panel
+                    if(btn.child.menu?._boxPointer)
+                        this.applyMenuClass(btn.child.menu._boxPointer, add);
+
                     // special case for Quick Settings Audio Panel, because it changes the layout of the Quick Settings menu
                     if(btn.child.menu?.constructor.name == "PanelGrid") {
                         for(const panel of btn.child.menu._get_panels()) {
                             this.applyBoxStyles(panel, add);
                         }
-                    } else if(btn.child.menu?.box) {
+                    } 
+                    // general case
+                    else if(btn.child.menu?.box) {
                         this.applyBoxStyles(btn.child.menu.box, add);
                     }
 
@@ -365,19 +397,24 @@ export default class Openbar extends Extension {
         
     }
 
-    updatePanelStyle(actor, key) { 
+    updatePanelStyle(obj, key, param) { 
         // console.log('update called with key ', key);
         let panel = Main.panel;
 
         if(!this._settings)
             return;
 
-        if(key.startsWith('palette'))
+        if(key.startsWith('palette') || key.startsWith('prominent'))
             return;
 
         // Generate background color palette
         if(key == 'bgpalette' || key == 'bguri') {
             this.backgroundPalette();
+            return;
+        }
+
+        if(key == 'wmaxbar') {
+            this.setWindowMaxBar('wmaxbar');
             return;
         }
 
@@ -408,12 +445,12 @@ export default class Openbar extends Extension {
         if(['reloadstyle', 'removestyle', 'menustyle', 'actor-added', 'hiding'].includes(key))
             this.applyMenuStyles(panel, menustyle);
             
-        let menuKeys = ['reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 
-        'mhcolor', 'mhalpha', 'mscolor', 'msalpha', 'mshcolor', 'mshalpha'];
-        let barKeys = ['bgcolor', 'gradient', 'gradient-direction', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'borderColor', 
-        'balpha', 'borderWidth', 'borderRadius', 'bordertype', 'shcolor', 'shalpha', 'islandsColor', 'isalpha', 'neon', 'shadow', 'font',
-        'hcolor', 'halpha', 'heffect'];
-        let keys = [...barKeys, ...menuKeys];
+        let menuKeys = ['savestyle', 'reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 
+        'mhcolor', 'mhalpha', 'mscolor', 'msalpha', 'mshcolor', 'mshalpha', 'smbgoverride', 'smbgcolor', 'qtoggle-radius', 'slider-height'];
+        let barKeys = ['bgcolor', 'gradient', 'gradient-direction', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'bcolor', 
+        'balpha', 'bradius', 'bordertype', 'shcolor', 'shalpha', 'iscolor', 'isalpha', 'neon', 'shadow', 'font', 'default-font',
+        'hcolor', 'halpha', 'heffect', 'bgcolor-wmax', 'bgalpha-wmax', 'neon-wmax'];
+        let keys = [...barKeys, ...menuKeys, 'autotheme', 'variation', 'autotheme-refresh', 'accent-override', 'accent-color'];
         if(keys.includes(key)) {
             return;
         }    
@@ -446,7 +483,7 @@ export default class Openbar extends Extension {
 
         const candybar = this._settings.get_boolean('candybar');
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
-        let i=0;
+        let i = 0;
         for(const box of panelBoxes) {
             for(const btn of box) {
                 if(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) {
@@ -470,39 +507,38 @@ export default class Openbar extends Extension {
                         for(const indicator of list) { 
                             let dot = indicator.get_child_at_index(0);
                             dot?.add_style_class_name('openbar');
-                        }
-                        
+                        }                        
                     }
                     
                     // Add trilands pseudo/classes if enabled else remove them
-                    if(btn.child.has_style_class_name('trilands'))
-                        btn.child.remove_style_class_name('trilands');
+                    // if(btn.child.has_style_class_name('trilands'))
+                    //     btn.child.remove_style_class_name('trilands');
                     if(bartype == 'Trilands') {
                         btn.child.add_style_class_name('trilands');
 
                         if(btn == box.first_child && btn == box.last_child)
-                            btn.child.add_style_pseudo_class('both');
+                            btn.child.add_style_pseudo_class('one-child');
                         else
-                            btn.child.remove_style_pseudo_class('both');
+                            btn.child.remove_style_pseudo_class('one-child');
                         
                         if(btn == box.first_child && btn != box.last_child)
-                            btn.child.add_style_pseudo_class('left');
+                            btn.child.add_style_pseudo_class('left-child');
                         else
-                            btn.child.remove_style_pseudo_class('left');
+                            btn.child.remove_style_pseudo_class('left-child');
                             
                         if(btn != box.first_child && btn == box.last_child)
-                            btn.child.add_style_pseudo_class('right');
+                            btn.child.add_style_pseudo_class('right-child');
                         else
-                            btn.child.remove_style_pseudo_class('right');
+                            btn.child.remove_style_pseudo_class('right-child');
                         
                         if(btn != box.first_child && btn != box.last_child)
-                            btn.child.add_style_pseudo_class('none');
+                            btn.child.add_style_pseudo_class('mid-child');
                         else
-                            btn.child.remove_style_pseudo_class('none');
+                            btn.child.remove_style_pseudo_class('mid-child');
                     }
-                    
-                }
-                
+                    else
+                        btn.child.remove_style_class_name('trilands'); 
+                }                
             }
         }
 
@@ -510,16 +546,109 @@ export default class Openbar extends Extension {
 
     // QSAP: listen for addition of new panels
     // this allows theming QSAP panels when QSAP is enabled after Open Bar
-    setupLibpanel(menu) {
+    setupLibpanel(obj, signal, param, menu) {
         if(menu.constructor.name != 'PanelGrid')
             return;
 
         for(const panelColumn of menu.box.get_children()) {
             this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
         }
-        this._connections.connect(menu.box, 'actor-added', (panelColumn, event) => {
+        this._connections.connect(menu.box, 'actor-added', (obj, signal, panelColumn) => {
             this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
         });
+    }
+
+    setWindowMaxBar(signal) {
+        // log('setWindowMaxBar====: ', signal);
+
+        if(!this._settings)
+            return;
+        const wmaxbar = this._settings.get_boolean('wmaxbar');
+        if(!wmaxbar) {
+            Main.panel.remove_style_pseudo_class('windowmax');
+            return;
+        }
+        
+        const workspace = global.workspace_manager.get_active_workspace();
+        const windows = workspace.list_windows().filter(window =>
+            window.get_monitor() == Main.layoutManager.primaryMonitor.index
+            && window.showing_on_its_workspace()
+            && !window.is_hidden()
+            && window.get_window_type() !== Meta.WindowType.DESKTOP
+            // exclude Desktop Icons NG
+            && window.get_gtk_application_id() !== "com.rastersoft.ding"
+            && (window.maximized_horizontally 
+                || window.maximized_vertically) 
+        );
+        // log('setWindowMaxBar=WindowsLength====: ', windows.length);
+        if(windows.length) {
+            Main.panel.add_style_pseudo_class('windowmax');
+        }
+        else {
+            Main.panel.remove_style_pseudo_class('windowmax');
+        }
+    }
+
+    onWindowAdded(obj, signal, windowActor){
+        // log('obj, signal, window ', obj, signal, windowActor);
+        if(windowActor) {
+            this._windowSignals.set(windowActor, [
+                windowActor.connect('notify::visible', () => this.setWindowMaxBar('notify-visible') ),
+            ]);
+        
+            if(windowActor.meta_window) {
+                this._windowSignals.set(windowActor.meta_window, [
+                    windowActor.meta_window.connect('notify::minimized', () => this.setWindowMaxBar('minimized') ),
+                    windowActor.meta_window.connect('size-changed', () => this.setWindowMaxBar('size-changed') ),
+                    windowActor.meta_window.connect('shown', () => this.setWindowMaxBar('shown') ),
+                ]);
+            }
+        }
+        this.setWindowMaxBar('actor-added');
+    }
+
+    onWindowRemoved(obj, signal, windowActor){
+        let winSigActors = [windowActor, windowActor.meta_window];
+        for(const winSigActor of winSigActors) {
+            if(winSigActor) {
+                let windowSignals = this._windowSignals.get(winSigActor);
+                if(windowSignals) {
+                    for (const id of windowSignals){
+                            winSigActor.disconnect(id);
+                    }
+                    this._windowSignals.delete(winSigActor);
+                }
+            }
+        }
+        this.setWindowMaxBar('actor-removed');
+    }
+
+    onWindowMaxBar() {
+        let wmaxbar = this._settings.get_boolean('wmaxbar');
+        if(wmaxbar) {
+            this._windowSignals = new Map();
+            for(const window of global.get_window_actors()){
+                this.onWindowAdded(null, 'enabled', window);
+            }
+            this._connections.connect(global.window_group, 'actor-added', this.onWindowAdded.bind(this));
+            this._connections.connect(global.window_group, 'actor-removed', this.onWindowRemoved.bind(this));
+        }
+        else {
+            this._connections.disconnect(global.window_group, 'actor-added');
+            this._connections.disconnect(global.window_group, 'actor-removed');
+            this.disconnectWindowSignals();
+        }
+    }
+
+    disconnectWindowSignals() {
+        if(this._windowSignals) {
+            for(const [windowActor, ids] of this._windowSignals) {
+                for(const id of ids) {
+                    windowActor.disconnect(id);
+                }
+            }
+        }
+        this._windowSignals = null;
     }
 
     enable() {
@@ -575,6 +704,9 @@ export default class Openbar extends Extension {
         if(bguri == '')
             this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
 
+        // Setting for window max bar
+        connections.push([this._settings, 'changed::wmaxbar', this.onWindowMaxBar.bind(this)]);
+
         // Setup all connections
         this._connections = new ConnectManager(connections);
         
@@ -597,6 +729,16 @@ export default class Openbar extends Extension {
             }
         );
 
+        // Cause stylesheet to save and reload on Enable by toggling 'savestyle'
+        let savestyle = this._settings.get_boolean('savestyle');
+        if(savestyle)
+            this._settings.set_boolean('savestyle', false);
+        else
+            this._settings.set_boolean('savestyle', true);
+
+        // Set initial Window Max Bar
+        this.onWindowMaxBar();
+
         // Apply the initial style
         this.updatePanelStyle(null, 'enabled');
         let menustyle = this._settings.get_boolean('menustyle');
@@ -609,6 +751,8 @@ export default class Openbar extends Extension {
 
         this._connections.disconnectAll();
         this._connections = null;
+        
+        this.disconnectWindowSignals();
 
         if(this.calendarTimeoutId) {
             clearTimeout(this.calendarTimeoutId);
