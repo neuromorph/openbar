@@ -31,6 +31,8 @@ import * as LayoutManager from 'resource:///org/gnome/shell/ui/layout.js';
 import * as Config from 'resource:///org/gnome/shell/misc/config.js';
 import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Quantize from './quantize.js';
+import * as AutoThemes from './autothemes.js';
+import * as StyleSheets from './stylesheets.js';
 
 // ConnectManager class to manage connections for events to trigger Openbar style updates
 // This class is modified from Floating Panel extension (Thanks Aylur!)
@@ -156,11 +158,18 @@ export default class Openbar extends Extension {
         });
 
         // Toggle setting 'bg-change' to indicate background change
-        let bgchange = this._settings.get_boolean('bg-change');
+        let bgchange = this._settings.get_boolean('bg-change'); log('Palette Updated, toggling bg-change from extension.js');
         if(bgchange)
             this._settings.set_boolean('bg-change', false);
         else
             this._settings.set_boolean('bg-change', true);
+
+        // Apply auto theme for new background palette if auto-refresh enabled and theme-variation set
+        const theme = this._settings.get_string('autotheme');
+        const variation = this._settings.get_string('variation');
+        const autoRefresh = this._settings.get_boolean('autotheme-refresh')
+        if(autoRefresh && theme != 'Select Theme' && variation != 'Select Variation')
+            AutoThemes.autoApplyBGPalette(this);
     }
 
     _injectToFunction(parent, name, func) {
@@ -398,7 +407,8 @@ export default class Openbar extends Extension {
     }
 
     updatePanelStyle(obj, key, sig_param, callbk_param) { 
-        // console.log('update called with key ', key);
+        // console.log('update called with  ', key, sig_param, callbk_param);
+
         let panel = Main.panel;
 
         if(!this._settings)
@@ -409,12 +419,24 @@ export default class Openbar extends Extension {
 
         // Generate background color palette
         if(key == 'bgpalette' || key == 'bguri') {
-            this.backgroundPalette();
+            const importExport = this._settings.get_boolean('import-export');
+            if(!importExport)
+                this.backgroundPalette();
             return;
         }
 
         if(key == 'wmaxbar') {
-            this.setWindowMaxBar('wmaxbar');
+            this.onWindowMaxBar();
+            return;
+        }
+
+        if(key == 'trigger-autotheme') {
+            AutoThemes.autoApplyBGPalette(this);
+            return;
+        }
+
+        if(key == 'trigger-reload') {
+            StyleSheets.reloadStyle(this, this);
             return;
         }
 
@@ -446,8 +468,13 @@ export default class Openbar extends Extension {
             key == 'actor-added' && callbk_param != 'message-banner' ||
             key == 'hiding' && !setOverview)
             this.applyMenuStyles(panel, menustyle);
-            
-        let menuKeys = ['savestyle', 'reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 
+        
+        if(key == 'mscolor')
+            this.msSVG = true;
+        else if(key == 'mbgcolor' || key == 'smbgcolor' || key == 'smbgoverride')
+            this.bgSVG = true;
+
+        let menuKeys = ['trigger-reload', 'reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 
         'mhcolor', 'mhalpha', 'mscolor', 'msalpha', 'mshcolor', 'mshalpha', 'smbgoverride', 'smbgcolor', 'qtoggle-radius', 'slider-height'];
         let barKeys = ['bgcolor', 'gradient', 'gradient-direction', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'bcolor', 
         'balpha', 'bradius', 'bordertype', 'shcolor', 'shalpha', 'iscolor', 'isalpha', 'neon', 'shadow', 'font', 'default-font',
@@ -488,6 +515,7 @@ export default class Openbar extends Extension {
         let i = 0;
         for(const box of panelBoxes) {
             for(const btn of box) {
+                // Screen recording/share indicators use ButtonBox instead of Button
                 if(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) {
                     btn.child.add_style_class_name('openbar');
 
@@ -661,6 +689,9 @@ export default class Openbar extends Extension {
         // Get the top panel
         let panel = Main.panel;
 
+        this.msSVG = false;
+        this.bgSVG = false;
+
         this._settings = this.getSettings(); 
 
         // Connect to the settings changes
@@ -691,16 +722,16 @@ export default class Openbar extends Extension {
             connections.push([global.workspace_manager, 'notify::n-workspaces', this.updatePanelStyle.bind(this)]);
         }
 
-        // Settings for desktop background image (capture last changed uri)
+        // Settings for desktop background image (set bg-uri as per color scheme)
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
         this._intSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
         connections.push([this._bgSettings, 'changed::picture-uri', () => {
-            const colorScheme = this._intSettings.get_string('color-scheme');
+            const colorScheme = this._intSettings.get_string('color-scheme'); log('pic uri scheme: ', colorScheme);
             if(colorScheme != 'prefer-dark')
                 this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
         }]);
         connections.push([this._bgSettings, 'changed::picture-uri-dark', () => {
-            const colorScheme = this._intSettings.get_string('color-scheme');
+            const colorScheme = this._intSettings.get_string('color-scheme'); log('pic uri dark scheme: ', colorScheme);
             if(colorScheme == 'prefer-dark')
                 this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
         }]);
@@ -712,14 +743,17 @@ export default class Openbar extends Extension {
                 this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
         }]);
         // Set initial bguri as per color-scheme
-        const colorScheme = this._intSettings.get_string('color-scheme');
-        if(colorScheme == 'prefer-dark')
-            this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
-        else
-            this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
+        const bguri = this._settings.get_string('bguri');
+        if(bguri == '') {
+            const colorScheme = this._intSettings.get_string('color-scheme');
+            if(colorScheme == 'prefer-dark')
+                this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
+            else
+                this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
+        }
 
         // Setting for window max bar
-        connections.push([this._settings, 'changed::wmaxbar', this.onWindowMaxBar.bind(this)]);
+        // connections.push([this._settings, 'changed::wmaxbar', this.onWindowMaxBar.bind(this)]);
 
         // Setup all connections
         this._connections = new ConnectManager(connections);
@@ -743,12 +777,9 @@ export default class Openbar extends Extension {
             }
         );
 
-        // Cause stylesheet to save and reload on Enable by toggling 'savestyle'
-        let savestyle = this._settings.get_boolean('savestyle');
-        if(savestyle)
-            this._settings.set_boolean('savestyle', false);
-        else
-            this._settings.set_boolean('savestyle', true);
+        // Cause stylesheet to save and reload on Enable
+        // setTimeout(() => {StyleSheets.reloadStyle(this, this)}, 500);
+        StyleSheets.reloadStyle(this, this);
 
         // Set initial Window Max Bar
         this.onWindowMaxBar();

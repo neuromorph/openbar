@@ -437,11 +437,11 @@
       <summary>Neon for buttons when window maximized</summary>
       <description>Neon for buttons when window maximized.</description>
     </key>
-    <key type="b" name="savestyle">
+    <!-- <key type="b" name="savestyle">
       <default>false</default>
       <summary>Save stylesheet on extension enabled</summary>
       <description>Save stylesheet on extension enabled and trigger reload.</description>
-    </key>
+    </key> -->
     <key type="s" name="autotheme">
       <default>"Select Theme"</default>
       <summary>Desktop Background based auto theme type</summary>
@@ -491,6 +491,26 @@
       <default>4</default>
       <summary>Height of sliders (px)</summary>
       <description>Height of sliders (px).</description>
+    </key>
+    <key type="b" name="pause-reload">
+      <default>false</default>
+      <summary>Indicator to pause style reload</summary>
+      <description>Indicator to pause style reload e.g. during auto-theme update.</description>
+    </key>
+    <key type="b" name="trigger-reload">
+      <default>false</default>
+      <summary>Trigger to cause style reload</summary>
+      <description>Trigger to cause style reload e.g. after auto-theme update.</description>
+    </key>
+    <key type="b" name="import-export">
+      <default>false</default>
+      <summary>Indicator to indicate running of Import or Export</summary>
+      <description>Indicator to indicate running of Import or Export e.g. to pause multiple style reloads.</description>
+    </key>
+    <key type="b" name="trigger-autotheme">
+      <default>false</default>
+      <summary>Trigger creation and application of auto-theme</summary>
+      <description>Trigger creation and application of auto-theme from background.</description>
     </key>
   </schema>
 </schemalist>
