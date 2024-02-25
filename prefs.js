@@ -134,6 +134,8 @@ class OpenbarPrefs {
         let marginWMax = this._settings.get_double('margin-wmax');
         let neonWMax = this._settings.get_boolean('neon-wmax');
         let borderWMax = this._settings.get_boolean('border-wmax');
+        let menuRadius = this._settings.get_double('menu-radius');
+        let notifRadius = this._settings.get_double('notif-radius');
         let qtoggleRadius = this._settings.get_double('qtoggle-radius');
         let sliderHeight = this._settings.get_double('slider-height');
 
@@ -559,6 +561,7 @@ class OpenbarPrefs {
             #panel.openbar .panel-button.clock-display .clock, #panel.openbar .panel-button:hover.clock-display .clock {
                 background-color: transparent;
                 box-shadow: none;
+                ${fgStyle}
             }
             
             #panel.openbar .panel-button:active.clock-display .clock, #panel.openbar .panel-button:overview.clock-display .clock, 
@@ -619,6 +622,7 @@ class OpenbarPrefs {
                 /* add menu font */
                 background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}); /* menu bg */
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}); /* menu fg */ 
+                border-radius: ${menuRadius}px;
             }
         `;
 
@@ -751,6 +755,7 @@ class OpenbarPrefs {
             .openmenu.message {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
+                border-radius: ${notifRadius}px;
             }
             .openmenu.message .message-title {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
@@ -788,6 +793,7 @@ class OpenbarPrefs {
             }
             .openmenu.dnd-button {
                 border-color: rgba(${mbgred},${mbggreen},${mbgblue},0.5) !important;
+                border-radius: 50px;
             }
             .openmenu.dnd-button:hover, .openmenu.dnd-button:focus {
                 border-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
@@ -811,6 +817,7 @@ class OpenbarPrefs {
             .openmenu.message-list-clear-button {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
+                border-radius: ${notifRadius}px;
             }
             .openmenu.message-list-clear-button:hover, .openmenu.message-list-clear-button:focus {
                 color: ${mhfg} !important;
@@ -823,11 +830,13 @@ class OpenbarPrefs {
             } 
             .openmenu.datemenu-today-button:hover, .openmenu.datemenu-today-button:focus {
                 background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;  /* 0.9*mhAlpha */
+                border-radius: ${notifRadius}px;
             }
 
             .openmenu.calendar {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
+                border-radius: ${notifRadius}px;
             }
             .openmenu.calendar .calendar-month-header .pager-button,
             .openmenu.calendar .calendar-month-header .pager-button {
@@ -888,6 +897,7 @@ class OpenbarPrefs {
             .openmenu.events-button {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
+                border-radius: ${notifRadius}px;
             }
             .openmenu.events-button:hover, .openmenu.events-button:focus {
                 color: ${mhfg} !important;
@@ -906,6 +916,7 @@ class OpenbarPrefs {
             .openmenu.world-clocks-button {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
+                border-radius: ${notifRadius}px;
             }
             .openmenu.world-clocks-button:hover, .openmenu.world-clocks-button:focus {
                 color: ${mhfg} !important;
@@ -921,6 +932,7 @@ class OpenbarPrefs {
             .openmenu.weather-button {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
+                border-radius: ${notifRadius}px;
             }
             .openmenu.weather-button:hover, .openmenu.weather-button:focus {
                 color: ${mhfg} !important;
@@ -1111,7 +1123,7 @@ class OpenbarPrefs {
 
     // Save stylesheet to file and trigger: reload from extension.js
     triggerStyleReload() { 
-        if(this.onImportExport)
+        if(this.onImportExport || this.pauseStyleReload)
             return;
         console.log('triggerStyleReload called with onImportExport false');
         // Save stylesheet from string to css file
@@ -1380,6 +1392,7 @@ class OpenbarPrefs {
             return;
         
         // log('autoApply caller ' + this.autoApplyBGPalette.caller);
+        this.pauseStyleReload = true;
 
         let red = ['255', '0', '0'];
         let white = ['255', '255', '255'];
@@ -1948,6 +1961,9 @@ class OpenbarPrefs {
         this._settings.set_double('mshalpha', mshalpha);
         this._settings.set_strv('mscolor', mscolor);
         this._settings.set_double('msalpha', msalpha);
+
+        this.pauseStyleReload = false;
+        this.triggerStyleReload();
     }
 
     rgbToHex(r, g, b) {
@@ -2135,6 +2151,8 @@ class OpenbarPrefs {
 
         this.openbar = openbar;
         this.onImportExport = false;
+        this.pauseStyleReload = false;
+        
         // Get the settings object
         this._settings = openbar.getSettings();
         // Connect settings to update/save/reload stylesheet
@@ -2207,7 +2225,7 @@ class OpenbarPrefs {
 
         // Add a title label
         let titleLabel = new Gtk.Label({
-            label: `<span size="large"><b>Top Bar Customization</b></span>\n\n<span size="small" underline="none" color="#eeae42"><b>${_('Version:')} ${this.openbar.metadata.version}  |  <a href="${this.openbar.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${this.openbar.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕      </a></b></span>`,
+            label: `<span size="large"><b>Top Bar Customization</b></span>\n\n<span size="small" underline="none" color="#edad40"><b>${_('Version:')} ${this.openbar.metadata.version}  |  <a href="${this.openbar.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${this.openbar.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕      </a></b></span>`,
             // halign: Gtk.Align.CENTER,
             use_markup: true,
         });
@@ -2691,7 +2709,7 @@ class OpenbarPrefs {
         resetFontBtn.connect('clicked', () => {
             obar._settings.reset('font');
             fontBtn.set_font(obar._settings.get_string('default-font'));
-            obar.triggerStyleReload();
+            // obar.triggerStyleReload();
         });
         fggrid.attach(resetFontBtn, 3, rowbar, 1, 1);
 
@@ -3268,15 +3286,27 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a slider height scale
-        let mSliderHtLbl = new Gtk.Label({
-            label: 'Slider Height',
+        // Add a Menu Panels radius scale
+        let menuRadLbl = new Gtk.Label({
+            label: 'Menu Panels Radius',
             halign: Gtk.Align.START,
         });
-        menugrid.attach(mSliderHtLbl, 1, rowbar, 1, 1);
+        menugrid.attach(menuRadLbl, 1, rowbar, 1, 1);
 
-        let mSliderHt = this.createScaleWidget(1, 30, 1, 0);
-        menugrid.attach(mSliderHt, 2, rowbar, 1, 1);
+        let menuRad = this.createScaleWidget(0, 50, 1, 0);
+        menugrid.attach(menuRad, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a Notifications Buttons radius scale
+        let notifRadLbl = new Gtk.Label({
+            label: 'Notifications Radius',
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(notifRadLbl, 1, rowbar, 1, 1);
+
+        let notifRad = this.createScaleWidget(0, 50, 1, 0);
+        menugrid.attach(notifRad, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
@@ -3289,6 +3319,18 @@ class OpenbarPrefs {
 
         let qToggleRad = this.createScaleWidget(0, 50, 1, 0);
         menugrid.attach(qToggleRad, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a slider height scale
+        let mSliderHtLbl = new Gtk.Label({
+            label: 'Slider Height',
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(mSliderHtLbl, 1, rowbar, 1, 1);
+
+        let mSliderHt = this.createScaleWidget(1, 30, 1, 0);
+        menugrid.attach(mSliderHt, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
@@ -3624,6 +3666,18 @@ class OpenbarPrefs {
             'accent-override',
             accentOSwitch,
             'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'menu-radius',
+            menuRad.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'notif-radius',
+            notifRad.adjustment,
+            'value',
             Gio.SettingsBindFlags.DEFAULT
         );
         this._settings.bind(

@@ -39,14 +39,14 @@ class ConnectManager{
         this.connections = [];
 
         list.forEach(c => {
-            let [obj, signal, callback] = c;
-            this.connect(obj, signal, callback);
+            let [obj, signal, callback, callback_param] = c;
+            this.connect(obj, signal, callback, callback_param);
         });
     }
 
-    connect(obj, signal, callback){
+    connect(obj, signal, callback, callback_param){
         this.connections.push({
-            id : obj.connect(signal, (obj, param) => {callback(obj, signal, param)}),
+            id : obj.connect(signal, (object, signal_param) => {callback(object, signal, signal_param, callback_param)}),
             obj: obj,
             sig: signal
         });
@@ -397,7 +397,7 @@ export default class Openbar extends Extension {
         
     }
 
-    updatePanelStyle(obj, key, param) { 
+    updatePanelStyle(obj, key, sig_param, callbk_param) { 
         // console.log('update called with key ', key);
         let panel = Main.panel;
 
@@ -442,7 +442,9 @@ export default class Openbar extends Extension {
         }
         
         let menustyle = this._settings.get_boolean('menustyle');
-        if(['reloadstyle', 'removestyle', 'menustyle', 'actor-added', 'hiding'].includes(key))
+        if(['reloadstyle', 'removestyle', 'menustyle'].includes(key) ||
+            key == 'actor-added' && callbk_param != 'message-banner' ||
+            key == 'hiding' && !setOverview)
             this.applyMenuStyles(panel, menustyle);
             
         let menuKeys = ['savestyle', 'reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 
@@ -477,7 +479,7 @@ export default class Openbar extends Extension {
             else
                 Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
         }
-        if(key == 'actor-added' && setNotifications) {
+        if(key == 'actor-added' && callbk_param == 'message-banner' && setNotifications) {
             Main.messageTray._banner?.add_style_class_name('openmenu');
         }
 
@@ -546,14 +548,14 @@ export default class Openbar extends Extension {
 
     // QSAP: listen for addition of new panels
     // this allows theming QSAP panels when QSAP is enabled after Open Bar
-    setupLibpanel(obj, signal, param, menu) {
+    setupLibpanel(obj, signal, sig_param, menu) {
         if(menu.constructor.name != 'PanelGrid')
             return;
 
         for(const panelColumn of menu.box.get_children()) {
             this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
         }
-        this._connections.connect(menu.box, 'actor-added', (obj, signal, panelColumn) => {
+        this._connections.connect(menu.box, 'actor-added', (obj, signal, panelColumn, callbk_param) => {
             this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
         });
     }
@@ -562,7 +564,7 @@ export default class Openbar extends Extension {
         // log('setWindowMaxBar====: ', signal);
 
         if(!this._settings)
-            return;
+            return;                 
         const wmaxbar = this._settings.get_boolean('wmaxbar');
         if(!wmaxbar) {
             Main.panel.remove_style_pseudo_class('windowmax');
@@ -677,12 +679,12 @@ export default class Openbar extends Extension {
             [ panel._leftBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
             [ panel._centerBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
             [ panel._rightBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
-            [ Main.messageTray._bannerBin, 'actor-added', this.updatePanelStyle.bind(this) ],
+            [ Main.messageTray._bannerBin, 'actor-added', this.updatePanelStyle.bind(this), 'message-banner' ],
         ];
         // Connection specific to QSAP extension (Quick Settings)
         if(this.gnomeVersion > 42) {
             let qSettings = Main.panel.statusArea.quickSettings;
-            connections.push( [qSettings, 'menu-set', this.setupLibpanel.bind(this, qSettings.menu)] );
+            connections.push( [qSettings, 'menu-set', this.setupLibpanel.bind(this), qSettings.menu] );
         }
         // Connection specific to Workspace indicator dots
         if(this.gnomeVersion > 44) {
@@ -691,17 +693,29 @@ export default class Openbar extends Extension {
 
         // Settings for desktop background image (capture last changed uri)
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
+        this._intSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
         connections.push([this._bgSettings, 'changed::picture-uri', () => {
-            let uri = this._bgSettings.get_string('picture-uri');
-            this._settings.set_string('bguri', uri);
+            const colorScheme = this._intSettings.get_string('color-scheme');
+            if(colorScheme != 'prefer-dark')
+                this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
         }]);
         connections.push([this._bgSettings, 'changed::picture-uri-dark', () => {
-            let uri = this._bgSettings.get_string('picture-uri-dark');
-            this._settings.set_string('bguri', uri);
+            const colorScheme = this._intSettings.get_string('color-scheme');
+            if(colorScheme == 'prefer-dark')
+                this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
         }]);
-        // Initially, use picture-uri
-        let bguri = this._settings.get_string('bguri');
-        if(bguri == '')
+        connections.push([this._intSettings, 'changed::color-scheme', () => {
+            const colorScheme = this._intSettings.get_string('color-scheme');
+            if(colorScheme == 'prefer-dark')
+                this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
+            else
+                this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
+        }]);
+        // Set initial bguri as per color-scheme
+        const colorScheme = this._intSettings.get_string('color-scheme');
+        if(colorScheme == 'prefer-dark')
+            this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
+        else
             this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
 
         // Setting for window max bar
@@ -712,7 +726,7 @@ export default class Openbar extends Extension {
         
         // Setup connections for addition of new QSAP extension panels
         if(this.gnomeVersion > 42)
-            this.setupLibpanel(Main.panel.statusArea.quickSettings.menu);
+            this.setupLibpanel(null, 'enabled', null, Main.panel.statusArea.quickSettings.menu);
 
         // Update calendar style on Calendar rebuild through fn injection
         const obar = this;

@@ -472,6 +472,16 @@
       <summary>Accent color (Override) in auto theme (RGB)</summary>
       <description>Accent color (Override) in auto theme.</description>
     </key>
+    <key type="d" name="menu-radius">
+      <default>15</default>
+      <summary>Radius of Menu panels</summary>
+      <description>Radius of all Menu panels.</description>
+    </key>
+    <key type="d" name="notif-radius">
+      <default>10</default>
+      <summary>Radius of Notifications panel buttons</summary>
+      <description>Radius of Notifications panel buttons.</description>
+    </key>
     <key type="d" name="qtoggle-radius">
       <default>50</default>
       <summary>Radius of Quick toggle buttons</summary>
