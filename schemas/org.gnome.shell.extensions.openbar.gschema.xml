@@ -422,6 +422,11 @@
       <summary>Transparency (alpha) WMax</summary>
       <description>Transparency of WMax Top Bar.</description>
     </key>
+    <key type="b" name="cust-margin-wmax">
+      <default>false</default>
+      <summary>Customize bar margin when window maximized?</summary>
+      <description>Customize bar margin when window maximized?</description>
+    </key>
     <key type="d" name="margin-wmax">
       <default>2</default>
       <summary>WMax bar margin for panel buttons</summary>

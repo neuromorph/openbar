@@ -317,7 +317,7 @@ class OpenbarPrefs {
         // Get the settings object
         this._settings = openbar.getSettings();
         // Connect settings to update/save/reload stylesheet
-        let settEvents = ['bartype', 'position', 'font', 'gradient', 'border-wmax', 'neon-wmax',
+        let settEvents = ['bartype', 'position', 'font', 'gradient', 'cust-margin-wmax', 'border-wmax', 'neon-wmax',
         'gradient-direction', 'shadow', 'neon', 'heffect', 'smbgoverride']; 
         settEvents.forEach(event => {
             this._settings.connect('changed::'+event, () => {this.triggerStyleReload();});
@@ -719,9 +719,21 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a bar margin scale
+        // Add a WMax custom margin enable switch
+        let wmaxCustMarginLabel = new Gtk.Label({
+            label: 'Customize margins?',
+            halign: Gtk.Align.START,
+        });
+        bargridwmax.attach(wmaxCustMarginLabel, 1, rowbar, 1, 1);
+
+        let wmaxCustMarginSwitch = this.createSwitchWidget();
+        bargridwmax.attach(wmaxCustMarginSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a wmax bar margin scale
         let wmaxmarginLabel = new Gtk.Label({
-            label: 'Bar Margins (WMax)',
+            label: 'Custom Margins (WMax)',
             halign: Gtk.Align.START,
         });
         bargridwmax.attach(wmaxmarginLabel, 1, rowbar, 1, 1);
@@ -1777,6 +1789,12 @@ class OpenbarPrefs {
             Gio.SettingsBindFlags.DEFAULT
         );
         this._settings.bind(
+            'cust-margin-wmax',
+            wmaxCustMarginSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
             'margin-wmax',
             wmaxmargin.adjustment,
             'value',
@@ -1881,6 +1899,7 @@ class OpenbarPrefs {
                     currentPaletteArr.push(this._settings.get_strv('palette'+(i-6)));
                 }
             }
+            
             // Load settings from file
             let filePath = fileChooser.get_file().get_path();
             if (filePath && GLib.file_test(filePath, GLib.FileTest.EXISTS)) {

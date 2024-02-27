@@ -217,6 +217,7 @@ function saveStylesheet(obar, Me) {
     let smbgOverride = obar._settings.get_boolean('smbgoverride');
     let bgcolorWMax = obar._settings.get_strv('bgcolor-wmax');
     let bgalphaWMax = obar._settings.get_double('bgalpha-wmax');
+    let custMarginWmax = obar._settings.get_boolean('cust-margin-wmax');
     let marginWMax = obar._settings.get_double('margin-wmax');
     let neonWMax = obar._settings.get_boolean('neon-wmax');
     let borderWMax = obar._settings.get_boolean('border-wmax');
@@ -563,6 +564,15 @@ function saveStylesheet(obar, Me) {
           border-radius: ${borderRadius+borderWidth}px; `; 
     }
     
+    let heightWMax;
+    if(custMarginWmax) {
+        heightWMax = height + 2*marginWMax;
+    }
+    else {
+        heightWMax = height + 2*margin;
+        marginWMax = margin;
+    }
+
 
     // Create Stylesheet string to write to file
     let stylesheet = `
@@ -590,7 +600,7 @@ function saveStylesheet(obar, Me) {
             border-color: rgba(${bgredwmax},${bggreenwmax},${bgbluewmax},${bgalphaWMax}) !important;
             box-shadow: none;
             margin: 0px;
-            height: ${height + 2*marginWMax}px !important;
+            height: ${heightWMax}px !important;
         }
 
         #panel.openbar .button-container {

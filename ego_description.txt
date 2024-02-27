@@ -1,9 +1,22 @@
 Top Bar ( Top Panel ) customization / styling. Open the Top Bar and let the colors 🍹 flow.
 
+**Please report on Github if something is broken due to update and also any suggestions/feedback you may have.
+
 Upcoming Update (under review):
 - Auto-theming options 
+- Import, export theme settings to file.
 - Window-Max Bar: Change Bar props when a window is maximized
 - More settings in Menus: Menu panel and buttons radius, slider tweaks
+
+Auto Theming:
+- Note: if you want to save your current settings, please use Export Settings option before applying Auto-theme. You can import it back whenever needed.
+- Please select Bar properties esp. type of bar before applying a theme. If you change Bar type later, apply theme again.
+- There are three theme options: 'Color', 'Dark', 'Light' and two variations for each: 'Default', 'Alt'.  Try all combinations to see what you prefer for your desktop background.
+- There are more settings in Auto-Theme. You can select if you want the secondary menu BG color to be derived from BG or autoselected from palette. Also, you can specify any preferred accent color or let the theme choose from the background. 
+- Since it is one size fit all solution, 'No Free Lunch' theorem applies. Not all options will work for all backgrounds, so the additional knobs above will help you select the desired one. Hopefully, one of the combinations will work for you at least with little bit tweaking if needed.
+- Once theme is applied, you can further tweak any of the manual settings as usual to finetune the theme. 
+- There is an option for Auto-refreshing theme when background changes. This will overwrite current theme with newly generated one when background is changed. (Note: changing the background by right clicking an image file (instead of from settings) may not generate the change signal.)
+
 
 Update ( v13/v14) : 
 ** Please click on 'Apply Menu Styles' (or change some setting) once you upgrade the extension. This will refresh the stylesheet as per your saved settings.
@@ -12,7 +25,6 @@ Update ( v13/v14) :
 - Menu secondary color override to allow selecting custom (high contrast) colors within the menu
 - Fixes for screencast/ remote sharing/ battery indicators and DND toggle switch etc.
 
-Feedback / suggestions are welcome.
 
 Customize:
 - Bar Type: Fixed, Floating or Islands / Trilands

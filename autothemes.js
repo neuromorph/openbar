@@ -347,7 +347,6 @@ export function autoApplyBGPalette(obar) {
             prominent2 = menuBGCandidates[0];
             prominent3 = menuBGCandidates[1];
 
-            // menuBGCandidates = [prominent2].concat(menuBGCandidates.slice(2));
             menuBGCandidates = menuBGCandidates.slice(1);
             for(const c of menuBGCandidates) {
                 if(getColorDist(c, prominent2) > 75 && getColorDist(c, colorful2) > 75) {

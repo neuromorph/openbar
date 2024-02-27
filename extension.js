@@ -87,6 +87,7 @@ export default class Openbar extends Extension {
         super(metadata);
         this._settings = null;
         this._bgSettings = null;
+        this._intSettings = null;
         this._connections = null;
         this._injections = [];
     }
@@ -278,8 +279,9 @@ export default class Openbar extends Extension {
                 if(btn.child instanceof PanelMenu.Button) { // btn.child is the indicator
 
                     // box pointer case, to update -arrow-rise for bottom panel
-                    if(btn.child.menu?._boxPointer)
+                    if(btn.child.menu?._boxPointer) {
                         this.applyMenuClass(btn.child.menu._boxPointer, add);
+                    }
 
                     // special case for Quick Settings Audio Panel, because it changes the layout of the Quick Settings menu
                     if(btn.child.menu?.constructor.name == "PanelGrid") {
@@ -407,7 +409,7 @@ export default class Openbar extends Extension {
     }
 
     updatePanelStyle(obj, key, sig_param, callbk_param) { 
-        // console.log('update called with  ', key, sig_param, callbk_param);
+        // console.log('update called with ', key, sig_param, callbk_param);
 
         let panel = Main.panel;
 
@@ -427,6 +429,10 @@ export default class Openbar extends Extension {
 
         if(key == 'wmaxbar') {
             this.onWindowMaxBar();
+            return;
+        }
+        if(key == 'cust-margin-wmax') {
+            this.setWindowMaxBar('cust-margin-wmax');
             return;
         }
 
@@ -588,20 +594,20 @@ export default class Openbar extends Extension {
         });
     }
     
-    setPanelBoxPosWindowMax(wmax) {
+    setPanelBoxPosWindowMax(wmax, signal) {
         // Need to set panelBox position since bar margins/height can change with WMax
         const position = this._settings.get_string('position');
         if(position == 'Bottom') {
-            if(this.position == position && this.wmax == wmax)
+            if(this.position == position && this.wmax == wmax && signal != 'cust-margin-wmax')
                 return;
             const bartype = this._settings.get_string('bartype');
             const borderWidth = this._settings.get_double('bwidth');
+            const custMarginWmax = this._settings.get_boolean('cust-margin-wmax');
             const marginWMax = this._settings.get_double('margin-wmax');
             let margin = this._settings.get_double('margin');
             let height = this._settings.get_double('height');            
             if(wmax) {
-                margin = 0;
-                height = height + 2*marginWMax;
+                margin = custMarginWmax? marginWMax: margin;
             }
             this.setPanelBoxPosition(position, height, margin, borderWidth, bartype); 
             this.wmax = wmax;
@@ -638,11 +644,11 @@ export default class Openbar extends Extension {
 
         if(windows.length) {
             Main.panel.add_style_pseudo_class('windowmax');
-            this.setPanelBoxPosWindowMax(true);
+            this.setPanelBoxPosWindowMax(true, signal);
         }
         else {
             Main.panel.remove_style_pseudo_class('windowmax');
-            this.setPanelBoxPosWindowMax(false);
+            this.setPanelBoxPosWindowMax(false, signal);
         }
     }
 
@@ -693,6 +699,8 @@ export default class Openbar extends Extension {
             this._connections.disconnect(global.window_group, 'actor-added');
             this._connections.disconnect(global.window_group, 'actor-removed');
             this.disconnectWindowSignals();
+            Main.panel.remove_style_pseudo_class('windowmax');
+            this.setPanelBoxPosWindowMax(false);
         }
     }
 
@@ -717,6 +725,8 @@ export default class Openbar extends Extension {
 
         this.msSVG = false;
         this.bgSVG = false;
+        this.position = null;
+        this.wmax = null;
 
         this._settings = this.getSettings(); 
 
@@ -851,6 +861,7 @@ export default class Openbar extends Extension {
 
         this._settings = null;
         this._bgSettings = null;
+        this._intSettings = null;
 
     }
     
