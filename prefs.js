@@ -362,7 +362,7 @@ class OpenbarPrefs {
         let rowNo = 1;
         // Add a logo image
         const aboutImage = new Gtk.Image({
-            file: this.openbar.path + "/media/openbar.jpg",
+            file: this.openbar.path + "/media/openbar.png",
             vexpand: false,
             hexpand: false,
             pixel_size: 100,
@@ -373,7 +373,7 @@ class OpenbarPrefs {
 
         // Add a title label
         let titleLabel = new Gtk.Label({
-            label: `<span size="large"><b>Top Bar Customization</b></span>\n\n<span size="small" underline="none" color="#edad40"><b>${_('Version:')} ${this.openbar.metadata.version}  |  <a href="${this.openbar.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${this.openbar.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕      </a></b></span>`,
+            label: `<span size="large"><b>Top Bar Customization</b></span>\n\n<span underline="none" color="#edad40"><b>${_('Version:')} ${this.openbar.metadata.version}  |  <a href="${this.openbar.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${this.openbar.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕      </a></b></span>`,
             // halign: Gtk.Align.CENTER,
             use_markup: true,
         });
@@ -527,15 +527,6 @@ class OpenbarPrefs {
         getPaletteBtn.connect('clicked', () => {
             this.triggerBackgroundPalette(window);
         });
-        // In case palette computation took longer, trigger the update as per settings-change
-        // Note - this event will not trigger if new value of palette1 and 12 is same as old value (rare)
-        // this._settings.connect('changed::palette1', () => {
-        //     this.updatePalette(window, false);
-        // });
-        // this._settings.connect('changed::palette12', () => {
-        //     this.updatePalette(window, false);
-        // });
-        // this.triggerBackgroundPalette(window);
         
         palettegrid.attach(getPaletteBtn, 2, rowbar, 1, 1);
 
@@ -1440,19 +1431,19 @@ class OpenbarPrefs {
         });
         menugrid.attach(menuRadLbl, 1, rowbar, 1, 1);
 
-        let menuRad = this.createScaleWidget(0, 50, 1, 0);
+        let menuRad = this.createScaleWidget(0, 50, 1, 0, 'Radius for all the Menu panels');
         menugrid.attach(menuRad, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
-        // Add a Notifications Buttons radius scale
+        // Add a Calendar/Notifications Buttons radius scale
         let notifRadLbl = new Gtk.Label({
-            label: 'Notifications Radius',
+            label: 'Calendar Subs Radius',
             halign: Gtk.Align.START,
         });
         menugrid.attach(notifRadLbl, 1, rowbar, 1, 1);
 
-        let notifRad = this.createScaleWidget(0, 50, 1, 0);
+        let notifRad = this.createScaleWidget(0, 50, 1, 0, 'Radius for the sub sections of Calendar/Notifications');
         menugrid.attach(notifRad, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1464,7 +1455,7 @@ class OpenbarPrefs {
         });
         menugrid.attach(qToggleRadLbl, 1, rowbar, 1, 1);
 
-        let qToggleRad = this.createScaleWidget(0, 50, 1, 0);
+        let qToggleRad = this.createScaleWidget(0, 50, 1, 0, 'Radius for the Quick Toggle buttons');
         menugrid.attach(qToggleRad, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1476,8 +1467,20 @@ class OpenbarPrefs {
         });
         menugrid.attach(mSliderHtLbl, 1, rowbar, 1, 1);
 
-        let mSliderHt = this.createScaleWidget(1, 30, 1, 0);
+        let mSliderHt = this.createScaleWidget(1, 30, 1, 0, 'Slider height for Volume/Brightness etc');
         menugrid.attach(mSliderHt, 2, rowbar, 1, 1);
+        
+        rowbar += 1;
+
+        // Add a slider handle border width scale
+        let mSliHandBordLbl = new Gtk.Label({
+            label: 'Slider Handle Border',
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(mSliHandBordLbl, 1, rowbar, 1, 1);
+
+        let mSliHandBord = this.createScaleWidget(0, 20, 1, 0, 'Width of the border of Slider handle');
+        menugrid.attach(mSliHandBord, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
@@ -1839,6 +1842,12 @@ class OpenbarPrefs {
             'value',
             Gio.SettingsBindFlags.DEFAULT
         );
+        this._settings.bind(
+            'handle-border',
+            mSliHandBord.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
         // this._settings.bind(
         //     'menustyle',
         //     menuSwitch,
@@ -1911,12 +1920,7 @@ class OpenbarPrefs {
                     this._settings.set_boolean('import-export', false);                    
                    
                     // Trigger stylesheet reload to apply new settings
-                    this.triggerStyleReload();
-                    // Update and Save SVGs
-                    // this.saveToggleSVG(true); 
-                    // this.saveToggleSVG(false); 
-                    // this.saveCheckboxSVG(true);
-                    // this.saveCheckboxSVG(false);                    
+                    this.triggerStyleReload();                  
                 }, 2000);
                 
             }
@@ -1948,7 +1952,7 @@ class OpenbarPrefs {
             let keys = this._settings.list_keys(); 
             keys.forEach(k => { 
                 let value = this._settings.get_value(k);
-                this._settings.set_value(k, value); //log('Key-Value: '+k+':'+value);
+                this._settings.set_value(k, value);
             });
 
             out.write_all(GLib.spawn_command_line_sync(`dconf dump ${SCHEMA_PATH}`)[1], null);

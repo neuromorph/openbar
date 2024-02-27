@@ -158,7 +158,7 @@ export default class Openbar extends Extension {
         });
 
         // Toggle setting 'bg-change' to indicate background change
-        let bgchange = this._settings.get_boolean('bg-change'); log('Palette Updated, toggling bg-change from extension.js');
+        let bgchange = this._settings.get_boolean('bg-change');
         if(bgchange)
             this._settings.set_boolean('bg-change', false);
         else
@@ -587,10 +587,35 @@ export default class Openbar extends Extension {
             this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
         });
     }
+    
+    setPanelBoxPosWindowMax(wmax) {
+        // Need to set panelBox position since bar margins/height can change with WMax
+        const position = this._settings.get_string('position');
+        if(position == 'Bottom') {
+            if(this.position == position && this.wmax == wmax)
+                return;
+            const bartype = this._settings.get_string('bartype');
+            const borderWidth = this._settings.get_double('bwidth');
+            const marginWMax = this._settings.get_double('margin-wmax');
+            let margin = this._settings.get_double('margin');
+            let height = this._settings.get_double('height');            
+            if(wmax) {
+                margin = 0;
+                height = height + 2*marginWMax;
+            }
+            this.setPanelBoxPosition(position, height, margin, borderWidth, bartype); 
+            this.wmax = wmax;
+            this.position = position;
+        }
+        else if(position == 'Top') {
+            if(this.position == position)
+                return;
+            this.setPanelBoxPosition(position); 
+            this.position = position;
+        }
+    }
 
     setWindowMaxBar(signal) {
-        // log('setWindowMaxBar====: ', signal);
-
         if(!this._settings)
             return;                 
         const wmaxbar = this._settings.get_boolean('wmaxbar');
@@ -610,17 +635,18 @@ export default class Openbar extends Extension {
             && (window.maximized_horizontally 
                 || window.maximized_vertically) 
         );
-        // log('setWindowMaxBar=WindowsLength====: ', windows.length);
+
         if(windows.length) {
             Main.panel.add_style_pseudo_class('windowmax');
+            this.setPanelBoxPosWindowMax(true);
         }
         else {
             Main.panel.remove_style_pseudo_class('windowmax');
+            this.setPanelBoxPosWindowMax(false);
         }
     }
 
     onWindowAdded(obj, signal, windowActor){
-        // log('obj, signal, window ', obj, signal, windowActor);
         if(windowActor) {
             this._windowSignals.set(windowActor, [
                 windowActor.connect('notify::visible', () => this.setWindowMaxBar('notify-visible') ),
@@ -726,12 +752,12 @@ export default class Openbar extends Extension {
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
         this._intSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
         connections.push([this._bgSettings, 'changed::picture-uri', () => {
-            const colorScheme = this._intSettings.get_string('color-scheme'); log('pic uri scheme: ', colorScheme);
+            const colorScheme = this._intSettings.get_string('color-scheme');
             if(colorScheme != 'prefer-dark')
                 this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
         }]);
         connections.push([this._bgSettings, 'changed::picture-uri-dark', () => {
-            const colorScheme = this._intSettings.get_string('color-scheme'); log('pic uri dark scheme: ', colorScheme);
+            const colorScheme = this._intSettings.get_string('color-scheme');
             if(colorScheme == 'prefer-dark')
                 this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
         }]);
@@ -751,9 +777,6 @@ export default class Openbar extends Extension {
             else
                 this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
         }
-
-        // Setting for window max bar
-        // connections.push([this._settings, 'changed::wmaxbar', this.onWindowMaxBar.bind(this)]);
 
         // Setup all connections
         this._connections = new ConnectManager(connections);
@@ -778,7 +801,6 @@ export default class Openbar extends Extension {
         );
 
         // Cause stylesheet to save and reload on Enable
-        // setTimeout(() => {StyleSheets.reloadStyle(this, this)}, 500);
         StyleSheets.reloadStyle(this, this);
 
         // Set initial Window Max Bar
@@ -802,6 +824,10 @@ export default class Openbar extends Extension {
         if(this.calendarTimeoutId) {
             clearTimeout(this.calendarTimeoutId);
             this.calendarTimeoutId = null;
+        }
+        if(this.panelPosTimeoutId) {
+            clearTimeout(this.panelPosTimeoutId);
+            this.panelPosTimeoutId = null;
         }
 
         if(this.mediaListId) {

@@ -224,6 +224,7 @@ function saveStylesheet(obar, Me) {
     let notifRadius = obar._settings.get_double('notif-radius');
     let qtoggleRadius = obar._settings.get_double('qtoggle-radius');
     let sliderHeight = obar._settings.get_double('slider-height');
+    let sliHandBorder = obar._settings.get_double('handle-border');
 
     const fgred = parseInt(parseFloat(fgcolor[0]) * 255);
     const fggreen = parseInt(parseFloat(fgcolor[1]) * 255);
@@ -561,14 +562,7 @@ function saveStylesheet(obar, Me) {
           margin: 0px 0px;
           border-radius: ${borderRadius+borderWidth}px; `; 
     }
-
-    let boxPtrStyle;
-    if(position == 'Bottom') {
-        boxPtrStyle = ``
-    }
-    else {
-        boxPtrStyle = ``;
-    }
+    
 
     // Create Stylesheet string to write to file
     let stylesheet = `
@@ -693,9 +687,6 @@ function saveStylesheet(obar, Me) {
 
     // Menu styles
     stylesheet += `
-        .openmenu.popup-menu-boxpointer {
-           ${boxPtrStyle}
-        }
 
         .openmenu.popup-menu {
             color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
@@ -817,7 +808,7 @@ function saveStylesheet(obar, Me) {
         .openmenu .slider{ 
             color: rgba(255,255,255,0.9) !important;
             -barlevel-height: ${sliderHeight}px;
-            -slider-handle-border-width: 3px;
+            -slider-handle-border-width: ${sliHandBorder}px;
             -slider-handle-border-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
             -barlevel-background-color: rgba(${colorMix(smbgred, mbgred, -0.2)},${colorMix(smbggreen, mbggreen, -0.2)},${colorMix(smbgblue, mbgblue, -0.2)},${mbgAlpha}) !important;
             -barlevel-active-background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;  
@@ -863,6 +854,9 @@ function saveStylesheet(obar, Me) {
             color: ${mhfg} !important;
             background-color: ${smhbg} !important; /* 0.9*mhAlpha */
         }
+        .openmenu.message:focus {
+            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+        }
         .openmenu.message .message-media-control {
             color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
         }
@@ -880,9 +874,13 @@ function saveStylesheet(obar, Me) {
             border-color: rgba(${mbgred},${mbggreen},${mbgblue},0.5) !important;
             border-radius: 50px;
         }
-        .openmenu.dnd-button:hover, .openmenu.dnd-button:focus {
+        .openmenu.dnd-button:hover {
             border-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
         }
+        .openmenu.dnd-button:focus {
+            border-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            box-shadow: none;
+        }        
         .openmenu .toggle-switch {
             background-image: url(media/toggle-off.svg);
             background-color: transparent !important;
@@ -910,7 +908,9 @@ function saveStylesheet(obar, Me) {
             color: ${mhfg} !important;
             background-color: ${smhbg} !important; /* 0.9*mhAlpha */
         }
-
+        .openmenu.message-list-clear-button:focus {
+            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+        }
 
         .openmenu.datemenu-today-button .date-label, .openmenu.datemenu-today-button .day-label {
             color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.25}) !important;
@@ -943,6 +943,7 @@ function saveStylesheet(obar, Me) {
         .openmenu.calendar-day-heading:focus  {
             color: ${mhfg} !important;
             background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
         }
         .openmenu.calendar-weekday, .openmenu.calendar-work-day {
             color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
@@ -965,6 +966,14 @@ function saveStylesheet(obar, Me) {
             color: ${mhfg} !important;
             background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
         }
+        .openmenu.calendar-other-month-day:focus, .openmenu.calendar-other-month-day:selected,
+        .openmenu.calendar-other-month:focus, .openmenu.calendar-other-month:selected,
+        .openmenu.calendar-nonwork-day:focus, .openmenu.calendar-nonwork-day:selected,
+        .openmenu.calendar-work-day:focus, .openmenu.calendar-work-day:selected,
+        .openmenu.calendar-weekday:focus, .openmenu.calendar-weekday:selected,
+        .openmenu.calendar-weekend:focus, .openmenu.calendar-weekend:selected  {
+            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+        }
         .openmenu.calendar .calendar-today, .openmenu.calendar .calendar-today:selected {
             color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
             background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
@@ -973,13 +982,15 @@ function saveStylesheet(obar, Me) {
             color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
             background-color: ${mshg} !important;
         }
+        .openmenu.calendar .calendar-today:selected, .openmenu.calendar .calendar-today:focus {
+            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+        }
         .openmenu.calendar-week-number {
             font-weight: bold;
             font-feature-settings: "tnum";
             background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha*0.7}) !important;
             color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.8}) !important;
         }
-
 
         .openmenu.events-button {
             color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
@@ -989,6 +1000,9 @@ function saveStylesheet(obar, Me) {
         .openmenu.events-button:hover, .openmenu.events-button:focus {
             color: ${mhfg} !important;
             background-color: ${smhbg} !important;
+        }
+        .openmenu.events-button:focus {
+            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
         }
         .openmenu.events-button .events-list {
             color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
@@ -1009,6 +1023,9 @@ function saveStylesheet(obar, Me) {
             color: ${mhfg} !important;
             background-color: ${smhbg} !important;
         }
+        .openmenu.world-clocks-button:focus {
+            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+        }
         .openmenu.world-clocks-button .world-clocks-header, .openmenu.world-clocks-button .world-clocks-timezone {
             color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.9}) !important;
         }
@@ -1025,6 +1042,9 @@ function saveStylesheet(obar, Me) {
             color: ${mhfg} !important;
             background-color: ${smhbg} !important;
         }
+        .openmenu.weather-button:focus {
+            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+        }
         .openmenu.weather-button .weather-header {
             color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
         }
@@ -1040,7 +1060,7 @@ function saveStylesheet(obar, Me) {
         .openmenu.quick-slider .slider{                
             color: rgba(255,255,255,0.9) !important;
             -barlevel-height: ${sliderHeight}px;
-            -slider-handle-border-width: 3px;
+            -slider-handle-border-width: ${sliHandBorder}px;
             -slider-handle-border-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
             -barlevel-background-color: rgba(${colorMix(smbgred, mbgred, -0.2)},${colorMix(smbggreen, mbggreen, -0.2)},${colorMix(smbgblue, mbgblue, -0.2)},${mbgAlpha}) !important;
             -barlevel-active-background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
@@ -1225,7 +1245,7 @@ export function reloadStyle(obar, Me) {
     const pauseStyleReload = obar._settings.get_boolean('pause-reload');
     if(importExport || pauseStyleReload)
         return;
-    console.log('reloadStyle called with ImportExport false, Pause false');
+    // console.log('reloadStyle called with ImportExport false, Pause false');
     // Save stylesheet from string to css file
     saveStylesheet(obar, Me);
     // Cause stylesheet to reload by toggling 'reloadstyle'

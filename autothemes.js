@@ -70,7 +70,7 @@ function colorMove(A, B, factor) {
     newG = newG>255? 255 : newG<0? 0 : parseInt(newG);
     newB = newB>255? 255 : newB<0? 0 : parseInt(newB);
 
-    log('COLOR MOVE - ' + A + ' - ' + B + ' - ' + newR + ' ' + newG + ' ' + newB);
+    // console.log('COLOR MOVE - ' + A + ' - ' + B + ' - ' + newR + ' ' + newG + ' ' + newB);
     return [String(newR), String(newG), String(newB)];
 }
 
@@ -84,7 +84,7 @@ function getColorDist(A, B) {
     let b = b1 - b2;
     // Approx color distance based on http://www.compuphase.com/cmetric.htm, range: 0-765
     let dist =  Math.sqrt((((512 + rmean) * r * r) >> 8) + 4 * g * g + (((767 - rmean) * b * b) >> 8));
-    log('COLOR DIST - ' + B + ' - ' + dist);
+    // console.log('COLOR DIST - ' + A + ' , ' + B + ' - ' + dist);
     return dist;
 }
 
@@ -113,12 +113,10 @@ function getRGBStr(str255) {
 // Manipulate colors for better contrast and readability, as needed
 export function autoApplyBGPalette(obar) {
     const importExport = obar._settings.get_boolean('import-export');
-    // log('autoApplyBGPalette: onImportExport ' + importExport);
-
     if(importExport)
         return;
     
-    // log('autoApply caller ' + autoApplyBGPalette.caller);
+    // console.log('autoApply caller ' + autoApplyBGPalette.caller);
     obar._settings.set_boolean('pause-reload', true);
 
     let red = ['255', '0', '0'];
@@ -199,7 +197,6 @@ export function autoApplyBGPalette(obar) {
             colorful2 = allColorful[l-1];
         }
 
-        log('COLORFUL-10 ' + colorful1);
         // Dealta Factor logic (everywhere): 
         // Compute distance from threshold as percentage (e.g. (180-c1Hsp)/180 )
         // Add one to it (e.g. if % dist is 0.25 make it 1.25. 1+(180-c1Hsp)/180) = 2-c1Hsp/180
@@ -208,10 +205,8 @@ export function autoApplyBGPalette(obar) {
         // Lighten accent color if its brightness is lower than threshold
         for(let i=0; i<iters; i++) {
             let c1Hsp = getHSP(parseInt(colorful1[0]), parseInt(colorful1[1]), parseInt(colorful1[2]));
-            log('COLORFUL1 HSP ' + c1Hsp);
             if(c1Hsp < 180) {            
                 colorful1 = colorMove(colorful1, white, delta*(2-c1Hsp/180));
-                log('COLORFUL-11 ' + colorful1);
             }
         }
         c1c2HCandidates = [colorful2];
@@ -236,8 +231,6 @@ export function autoApplyBGPalette(obar) {
         return (distA > distB)? -1 : (distA < distB)? 1 : 0;
     });
     colorful2 = highlightCandidates[0];
-    log('COLORFUL2 dist to Coloful1 ' + getColorDist(colorful2, colorful1));
-    log('COLORFUL2 HSP ' + getHSP(parseInt(colorful2[0]), parseInt(colorful2[1]), parseInt(colorful2[2])));
 
     // Bar Highlight color should be away from bar BG color with brightness as per btFactor
     highlightCandidates.splice(0, 1);
@@ -284,7 +277,7 @@ export function autoApplyBGPalette(obar) {
             i--;
         }
     }
-    log('Filtered menuBGCandidates ' + menuBGCandidates);        
+    // console.log('Filtered menuBGCandidates ' + menuBGCandidates);  
 
     let assignedMenuBG = false, assignedSubMenuBG = false;
     if(menuBGCandidates.length >= 2) {
@@ -296,7 +289,7 @@ export function autoApplyBGPalette(obar) {
         // change prominent3 to next in line that works
         for(const c of menuBGCandidates) {
             if(getColorDist(c, prominent2) > 75) {
-                prominent3 = c; log('New Prominent 3 ' + prominent3);
+                prominent3 = c;
                 break;
             }
         }
@@ -309,11 +302,10 @@ export function autoApplyBGPalette(obar) {
         assignedMenuBG = true;
     }
     if(!assignedMenuBG || !assignedSubMenuBG) { 
-        log('PROM-DARK 2 and/or 3 Not found !!');
+        // console.log('PROM-DARK 2 and/or 3 Not found !!');
         menuBGCandidates = prominentHSP.slice(1); 
         if(assignedMenuBG)
             menuBGCandidates.splice(menuBGCandidates.indexOf(prominent2), 1);
-        log('Again menuBGCandidates ' + menuBGCandidates);
         let mBGCandidates = menuBGCandidates.concat(paletteArr);
         menuBGCandidates = mBGCandidates.slice(0);
 
@@ -339,7 +331,7 @@ export function autoApplyBGPalette(obar) {
             // change prominent3 to next in line that works
             for(const c of menuBGCandidates) {
                 if(getColorDist(c, prominent2) > 75) {
-                    prominent3 = c; log('New Else Prominent 3 ' + prominent3);
+                    prominent3 = c;
                     break;
                 }
             }
@@ -348,7 +340,7 @@ export function autoApplyBGPalette(obar) {
             assignedSubMenuBG = true;
         }
         else {
-            log('LAST RESORTT!! Check Logic Dark2');
+            // console.log('LAST RESORTT!!');
             menuBGCandidates = mBGCandidates.slice(0);
             menuBGCandidates.sort(compareColrDist);
 
@@ -359,7 +351,7 @@ export function autoApplyBGPalette(obar) {
             menuBGCandidates = menuBGCandidates.slice(1);
             for(const c of menuBGCandidates) {
                 if(getColorDist(c, prominent2) > 75 && getColorDist(c, colorful2) > 75) {
-                    prominent3 = c; log('New Last Prominent 3 ' + prominent3);
+                    prominent3 = c;
                     break;
                 }
             }
@@ -378,30 +370,30 @@ export function autoApplyBGPalette(obar) {
             let c1Dist = getColorDist(prominent2, colorful1); // accent
             if(c1Dist < threshold) {               
                 prominent2 = colorMove(prominent2, colorful1, -delta*(2-c1Dist/threshold));
-                log('PROM_DARK2 accent ' + prominent2);
+                // console.log('PROM_DARK2 accent ' + prominent2);
             }
 
             let c2Dist = getColorDist(prominent2, colorful2); // highlight
             if(c2Dist < 100) {               
                 prominent2 = colorMove(prominent2, colorful2, -delta*(2-c2Dist/100));
-                log('PROM_DARK2 highlight ' + prominent2);
+                // console.log('PROM_DARK2 highlight ' + prominent2);
             }
 
             let prom3Dist = getColorDist(prominent2, prominent3); // smbg
             if(prom3Dist < 75) {               
                 prominent2 = colorMove(prominent2, prominent3, -delta*(2-prom3Dist/75));
-                log('PROM_DARK2 sub ' + prominent2);
+                // console.log('PROM_DARK2 sub ' + prominent2);
             }
 
             let pDark2Hsp = getHSP(parseInt(prominent2[0]), parseInt(prominent2[1]), parseInt(prominent2[2]));
-            log('prominent2 HSP ' + pDark2Hsp);
+            // console.log('prominent2 HSP ' + pDark2Hsp);
             if(pDark2Hsp < 50) {               
                 prominent2 = colorMove(prominent2, white, delta*(2-pDark2Hsp/50));
-                log('prominent2-White1 ' + prominent2);
+                // console.log('prominent2-White1 ' + prominent2);
             }
             if(pDark2Hsp > 175) {               
                 prominent2 = colorMove(prominent2, white, -delta*(pDark2Hsp)/175);
-                log('prominent2-White2 ' + prominent2);
+                // console.log('prominent2-White2 ' + prominent2);
             }
         }
         
@@ -410,31 +402,31 @@ export function autoApplyBGPalette(obar) {
             let c1Dist = getColorDist(prominent3, colorful1); // accent
             if(c1Dist < threshold) {               
                 prominent3 = colorMove(prominent3, colorful1, -delta*(2-c1Dist/threshold));
-                log('PROM_DARK3 accent ' + prominent3);
+                // console.log('PROM_DARK3 accent ' + prominent3);
             }
 
             let c2Dist = getColorDist(prominent3, colorful2); // highlight
             if(c2Dist < 100) {               
                 prominent3 = colorMove(prominent3, colorful2, -delta*(2-c2Dist/100));
-                log('PROM_DARK3 highlight ' + prominent3);
+                // console.log('PROM_DARK3 highlight ' + prominent3);
             }
 
             let prom2Dist = getColorDist(prominent3, prominent2); // mbg
             if(prom2Dist < 75) {               
                 prominent3 = colorMove(prominent3, prominent2, -delta*(2-prom2Dist/75));
-                log('PROM_DARK3 sub ' + prominent3);
+                // console.log('PROM_DARK3 sub ' + prominent3);
             }
             
             let pDark3Hsp = getHSP(parseInt(prominent3[0]), parseInt(prominent3[1]), parseInt(prominent3[2]));
-            log('prominent3 HSP ' + pDark3Hsp);
+            // console.log('prominent3 HSP ' + pDark3Hsp);
 
             if(pDark3Hsp < 50) {               
                 prominent3 = colorMove(prominent3, white, delta*(2-pDark3Hsp/50));
-                log('prominent3-White1 ' + prominent3);
+                // console.log('prominent3-White1 ' + prominent3);
             }
             if(pDark3Hsp > 175) {               
                 prominent3 = colorMove(prominent3, white, -delta*(pDark3Hsp)/175);
-                log('prominent3-White2 ' + prominent3);
+                // console.log('prominent3-White2 ' + prominent3);
             }
         }
     }
@@ -455,12 +447,12 @@ export function autoApplyBGPalette(obar) {
             let prom2Dist = getColorDist(prominent3, prominent2);
             if(prom2Dist < 75) {               
                 prominent3 = colorMove(prominent3, prominent2, -delta*(2-prom2Dist/75));
-                log('PROM_DARK3 sub ' + prominent3);
+                // console.log('PROM_DARK3 sub ' + prominent3);
             }
             let prom3Dist = getColorDist(prominent2, prominent3);
             if(prom3Dist < 75) {               
                 prominent2 = colorMove(prominent2, prominent3, -delta*(2-prom3Dist/75));
-                log('PROM_DARK2 sub ' + prominent2);
+                // console.log('PROM_DARK2 sub ' + prominent2);
             }
         }
     }
@@ -481,81 +473,67 @@ export function autoApplyBGPalette(obar) {
             let prom2Dist = getColorDist(prominent3, prominent2);
             if(prom2Dist < 75) {               
                 prominent3 = colorMove(prominent3, prominent2, -delta*(2-prom2Dist/75));
-                log('PROM_DARK3 sub ' + prominent3);
+                // console.log('PROM_DARK3 sub ' + prominent3);
             }
             let prom3Dist = getColorDist(prominent2, prominent3);
             if(prom3Dist < 75) {               
                 prominent2 = colorMove(prominent2, prominent3, -delta*(2-prom3Dist/75));
-                log('PROM_DARK2 sub ' + prominent2);
+                // console.log('PROM_DARK2 sub ' + prominent2);
             }
         }
     }
     
     // HIGHLIGHTS
     delta = 0.06;
-    log('COLORFUL-20 ' + colorful2);
     // Adjust Menu Highlight colorful2 as needed
     for(let i=0; i<iters; i++) {
         let c1Dist = getColorDist(colorful2, colorful1);
         if(c1Dist < 100) {               
             colorful2 = colorMove(colorful2, colorful1, -delta*(2-c1Dist/100));
-            log('COLORFUL-21 ' + colorful2);
         }
         let pDark2Dist = getColorDist(colorful2, prominent2);           
         if(pDark2Dist < 100) {               
             colorful2 = colorMove(colorful2, prominent2, -delta*(2-pDark2Dist/100)); 
-            log('COLORFUL-22 ' + colorful2);
         }
         let pDark3Dist = getColorDist(colorful2, prominent3);
         if(pDark3Dist < 100) {               
             colorful2 = colorMove(colorful2, prominent3, -delta*(2-pDark3Dist/100));
-            log('COLORFUL-23 ' + colorful2);
         }
 
         let c2Hsp = getHSP(parseInt(colorful2[0]), parseInt(colorful2[1]), parseInt(colorful2[2]));
         if(theme == 'Light') { // Light theme
             if(c2Hsp < 150) {               
                 colorful2 = colorMove(colorful2, white, 2*delta*(2-c2Hsp/150));
-                log('COLORFUL-24 ' + colorful2);
             }
         }
         else { // Non-Light theme
             if(c2Hsp < 100) {               
                 colorful2 = colorMove(colorful2, white, delta*(2-c2Hsp/100));
-                log('COLORFUL-24 ' + colorful2);
             }           
-            log('COLORFUL2 HSP ' + c2Hsp);
             if(c2Hsp > 200) {               
                 colorful2 = colorMove(colorful2, white, -delta*(c2Hsp)/200);
-                log('COLORFUL-25 ' + colorful2);
             }
         }
     }
     
-    log('COLORFUL-30 ' + colorful3);
     for(let i=0; i<iters; i++) {
         let pDark1Dist = getColorDist(colorful3, prominent1);
         if(pDark1Dist < 100) {               
             colorful3 = colorMove(colorful3, prominent1, -delta*(2-pDark1Dist/100));
-            log('COLORFUL-31 ' + colorful3);
         }
         
         let c3Hsp = getHSP(parseInt(colorful3[0]), parseInt(colorful3[1]), parseInt(colorful3[2]));
         if(theme == 'Light') { // Light theme
             if(c3Hsp < 150) {               
                 colorful3 = colorMove(colorful3, white, 2*delta*(2-c3Hsp/150));
-                log('COLORFUL-32 ' + colorful3);
             }
         }
         else { // Non-Light theme
-            log('COLORFUL3 HSP ' + getHSP(parseInt(colorful3[0]), parseInt(colorful3[1]), parseInt(colorful3[2])));
             if(c3Hsp < 100) {               
                 colorful3 = colorMove(colorful3, white, delta*(2-c3Hsp/100));
-                log('COLORFUL-32 ' + colorful3);
             }
             if(c3Hsp > 200) {               
                 colorful3 = colorMove(colorful3, white, -delta*(c3Hsp)/200);
-                log('COLORFUL-33 ' + colorful3);
             }
         }
     }
@@ -571,7 +549,6 @@ export function autoApplyBGPalette(obar) {
     for(let i=0; i<iters; i++) {
         if(getColorDist(allHSP1, fgCol) > 90) {               
             allHSP1 = colorMove(allHSP1, fgCol, 2*delta);
-            log('allHSP1 ' + allHSP1);
         }
     }
 

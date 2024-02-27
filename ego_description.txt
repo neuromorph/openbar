@@ -1,6 +1,11 @@
 Top Bar ( Top Panel ) customization / styling. Open the Top Bar and let the colors 🍹 flow.
 
-Update (v10/v11): 
+Upcoming Update (under review):
+- Auto-theming options 
+- Window-Max Bar: Change Bar props when a window is maximized
+- More settings in Menus: Menu panel and buttons radius, slider tweaks
+
+Update ( v13/v14) : 
 ** Please click on 'Apply Menu Styles' (or change some setting) once you upgrade the extension. This will refresh the stylesheet as per your saved settings.
 - Apply style to notification popups
 - Candy-bar palette for panel buttons
@@ -13,12 +18,12 @@ Customize:
 - Bar Type: Fixed, Floating or Islands / Trilands
 - Bar position, height, margin, paddings
 - Bar foreground color, font
-- Bar background color, transparency, gradient, shadow, highlights
+- Bar background color, transparency, gradient, shadow, highlights, candybar 
 - Shape rectangular to pill, border width, color, neon glow
 - Menu customizations: foreground, background colors, transparency, border, shadow,  active/selection, hover colors
 etc.
-
-* Includes a custom color palette in each color button popup. The palette is auto-generated from the desktop background.
+- Apply to notification popups
+- Includes a custom color palette, under the default palette, in each color button popup. The palette is auto-generated from the desktop background.
 
 If the panel/menu isn't looking right, you need to tweak some settings. There are a lot of knobs to allow for differnt setups/tastes. It can also make it a bit overwhelming if you are not familiar with css styles but with some experimentation it will become a lot easier. Here are brief notes:
 - BG/FG color: Background or Foreground colors. Foreground is typically text and icons.
