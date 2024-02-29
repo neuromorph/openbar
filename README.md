@@ -2,19 +2,34 @@
 # Open Bar (GNOME 4X Extension)  
 
 
-A GNOME Shell extension for customizing Gnome Top Bar / Panel.  
+A GNOME Shell extension for customizing Gnome Top Bar / Top Panel, menus and more.  
 
 Customize:
 - Bar Type: Fixed, Floating or Islands / Trilands
 - Bar position, height, margin, paddings
 - Bar foreground color, font
-- Bar background color, transparency, gradient, shadow, highlights
+- Bar background color, transparency, gradient, shadow, highlights, candybar 
 - Shape rectangular to pill, border width, color, neon glow
-- Menu customizations: foreground, background colors, transparency, border, shadow,  active/selection, hover colors
+- Menu customizations: foreground / background colors, transparency, border, shadow,  active/selection, hover colors
 etc.
+- Apply to notification popups
+- Includes a custom color palette in each color button popup. The palette is auto-generated from the desktop background.  
+UPDATE =>
+- Auto-theming options 
+- Import, export theme settings to file.
+- Window-Max Bar: Change Bar props when a window is maximized
+- More settings in Menus: Menu panel and buttons radius, slider tweaks      
+</br>  
 
-Includes a custom color palette in each color button popup. The palette is auto-generated from the desktop background.
-
+Auto Theming:
+- Note: If you want to save your current settings, please use Export Settings option before applying Auto-theme. You can import it back whenever needed.
+- Please select Bar properties esp. type of bar before applying a theme. If you change Bar type later, apply theme again.
+- There are three theme options: 'Color', 'Dark', 'Light' and two variations for each: 'Default', 'Alt'.  Try all combinations to see what you prefer for your desktop background.
+- There are more settings in Auto-Theme. You can select if you want the secondary menu BG color to be derived from BG or auto-selected from palette. Also, you can specify any preferred accent color or let the theme choose from the background. 
+- Since it is one size fit all solution, 'No Free Lunch' theorem applies. Not all options will work for all backgrounds, so the additional knobs above will help you select the desired one. One of the combinations should work for you at least with little bit tweaking if needed.
+- Once theme is applied, you can further tweak any of the manual settings as usual to finetune the theme. 
+- There is an option for Auto-refreshing theme when background changes. This will overwrite current theme with newly generated one when background is changed.  
+[ Note: changing the background by right clicking an image file (instead of from settings) may not get detected in newer Gnome. ]  
 
 ## Installation
 
@@ -62,6 +77,10 @@ Use the settings panel of the extension for customizations. If the panel/menu is
 Lastly, be a tiny bit gentler with the sliders in the settings as they modify the stylesheet behind the scene for every update.
 
 ## What's New (recent first)
+- Auto-theming options 
+- Import, export theme settings to file.
+- Window-Max Bar: Change Bar props when a window is maximized
+- More settings in Menus: Menu panel and buttons radius, slider tweaks
 - Apply style to notification popups
 - Candy-bar palette for panel buttons
 - Menu secondary color override to allow selecting custom (high contrast) colors within the menu

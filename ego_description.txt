@@ -9,13 +9,14 @@ Upcoming Update (under review):
 - More settings in Menus: Menu panel and buttons radius, slider tweaks
 
 Auto Theming:
-- Note: if you want to save your current settings, please use Export Settings option before applying Auto-theme. You can import it back whenever needed.
+- Note: If you want to save your current settings, please use Export Settings option before applying Auto-theme. You can import it back whenever needed.
 - Please select Bar properties esp. type of bar before applying a theme. If you change Bar type later, apply theme again.
 - There are three theme options: 'Color', 'Dark', 'Light' and two variations for each: 'Default', 'Alt'.  Try all combinations to see what you prefer for your desktop background.
-- There are more settings in Auto-Theme. You can select if you want the secondary menu BG color to be derived from BG or autoselected from palette. Also, you can specify any preferred accent color or let the theme choose from the background. 
-- Since it is one size fit all solution, 'No Free Lunch' theorem applies. Not all options will work for all backgrounds, so the additional knobs above will help you select the desired one. Hopefully, one of the combinations will work for you at least with little bit tweaking if needed.
+- There are more settings in Auto-Theme. You can select if you want the secondary menu BG color to be derived from BG or auto-selected from palette. Also, you can specify any preferred accent color or let the theme choose from the background. 
+- Since it is one size fit all solution, 'No Free Lunch' theorem applies. Not all options will work for all backgrounds, so the additional knobs above will help you select the desired one. One of the combinations should work for you at least with little bit tweaking if needed.
 - Once theme is applied, you can further tweak any of the manual settings as usual to finetune the theme. 
-- There is an option for Auto-refreshing theme when background changes. This will overwrite current theme with newly generated one when background is changed. (Note: changing the background by right clicking an image file (instead of from settings) may not generate the change signal.)
+- There is an option for Auto-refreshing theme when background changes. This will overwrite current theme with newly generated one when background is changed.  
+[ Note: changing the background by right clicking an image file (instead of from settings) may not get detected in newer Gnome. ]
 
 
 Update ( v13/v14) : 
@@ -32,10 +33,11 @@ Customize:
 - Bar foreground color, font
 - Bar background color, transparency, gradient, shadow, highlights, candybar 
 - Shape rectangular to pill, border width, color, neon glow
-- Menu customizations: foreground, background colors, transparency, border, shadow,  active/selection, hover colors
+- Menu customizations: foreground / background colors, transparency, border, shadow,  active/selection, hover colors
 etc.
 - Apply to notification popups
-- Includes a custom color palette, under the default palette, in each color button popup. The palette is auto-generated from the desktop background.
+- Includes a custom color palette in each color button popup. The palette is auto-generated from the desktop background.  
+
 
 If the panel/menu isn't looking right, you need to tweak some settings. There are a lot of knobs to allow for differnt setups/tastes. It can also make it a bit overwhelming if you are not familiar with css styles but with some experimentation it will become a lot easier. Here are brief notes:
 - BG/FG color: Background or Foreground colors. Foreground is typically text and icons.
