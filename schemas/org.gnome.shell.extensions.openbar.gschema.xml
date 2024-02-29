@@ -153,7 +153,7 @@
       <description>Transparency of highlight.</description>
     </key>
     <key type="d" name="hpad">
-      <default>0</default>
+      <default>1</default>
       <summary>Horizontal button-padding</summary>
       <description>Horizontal button-padding.</description>
     </key>
@@ -422,6 +422,11 @@
       <summary>Transparency (alpha) WMax</summary>
       <description>Transparency of WMax Top Bar.</description>
     </key>
+    <key type="b" name="cust-margin-wmax">
+      <default>false</default>
+      <summary>Customize bar margin when window maximized?</summary>
+      <description>Customize bar margin when window maximized?</description>
+    </key>
     <key type="d" name="margin-wmax">
       <default>2</default>
       <summary>WMax bar margin for panel buttons</summary>
@@ -437,11 +442,11 @@
       <summary>Neon for buttons when window maximized</summary>
       <description>Neon for buttons when window maximized.</description>
     </key>
-    <key type="b" name="savestyle">
+    <!-- <key type="b" name="savestyle">
       <default>false</default>
       <summary>Save stylesheet on extension enabled</summary>
       <description>Save stylesheet on extension enabled and trigger reload.</description>
-    </key>
+    </key> -->
     <key type="s" name="autotheme">
       <default>"Select Theme"</default>
       <summary>Desktop Background based auto theme type</summary>
@@ -472,6 +477,16 @@
       <summary>Accent color (Override) in auto theme (RGB)</summary>
       <description>Accent color (Override) in auto theme.</description>
     </key>
+    <key type="d" name="menu-radius">
+      <default>15</default>
+      <summary>Radius of Menu panels</summary>
+      <description>Radius of all Menu panels.</description>
+    </key>
+    <key type="d" name="notif-radius">
+      <default>10</default>
+      <summary>Radius of Notifications panel buttons</summary>
+      <description>Radius of Notifications panel buttons.</description>
+    </key>
     <key type="d" name="qtoggle-radius">
       <default>50</default>
       <summary>Radius of Quick toggle buttons</summary>
@@ -481,6 +496,31 @@
       <default>4</default>
       <summary>Height of sliders (px)</summary>
       <description>Height of sliders (px).</description>
+    </key>
+    <key type="d" name="handle-border">
+      <default>3</default>
+      <summary>Width of slider handle border (px)</summary>
+      <description>Width of slider handle border (px).</description>
+    </key>
+    <key type="b" name="pause-reload">
+      <default>false</default>
+      <summary>Indicator to pause style reload</summary>
+      <description>Indicator to pause style reload e.g. during auto-theme update.</description>
+    </key>
+    <key type="b" name="trigger-reload">
+      <default>false</default>
+      <summary>Trigger to cause style reload</summary>
+      <description>Trigger to cause style reload e.g. after auto-theme update.</description>
+    </key>
+    <key type="b" name="import-export">
+      <default>false</default>
+      <summary>Indicator to indicate running of Import or Export</summary>
+      <description>Indicator to indicate running of Import or Export e.g. to pause multiple style reloads.</description>
+    </key>
+    <key type="b" name="trigger-autotheme">
+      <default>false</default>
+      <summary>Trigger creation and application of auto-theme</summary>
+      <description>Trigger creation and application of auto-theme from background.</description>
     </key>
   </schema>
 </schemalist>
