@@ -55,7 +55,7 @@ function getHSP(r, g, b) {
 // Check if Dark or Light color as per HSP threshold
 function getBgDark(r, g, b) {
     let hsp = getHSP(r, g, b);
-    if(hsp > 127.5)
+    if(hsp > 175)
         return false;
     else
         return true;
@@ -173,6 +173,8 @@ function saveStylesheet(obar, Me) {
 
     let bartype = obar._settings.get_string('bartype');
     let position = obar._settings.get_string('position');
+    let boxcolor = obar._settings.get_strv('boxcolor');
+    let boxalpha = obar._settings.get_double('boxalpha');
     let bgcolor = obar._settings.get_strv('bgcolor');
     let gradient = obar._settings.get_boolean('gradient');
     let grDirection = obar._settings.get_string('gradient-direction');
@@ -226,14 +228,29 @@ function saveStylesheet(obar, Me) {
     let qtoggleRadius = obar._settings.get_double('qtoggle-radius');
     let sliderHeight = obar._settings.get_double('slider-height');
     let sliHandBorder = obar._settings.get_double('handle-border');
+    let mbgGradient = obar._settings.get_boolean('mbg-gradient');
+    let autofgBar = obar._settings.get_boolean('autofg-bar');
+    let autofgMenu = obar._settings.get_boolean('autofg-menu');
+    let widthTop = obar._settings.get_boolean('width-top');
+    let widthBottom = obar._settings.get_boolean('width-bottom');
+    let widthLeft = obar._settings.get_boolean('width-left');
+    let widthRight = obar._settings.get_boolean('width-right');
+    let radiusTopLeft = obar._settings.get_boolean('radius-topleft');
+    let radiusTopRight = obar._settings.get_boolean('radius-topright');
+    let radiusBottomLeft = obar._settings.get_boolean('radius-bottomleft');
+    let radiusBottomRight = obar._settings.get_boolean('radius-bottomright');
 
-    const fgred = parseInt(parseFloat(fgcolor[0]) * 255);
-    const fggreen = parseInt(parseFloat(fgcolor[1]) * 255);
-    const fgblue = parseInt(parseFloat(fgcolor[2]) * 255);
+    let fgred = parseInt(parseFloat(fgcolor[0]) * 255);
+    let fggreen = parseInt(parseFloat(fgcolor[1]) * 255);
+    let fgblue = parseInt(parseFloat(fgcolor[2]) * 255);
 
     const bgred = parseInt(parseFloat(bgcolor[0]) * 255);
     const bggreen = parseInt(parseFloat(bgcolor[1]) * 255);
     const bgblue = parseInt(parseFloat(bgcolor[2]) * 255);
+
+    const boxred = parseInt(parseFloat(boxcolor[0]) * 255);
+    const boxgreen = parseInt(parseFloat(boxcolor[1]) * 255);
+    const boxblue = parseInt(parseFloat(boxcolor[2]) * 255);
 
     const bgred2 = parseInt(parseFloat(bgcolor2[0]) * 255);
     const bggreen2 = parseInt(parseFloat(bgcolor2[1]) * 255);
@@ -259,9 +276,9 @@ function saveStylesheet(obar, Me) {
     const hgreen = parseInt(parseFloat(hColor[1]) * 255);
     const hblue = parseInt(parseFloat(hColor[2]) * 255);
 
-    const mfgred = parseInt(parseFloat(mfgColor[0]) * 255);
-    const mfggreen = parseInt(parseFloat(mfgColor[1]) * 255);
-    const mfgblue = parseInt(parseFloat(mfgColor[2]) * 255);
+    let mfgred = parseInt(parseFloat(mfgColor[0]) * 255);
+    let mfggreen = parseInt(parseFloat(mfgColor[1]) * 255);
+    let mfgblue = parseInt(parseFloat(mfgColor[2]) * 255);
 
     const mbgred = parseInt(parseFloat(mbgColor[0]) * 255);
     const mbggreen = parseInt(parseFloat(mbgColor[1]) * 255);
@@ -300,22 +317,13 @@ function saveStylesheet(obar, Me) {
 
     // Two ways to mix colors, currently both in use
     // Menu highlight fg color
-    const mhfgred = colorMix(mfgred, mhred, -0.12);
-    const mhfggreen = colorMix(mfggreen, mhgreen, -0.12);
-    const mhfgblue = colorMix(mfgblue, mhblue, -0.12);
-    const mhfg = colorBlend(mfg, mhg, -0.18);
+    let mhfgred = colorMix(mfgred, mhred, -0.12);
+    let mhfggreen = colorMix(mfggreen, mhgreen, -0.12);
+    let mhfgblue = colorMix(mfgblue, mhblue, -0.12);
+    let mhfg = colorBlend(mfg, mhg, -0.18);
 
     // Sub/Secondary menu color -
-    // Auto-generated: go from bgcolor move towards white/black based on bgcolor darkness
-    const lightrgba = `rgba(${255},${255},${255},${1.0})`;
-    const darkrgba = `rgba(${0},${0},${0},${1.0})`;
-    let bgdark = getBgDark(mbgred, mbggreen, mbgblue);
-    let smbgTarget = bgdark? lightrgba: darkrgba;
-    let [rTarget, gTarget, bTarget] = bgdark? [255,255,255]: [0,0,0];
-    let smbgred = colorMix(mbgred, rTarget, 0.18);
-    let smbggreen = colorMix(mbggreen, gTarget, 0.18);
-    let smbgblue = colorMix(mbgblue, bTarget, 0.18);
-    let smbg = colorBlend(mbg, smbgTarget, 0.18);
+    let smbg, smbgred, smbggreen, smbgblue;
     // Manual Override: If 'override' enabled, submenu color with user defined values
     if(smbgOverride) {
         smbgred = parseInt(parseFloat(smbgColor[0]) * 255);
@@ -323,6 +331,19 @@ function saveStylesheet(obar, Me) {
         smbgblue = parseInt(parseFloat(smbgColor[2]) * 255);
         smbg = `rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha})`;
     }
+    else {
+    // Auto-generated: go from bgcolor move towards white/black based on bgcolor darkness
+        const lightrgba = `rgba(${255},${255},${255},${1.0})`;
+        const darkrgba = `rgba(${0},${0},${0},${1.0})`;
+        let bgdark = getBgDark(mbgred, mbggreen, mbgblue);
+        let smbgTarget = bgdark? lightrgba: darkrgba;
+        let [rTarget, gTarget, bTarget] = bgdark? [255,255,255]: [0,0,0];
+        smbgred = colorMix(mbgred, rTarget, 0.18);
+        smbggreen = colorMix(mbggreen, gTarget, 0.18);
+        smbgblue = colorMix(mbgblue, bTarget, 0.18);
+        smbg = colorBlend(mbg, smbgTarget, 0.18);
+    }
+
     // Save smbg hex for use in toggle off svg
     obar.smbgHex = rgbToHex(smbgred, smbggreen, smbgblue);
     obar.smbgHex = obar.smbgHex + parseInt(parseFloat(mbgAlpha)*255).toString(16);
@@ -330,12 +351,98 @@ function saveStylesheet(obar, Me) {
     // Submenu highlight bg color (notifications pane)
     const mhg1 = `rgba(${mhred},${mhgreen},${mhblue},1)`; // menu highlight with 1 alpha
     const smhbg = colorBlend(smbg, mhg1, mhAlpha); // sub menu blended highlight bg 
-    
-    // Menu selection fg color
-    // const msfg = colorBlend(mfg, msc, -0.2);
 
     // Menu selection highlight color
     const mshg = colorBlend(msc, mhg, 0.3);
+
+    ///// FG COLORS for BAR and MENU
+    let hfgred, hfggreen, hfgblue;
+    if(autofgBar) {
+        // Bar auto fg color
+        if(getBgDark(bgred, bggreen, bgblue))
+            fgred = fggreen = fgblue = 255;
+        else
+            fgred = fggreen = fgblue = 0;
+
+        // Bar highlight auto fg color
+        const hbgred = bgred*(1-hAlpha) + hred*hAlpha;
+        const hbggreen = bggreen*(1-hAlpha) + hgreen*hAlpha;
+        const hbgblue = bgblue*(1-hAlpha) + hblue*hAlpha;
+        if(getBgDark(hbgred, hbggreen, hbgblue))
+            hfgred = hfggreen = hfgblue = 255;
+        else
+            hfgred = hfggreen = hfgblue = 0;
+    }
+    else { // Manual overrides
+        hfgred = fgred;
+        hfggreen = fggreen;
+        hfgblue = fgblue;
+    }
+
+    // Set menu auto FG colors as per background OR else set as per user override
+    let smfgred, smfggreen, smfgblue, smhfgred, smhfggreen, smhfgblue, amfgred, amfggreen, amfgblue, amhfgred, amhfggreen, amhfgblue;
+    if(autofgMenu) {
+        // Menu auto fg color
+        if(getBgDark(mbgred, mbggreen, mbgblue)) {
+            mfgred = mfggreen = mfgblue = 255;
+        }
+        else
+            mfgred = mfggreen = mfgblue = 0;
+
+        // Menu highlight auto fg color
+        const mhbgred = mbgred*(1-mhAlpha) + mhred*mhAlpha;
+        const mhbggreen = mbggreen*(1-mhAlpha) + mhgreen*mhAlpha;
+        const mhbgblue = mbgblue*(1-mhAlpha) + mhblue*mhAlpha;
+        if(getBgDark(mhbgred, mhbggreen, mhbgblue))
+            mhfgred = mhfggreen = mhfgblue = 255;
+        else
+            mhfgred = mhfggreen = mhfgblue = 0;
+
+        // Sub menu auto fg color
+        if(getBgDark(smbgred, smbggreen, smbgblue))
+            smfgred = smfggreen = smfgblue = 255;
+        else
+            smfgred = smfggreen = smfgblue = 0;
+
+        // Sub menu highlight auto fg color
+        const smhbgred = smbgred*(1-mhAlpha) + mhred*mhAlpha;
+        const smhbggreen = smbggreen*(1-mhAlpha) + mhgreen*mhAlpha;
+        const smhbgblue = smbgblue*(1-mhAlpha) + mhblue*mhAlpha;
+        if(getBgDark(smhbgred, smhbggreen, smhbgblue))
+            smhfgred = smhfggreen = smhfgblue = 255;
+        else
+            smhfgred = smhfggreen = smhfgblue = 0;
+
+        // Menu/Submenu active auto fg color
+        if(getBgDark(msred, msgreen, msblue))
+            amfgred = amfggreen = amfgblue = 255;
+        else
+            amfgred = amfggreen = amfgblue = 0;
+
+        // Menu/Submenu active highlight auto fg color    
+        const amhbgred = msred*(1-mhAlpha) + mhred*mhAlpha;
+        const amhbggreen = msgreen*(1-mhAlpha) + mhgreen*mhAlpha;
+        const amhbgblue = msblue*(1-mhAlpha) + mhblue*mhAlpha;
+        if(getBgDark(amhbgred, amhbggreen, amhbgblue))
+            amhfgred = amhfggreen = amhfgblue = 255;
+        else
+            amhfgred = amhfggreen = amhfgblue = 0;
+    }
+    else { // Manual overrides
+        smfgred = mfgred;
+        smfggreen = mfggreen;
+        smfgblue = mfgblue;
+        smhfgred = mhfgred;
+        smhfggreen = mhfggreen;
+        smhfgblue = mhfgblue;
+        amfgred = mfgred;
+        amfggreen = mfggreen;
+        amfgblue = mfgblue;
+        amhfgred = mhfgred;
+        amhfggreen = mhfggreen;
+        amhfgblue = mhfgblue;
+    }
+
 
     let fgStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, 
     islandStyle, dotStyle, neonStyle, gradientStyle, triLeftStyle, triBothStyle, triRightStyle, 
@@ -343,10 +450,20 @@ function saveStylesheet(obar, Me) {
 
     // style that applies dynamically to either the panel or the panel buttons as per bar type
     borderStyle = 
-    ` border: ${borderWidth}px ${bordertype} rgba(${bred},${bgreen},${bblue},${balpha}); `;
+    ` border: 0px ${bordertype} rgba(${bred},${bgreen},${bblue},${balpha}); `;
+    if(widthTop) borderStyle += ` border-top-width: ${borderWidth}px; `;
+    if(widthRight) borderStyle += ` border-right-width: ${borderWidth}px; `;
+    if(widthBottom) borderStyle += ` border-bottom-width: ${borderWidth}px; `;
+    if(widthLeft) borderStyle += ` border-left-width: ${borderWidth}px; `;
     
     radiusStyle = 
-    ` border-radius: ${borderRadius}px; `;
+    ` border-radius: 0px; `;
+    let rTopLeft, rTopRight, rBottomLeft, rBottomRight;
+    rTopLeft = radiusTopLeft? borderRadius: 0;
+    rTopRight = radiusTopRight? borderRadius: 0;
+    rBottomLeft = radiusBottomLeft? borderRadius: 0;
+    rBottomRight = radiusBottomRight? borderRadius: 0;
+    radiusStyle += ` border-radius: ${rTopLeft}px ${rTopRight}px ${rBottomRight}px ${rBottomLeft}px; `;
 
     // if (bordertype == 'double') // Radius not supported on outline
     //     style += ` outline: ${borderWidth}px ${bordertype} rgba(${bred},${bgreen},${bblue},${balpha}); `;
@@ -573,6 +690,22 @@ function saveStylesheet(obar, Me) {
         marginWMax = margin;
     }
 
+    let menuContentStyle =
+    `   box-shadow: 0 5px 10px 0 rgba(${mshred},${mshgreen},${mshblue},${mshAlpha}) !important; /* menu shadow */
+        border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${mbAlpha}) !important; /* menu border */
+        /* add menu font */
+        background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}); /* menu bg */
+        color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}); /* menu fg */ 
+        border-radius: ${menuRadius}px; `;
+    
+    if(mbgGradient) {
+        menuContentStyle +=
+        `   box-shadow: none !important;
+            background-image: url(media/menu.svg);
+            background-repeat: no-repeat;
+            background-size: cover; `;
+    }
+
 
     // Create Stylesheet string to write to file
     let stylesheet = `
@@ -587,9 +720,9 @@ function saveStylesheet(obar, Me) {
     // Panel and buttons styles
     stylesheet += `
     
-        /*#panelBox.openbar {
-           
-        }*/
+        #panelBox.openbar {
+           background-color: rgba(${boxred},${boxgreen},${boxblue},${boxalpha}) !important;
+        }
     
         #panel.openbar {
             ${panelStyle}
@@ -612,6 +745,7 @@ function saveStylesheet(obar, Me) {
 
         #panel.openbar .panel-button {
             ${btnStyle}
+            color: rgba(${fgred},${fggreen},${fgblue},${fgalpha});
         }
         #panel.openbar:windowmax .panel-button {
             ${borderWMax? '': 'border-color: transparent;'}
@@ -645,14 +779,17 @@ function saveStylesheet(obar, Me) {
 
         #panel.openbar .panel-button:hover, #panel.openbar .panel-button:focus, #panel.openbar .panel-button:active, #panel.openbar .panel-button:checked {
             ${btnHoverStyle}
+            color: rgba(${hfgred},${hfggreen},${hfgblue},${fgalpha});
         }
 
-        #panel.openbar .panel-button.clock-display .clock, #panel.openbar .panel-button:hover.clock-display .clock {
-            background-color: transparent;
-            box-shadow: none;
-            ${fgStyle}
+        #panel.openbar .panel-button.clock-display .clock {
+            color: rgba(${fgred},${fggreen},${fgblue},${fgalpha});
         }
-        
+        #panel.openbar .panel-button:hover.clock-display .clock, #panel.openbar .panel-button:focus.clock-display .clock,
+        #panel.openbar .panel-button:active.clock-display .clock, #panel.openbar .panel-button:checked.clock-display .clock {
+            color: rgba(${hfgred},${hfggreen},${hfgblue},1.0);
+        }
+        #panel.openbar .panel-button.clock-display .clock, #panel.openbar .panel-button:hover.clock-display .clock,
         #panel.openbar .panel-button:active.clock-display .clock, #panel.openbar .panel-button:overview.clock-display .clock, 
         #panel.openbar .panel-button:focus.clock-display .clock, #panel.openbar .panel-button:checked.clock-display .clock {
             background-color: transparent;
@@ -703,12 +840,7 @@ function saveStylesheet(obar, Me) {
         }
 
         .openmenu.popup-menu-content, .openmenu.candidate-popup-content {
-            box-shadow: 0 5px 10px 0 rgba(${mshred},${mshgreen},${mshblue},${mshAlpha}) !important; /* menu shadow */
-            border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${mbAlpha}) !important; /* menu border */
-            /* add menu font */
-            background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}); /* menu bg */
-            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}); /* menu fg */ 
-            border-radius: ${menuRadius}px;
+            ${menuContentStyle}
         }
     `;
 
