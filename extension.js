@@ -53,7 +53,7 @@ class ConnectManager{
             sig: signal
         });
         // Remove obj on destroy except following that don't have destroy signal
-        if(!(obj instanceof Gio.Settings || obj instanceof LayoutManager.LayoutManager || obj instanceof Meta.WorkspaceManager)) {
+        if(!(obj instanceof Gio.Settings || obj instanceof LayoutManager.LayoutManager || obj instanceof Meta.WorkspaceManager | obj instanceof Meta.Display)) {
             obj.connect('destroy', () => {
                 this.removeObject(obj)
             });
@@ -190,6 +190,7 @@ export default class Openbar extends Extension {
     }
 
     resetStyle(panel) {
+        Main.layoutManager.panelBox.remove_style_class_name('openbar');
         panel.remove_style_class_name('openbar');
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
@@ -200,8 +201,10 @@ export default class Openbar extends Extension {
                     btn.child?.set_style(null);
                     btn.child?.remove_style_class_name('openbar'); 
 
-                    for(let j=0; j<=8; j++)
+                    for(let j=1; j<=8; j++)
                         btn.child?.remove_style_class_name('candy'+j);
+
+                    btn.child?.remove_style_class_name('trilands');
 
                     if(btn.child?.constructor.name === 'ActivitiesButton') {
                         let list = btn.child.get_child_at_index(0);
@@ -217,20 +220,10 @@ export default class Openbar extends Extension {
 
     reloadStylesheet() {
         // Unload stylesheet
-        const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        theme.unload_stylesheet(this.dir.get_child('stylesheet.css')); 
-        delete this.stylesheet;
+        this.unloadStylesheet();
 
         // Load stylesheet
-        try {
-            const stylesheetFile = this.dir.get_child('stylesheet.css');
-            theme.load_stylesheet(stylesheetFile);
-            this.stylesheet = stylesheetFile;
-        } catch (e) {
-            console.log('Openbar: Error loading stylesheet: ');
-            throw e;
-        }
-        
+        this.loadStylesheet();           
     }
 
     applyMenuClass(obj, add) {
@@ -276,7 +269,7 @@ export default class Openbar extends Extension {
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
             for(const btn of box) { // btn is a bin, parent of indicator button
-                if(btn.child instanceof PanelMenu.Button) { // btn.child is the indicator
+                if(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) { // btn.child is the indicator
 
                     // box pointer case, to update -arrow-rise for bottom panel
                     if(btn.child.menu?._boxPointer) {
@@ -422,8 +415,11 @@ export default class Openbar extends Extension {
         // Generate background color palette
         if(key == 'bgpalette' || key == 'bguri') {
             const importExport = this._settings.get_boolean('import-export');
-            if(!importExport)
+            if(!importExport) {
+                if(key == 'bgpalette')
+                    this.updateBguri();
                 this.backgroundPalette();
+            }
             return;
         }
 
@@ -459,9 +455,14 @@ export default class Openbar extends Extension {
                 this.applyMenuStyles(panel, false);
                 this.setPanelBoxPosition(position, panel.height, 0, 0, 'Mainland');
             }
+            else if(this.isObarReset) { // Overview style is enabled but obar is reset due to Fullscreen
+                this.loadStylesheet();
+                this.isObarReset = false;
+            }
             return;           
         }
         else if(key == 'hiding') {
+            this.onFullScreen(null, 'hiding')
             // Continue to update style     
         }            
 
@@ -472,8 +473,9 @@ export default class Openbar extends Extension {
         let menustyle = this._settings.get_boolean('menustyle');
         if(['reloadstyle', 'removestyle', 'menustyle'].includes(key) ||
             key == 'actor-added' && callbk_param != 'message-banner' ||
-            key == 'hiding' && !setOverview)
+            key == 'hiding' && !setOverview) {
             this.applyMenuStyles(panel, menustyle);
+        }
         
         if(key == 'mscolor')
             this.msSVG = true;
@@ -481,10 +483,11 @@ export default class Openbar extends Extension {
             this.bgSVG = true;
 
         let menuKeys = ['trigger-reload', 'reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 
-        'mhcolor', 'mhalpha', 'mscolor', 'msalpha', 'mshcolor', 'mshalpha', 'smbgoverride', 'smbgcolor', 'qtoggle-radius', 'slider-height'];
-        let barKeys = ['bgcolor', 'gradient', 'gradient-direction', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'bcolor', 
-        'balpha', 'bradius', 'bordertype', 'shcolor', 'shalpha', 'iscolor', 'isalpha', 'neon', 'shadow', 'font', 'default-font',
-        'hcolor', 'halpha', 'heffect', 'bgcolor-wmax', 'bgalpha-wmax', 'neon-wmax'];
+        'mhcolor', 'mhalpha', 'mscolor', 'msalpha', 'mshcolor', 'mshalpha', 'smbgoverride', 'smbgcolor', 'qtoggle-radius', 'slider-height', 'mbg-gradient'];
+        let barKeys = ['bgcolor', 'gradient', 'gradient-direction', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'bcolor', 'balpha', 'bradius', 
+        'bordertype', 'shcolor', 'shalpha', 'iscolor', 'isalpha', 'neon', 'shadow', 'font', 'default-font', 'hcolor', 'halpha', 'heffect', 'bgcolor-wmax', 
+        'bgalpha-wmax', 'neon-wmax', 'boxcolor', 'boxalpha', 'autofg-bar', 'autofg-menu', 'width-top', 'width-bottom', 'width-left', 'width-right',
+        'radius-topleft', 'radius-topright', 'radius-bottomleft', 'radius-bottomright'];
         let keys = [...barKeys, ...menuKeys, 'autotheme', 'variation', 'autotheme-refresh', 'accent-override', 'accent-color'];
         if(keys.includes(key)) {
             return;
@@ -497,7 +500,7 @@ export default class Openbar extends Extension {
         let margin = this._settings.get_double('margin'); 
     
         // this.resetStyle(panel);
-        // Main.layoutManager.panelBox.add_style_class_name('openbar');
+        Main.layoutManager.panelBox.add_style_class_name('openbar');
         panel.add_style_class_name('openbar');
 
         if(position == 'Bottom' || key == 'position' || key == 'monitors-changed') {
@@ -529,7 +532,7 @@ export default class Openbar extends Extension {
                         btn.add_style_class_name('openbar button-container');
 
                         // Add candybar classes if enabled else remove them
-                        for(let j=0; j<=8; j++)
+                        for(let j=1; j<=8; j++)
                             btn.child.remove_style_class_name('candy'+j);
                         i++; i = i%8; i = i==0? 8: i; // Cycle through candybar palette
                         if(candybar) {
@@ -715,6 +718,51 @@ export default class Openbar extends Extension {
         this._windowSignals = null;
     }
 
+    unloadStylesheet() {
+        const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
+        const stylesheetFile = this.dir.get_child('stylesheet.css');
+        try { 
+            theme.unload_stylesheet(stylesheetFile); 
+            delete this.stylesheet;
+        } catch (e) {
+            console.log('Openbar: Error unloading stylesheet: ');
+            throw e;
+        }
+    }
+
+    loadStylesheet() {
+        const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
+        const stylesheetFile = this.dir.get_child('stylesheet.css');
+        try {
+            theme.load_stylesheet(stylesheetFile);
+            this.stylesheet = stylesheetFile;
+        } catch (e) {
+            console.log('Openbar: Error loading stylesheet: ');
+            throw e;
+        }
+        
+    }
+
+    onFullScreen(obj, signal, sig_param) {
+        const pMonitorIdx = Main.layoutManager.primaryIndex;        
+        if(global.display.get_monitor_in_fullscreen(pMonitorIdx)) {
+            this.unloadStylesheet();
+            this.isObarReset = true;
+        }
+        else if(this.isObarReset) {
+            this.loadStylesheet();                
+            this.isObarReset = false;            
+        }
+    }
+
+    updateBguri(obj, signal) {
+        const colorScheme = this._intSettings.get_string('color-scheme');
+        if(colorScheme == 'prefer-dark')
+            this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
+        else
+            this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
+    }
+
     enable() {
         // Get Gnome version
         const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
@@ -727,9 +775,13 @@ export default class Openbar extends Extension {
         this.bgSVG = false;
         this.position = null;
         this.wmax = null;
+        this.isObarReset = false;
+
+         // Settings for desktop background image (set bg-uri as per color scheme)
+         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
+         this._intSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
 
         this._settings = this.getSettings(); 
-
         // Connect to the settings changes
         this._settings.connect('changed', (settings, key) => {
             this.updatePanelStyle(settings, key);
@@ -747,6 +799,7 @@ export default class Openbar extends Extension {
             [ panel._centerBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
             [ panel._rightBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
             [ Main.messageTray._bannerBin, 'actor-added', this.updatePanelStyle.bind(this), 'message-banner' ],
+            [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this)],
         ];
         // Connection specific to QSAP extension (Quick Settings)
         if(this.gnomeVersion > 42) {
@@ -758,35 +811,13 @@ export default class Openbar extends Extension {
             connections.push([global.workspace_manager, 'notify::n-workspaces', this.updatePanelStyle.bind(this)]);
         }
 
-        // Settings for desktop background image (set bg-uri as per color scheme)
-        this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
-        this._intSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
-        connections.push([this._bgSettings, 'changed::picture-uri', () => {
-            const colorScheme = this._intSettings.get_string('color-scheme');
-            if(colorScheme != 'prefer-dark')
-                this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
-        }]);
-        connections.push([this._bgSettings, 'changed::picture-uri-dark', () => {
-            const colorScheme = this._intSettings.get_string('color-scheme');
-            if(colorScheme == 'prefer-dark')
-                this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
-        }]);
-        connections.push([this._intSettings, 'changed::color-scheme', () => {
-            const colorScheme = this._intSettings.get_string('color-scheme');
-            if(colorScheme == 'prefer-dark')
-                this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
-            else
-                this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
-        }]);
+        // Connect to background manager (give time for it to be available)
+        this.bgMgrTimeOutId = setTimeout(() => {
+            Main.layoutManager._bgManagers[0].connect('changed', this.updateBguri.bind(this));
+        }, 2000);
         // Set initial bguri as per color-scheme
         const bguri = this._settings.get_string('bguri');
-        if(bguri == '') {
-            const colorScheme = this._intSettings.get_string('color-scheme');
-            if(colorScheme == 'prefer-dark')
-                this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
-            else
-                this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
-        }
+        if(bguri == '') this.updateBguri();
 
         // Setup all connections
         this._connections = new ConnectManager(connections);
@@ -810,16 +841,19 @@ export default class Openbar extends Extension {
             }
         );
 
+        // Apply the initial style
+        this.updatePanelStyle(null, 'enabled');
+        let menustyle = this._settings.get_boolean('menustyle');
+        this.applyMenuStyles(panel, menustyle);
+
         // Cause stylesheet to save and reload on Enable
         StyleSheets.reloadStyle(this, this);
 
         // Set initial Window Max Bar
         this.onWindowMaxBar();
 
-        // Apply the initial style
-        this.updatePanelStyle(null, 'enabled');
-        let menustyle = this._settings.get_boolean('menustyle');
-        this.applyMenuStyles(panel, menustyle);
+        // Set fullscreen mode if in Fullscreen when extension is enabled
+        this.onFullScreen(null, 'enabled', null); 
     }
 
     disable() {
@@ -838,6 +872,11 @@ export default class Openbar extends Extension {
         if(this.panelPosTimeoutId) {
             clearTimeout(this.panelPosTimeoutId);
             this.panelPosTimeoutId = null;
+        }
+
+        if(this.bgMgrTimeOutId) {
+            clearTimeout(this.bgMgrTimeOutId);
+            this.bgMgrTimeOutId = null;
         }
 
         if(this.mediaListId) {
