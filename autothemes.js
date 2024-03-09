@@ -546,8 +546,8 @@ function autoApplyBGPalette(obar) {
 
     // Move Bar border color towards fg color for high contrast border
     for(let i=0; i<iters; i++) {
-        if(getColorDist(allHSP1, fgCol) > 90) {               
-            allHSP1 = colorMove(allHSP1, fgCol, 2*delta);
+        if(getColorDist(allHSP1, white) > 90) {               
+            allHSP1 = colorMove(allHSP1, white, 2*delta);
         }
     }
 
@@ -605,9 +605,9 @@ function autoApplyBGPalette(obar) {
     bgcolor2 = ['0.5', '0.5', '0.5'];
     bgalpha2 = 0.9;
     bcolor = getStrv(allHSP1);
-    balpha = 0.7;
+    balpha = 0.6;
     hcolor = getStrv(colorful3);
-    halpha = 0.8;
+    halpha = 0.75;
     shcolor = getStrv(allHSP1);
     shalpha = 0.16;
     bgcolorWmax = getStrv(bgwmax);
@@ -620,9 +620,9 @@ function autoApplyBGPalette(obar) {
     smbgcolor = getStrv(prominent3);
     smbgalpha = 0.95;
     mbcolor = getStrv(allHSP2);
-    mbalpha = 0.6;
+    mbalpha = 0.5;
     mhcolor = getStrv(colorful2);
-    mhalpha = 0.7;
+    mhalpha = 0.5;
     mshcolor = getStrv(allHSP2);
     mshalpha = 0.16;
     mscolor = getStrv(colorful1);
