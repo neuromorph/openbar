@@ -47,7 +47,7 @@ function getHSP(r, g, b) {
         0.299 * (r * r) +
         0.587 * (g * g) +
         0.114 * (b * b)
-    ); log('HSP ', hsp);
+    );
     return hsp;
 }
 

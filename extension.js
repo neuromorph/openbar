@@ -19,7 +19,7 @@
 
 /* exported Openbar init */
 
-const { St, Gio, GdkPixbuf, Meta, Clutter, Shell } = imports.gi;
+const { St, Gio, GdkPixbuf, Meta, Clutter } = imports.gi;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const Calendar = imports.ui.calendar;
@@ -30,9 +30,6 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Quantize = Me.imports.quantize;
 const AutoThemes = Me.imports.autothemes;
 const StyleSheets = Me.imports.stylesheets;
-const BackgroundGroup = Me.imports.backgroundGroup;
-
-// const BoxPointer = imports.ui.boxpointer;
 
 // ConnectManager class to manage connections for events to trigger Openbar style updates
 // This class is modified from Floating Panel extension (Thanks Aylur!)
@@ -189,7 +186,7 @@ class Extension {
     }
 
     resetStyle(panel) {
-        // Main.layoutManager.panelBox.remove_style_class_name('openbar');
+        Main.layoutManager.panelBox.remove_style_class_name('openbar');
         panel.remove_style_class_name('openbar');
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
@@ -220,9 +217,6 @@ class Extension {
     reloadStylesheet() {
         // Unload stylesheet
         this.unloadStylesheet();
-
-        // theme.unload_stylesheet(Me.dir.get_child('stylesheet-2.css'));
-        // delete Me.stylesheet2;
 
         // Load stylesheet
         this.loadStylesheet();        
@@ -267,62 +261,6 @@ class Extension {
         });
     }
 
-    onOpenStateChanged(menu, open) {
-        let bxptr = menu._boxPointer;
-        let mbox = menu.box;
-
-        if(isNaN(mbox.width))
-            return;
-
-        log('box ptr: ', bxptr.x, bxptr.get_position(), bxptr.get_transformed_position(), bxptr.width, bxptr.height);
-        log('mbox : ', mbox.x, mbox.get_position(), mbox.get_transformed_position(), mbox.width, mbox.height);
-        // let mbox1 = menu._boxPointer;
-        // let mboxArr = [mbox1, mbox1.get_child_at_index(0)]
-        // for(const mbox of mboxArr) {
-        if(open) {       
-            // if(!bxptr._border.effect) {
-            //     let effect = new Shell.BlurEffect({
-            //         name: 'openbarmenublur',
-            //         sigma: 30,
-            //         brightness: 0.8,
-            //         mode: Shell.BlurMode.BACKGROUND
-            //     });      
-            //     bxptr._border.effect = effect;   
-            //     bxptr._border.opacity = 250;
-            // }            
-            // mbox.style = `background-color: transparent;`;
-            // if(!bxptr.bgwidget) {
-            //     let widget = new St.Widget();
-            //     bxptr.insert_child_below(widget, null);
-            //     widget.x = 0;
-            //     widget.y = 0;
-            //     widget.width = isNaN(mbox.width)? 200: mbox.width;
-            //     widget.height = isNaN(mbox.height)? 200: mbox.height;
-            //     widget.opacity = 250;
-            //     widget.effect = new Shell.BlurEffect({
-            //         name: 'openbarmenublur',
-            //         sigma: 30,
-            //         brightness: 0.8,
-            //         mode: Shell.BlurMode.BACKGROUND
-            //     });
-
-            //     bxptr.bgwidget = widget;
-            //     // bxptr.add_child(widget);
-                
-            //     // mbox.add_effect(effect);
-            //     log('opacity, blur effect ', widget.opacity, widget.get_effect('openbarmenublur'));
-            // }
-            
-        } 
-        // else {
-        //     const effect = mbox.get_effect('openbarmenublur');
-        //     if (effect) { 
-        //         mbox.remove_effect_by_name('openbarmenublur');
-        //     }
-        // }
-        // }
-    }
-
     applyMenuStyles(panel, add) {
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
@@ -342,47 +280,7 @@ class Extension {
                     } 
                     // general case
                     else if(btn.child.menu?.box) {
-                        this.applyBoxStyles(btn.child.menu.box, add);
-
-                        // let bxptr = btn.child.menu._boxPointer;
-                        // bxptr.set_child_above_sibling(bxptr._border, bxptr.bin);
-                        // const bgEffect = bxptr.bin?.get_effect('openmenu-blur');
-                        // if(!bgEffect) {
-                        //     let effect = new Shell.BlurEffect({
-                        //         name: 'openmenu-blur',
-                        //         sigma: 30,
-                        //         brightness: 0.8,
-                        //         mode: Shell.BlurMode.BACKGROUND
-                        //     }); 
-                        //     bxptr.bin?.add_effect(effect);
-                        // }
-                        // log('bin : effect ', bxptr.bin?.constructor.name, bxptr.bin?.get_effect('openmenu-blur'));
-                        // bxptr.bin?.connect('notify::allocation', () => {
-                        //     let actorBox = new Clutter.ActorBox();
-                        //     actorBox.x = bxptr.bin.x;
-                        //     actorBox.y = bxptr.bin.y;
-                        //     actorBox.width = bxptr.bin.width;
-                        //     actorBox.height = bxptr.bin.height;
-                        //     bxptr.bgWidget.allocate(actorBox);
-                        //     log('ALLOCATION: ', actorBox.x, actorBox.y, actorBox.width, actorBox.height);
-                        // });
-                        // const bgEffect = bxptr.bgWidget?.get_effect('openmenu-blur');
-                        // if(!bgEffect) {
-                        //     let effect = new Shell.BlurEffect({
-                        //         name: 'openmenu-blur',
-                        //         sigma: 30,
-                        //         brightness: 0.8,
-                        //         mode: Shell.BlurMode.BACKGROUND
-                        //     }); 
-                        //     bxptr.bgWidget?.add_effect(effect);
-                        //     log('add bgWidget : effect ', bxptr.bgWidget?.constructor.name, effect);
-                        // }   
-                       
-                        // if(!btn.child.menu.openconnect) {
-                        //     btn.child.menu.connect('open-state-changed', this.onOpenStateChanged.bind(this));
-                        //     btn.child.menu.openconnect = true;
-                        // }
-                        
+                        this.applyBoxStyles(btn.child.menu.box, add);                        
                     }
 
                     // special case for Arc Menu, because it removes default menu and creates its own menu
@@ -547,7 +445,7 @@ class Extension {
 
         let position = this._settings.get_string('position');
         let setOverview = this._settings.get_boolean('set-overview');
-        if(key == 'showing') { log('OVERVIEW SHOWING');
+        if(key == 'showing') {
             if(!setOverview) { // Reset in overview, if 'overview' style disabled
                 this.resetStyle(panel);
                 this.applyMenuStyles(panel, false);
@@ -559,7 +457,7 @@ class Extension {
             }
             return;           
         }
-        else if(key == 'hiding') { log('OVERVIEW HIDING');
+        else if(key == 'hiding') {
             this.onFullScreen(null, 'hiding')
             // Continue to update style     
         }            
@@ -583,9 +481,10 @@ class Extension {
 
         let menuKeys = ['trigger-reload', 'reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 
         'mhcolor', 'mhalpha', 'mscolor', 'msalpha', 'mshcolor', 'mshalpha', 'smbgoverride', 'smbgcolor', 'qtoggle-radius', 'slider-height', 'mbg-gradient'];
-        let barKeys = ['bgcolor', 'gradient', 'gradient-direction', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'bcolor', 
-        'balpha', 'bradius', 'bordertype', 'shcolor', 'shalpha', 'iscolor', 'isalpha', 'neon', 'shadow', 'font', 'default-font',
-        'hcolor', 'halpha', 'heffect', 'bgcolor-wmax', 'bgalpha-wmax', 'neon-wmax', 'boxcolor', 'boxalpha'];
+        let barKeys = ['bgcolor', 'gradient', 'gradient-direction', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'bcolor', 'balpha', 'bradius', 
+        'bordertype', 'shcolor', 'shalpha', 'iscolor', 'isalpha', 'neon', 'shadow', 'font', 'default-font', 'hcolor', 'halpha', 'heffect', 'bgcolor-wmax', 
+        'bgalpha-wmax', 'neon-wmax', 'boxcolor', 'boxalpha', 'autofg-bar', 'autofg-menu', 'width-top', 'width-bottom', 'width-left', 'width-right',
+        'radius-topleft', 'radius-topright', 'radius-bottomleft', 'radius-bottomright'];
         let keys = [...barKeys, ...menuKeys, 'autotheme', 'variation', 'autotheme-refresh', 'accent-override', 'accent-color'];
         if(keys.includes(key)) {
             return;
@@ -820,8 +719,8 @@ class Extension {
     unloadStylesheet() {
         const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
         const stylesheetFile = Me.dir.get_child('stylesheet.css');
-        try { log('UNLOADING STYLESHEET');
-            theme.unload_stylesheet(stylesheetFile); log('DELETING ME.STYLESHEET');
+        try { 
+            theme.unload_stylesheet(stylesheetFile); 
             delete Me.stylesheet;
         } catch (e) {
             console.log('Openbar: Error unloading stylesheet: ');
@@ -843,42 +742,18 @@ class Extension {
     }
 
     onFullScreen(obj, signal, sig_param) {
-        console.log('SIG PARAM: ', signal, sig_param);
-        const pMonitorIdx = Main.layoutManager.primaryIndex;
-        
+        const pMonitorIdx = Main.layoutManager.primaryIndex;        
         if(global.display.get_monitor_in_fullscreen(pMonitorIdx)) {
-            console.log('PMONITOR IN FULSCREEN ');
             this.unloadStylesheet();
             this.isObarReset = true;
         }
         else if(this.isObarReset) {
-            console.log('SET OBAR AGAIN ');
             this.loadStylesheet();                
             this.isObarReset = false;            
         }
     }
 
-    // lockScreen() {
-    //     try {
-    //         // The process starts running immediately after this function is called. Any
-    //         // error thrown here will be a result of the process failing to start, not
-    //         // the success or failure of the process itself.
-    //         const proc = Gio.Subprocess.new(
-    //             // The program and command options are passed as a list of arguments
-    //             ['xdg-screensaver', 'lock'],
-        
-    //             // The flags control what I/O pipes are opened and how they are directed
-    //             Gio.SubprocessFlags.NONE
-    //         );
-        
-    //         // Once the process has started, you can end it with `force_exit()`
-    //         proc.force_exit();
-    //     } catch (e) {
-    //         logError(e);
-    //     }
-    // }
-
-    updateBguri(obj, signal) { log('UPDATE BGURI for ', obj? obj.constructor.name: 'BGPALETTE');
+    updateBguri(obj, signal) {
         const colorScheme = this._intSettings.get_string('color-scheme');
         if(colorScheme == 'prefer-dark')
             this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
@@ -899,18 +774,12 @@ class Extension {
         this.position = null;
         this.wmax = null;
         this.isObarReset = false;
-        // this.Background = Background;
-        // this.Main = Main;
-        // this.Shell = Shell;
 
-        // this.backgroundGroup = new BackgroundGroup.BackgroundGroup(this); 
-
-        this._settings = ExtensionUtils.getSettings(); 
         // Settings for desktop background image (set bg-uri as per color scheme)
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
         this._intSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
-        this.pMonitorIndex = Main.layoutManager.primaryIndex;
-
+        
+        this._settings = ExtensionUtils.getSettings();  
         // Connect to the settings changes
         this._settings.connect('changed', (settings, key) => {
             this.updatePanelStyle(settings, key);
@@ -928,7 +797,6 @@ class Extension {
             [ panel._centerBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
             [ panel._rightBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
             [ Main.messageTray._bannerBin, 'actor-added', this.updatePanelStyle.bind(this), 'message-banner' ],
-            // [ Main.layoutManager._bgManagers[0], 'changed', this.updateBguri.bind(this)],
             [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this)],
         ];
         // Connection specific to QSAP extension (Quick Settings)
@@ -941,36 +809,13 @@ class Extension {
             connections.push([global.workspace_manager, 'notify::n-workspaces', this.updatePanelStyle.bind(this)]);
         }
 
-        setTimeout(() => { log('CONNECTING BGMGR');
+        // Connect to background manager (give time for it to be available)
+        this.bgMgrTimeOutId = setTimeout(() => {
             Main.layoutManager._bgManagers[0].connect('changed', this.updateBguri.bind(this));
         }, 2000);
-        // connections.push([this._bgSettings, 'changed::picture-uri', () => {
-        //     const colorScheme = this._intSettings.get_string('color-scheme');
-        //     if(colorScheme != 'prefer-dark')
-        //         this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
-        // }]);
-        // connections.push([this._bgSettings, 'changed::picture-uri-dark', () => {
-        //     const colorScheme = this._intSettings.get_string('color-scheme');
-        //     if(colorScheme == 'prefer-dark')
-        //         this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
-        // }]);
-        // connections.push([this._intSettings, 'changed::color-scheme', () => {
-        //     const colorScheme = this._intSettings.get_string('color-scheme');
-        //     if(colorScheme == 'prefer-dark')
-        //         this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
-        //     else
-        //         this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
-        // }]);
         // Set initial bguri as per color-scheme
         const bguri = this._settings.get_string('bguri');
-        if(bguri == '') {
-            this.updateBguri();
-            // const colorScheme = this._intSettings.get_string('color-scheme');
-            // if(colorScheme == 'prefer-dark')
-            //     this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
-            // else
-            //     this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
-        }
+        if(bguri == '') this.updateBguri();
 
         // Setup all connections
         this._connections = new ConnectManager(connections);
@@ -993,41 +838,6 @@ class Extension {
                 }
             }
         );
-        // obar.Background = Background;
-        // obar.Main = Main;
-        // obar.Shell = Shell;
-        // this._injections["_init"] = this._injectToFunction(
-        //     BoxPointer.BoxPointer.prototype,
-        //     "_init",
-        //     function () {
-        //         this.bgWidget = new St.Widget({
-        //             name: 'menubg-widget',
-        //         });     
-        //         this.insert_child_below(this.bgWidget, null);
-        //         log('BGWIDGET INIT: ', this.bgWidget.constructor.name);              
-        //     }
-        // );
-        // this._injections["allocate"] = this._injectToFunction(
-        //     BoxPointer.BoxPointer.prototype,
-        //     "allocate",
-        //     function (box) {
-        //         // if(!this.bgWidget) {
-        //         //     this.bgWidget = new St.Widget({
-        //         //         name: 'menubg-widget',
-        //         //     });        
-
-        //         //     this.insert_child_below(this.bgWidget, null);
-        //         // }
-        //         this.bgWidget.allocate(childBox);
-        //         log('BGWIDGET ALLOCATE: ', this.bgWidget.constructor.name, this.bgWidget.get_transformed_position());              
-        //     }
-        // ); 
-
-        // // Cause stylesheet to save and reload on Enable
-        // StyleSheets.reloadStyle(this, Me);
-
-        // // Set initial Window Max Bar
-        // this.onWindowMaxBar();
         
         // Apply the initial style
         this.updatePanelStyle(null, 'enabled');
@@ -1040,10 +850,8 @@ class Extension {
         // Set initial Window Max Bar
         this.onWindowMaxBar();
 
-        this.onFullScreen(null, 'enabled', null);
-
-        
-        // setTimeout(() => { this.backgroundGroup._updateBackgrounds(); }, 2000); 
+        // Set fullscreen mode if in Fullscreen when extension is enabled
+        this.onFullScreen(null, 'enabled', null);        
     }
 
     disable() {
@@ -1062,6 +870,11 @@ class Extension {
         if(this.panelPosTimeoutId) {
             clearTimeout(this.panelPosTimeoutId);
             this.panelPosTimeoutId = null;
+        }        
+
+        if(this.bgMgrTimeOutId) {
+            clearTimeout(this.bgMgrTimeOutId);
+            this.bgMgrTimeOutId = null;
         }
 
         if(this.mediaListId) {
@@ -1074,11 +887,7 @@ class Extension {
         }
 
         this._removeInjection(Calendar.Calendar.prototype, this._injections, "_rebuildCalendar");
-        // this._removeInjection(BoxPointer.BoxPointer.prototype, this._injections, "_init");
-        // this._removeInjection(BoxPointer.BoxPointer.prototype, this._injections, "vfunc_allocate");
         this._injections = [];
-
-        // this.backgroundGroup.destroy();
 
         // Reset the style for Panel and Menus
         this.resetStyle(panel);
@@ -1090,7 +899,6 @@ class Extension {
         this._settings = null;
         this._bgSettings = null;
         this._intSettings = null;
-
     }
     
 }
