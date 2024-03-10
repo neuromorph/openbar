@@ -522,5 +522,70 @@
       <summary>Trigger creation and application of auto-theme</summary>
       <description>Trigger creation and application of auto-theme from background.</description>
     </key>
+    <key type="as" name="boxcolor">
+      <default>['0.125', '0.125', '0.125']</default>
+      <summary>BG Color (RGB)</summary>
+      <description>Background Color of Top Bar Panel Box.</description>
+    </key>
+    <key type="d" name="boxalpha">
+      <default>0</default>
+      <summary>Transparency (alpha)</summary>
+      <description>Transparency of Top Bar Panel Box.</description>
+    </key>
+    <key type="b" name="mbg-gradient">
+      <default>false</default>
+      <summary>Light gradient from top left for menu BG</summary>
+      <description>Light gradient from top left for menu popups using an SVG.</description>
+    </key>
+    <key type="b" name="autofg-bar">
+      <default>false</default>
+      <summary>Auto switch between white/black bar FG color based on bar/button background</summary>
+      <description>Auto switch between white/black bar FG color based on bar/button background.</description>
+    </key>
+    <key type="b" name="autofg-menu">
+      <default>false</default>
+      <summary>Auto switch between white/black menu FG color based on menu widget background</summary>
+      <description>Auto switch between white/black menu FG color based on menu widget background.</description>
+    </key>
+    <key type="b" name="width-top">
+      <default>true</default>
+      <summary>Apply border width to Top side</summary>
+      <description>Apply border width to Top side.</description>
+    </key>
+    <key type="b" name="width-bottom">
+      <default>true</default>
+      <summary>Apply border width to Bottom side</summary>
+      <description>Apply border width to Bottom side.</description>
+    </key>
+    <key type="b" name="width-left">
+      <default>true</default>
+      <summary>Apply border width to Left side</summary>
+      <description>Apply border width to Left side.</description>
+    </key>
+    <key type="b" name="width-right">
+      <default>true</default>
+      <summary>Apply border width to Right side</summary>
+      <description>Apply border width to Right side.</description>
+    </key>
+    <key type="b" name="radius-topleft">
+      <default>true</default>
+      <summary>Apply border radius to Top Left corner</summary>
+      <description>Apply border radius to Top Left corner.</description>
+    </key>
+    <key type="b" name="radius-topright">
+      <default>true</default>
+      <summary>Apply border radius to Top Right corner</summary>
+      <description>Apply border radius to Top Right corner.</description>
+    </key>
+    <key type="b" name="radius-bottomleft">
+      <default>true</default>
+      <summary>Apply border radius to Bottom Left corner</summary>
+      <description>Apply border radius to Bottom Left corner.</description>
+    </key>
+    <key type="b" name="radius-bottomright">
+      <default>true</default>
+      <summary>Apply border radius to Bottom Right corner</summary>
+      <description>Apply border radius to Bottom Right corner.</description>
+    </key>
   </schema>
 </schemalist>
