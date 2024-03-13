@@ -757,10 +757,19 @@ export default class Openbar extends Extension {
 
     updateBguri(obj, signal) {
         const colorScheme = this._intSettings.get_string('color-scheme');
+        let bguriOld = this._settings.get_string('bguri');
+        let bguriNew;
         if(colorScheme == 'prefer-dark')
-            this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
+            bguriNew = this._bgSettings.get_string('picture-uri-dark');
         else
-            this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
+            bguriNew = this._bgSettings.get_string('picture-uri');
+
+        // Gnome45+: if bgnd changed with right click on image file, 
+        // filepath (bguri) remains same, so manually call updatePanelStyle
+        if(bguriOld == bguriNew)
+            this.updatePanelStyle(this._settings, 'bguri');
+        else
+            this._settings.set_string('bguri', bguriNew);
     }
 
     enable() {
