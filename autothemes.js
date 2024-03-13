@@ -544,10 +544,10 @@ export function autoApplyBGPalette(obar) {
     let allHSP1 = allHSP[17]; // Bar border color
     let allHSP2 = allHSP[16]; // Menu border and shadow color
 
-    // Move Bar border color towards fg color for high contrast border
+    // Move Bar border color towards white (lighter seems better for both dark/light thems)
     for(let i=0; i<iters; i++) {
-        if(getColorDist(allHSP1, fgCol) > 90) {               
-            allHSP1 = colorMove(allHSP1, fgCol, 2*delta);
+        if(getColorDist(allHSP1, white) > 90) {               
+            allHSP1 = colorMove(allHSP1, white, 2*delta);
         }
     }
 
@@ -592,12 +592,12 @@ export function autoApplyBGPalette(obar) {
     }
     else if(bartype == 'Floating') {
         bgalpha = 0.9;
-        bradius = 50;
+        bradius = 30;
         bwidth = 2;
     }
     else {
         bgalpha = 0;
-        bradius = 50;
+        bradius = 25;
         bwidth = 2;
     }
     iscolor = getStrv(prominent1);
@@ -605,9 +605,9 @@ export function autoApplyBGPalette(obar) {
     bgcolor2 = ['0.5', '0.5', '0.5'];
     bgalpha2 = 0.9;
     bcolor = getStrv(allHSP1);
-    balpha = 0.7;
+    balpha = 0.6;
     hcolor = getStrv(colorful3);
-    halpha = 0.8;
+    halpha = 0.75;
     shcolor = getStrv(allHSP1);
     shalpha = 0.16;
     bgcolorWmax = getStrv(bgwmax);
@@ -620,9 +620,9 @@ export function autoApplyBGPalette(obar) {
     smbgcolor = getStrv(prominent3);
     smbgalpha = 0.95;
     mbcolor = getStrv(allHSP2);
-    mbalpha = 0.6;
+    mbalpha = 0.5;
     mhcolor = getStrv(colorful2);
-    mhalpha = 0.7;
+    mhalpha = 0.5;
     mshcolor = getStrv(allHSP2);
     mshalpha = 0.16;
     mscolor = getStrv(colorful1);
@@ -633,6 +633,7 @@ export function autoApplyBGPalette(obar) {
         obar._settings.set_boolean('shadow', false);
     obar._settings.set_strv('fgcolor', fgcolor);
     obar._settings.set_double('fgalpha', fgalpha);
+    obar._settings.set_boolean('autofg-bar', true);
     obar._settings.set_strv('bgcolor', bgcolor);
     obar._settings.set_double('bgalpha', bgalpha);
     obar._settings.set_strv('bgcolor2', bgcolor2);
@@ -652,6 +653,7 @@ export function autoApplyBGPalette(obar) {
 
     obar._settings.set_strv('mfgcolor', mfgcolor);
     obar._settings.set_double('mfgalpha', mfgalpha);
+    obar._settings.set_boolean('autofg-menu', true);
     obar._settings.set_strv('mbgcolor', mbgcolor);
     obar._settings.set_double('mbgalpha', mbgalpha);
     obar._settings.set_strv('smbgcolor', smbgcolor);
