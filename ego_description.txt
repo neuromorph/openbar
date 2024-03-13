@@ -1,12 +1,19 @@
 Top Bar ( Top Panel ) customization / styling. Open the Top Bar and let the colors 🍹 flow.
 
-**Please report on Github if something is broken due to update and also any suggestions/feedback you may have.
+**Please report on Github if something is broken due to an update or if you have any suggestions/feedback.
 
-Upcoming Update (under review):
-- Auto-theming options 
-- Import, export theme settings to file.
-- Window-Max Bar: Change Bar props when a window is maximized
-- More settings in Menus: Menu panel and buttons radius, slider tweaks
+Update ( v19/v20 ):
+- Auto FG option to automatically switch (black/white) FG color based on widget background
+- Option to set Panel Box / Margins BG color
+- Light-Gradient option for Menu background
+- More tweaks for Border width and radius to change the way the Bar/Buttons look
+- Other fixes and enhancements
+
+Update ( v17/v18 ):
+-  Auto-theming options 
+-  Import, export theme settings to file.
+-  Window-Max Bar: Change Bar props when a window is maximized
+-  More settings in Menus: Menu panel and buttons radius, slider tweaks
 
 Auto Theming:
 - Note: If you want to save your current settings, please use Export Settings option before applying Auto-theme. You can import it back whenever needed.
@@ -14,18 +21,8 @@ Auto Theming:
 - There are three theme options: 'Color', 'Dark', 'Light' and two variations for each: 'Default', 'Alt'.  Try all combinations to see what you prefer for your desktop background.
 - There are more settings in Auto-Theme. You can select if you want the secondary menu BG color to be derived from BG or auto-selected from palette. Also, you can specify any preferred accent color or let the theme choose from the background. 
 - Since it is one size fit all solution, 'No Free Lunch' theorem applies. Not all options will work for all backgrounds, so the additional knobs above will help you select the desired one. One of the combinations should work for you at least with little bit tweaking if needed.
-- Once theme is applied, you can further tweak any of the manual settings as usual to finetune the theme. 
+- Once theme is applied, you can further tweak any of the manual settings, as usual, to finetune the theme. 
 - There is an option for Auto-refreshing theme when background changes. This will overwrite current theme with newly generated one when background is changed.  
-[ Note: changing the background by right clicking an image file (instead of from settings) may not get detected in newer Gnome. ]
-
-
-Update ( v13/v14) : 
-** Please click on 'Apply Menu Styles' (or change some setting) once you upgrade the extension. This will refresh the stylesheet as per your saved settings.
-- Apply style to notification popups
-- Candy-bar palette for panel buttons
-- Menu secondary color override to allow selecting custom (high contrast) colors within the menu
-- Fixes for screencast/ remote sharing/ battery indicators and DND toggle switch etc.
-
 
 Customize:
 - Bar Type: Fixed, Floating or Islands / Trilands
@@ -33,10 +30,10 @@ Customize:
 - Bar foreground color, font
 - Bar background color, transparency, gradient, shadow, highlights, candybar 
 - Shape rectangular to pill, border width, color, neon glow
-- Menu customizations: foreground / background colors, transparency, border, shadow,  active/selection, hover colors
+- Menu customizations: foreground, background colors, transparency, border, shadow,  active/selection, hover colors
 etc.
 - Apply to notification popups
-- Includes a custom color palette in each color button popup. The palette is auto-generated from the desktop background.  
+- Includes a custom color palette, under the default palette, in each color button popup. The palette is auto-generated from the desktop background.
 
 
 If the panel/menu isn't looking right, you need to tweak some settings. There are a lot of knobs to allow for differnt setups/tastes. It can also make it a bit overwhelming if you are not familiar with css styles but with some experimentation it will become a lot easier. Here are brief notes:
