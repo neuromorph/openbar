@@ -316,7 +316,7 @@ export default class Openbar extends Extension {
                         const mediaSection = sectionList.get_child_at_index(0); // Media notifications (play music/video)
                         this.mediaList = mediaSection?.get_child_at_index(0); 
                         if(add && !this.mediaListId) {
-                            this.mediaListId = this.mediaList?.connect('actor-added', (container, actor) => {
+                            this.mediaListId = this.mediaList?.connect(this.addedSignal, (container, actor) => {
                                 this.applyMenuClass(actor.child, add);
                             });
                         }
@@ -331,7 +331,7 @@ export default class Openbar extends Extension {
                         const notifSection = sectionList.get_child_at_index(1); // Message notifications
                         this.notifList = notifSection?.get_child_at_index(0);
                         if(add && !this.notifListId) {
-                            this.notifListId = this.notifList?.connect('actor-added', (container, actor) => {
+                            this.notifListId = this.notifList?.connect(this.addedSignal, (container, actor) => {
                                 this.applyMenuClass(actor.child, add);
                             });
                         }
@@ -444,7 +444,7 @@ export default class Openbar extends Extension {
 
         let bartype = this._settings.get_string('bartype');
         // Update triland classes if actor (panel button) removed in triland mode else return
-        if(key == 'actor-removed' && bartype != 'Trilands')
+        if(key == this.removedSignal && bartype != 'Trilands')
             return;
 
         let position = this._settings.get_string('position');
@@ -472,7 +472,7 @@ export default class Openbar extends Extension {
         
         let menustyle = this._settings.get_boolean('menustyle');
         if(['reloadstyle', 'removestyle', 'menustyle'].includes(key) ||
-            key == 'actor-added' && callbk_param != 'message-banner' ||
+            key == this.addedSignal && callbk_param != 'message-banner' ||
             key == 'hiding' && !setOverview) {
             this.applyMenuStyles(panel, menustyle);
         }
@@ -515,7 +515,7 @@ export default class Openbar extends Extension {
             else
                 Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
         }
-        if(key == 'actor-added' && callbk_param == 'message-banner' && setNotifications) {
+        if(key == this.addedSignal && callbk_param == 'message-banner' && setNotifications) {
             Main.messageTray._banner?.add_style_class_name('openmenu');
         }
 
@@ -588,12 +588,11 @@ export default class Openbar extends Extension {
     setupLibpanel(obj, signal, sig_param, menu) {
         if(menu.constructor.name != 'PanelGrid')
             return;
-
         for(const panelColumn of menu.box.get_children()) {
-            this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
+            this._connections.connect(panelColumn, this.addedSignal, this.updatePanelStyle.bind(this));
         }
-        this._connections.connect(menu.box, 'actor-added', (obj, signal, panelColumn, callbk_param) => {
-            this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
+        this._connections.connect(menu.box, this.addedSignal, (obj, signal, panelColumn, callbk_param) => {
+            this._connections.connect(panelColumn, this.addedSignal, this.updatePanelStyle.bind(this));
         });
     }
     
@@ -669,7 +668,7 @@ export default class Openbar extends Extension {
                 ]);
             }
         }
-        this.setWindowMaxBar('actor-added');
+        this.setWindowMaxBar(this.addedSignal);
     }
 
     onWindowRemoved(obj, signal, windowActor){
@@ -685,7 +684,7 @@ export default class Openbar extends Extension {
                 }
             }
         }
-        this.setWindowMaxBar('actor-removed');
+        this.setWindowMaxBar(this.removedSignal);
     }
 
     onWindowMaxBar() {
@@ -695,12 +694,12 @@ export default class Openbar extends Extension {
             for(const window of global.get_window_actors()){
                 this.onWindowAdded(null, 'enabled', window);
             }
-            this._connections.connect(global.window_group, 'actor-added', this.onWindowAdded.bind(this));
-            this._connections.connect(global.window_group, 'actor-removed', this.onWindowRemoved.bind(this));
+            this._connections.connect(global.window_group, this.addedSignal, this.onWindowAdded.bind(this));
+            this._connections.connect(global.window_group, this.removedSignal, this.onWindowRemoved.bind(this));
         }
         else {
-            this._connections.disconnect(global.window_group, 'actor-added');
-            this._connections.disconnect(global.window_group, 'actor-removed');
+            this._connections.disconnect(global.window_group, this.addedSignal);
+            this._connections.disconnect(global.window_group, this.removedSignal);
             this.disconnectWindowSignals();
             Main.panel.remove_style_pseudo_class('windowmax');
             this.setPanelBoxPosWindowMax(false);
@@ -785,6 +784,8 @@ export default class Openbar extends Extension {
         this.position = null;
         this.wmax = null;
         this.isObarReset = false;
+        this.addedSignal = this.gnomeVersion > 45? 'child-added': 'actor-added';
+        this.removedSignal = this.gnomeVersion > 45? 'child-removed': 'actor-removed';
 
          // Settings for desktop background image (set bg-uri as per color scheme)
          this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
@@ -801,15 +802,21 @@ export default class Openbar extends Extension {
             [ Main.overview, 'showing', this.updatePanelStyle.bind(this) ],
             [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this) ],
             [ Main.layoutManager, 'monitors-changed', this.updatePanelStyle.bind(this) ],
-            [ panel._leftBox, 'actor-added', this.updatePanelStyle.bind(this) ],
-            [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this) ],
-            [ panel._rightBox, 'actor-added', this.updatePanelStyle.bind(this) ],
-            [ panel._leftBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
-            [ panel._centerBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
-            [ panel._rightBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
-            [ Main.messageTray._bannerBin, 'actor-added', this.updatePanelStyle.bind(this), 'message-banner' ],
+            // [ panel._leftBox, 'actor-added', this.updatePanelStyle.bind(this) ],
+            // [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this) ],
+            // [ panel._rightBox, 'actor-added', this.updatePanelStyle.bind(this) ],
+            // [ panel._leftBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
+            // [ panel._centerBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
+            // [ panel._rightBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
+            [ Main.messageTray._bannerBin, this.addedSignal, this.updatePanelStyle.bind(this), 'message-banner' ],
             [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this)],
         ];
+        // Connections for actor-added/removed OR child-added/removed as per Gnome version
+        const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
+        for(const panelBox of panelBoxes) {
+            connections.push([panelBox, this.addedSignal, this.updatePanelStyle.bind(this)]);
+            connections.push([panelBox, this.removedSignal, this.updatePanelStyle.bind(this)]);
+        } 
         // Connection specific to QSAP extension (Quick Settings)
         if(this.gnomeVersion > 42) {
             let qSettings = Main.panel.statusArea.quickSettings;
