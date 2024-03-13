@@ -208,6 +208,18 @@ class OpenbarPrefs {
         return gtkswitch;
     }
 
+    createToggleButton(label, tooltip_text='') {
+        let toggleBtn = new Gtk.ToggleButton({
+            label: label,
+            sensitive: true,
+            tooltip_text: tooltip_text,
+            halign: Gtk.Align.END,
+            valign: Gtk.Align.CENTER,
+        });    
+        // toggleBtn.connect('toggled', () => {this.setTimeoutStyleReload();});
+        return toggleBtn;
+    }
+
     createGridWidget() {
         let grid = new Gtk.Grid({
             margin_top: 14,
@@ -318,7 +330,9 @@ class OpenbarPrefs {
         this._settings = openbar.getSettings();
         // Connect settings to update/save/reload stylesheet
         let settEvents = ['bartype', 'position', 'font', 'gradient', 'cust-margin-wmax', 'border-wmax', 'neon-wmax',
-        'gradient-direction', 'shadow', 'neon', 'heffect', 'smbgoverride']; 
+        'gradient-direction', 'shadow', 'neon', 'heffect', 'smbgoverride', 'mbg-gradient', 'autofg-bar', 'autofg-menu',
+        'width-top', 'width-bottom', 'width-left', 'width-right', 'radius-topleft', 'radius-topright',
+        'radius-bottomleft', 'radius-bottomright'];
         settEvents.forEach(event => {
             this._settings.connect('changed::'+event, () => {this.triggerStyleReload();});
         });
@@ -787,6 +801,18 @@ class OpenbarPrefs {
 
         rowbar = 1;
 
+        // Add an Auto FG color switch for Bar
+        let autofgBarLabel = new Gtk.Label({
+            label: 'Auto FG Color',
+            halign: Gtk.Align.START,
+        });
+        fggrid.attach(autofgBarLabel, 1, rowbar, 1, 1);
+
+        let autofgBarSwitch = this.createSwitchWidget('Automatically set white/black FG color as per background color of bar/buttons');
+        fggrid.attach(autofgBarSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
         // Add a foreground color chooser
         let fgColorLbl = new Gtk.Label({
             label: 'FG Color',
@@ -883,7 +909,32 @@ class OpenbarPrefs {
 
         rowbar = 1;
 
-        // Add a background color chooser
+        // Add a Panel Box background color chooser
+        let boxColorLbl = new Gtk.Label({
+            label: 'Box/Margins Color',
+            halign: Gtk.Align.START,
+        });
+        bggrid.attach(boxColorLbl, 1, rowbar, 1, 1);
+
+        let boxColor = this.createColorWidget(window, 'Panel-Box Background Color', 'Background color for the panel box / margins', 'boxcolor');
+        bggrid.attach(boxColor, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a background alpha scale
+        let boxAlphaLbl = new Gtk.Label({
+            label: 'Box/Margins Alpha',
+            halign: Gtk.Align.START,
+        });
+        bggrid.attach(boxAlphaLbl, 1, rowbar, 1, 1);
+
+        let boxAlpha = this.createScaleWidget(0, 1, 0.01, 2);
+        bggrid.attach(boxAlpha, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+
+        // Add a bar background color chooser
         let bgColorLbl = new Gtk.Label({
             label: 'Bar BG Color',
             halign: Gtk.Align.START,
@@ -895,7 +946,7 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a background alpha scale
+        // Add a bar background alpha scale
         let bgAlphaLbl = new Gtk.Label({
             label: 'BG Alpha',
             halign: Gtk.Align.START,
@@ -1183,6 +1234,34 @@ class OpenbarPrefs {
         let borderWidthScale = this.createScaleWidget(0, 10, 0.1, 1);
         bgrid.attach(borderWidthScale, 2, rowbar, 1, 1);
 
+        rowbar += 1; 
+
+        // Add Apply Border-Width label
+        let borderWidthApplyLabel = new Gtk.Label({
+            label: `Apply Width to`,
+            halign: Gtk.Align.START,
+        });
+        bgrid.attach(borderWidthApplyLabel, 1, rowbar, 1, 1);
+
+        // Width Sides Box
+        const widthBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 5,
+            // margin_top: 5,
+            // margin_bottom: 5,
+            halign: Gtk.Align.END,
+            homogeneous: false,
+        });
+        let widthTop = this.createToggleButton('Top', 'Top Side');
+        widthBox.append(widthTop);
+        let widthBottom = this.createToggleButton('Bottom', 'Bottom Side');
+        widthBox.append(widthBottom);
+        let widthLeft = this.createToggleButton('Left', 'Left Side');
+        widthBox.append(widthLeft);
+        let widthRight = this.createToggleButton('Right', 'Right Side');
+        widthBox.append(widthRight);
+        bgrid.attach(widthBox, 2, rowbar, 1, 1);
+
         rowbar += 1;
 
         // Add a border radius scale
@@ -1194,6 +1273,35 @@ class OpenbarPrefs {
 
         let bRadius = this.createScaleWidget(0, 50, 1, 0);
         bgrid.attach(bRadius, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add Apply Radius to Corner label
+        let bRadiusApplyLabel = new Gtk.Label({
+            label: `Apply Radius to`,
+            halign: Gtk.Align.START,
+        });
+        bgrid.attach(bRadiusApplyLabel, 1, rowbar, 1, 1);
+
+        // Radius Sides Box
+        const radiusBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 5,
+            // margin_top: 5,
+            // margin_bottom: 5,
+            halign: Gtk.Align.END,
+            homogeneous: false,
+        });
+        let radiusTopLeft = this.createToggleButton('Top-L', 'Top-Left Corner');
+        radiusBox.append(radiusTopLeft);
+        let radiusTopRight = this.createToggleButton('Top-R', 'Top-Right Corner');
+        radiusBox.append(radiusTopRight);
+        let radiusBottomLeft = this.createToggleButton('Bottom-L', 'Bottom-Left Corner');
+        radiusBox.append(radiusBottomLeft);
+        let radiusBottomRight = this.createToggleButton('Bottom-R', 'Bottom-Right Corner');
+        radiusBox.append(radiusBottomRight);        
+        
+        bgrid.attach(radiusBox, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
@@ -1267,6 +1375,18 @@ class OpenbarPrefs {
 
         rowbar += 3;
 
+        // Add a Auto FG color switch for Menu
+        let autofgMenuLabel = new Gtk.Label({
+            label: 'Auto FG Color',
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(autofgMenuLabel, 1, rowbar, 1, 1);
+
+        let autofgMenuSwitch = this.createSwitchWidget('Automatically set white/black FG color as per background color of menu widgets');
+        menugrid.attach(autofgMenuSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
         // Add a menu FG color chooser
         let menuFGColorLabel = new Gtk.Label({
             label: 'FG Color',
@@ -1312,6 +1432,18 @@ class OpenbarPrefs {
 
         let mbgAlpha = this.createScaleWidget(0, 1, 0.01, 2);
         menugrid.attach(mbgAlpha, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add an SVG menu BG gradient switch
+        let mbgGradientLbl = new Gtk.Label({
+            label: `Light Gradient`,
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(mbgGradientLbl, 1, rowbar, 1, 1);
+
+        let mbgGradientSwitch = this.createSwitchWidget('Light gradient effect from top-left on menu background');
+        menugrid.attach(mbgGradientSwitch, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
@@ -1866,6 +1998,78 @@ class OpenbarPrefs {
             'value',
             Gio.SettingsBindFlags.DEFAULT
         );
+        this._settings.bind(
+            'boxalpha',
+            boxAlpha.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'mbg-gradient',
+            mbgGradientSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'autofg-bar',
+            autofgBarSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'autofg-menu',
+            autofgMenuSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'width-top',
+            widthTop,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        this._settings.bind(
+            'width-bottom',
+            widthBottom,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        this._settings.bind(
+            'width-left',
+            widthLeft,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        this._settings.bind(
+            'width-right',
+            widthRight,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        this._settings.bind(
+            'radius-topleft',
+            radiusTopLeft,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        this._settings.bind(
+            'radius-topright',
+            radiusTopRight,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        this._settings.bind(
+            'radius-bottomleft',
+            radiusBottomLeft,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        this._settings.bind(
+            'radius-bottomright',
+            radiusBottomRight,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        )
         // this._settings.bind(
         //     'menustyle',
         //     menuSwitch,
