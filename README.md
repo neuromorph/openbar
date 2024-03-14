@@ -5,6 +5,7 @@
 A GNOME Shell extension for customizing Gnome Top Bar / Top Panel, menus and more.  
 
 Customize:
+- Auto-theming options (Color, Dark, Light)
 - Bar Type: Fixed, Floating or Islands / Trilands
 - Bar position, height, margin, paddings
 - Bar foreground color, font
@@ -14,8 +15,6 @@ Customize:
 etc.
 - Apply to notification popups
 - Includes a custom color palette in each color button popup. The palette is auto-generated from the desktop background.  
-UPDATE =>
-- Auto-theming options 
 - Import, export theme settings to file.
 - Window-Max Bar: Change Bar props when a window is maximized
 - More settings in Menus: Menu panel and buttons radius, slider tweaks      
@@ -24,12 +23,11 @@ UPDATE =>
 Auto Theming:
 - Note: If you want to save your current settings, please use Export Settings option before applying Auto-theme. You can import it back whenever needed.
 - Please select Bar properties esp. type of bar before applying a theme. If you change Bar type later, apply theme again.
-- There are three theme options: 'Color', 'Dark', 'Light' and two variations for each: 'Default', 'Alt'.  Try all combinations to see what you prefer for your desktop background.
+- There are three theme options: 'Color', 'Dark', 'Light' and two variations for each: 'Default', 'Alt'.  Try all combinations to see what you prefer for your desktop background. (Default and Alt maybe very similar or distinct depending on the background palette).
 - There are more settings in Auto-Theme. You can select if you want the secondary menu BG color to be derived from BG or auto-selected from palette. Also, you can specify any preferred accent color or let the theme choose from the background. 
 - Since it is one size fit all solution, 'No Free Lunch' theorem applies. Not all options will work for all backgrounds, so the additional knobs above will help you select the desired one. One of the combinations should work for you at least with little bit tweaking if needed.
 - Once theme is applied, you can further tweak any of the manual settings as usual to finetune the theme. 
 - There is an option for Auto-refreshing theme when background changes. This will overwrite current theme with newly generated one when background is changed.  
-[ Note: changing the background by right clicking an image file (instead of from settings) may not get detected in newer Gnome. ]  
 
 ## Installation
 
@@ -70,13 +68,14 @@ Use the settings panel of the extension for customizations. If the panel/menu is
     - Neon glow: adds a neon-light like glow to the border. You need dark, relatively opaque background with bright/neon colored, relatively opaque border. Neon will override Panel shadow in Mainland and Floating mode.
  - Menus: 
     - FG/BG, border, highlight are similar to above but for menus.
-    - Selected/active color is for menu items that are active e.g. Today's day in Calendar or WiFi in Quick Settings or even an active menu item with opened submenu. 
+    - Accent/active color is for menu items that are active e.g. Today's day in Calendar or WiFi in Quick Settings or even an active menu item with opened submenu. 
     - Shadow applies to the panel menu. Use white/bright color in dark theme and black/dark color in light theme for the effect to show and help with contrast. Using same color as menu border is also a good idea. Use the Alphas for both border and shadow to increase or reduce their effect.
     - Once enabled, menu settings now also apply as soon as changed. You need to press 'Apply Menu Styles' button to enable the menu style. 'Reset Menu Styles' button will remove all menu styles and revert to your default theme.
 
 Lastly, be a tiny bit gentler with the sliders in the settings as they modify the stylesheet behind the scene for every update.
 
 ## What's New (recent first)
+- Automatic FG color, Panel Box color, Light-gradient for menus and creative tweaks for border width and radius
 - Auto-theming options 
 - Import, export theme settings to file.
 - Window-Max Bar: Change Bar props when a window is maximized
@@ -98,13 +97,31 @@ Lastly, be a tiny bit gentler with the sliders in the settings as they modify th
 
 
 ## Screenshots
+Auto-Themes Examples:  
 
-![Screenshot](screens/ego1.png)
+![Screenshot](screens/ego01.png)
+![Screenshot](screens/ego02.png)
+![Screenshot](screens/ego03.png) 
+
+Candybar Example: 
+
+![Screenshot](screens/ego1.png) 
+
+Window-Max Bar Example: 
+
+![WindowMaxBar](screens/OpenBar_WindowMax.webm.mp4) 
+
+More Examples: 
 ![Screenshot](screens/ego2.png)
 ![Screenshot](screens/github0.png)
 ![Screenshot](screens/github1.png)
-![Screenshot](screens/github2.png)
+![Screenshot](screens/github2.png) 
+
+Settings Window:
 ![Screenshot](screens/github10.png)  
+
+Some More Samples: 
+
 ![Screenshot](screens/b1.png) 
 ![Screenshot](screens/b2.png)
 ![Screenshot](screens/b3.png)
