@@ -109,7 +109,7 @@ Candybar Example:
 
 Window-Max Bar Example: 
 
-![WindowMaxBar](screens/OpenBar_WindowMax.webm.mp4) 
+![WindowMaxBar](screens/OpenBar_WindowMax.webm) 
 
 More Examples: 
 ![Screenshot](screens/ego2.png)
