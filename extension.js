@@ -507,6 +507,9 @@ export default class Openbar extends Extension {
             this.setPanelBoxPosition(position, height, margin, borderWidth, bartype);
         }
 
+        if(key == 'monitors-changed')
+            this.connectPrimaryBGChanged();
+
         let setNotifications = this._settings.get_boolean('set-notifications');
         let notifKeys = ['set-notifications', 'position', 'monitors-changed', 'updated', 'enabled'];
         if(notifKeys.includes(key)) {
@@ -771,6 +774,11 @@ export default class Openbar extends Extension {
             this._settings.set_string('bguri', bguriNew);
     }
 
+    connectPrimaryBGChanged() {
+        const pMonitorIdx = Main.layoutManager.primaryIndex;
+        this.bgChangedId = Main.layoutManager._bgManagers[pMonitorIdx].connect('changed', this.updateBguri.bind(this));
+    }
+
     enable() {
         // Get Gnome version
         const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
@@ -827,20 +835,20 @@ export default class Openbar extends Extension {
             connections.push([global.workspace_manager, 'notify::n-workspaces', this.updatePanelStyle.bind(this)]);
         }
 
-        // Connect to background manager (give time for it to be available)
-        this.bgMgrTimeOutId = setTimeout(() => {
-            Main.layoutManager._bgManagers[0].connect('changed', this.updateBguri.bind(this));
-        }, 2000);
-        // Set initial bguri as per color-scheme
-        const bguri = this._settings.get_string('bguri');
-        if(bguri == '') this.updateBguri();
-
         // Setup all connections
         this._connections = new ConnectManager(connections);
         
         // Setup connections for addition of new QSAP extension panels
         if(this.gnomeVersion > 42)
             this.setupLibpanel(null, 'enabled', null, Main.panel.statusArea.quickSettings.menu);
+
+        // Connect to background manager (give time for it to be available)
+        this.bgMgrTimeOutId = setTimeout(() => {
+            this.connectPrimaryBGChanged();
+        }, 2000);
+        // Set initial bguri as per color-scheme
+        const bguri = this._settings.get_string('bguri');
+        if(bguri == '') this.updateBguri();        
 
         // Update calendar style on Calendar rebuild through fn injection
         const obar = this;
@@ -893,6 +901,10 @@ export default class Openbar extends Extension {
         if(this.bgMgrTimeOutId) {
             clearTimeout(this.bgMgrTimeOutId);
             this.bgMgrTimeOutId = null;
+        }
+        if(this.bgChangedId) {
+            Main.layoutManager._bgManagers[Main.layoutManager.primaryIndex].disconnect(this.bgChangedId);
+            this.bgChangedId = null;
         }
 
         if(this.mediaListId) {
