@@ -591,6 +591,7 @@ export default class Openbar extends Extension {
     setupLibpanel(obj, signal, sig_param, menu) {
         if(menu.constructor.name != 'PanelGrid')
             return;
+
         for(const panelColumn of menu.box.get_children()) {
             this._connections.connect(panelColumn, this.addedSignal, this.updatePanelStyle.bind(this));
         }
@@ -810,12 +811,6 @@ export default class Openbar extends Extension {
             [ Main.overview, 'showing', this.updatePanelStyle.bind(this) ],
             [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this) ],
             [ Main.layoutManager, 'monitors-changed', this.updatePanelStyle.bind(this) ],
-            // [ panel._leftBox, 'actor-added', this.updatePanelStyle.bind(this) ],
-            // [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this) ],
-            // [ panel._rightBox, 'actor-added', this.updatePanelStyle.bind(this) ],
-            // [ panel._leftBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
-            // [ panel._centerBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
-            // [ panel._rightBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
             [ Main.messageTray._bannerBin, this.addedSignal, this.updatePanelStyle.bind(this), 'message-banner' ],
             [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this)],
         ];
@@ -929,7 +924,6 @@ export default class Openbar extends Extension {
         this._settings = null;
         this._bgSettings = null;
         this._intSettings = null;
-
     }
     
 }

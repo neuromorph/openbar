@@ -18,7 +18,7 @@ Update ( v17/v18 ):
 Auto Theming:
 - Note: If you want to save your current settings, please use Export Settings option before applying Auto-theme. You can import it back whenever needed.
 - Please select Bar properties esp. type of bar before applying a theme. If you change Bar type later, apply theme again.
-- There are three theme options: 'Color', 'Dark', 'Light' and two variations for each: 'Default', 'Alt'.  Try all combinations to see what you prefer for your desktop background.
+- There are three theme options: 'Color', 'Dark', 'Light' and two variations for each: 'Default', 'Alt'.  Try all combinations to see what you prefer for your desktop background. (Default and Alt maybe very similar or distinct depending on the background palette).
 - There are more settings in Auto-Theme. You can select if you want the secondary menu BG color to be derived from BG or auto-selected from palette. Also, you can specify any preferred accent color or let the theme choose from the background. 
 - Since it is one size fit all solution, 'No Free Lunch' theorem applies. Not all options will work for all backgrounds, so the additional knobs above will help you select the desired one. One of the combinations should work for you at least with little bit tweaking if needed.
 - Once theme is applied, you can further tweak any of the manual settings, as usual, to finetune the theme. 
