@@ -1085,12 +1085,11 @@ function saveStylesheet(obar, Me) {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
             background-color: ${smbg} !important;
             border-radius: ${notifRadius}px;
-            box-shadow: none;
         }
         .openmenu.calendar .calendar-month-header .pager-button,
         .openmenu.calendar .calendar-month-header .pager-button {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: ${smbg} !important;
+            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
         }
         .openmenu.calendar .calendar-month-header .pager-button:hover,
         .openmenu.calendar .calendar-month-header .pager-button:focus {
@@ -1099,11 +1098,11 @@ function saveStylesheet(obar, Me) {
         }
         .openmenu.calendar .calendar-month-label {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: ${smbg} !important;
+            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
         }
         .openmenu.calendar-day-heading  {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: ${smbg} !important;
+            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
         }
         .openmenu.calendar-day-heading:focus  {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
@@ -1111,7 +1110,7 @@ function saveStylesheet(obar, Me) {
             box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
         }
         .openmenu.calendar-day {
-            background-color: ${smbg} !important;
+            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
         }
         .openmenu.calendar-weekday, .openmenu.calendar-work-day {
             color: rgba(${smfgred},${smfggreen},${smfgblue},1) !important;
@@ -1327,10 +1326,10 @@ function saveStylesheet(obar, Me) {
             background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
         }
         .openmenu.quick-toggle-menu .popup-menu-item {
-            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
         }
         .openmenu.quick-toggle-menu .popup-menu-item:hover, .openmenu.quick-toggle-menu .popup-menu-item:focus {
-            color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
             background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
         }
 
@@ -1344,7 +1343,7 @@ function saveStylesheet(obar, Me) {
             background-color: ${mshg} !important;
         }
         .openmenu.quick-toggle-menu .header .title, .openmenu.quick-toggle-menu .header .subtitle  {
-            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
         }
         .openmenu.quick-toggle-menu .header .icon {
             color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha}) !important;
