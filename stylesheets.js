@@ -171,7 +171,6 @@ function rgbToHex(r, g, b) {
 function saveStylesheet(obar, Me) {
 
     let bartype = obar._settings.get_string('bartype');
-    let position = obar._settings.get_string('position');
     let boxcolor = obar._settings.get_strv('boxcolor');
     let boxalpha = obar._settings.get_double('boxalpha');
     let bgcolor = obar._settings.get_strv('bgcolor');
@@ -386,7 +385,7 @@ function saveStylesheet(obar, Me) {
             mfgred = mfggreen = mfgblue = 255;
         }
         else
-            mfgred = mfggreen = mfgblue = 0;
+            mfgred = mfggreen = mfgblue = 25;
 
         // Menu highlight auto fg color
         const mhbgred = mbgred*(1-mhAlpha) + mhred*mhAlpha;
@@ -401,7 +400,7 @@ function saveStylesheet(obar, Me) {
         if(getBgDark(smbgred, smbggreen, smbgblue))
             smfgred = smfggreen = smfgblue = 255;
         else
-            smfgred = smfggreen = smfgblue = 0;
+            smfgred = smfggreen = smfgblue = 25;
 
         // Sub menu highlight auto fg color
         const smhbgred = smbgred*(1-mhAlpha) + mhred*mhAlpha;
@@ -416,7 +415,7 @@ function saveStylesheet(obar, Me) {
         if(getBgDark(msred, msgreen, msblue))
             amfgred = amfggreen = amfgblue = 255;
         else
-            amfgred = amfggreen = amfgblue = 0;
+            amfgred = amfggreen = amfgblue = 20;
 
         // Menu/Submenu active highlight auto fg color    
         const amhbgred = msred*(1-mhAlpha) + mhred*mhAlpha;
@@ -991,23 +990,29 @@ function saveStylesheet(obar, Me) {
         .openmenu.message .message-title {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
         }
+        .openmenu.message .message-source-icon, .openmenu.message .message-source-title {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
+        }
         .openmenu.message .message-body {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
         }
         .openmenu.message .event-time {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
         }
+        .openmenu.message:hover .message-source-icon, .openmenu.message:focus .message-source-icon,
         .openmenu.message:hover .message-title, .openmenu.message:focus .message-title,
+        .openmenu.message:hover .message-source-title, .openmenu.message:focus .message-source-title,
         .openmenu.message:hover .message-body, .openmenu.message:focus .message-body,
         .openmenu.message:hover .event-time, .openmenu.message:focus .event-time {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
         }
-        .openmenu.message .button, .openmenu.message .message-close-button {
+        .openmenu.message .button, .openmenu.message .message-close-button, .openmenu.message .message-expand-button {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
             background-color: ${smbg} !important;
         }
         .openmenu.message .button:hover, .openmenu.message .button:focus,
-        .openmenu.message .message-close-button:hover, .openmenu.message .message-close-button:focus {
+        .openmenu.message .message-close-button:hover, .openmenu.message .message-close-button:focus,
+        .openmenu.message .message-expand-button:hover, .openmenu.message .message-expand-button:focus {
             background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
         }
         .openmenu.message .message-media-control {
@@ -1083,6 +1088,7 @@ function saveStylesheet(obar, Me) {
         .openmenu.calendar .calendar-month-header .pager-button,
         .openmenu.calendar .calendar-month-header .pager-button {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
         }
         .openmenu.calendar .calendar-month-header .pager-button:hover,
         .openmenu.calendar .calendar-month-header .pager-button:focus {
@@ -1091,14 +1097,19 @@ function saveStylesheet(obar, Me) {
         }
         .openmenu.calendar .calendar-month-label {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
         }
         .openmenu.calendar-day-heading  {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
         }
         .openmenu.calendar-day-heading:focus  {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
             background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
             box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
+        }
+        .openmenu.calendar-day {
+            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
         }
         .openmenu.calendar-weekday, .openmenu.calendar-work-day {
             color: rgba(${smfgred},${smfggreen},${smfgblue},1) !important;
@@ -1165,12 +1176,13 @@ function saveStylesheet(obar, Me) {
         .openmenu.events-button .events-title {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.9}) !important;
         }            
-        .openmenu.events-button .event-time {
+        .openmenu.events-button .event-time, .openmenu.events-button .event-placeholder {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
         }
         .openmenu.events-button:hover .events-list, .openmenu.events-button:focus .events-list,
         .openmenu.events-button:hover .events-title, .openmenu.events-button:focus .events-title,
-        .openmenu.events-button:hover .event-time, .openmenu.events-button:focus .event-time {
+        .openmenu.events-button:hover .event-time, .openmenu.events-button:focus .event-time,
+        .openmenu.events-button:hover .event-placeholder, .openmenu.events-button:focus .event-placeholder {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
         }
         
@@ -1313,10 +1325,10 @@ function saveStylesheet(obar, Me) {
             background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
         }
         .openmenu.quick-toggle-menu .popup-menu-item {
-            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
         }
         .openmenu.quick-toggle-menu .popup-menu-item:hover, .openmenu.quick-toggle-menu .popup-menu-item:focus {
-            color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
             background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
         }
 
@@ -1330,7 +1342,7 @@ function saveStylesheet(obar, Me) {
             background-color: ${mshg} !important;
         }
         .openmenu.quick-toggle-menu .header .title, .openmenu.quick-toggle-menu .header .subtitle  {
-            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
         }
         .openmenu.quick-toggle-menu .header .icon {
             color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha}) !important;
@@ -1344,6 +1356,7 @@ function saveStylesheet(obar, Me) {
         }
         .openmenu.quick-settings .icon-button {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
+            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
         }
         .openmenu.quick-settings .button {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
@@ -1353,10 +1366,15 @@ function saveStylesheet(obar, Me) {
             color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha*1.2}) !important;
             background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
         }
+        .openmenu.background-app-item .icon-button {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
+            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
+        }
 
         .openmenu.quick-settings-system-item .icon-button:hover, .openmenu.quick-settings-system-item .icon-button:focus,
         .openmenu.quick-settings .icon-button:hover, .openmenu.quick-settings .icon-button:focus,
-        .openmenu.quick-settings .button:hover, .openmenu.quick-settings .button:focus {
+        .openmenu.quick-settings .button:hover, .openmenu.quick-settings .button:focus,
+        .openmenu.background-app-item .icon-button:hover, .openmenu.background-app-item .icon-button:focus {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
             background-color: ${smhbg} !important;
         }
