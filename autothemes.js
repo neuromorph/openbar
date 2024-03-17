@@ -544,7 +544,7 @@ function autoApplyBGPalette(obar) {
     let allHSP1 = allHSP[17]; // Bar border color
     let allHSP2 = allHSP[16]; // Menu border and shadow color
 
-    // Move Bar border color towards fg color for high contrast border
+    // Move Bar border color towards white (lighter seems better for both dark/light thems)
     for(let i=0; i<iters; i++) {
         if(getColorDist(allHSP1, white) > 90) {               
             allHSP1 = colorMove(allHSP1, white, 2*delta);
@@ -585,20 +585,11 @@ function autoApplyBGPalette(obar) {
     // BAR
     fgalpha = 1.0;
     bgcolor = getStrv(prominent1);
-    if(bartype == 'Mainland') {
+    if(bartype == 'Mainland' || bartype == 'Floating') {
         bgalpha = 0.9;
-        bradius = 0;
-        bwidth = 0;
-    }
-    else if(bartype == 'Floating') {
-        bgalpha = 0.9;
-        bradius = 50;
-        bwidth = 2;
     }
     else {
         bgalpha = 0;
-        bradius = 50;
-        bwidth = 2;
     }
     iscolor = getStrv(prominent1);
     isalpha = 0.9;
@@ -633,6 +624,7 @@ function autoApplyBGPalette(obar) {
         obar._settings.set_boolean('shadow', false);
     obar._settings.set_strv('fgcolor', fgcolor);
     obar._settings.set_double('fgalpha', fgalpha);
+    obar._settings.set_boolean('autofg-bar', true);
     obar._settings.set_strv('bgcolor', bgcolor);
     obar._settings.set_double('bgalpha', bgalpha);
     obar._settings.set_strv('bgcolor2', bgcolor2);
@@ -641,8 +633,6 @@ function autoApplyBGPalette(obar) {
     obar._settings.set_double('isalpha', isalpha);
     obar._settings.set_strv('shcolor', shcolor);
     obar._settings.set_double('shalpha', shalpha);
-    obar._settings.set_double('bradius', bradius);
-    obar._settings.set_double('bwidth', bwidth);
     obar._settings.set_strv('bcolor', bcolor);
     obar._settings.set_double('balpha', balpha);
     obar._settings.set_strv('hcolor', hcolor);
@@ -652,6 +642,7 @@ function autoApplyBGPalette(obar) {
 
     obar._settings.set_strv('mfgcolor', mfgcolor);
     obar._settings.set_double('mfgalpha', mfgalpha);
+    obar._settings.set_boolean('autofg-menu', true);
     obar._settings.set_strv('mbgcolor', mbgcolor);
     obar._settings.set_double('mbgalpha', mbgalpha);
     obar._settings.set_strv('smbgcolor', smbgcolor);
