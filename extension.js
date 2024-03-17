@@ -268,9 +268,9 @@ class Extension {
                 if(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) { // btn.child is the indicator
 
                     // box pointer case, to update -arrow-rise for bottom panel
-                    // if(btn.child.menu?._boxPointer) {
-                    //     this.applyMenuClass(btn.child.menu._boxPointer, add);
-                    // }
+                    if(btn.child.menu?._boxPointer) {
+                        this.applyMenuClass(btn.child.menu._boxPointer, add);
+                    }
 
                     // special case for Quick Settings Audio Panel, because it changes the layout of the Quick Settings menu
                     if(btn.child.menu?.constructor.name == "PanelGrid") {
@@ -312,7 +312,7 @@ class Extension {
                         const mediaSection = sectionList.get_child_at_index(0); // Media notifications (play music/video)
                         this.mediaList = mediaSection?.get_child_at_index(0); 
                         if(add && !this.mediaListId) {
-                            this.mediaListId = this.mediaList?.connect('actor-added', (container, actor) => {
+                            this.mediaListId = this.mediaList?.connect(this.addedSignal, (container, actor) => {
                                 this.applyMenuClass(actor.child, add);
                             });
                         }
@@ -327,7 +327,7 @@ class Extension {
                         const notifSection = sectionList.get_child_at_index(1); // Message notifications
                         this.notifList = notifSection?.get_child_at_index(0);
                         if(add && !this.notifListId) {
-                            this.notifListId = this.notifList?.connect('actor-added', (container, actor) => {
+                            this.notifListId = this.notifList?.connect(this.addedSignal, (container, actor) => {
                                 this.applyMenuClass(actor.child, add);
                             });
                         }
@@ -440,7 +440,7 @@ class Extension {
 
         let bartype = this._settings.get_string('bartype');
         // Update triland classes if actor (panel button) removed in triland mode else return
-        if(key == 'actor-removed' && bartype != 'Trilands') 
+        if(key == this.removedSignal && bartype != 'Trilands') 
             return;
 
         let position = this._settings.get_string('position');
@@ -468,10 +468,9 @@ class Extension {
         
         let menustyle = this._settings.get_boolean('menustyle');
         if(['reloadstyle', 'removestyle', 'menustyle'].includes(key) ||
-            key == 'actor-added' && callbk_param != 'message-banner' ||
+            key == this.addedSignal && callbk_param != 'message-banner' ||
             key == 'hiding' && !setOverview) {
             this.applyMenuStyles(panel, menustyle);
-            // this.backgroundGroup._updateBackgrounds();
         }
         
         if(key == 'mscolor')
@@ -504,6 +503,9 @@ class Extension {
             this.setPanelBoxPosition(position, height, margin, borderWidth, bartype);
         }
 
+        if(key == 'monitors-changed')
+            this.connectPrimaryBGChanged();
+
         let setNotifications = this._settings.get_boolean('set-notifications');
         let notifKeys = ['set-notifications', 'position', 'monitors-changed', 'updated', 'enabled'];
         if(notifKeys.includes(key)) {
@@ -512,7 +514,7 @@ class Extension {
             else
                 Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
         }
-        if(key == 'actor-added' && callbk_param == 'message-banner' && setNotifications) { 
+        if(key == this.addedSignal && callbk_param == 'message-banner' && setNotifications) { 
             Main.messageTray._banner?.add_style_class_name('openmenu');
         }
 
@@ -588,10 +590,10 @@ class Extension {
             return;
 
         for(const panelColumn of menu.box.get_children()) {
-            this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
+            this._connections.connect(panelColumn, this.addedSignal, this.updatePanelStyle.bind(this));
         }
-        this._connections.connect(menu.box, 'actor-added', (obj, signal, panelColumn, callbk_param) => {
-            this._connections.connect(panelColumn, 'actor-added', this.updatePanelStyle.bind(this));
+        this._connections.connect(menu.box, this.addedSignal, (obj, signal, panelColumn, callbk_param) => {
+            this._connections.connect(panelColumn, this.addedSignal, this.updatePanelStyle.bind(this));
         });
     }
 
@@ -667,7 +669,7 @@ class Extension {
                 ]);
             }
         }
-        this.setWindowMaxBar('actor-added');
+        this.setWindowMaxBar(this.addedSignal);
     }
 
     onWindowRemoved(obj, signal, windowActor){
@@ -683,7 +685,7 @@ class Extension {
                 }
             }
         }
-        this.setWindowMaxBar('actor-removed');
+        this.setWindowMaxBar(this.removedSignal);
     }
 
     onWindowMaxBar() {
@@ -693,12 +695,12 @@ class Extension {
             for(const window of global.get_window_actors()){
                 this.onWindowAdded(null, 'enabled', window);
             }
-            this._connections.connect(global.window_group, 'actor-added', this.onWindowAdded.bind(this));
-            this._connections.connect(global.window_group, 'actor-removed', this.onWindowRemoved.bind(this));
+            this._connections.connect(global.window_group, this.addedSignal, this.onWindowAdded.bind(this));
+            this._connections.connect(global.window_group, this.removedSignal, this.onWindowRemoved.bind(this));
         }
         else {
-            this._connections.disconnect(global.window_group, 'actor-added');
-            this._connections.disconnect(global.window_group, 'actor-removed');
+            this._connections.disconnect(global.window_group, this.addedSignal);
+            this._connections.disconnect(global.window_group, this.removedSignal);
             this.disconnectWindowSignals();
             Main.panel.remove_style_pseudo_class('windowmax');
             this.setPanelBoxPosWindowMax(false);
@@ -755,10 +757,24 @@ class Extension {
 
     updateBguri(obj, signal) {
         const colorScheme = this._intSettings.get_string('color-scheme');
+        let bguriOld = this._settings.get_string('bguri');
+        let bguriNew;
         if(colorScheme == 'prefer-dark')
-            this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri-dark'));
+            bguriNew = this._bgSettings.get_string('picture-uri-dark');
         else
-            this._settings.set_string('bguri', this._bgSettings.get_string('picture-uri'));
+            bguriNew = this._bgSettings.get_string('picture-uri');
+        
+        // Gnome45+: if bgnd changed with right click on image file, 
+        // filepath (bguri) remains same, so manually call updatePanelStyle
+        if(bguriOld == bguriNew)
+            this.updatePanelStyle(this._settings, 'bguri');
+        else
+            this._settings.set_string('bguri', bguriNew);
+    }
+
+    connectPrimaryBGChanged() {
+        const pMonitorIdx = Main.layoutManager.primaryIndex;
+        this._connections.connect(Main.layoutManager._bgManagers[pMonitorIdx], 'changed', this.updateBguri.bind(this));
     }
 
     enable() {
@@ -774,6 +790,8 @@ class Extension {
         this.position = null;
         this.wmax = null;
         this.isObarReset = false;
+        this.addedSignal = this.gnomeVersion > 45? 'child-added': 'actor-added';
+        this.removedSignal = this.gnomeVersion > 45? 'child-removed': 'actor-removed';
 
         // Settings for desktop background image (set bg-uri as per color scheme)
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
@@ -790,15 +808,15 @@ class Extension {
             [ Main.overview, 'showing', this.updatePanelStyle.bind(this) ],
             [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this) ],
             [ Main.layoutManager, 'monitors-changed', this.updatePanelStyle.bind(this) ],
-            [ panel._leftBox, 'actor-added', this.updatePanelStyle.bind(this) ],
-            [ panel._centerBox, 'actor-added', this.updatePanelStyle.bind(this) ],
-            [ panel._rightBox, 'actor-added', this.updatePanelStyle.bind(this) ],
-            [ panel._leftBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
-            [ panel._centerBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
-            [ panel._rightBox, 'actor-removed', this.updatePanelStyle.bind(this) ],
-            [ Main.messageTray._bannerBin, 'actor-added', this.updatePanelStyle.bind(this), 'message-banner' ],
+            [ Main.messageTray._bannerBin, this.addedSignal, this.updatePanelStyle.bind(this), 'message-banner' ],
             [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this)],
         ];
+        // Connections for actor-added/removed OR child-added/removed as per Gnome version
+        const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
+        for(const panelBox of panelBoxes) {
+            connections.push([panelBox, this.addedSignal, this.updatePanelStyle.bind(this)]);
+            connections.push([panelBox, this.removedSignal, this.updatePanelStyle.bind(this)]);
+        } 
         // Connection specific to QSAP extension (Quick Settings)
         if(this.gnomeVersion > 42) {
             let qSettings = Main.panel.statusArea.quickSettings;
@@ -809,20 +827,20 @@ class Extension {
             connections.push([global.workspace_manager, 'notify::n-workspaces', this.updatePanelStyle.bind(this)]);
         }
 
-        // Connect to background manager (give time for it to be available)
-        this.bgMgrTimeOutId = setTimeout(() => {
-            Main.layoutManager._bgManagers[0].connect('changed', this.updateBguri.bind(this));
-        }, 2000);
-        // Set initial bguri as per color-scheme
-        const bguri = this._settings.get_string('bguri');
-        if(bguri == '') this.updateBguri();
-
         // Setup all connections
         this._connections = new ConnectManager(connections);
 
         // Setup connections for addition of new QSAP extension panels
         if(this.gnomeVersion > 42)
             this.setupLibpanel(null, 'enabled', null, Main.panel.statusArea.quickSettings.menu);
+
+        // Connect to background manager (give time for it to be available)
+        this.bgMgrTimeOutId = setTimeout(() => {
+            this.connectPrimaryBGChanged();
+        }, 2000);
+        // Set initial bguri as per color-scheme
+        const bguri = this._settings.get_string('bguri');
+        if(bguri == '') this.updateBguri();        
 
         // Update calendar style on Calendar rebuild through fn injection
         const obar = this;
