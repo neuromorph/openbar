@@ -587,5 +587,10 @@
       <summary>Apply border radius to Bottom Right corner</summary>
       <description>Apply border radius to Bottom Right corner.</description>
     </key>
+    <key type="b" name="candybar-fg">
+      <default>false</default>
+      <summary>Apply candybar pallete to foreground</summary>
+      <description>Apply candybar pallete to foreground of panel buttons.</description>
+    </key>
   </schema>
 </schemalist>
