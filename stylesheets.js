@@ -634,7 +634,7 @@ function saveStylesheet(obar, Me) {
     
     if(bartype == 'Mainland') {
         panelStyle += 
-        ` margin: 0px; `;         
+        ` margin: 0px; border-radius: 0px; `;         
     }
     if(bartype == 'Floating') {
         panelStyle += 
