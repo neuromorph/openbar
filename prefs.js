@@ -1034,11 +1034,12 @@ class OpenbarPrefs {
         let candybarLbl = new Gtk.Label({
             label: 'Apply Candybar Pallete',
             halign: Gtk.Align.START,
+            tooltip_text: 'Click on the color buttons to edit colors',
         });
         bggrid.attach(candybarLbl, 1, rowbar, 1, 1);
 
         // Add a candybar switch
-        let candybar = this.createSwitchWidget();
+        let candybar = this.createSwitchWidget('Click on the color buttons to edit colors');
         bggrid.attach(candybar, 2, rowbar, 1, 1);
         
         rowbar += 1;
