@@ -796,7 +796,7 @@ class OpenbarPrefs {
 
         rowbar = 1;
 
-        // Add a Auto FG color switch for Bar
+        // Add an Auto FG color switch for Bar
         let autofgBarLabel = new Gtk.Label({
             label: 'Auto FG Color',
             halign: Gtk.Align.START,
@@ -927,6 +927,7 @@ class OpenbarPrefs {
         bggrid.attach(boxAlpha, 2, rowbar, 1, 1);
 
         rowbar += 1;
+        
 
         // Add a bar background color chooser
         let bgColorLbl = new Gtk.Label({
