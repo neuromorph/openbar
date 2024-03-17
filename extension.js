@@ -777,7 +777,7 @@ export default class Openbar extends Extension {
 
     connectPrimaryBGChanged() {
         const pMonitorIdx = Main.layoutManager.primaryIndex;
-        this.bgChangedId = Main.layoutManager._bgManagers[pMonitorIdx].connect('changed', this.updateBguri.bind(this));
+        this._connections.connect(Main.layoutManager._bgManagers[pMonitorIdx], 'changed', this.updateBguri.bind(this));
     }
 
     enable() {
@@ -896,10 +896,6 @@ export default class Openbar extends Extension {
         if(this.bgMgrTimeOutId) {
             clearTimeout(this.bgMgrTimeOutId);
             this.bgMgrTimeOutId = null;
-        }
-        if(this.bgChangedId) {
-            Main.layoutManager._bgManagers[Main.layoutManager.primaryIndex].disconnect(this.bgChangedId);
-            this.bgChangedId = null;
         }
 
         if(this.mediaListId) {
