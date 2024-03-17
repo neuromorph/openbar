@@ -568,7 +568,7 @@ export function autoApplyBGPalette(obar) {
 
 
     let bgcolorWmax, bgalphaWmax, fgcolor, fgalpha, bgcolor, bgalpha, iscolor, isalpha, bgcolor2, bgalpha2, shcolor, shalpha, 
-    hcolor, halpha, bradius, bwidth, bcolor, balpha, mfgcolor, mfgalpha, mbgcolor, mbgalpha, smbgcolor, smbgalpha, mbcolor, 
+    hcolor, halpha, bcolor, balpha, mfgcolor, mfgalpha, mbgcolor, mbgalpha, smbgcolor, smbgalpha, mbcolor, 
     mbalpha, mhcolor, mhalpha, mshcolor, mshalpha, mscolor, msalpha;
 
     let bartype = obar._settings.get_string('bartype');
@@ -585,20 +585,11 @@ export function autoApplyBGPalette(obar) {
     // BAR
     fgalpha = 1.0;
     bgcolor = getStrv(prominent1);
-    if(bartype == 'Mainland') {
+    if(bartype == 'Mainland' || bartype == 'Floating') {
         bgalpha = 0.9;
-        bradius = 0;
-        bwidth = 0;
-    }
-    else if(bartype == 'Floating') {
-        bgalpha = 0.9;
-        bradius = 30;
-        bwidth = 2;
     }
     else {
         bgalpha = 0;
-        bradius = 25;
-        bwidth = 2;
     }
     iscolor = getStrv(prominent1);
     isalpha = 0.9;
@@ -642,8 +633,6 @@ export function autoApplyBGPalette(obar) {
     obar._settings.set_double('isalpha', isalpha);
     obar._settings.set_strv('shcolor', shcolor);
     obar._settings.set_double('shalpha', shalpha);
-    obar._settings.set_double('bradius', bradius);
-    obar._settings.set_double('bwidth', bwidth);
     obar._settings.set_strv('bcolor', bcolor);
     obar._settings.set_double('balpha', balpha);
     obar._settings.set_strv('hcolor', hcolor);
