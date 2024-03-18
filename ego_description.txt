@@ -2,6 +2,8 @@ Top Bar ( Top Panel ) customization / styling. Open the Top Bar and let the colo
 
 **Please report on Github if something is broken due to an update or if you have any suggestions/feedback.
 
+Update ( v23/v24 ): BugFix about extension crashing on screen-lock for multi-monitors
+
 Update ( v19/v20 ):
 - Auto FG option to automatically switch (black/white) FG color based on widget background
 - Option to set Panel Box / Margins BG color
