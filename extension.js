@@ -378,21 +378,21 @@ class Extension {
     }
 
     setPanelBoxPosition(position, height, margin, borderWidth, bartype) {
-        let pMonitor = Main.layoutManager.primaryMonitor;
+        let panelMonitor = this.getPanelMonitor()[0];
         let panelBox = Main.layoutManager.panelBox; 
         if(position == 'Top') {       
-            let topX = pMonitor.x;
-            let topY = pMonitor.y;
+            let topX = panelMonitor.x;
+            let topY = panelMonitor.y;
             panelBox.set_position(topX, topY);
-            panelBox.set_size(pMonitor.width, -1);        
+            panelBox.set_size(panelMonitor.width, -1);        
         }
         else if(position == 'Bottom') {
             margin = (bartype == 'Mainland')? 0: margin;
             borderWidth = (bartype == 'Trilands' || bartype == 'Islands')? 0: borderWidth;  
-            let bottomX = pMonitor.x;
-            let bottomY = pMonitor.y + pMonitor.height - height - 2*borderWidth - 2*margin;
+            let bottomX = panelMonitor.x;
+            let bottomY = panelMonitor.y + panelMonitor.height - height - 2*borderWidth - 2*margin;
             panelBox.set_position(bottomX, bottomY);
-            panelBox.set_size(pMonitor.width, height + 2*borderWidth + 2*margin);
+            panelBox.set_size(panelMonitor.width, height + 2*borderWidth + 2*margin);
         }
         
     }
@@ -597,6 +597,23 @@ class Extension {
         });
     }
 
+    getPanelMonitor() {
+        // Find out index of the monitor which has the panel/panelBox
+        let panelMonIndex = 0;
+        const LM = Main.layoutManager;
+        const monitors = LM.monitors;
+        const panelBox = LM.panelBox;
+        for(let i=0; i<monitors.length; i++) {
+            let monitor = monitors[i];  
+            if(panelBox.x >= monitor.x && panelBox.x <= (monitor.x + monitor.width) &&
+                panelBox.y >= monitor.y && panelBox.y <= (monitor.y + monitor.height)) {
+                panelMonIndex = i; 
+                break;
+            }
+        }
+        return [monitors[panelMonIndex], panelMonIndex];
+    }
+
     setPanelBoxPosWindowMax(wmax, signal) {
         // Need to set panelBox position since bar margins/height can change with WMax
         const position = this._settings.get_string('position');
@@ -633,15 +650,19 @@ class Extension {
             return;
         }
         
+        // Find out index of the monitor which has the panel/panelBox
+        let panelMonIndex = this.getPanelMonitor()[1];
+
+        // Get valid windows maximized on the monitor with panel
         const workspace = global.workspace_manager.get_active_workspace();
         const windows = workspace.list_windows().filter(window =>
-            window.get_monitor() == Main.layoutManager.primaryMonitor.index
-            && window.showing_on_its_workspace()
-            && !window.is_hidden()
-            && window.get_window_type() !== Meta.WindowType.DESKTOP
+            window.get_monitor() == panelMonIndex && 
+            window.showing_on_its_workspace() && 
+            !window.is_hidden() && 
+            window.get_window_type() !== Meta.WindowType.DESKTOP && 
             // exclude Desktop Icons NG
-            && window.get_gtk_application_id() !== "com.rastersoft.ding"
-            && (window.maximized_horizontally 
+            window.get_gtk_application_id() !== "com.rastersoft.ding" && 
+            (window.maximized_horizontally 
                 || window.maximized_vertically) 
         );
 
@@ -743,16 +764,25 @@ class Extension {
         
     }
 
-    onFullScreen(obj, signal, sig_param) {
-        const pMonitorIdx = Main.layoutManager.primaryIndex;        
-        if(global.display.get_monitor_in_fullscreen(pMonitorIdx)) {
-            this.unloadStylesheet();
-            this.isObarReset = true;
-        }
-        else if(this.isObarReset) {
-            this.loadStylesheet();                
-            this.isObarReset = false;            
-        }
+    onFullScreen(obj, signal, sig_param, timeout = 0) {
+        this.onFullScrTimeoutId = setTimeout(() => { // Timeout to allow other extensions to move panel to another monitor
+            // Check if panelBox is on the monitor which is in fullscreen
+            const LM = Main.layoutManager;
+            let panelBoxMonitor = this.getPanelMonitor()[0];
+            let panelFullMonFound = false;
+            for(const monitor of LM.monitors) {
+                if(monitor.inFullscreen && monitor == panelBoxMonitor) {
+                    this.unloadStylesheet();
+                    this.isObarReset = true;
+                    panelFullMonFound = true;
+                    break;
+                }
+            }
+            if(!panelFullMonFound && this.isObarReset) {
+                this.loadStylesheet();                
+                this.isObarReset = false;            
+            }
+        }, timeout);
     }
 
     updateBguri(obj, signal) {
@@ -809,7 +839,7 @@ class Extension {
             [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this) ],
             [ Main.layoutManager, 'monitors-changed', this.updatePanelStyle.bind(this) ],
             [ Main.messageTray._bannerBin, this.addedSignal, this.updatePanelStyle.bind(this), 'message-banner' ],
-            [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this)],
+            [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this), 100 ],
         ];
         // Connections for actor-added/removed OR child-added/removed as per Gnome version
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
@@ -869,7 +899,7 @@ class Extension {
         this.onWindowMaxBar();
 
         // Set fullscreen mode if in Fullscreen when extension is enabled
-        this.onFullScreen(null, 'enabled', null);        
+        this.onFullScreen(null, 'enabled', null, 100);        
     }
 
     disable() {
@@ -893,6 +923,11 @@ class Extension {
         if(this.bgMgrTimeOutId) {
             clearTimeout(this.bgMgrTimeOutId);
             this.bgMgrTimeOutId = null;
+        }
+
+        if(this.onFullScrTimeoutId) {
+            clearTimeout(this.onFullScrTimeoutId);
+            this.onFullScrTimeoutId = null;
         }
 
         if(this.mediaListId) {
