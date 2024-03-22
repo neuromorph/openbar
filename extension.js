@@ -880,6 +880,8 @@ export default class Openbar extends Extension {
             Calendar.Calendar.prototype,
             "_rebuildCalendar",
             function () {
+                if(!obar._settings)
+                    return;
                 let menustyle = obar._settings.get_boolean('menustyle');
                 let setOverview = obar._settings.get_boolean('set-overview');
                 if(menustyle) {  
