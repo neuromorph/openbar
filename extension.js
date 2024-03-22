@@ -265,6 +265,27 @@ export default class Openbar extends Extension {
         });
     }
 
+    applySectionStyles(list, add) {
+        list.get_children().forEach((section, idx) => {
+            for(const msgList of section?.get_children()) {                
+                if(add && !this.msgListIds[idx]) {
+                    this.msgListIds[idx] = msgList?.connect(this.addedSignal, (container, actor) => {
+                        this.applyMenuClass(actor.child, add);
+                    });
+                    this.msgLists[idx] = msgList;
+                }
+                else if(!add && this.msgListIds[idx]) {
+                    msgList?.disconnect(this.msgListIds[idx]);
+                    this.msgListIds[idx] = null;
+                    this.msgLists[idx] = null;
+                }
+                msgList?.get_children().forEach(msg => {
+                    this.applyMenuClass(msg.child, add);
+                });
+            }
+        });
+    }
+
     applyMenuStyles(panel, add) {
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
@@ -313,35 +334,12 @@ export default class Openbar extends Extension {
                         const msgbox = msgList.get_child_at_index(1);
                         const msgScroll = msgbox.get_child_at_index(0);
                         const sectionList = msgScroll.child;
-                        const mediaSection = sectionList.get_child_at_index(0); // Media notifications (play music/video)
-                        this.mediaList = mediaSection?.get_child_at_index(0); 
-                        if(add && !this.mediaListId) {
-                            this.mediaListId = this.mediaList?.connect(this.addedSignal, (container, actor) => {
-                                this.applyMenuClass(actor.child, add);
-                            });
-                        }
-                        else if(!add && this.mediaListId) {
-                            this.mediaList?.disconnect(this.mediaListId);
-                            this.mediaListId = null;
-                        }
-                        this.mediaList?.get_children().forEach(media => {
-                            this.applyMenuClass(media.child, add);
-                        });                      
-
-                        const notifSection = sectionList.get_child_at_index(1); // Message notifications
-                        this.notifList = notifSection?.get_child_at_index(0);
-                        if(add && !this.notifListId) {
-                            this.notifListId = this.notifList?.connect(this.addedSignal, (container, actor) => {
-                                this.applyMenuClass(actor.child, add);
-                            });
-                        }
-                        else if(!add && this.notifListId) {
-                            this.notifList?.disconnect(this.notifListId);
-                            this.notifListId = null;
-                        }
-                        this.notifList?.get_children().forEach(message => {
-                            this.applyMenuClass(message.child, add);
-                        })
+                        this.sectionListId = sectionList?.connect(this.addedSignal, (container, actor) => {
+                            console.log('section added: ', actor.constructor.name);
+                            this.applySectionStyles(sectionList, add);
+                        });
+                        this.applySectionStyles(sectionList, add);
+                        
                         const msgHbox = msgbox.get_child_at_index(1); // hbox at botton for dnd and clear buttons
                         const dndBtn = msgHbox.get_child_at_index(1);
                         this.applyMenuClass(dndBtn, add);
@@ -824,6 +822,8 @@ export default class Openbar extends Extension {
         this.isObarReset = false;
         this.addedSignal = this.gnomeVersion > 45? 'child-added': 'actor-added';
         this.removedSignal = this.gnomeVersion > 45? 'child-removed': 'actor-removed';
+        this.msgLists = [];
+        this.msgListIds = [];
 
          // Settings for desktop background image (set bg-uri as per color scheme)
          this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
@@ -875,21 +875,31 @@ export default class Openbar extends Extension {
         if(bguri == '') this.updateBguri();        
 
         // Update calendar style on Calendar rebuild through fn injection
+        let calendar = Main.panel.statusArea.dateMenu._calendar;
+        this.origRebuildCal = calendar._rebuildCalendar;
         const obar = this;
-        this._injections["_rebuildCalendar"] = this._injectToFunction(
-            Calendar.Calendar.prototype,
-            "_rebuildCalendar",
-            function () {
-                if(!obar._settings)
-                    return;
-                let menustyle = obar._settings.get_boolean('menustyle');
-                let setOverview = obar._settings.get_boolean('set-overview');
-                if(menustyle) {  
-                    if(setOverview || !Main.panel.has_style_pseudo_class('overview'))
-                        obar.applyCalendarGridStyle(this, menustyle);            
-                }
+        calendar._rebuildCalendar = function () {
+            let ret = obar.origRebuildCal.apply(this, arguments);
+
+            // console.log('In obar rebuild calendar');
+            if(!obar._settings) {
+                // console.log('In obar rebuild calendar. No settings');
+                return;
             }
-        );
+            let menustyle = obar._settings.get_boolean('menustyle');
+            let setOverview = obar._settings.get_boolean('set-overview');
+            if(menustyle) {  
+                if(setOverview || !Main.panel.has_style_pseudo_class('overview')) { 
+                    // console.log('Open Bar: Applying Calendar style in Rebuild'); 
+                    obar.applyCalendarGridStyle(calendar, menustyle);  
+                    let sectionList = Main.panel.statusArea.dateMenu._messageList._sectionList;
+                    if(sectionList.get_children().length > 2)
+                        this.secListTimeoutId = setTimeout(() => {obar.applySectionStyles(sectionList, menustyle)}, 20);                          
+                } 
+            }
+
+            return ret;
+        }
 
         // Apply the initial style
         this.updatePanelStyle(null, 'enabled');
@@ -934,17 +944,21 @@ export default class Openbar extends Extension {
             this.onFullScrTimeoutId = null;
         }
 
-        if(this.mediaListId) {
-            this.mediaList?.disconnect(this.mediaListId);
-            this.mediaListId = null;
-        }
-        if(this.notifListId) {
-            this.notifList?.disconnect(this.notifListId);
-            this.notifListId = null;
+        if(this.secListTimeoutId) {
+            clearTimeout(this.secListTimeoutId);
+            this.secListTimeoutId = null;
         }
 
-        this._removeInjection(Calendar.Calendar.prototype, this._injections, "_rebuildCalendar");
-        this._injections = [];
+        for(let i=0; i<this.msgLists.length; i++) {
+            if(this.msgListIds[i]) {
+                this.msgLists[i]?.disconnect(this.msgListIds[i]);
+                this.msgListIds[i] = null;
+                this.msgLists[i] = null;
+            }
+        }
+
+        let calendar = Main.panel.statusArea.dateMenu._calendar;
+        calendar._rebuildCalendar = this.origRebuildCal;
 
         // Reset the style for Panel and Menus
         this.resetStyle(panel);
