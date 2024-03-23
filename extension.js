@@ -222,7 +222,7 @@ export default class Openbar extends Extension {
         // Unload stylesheet
         this.unloadStylesheet();
 
-        // Load stylesheet
+        // Load stylesheet_injectToFunction(parent, name, func)
         this.loadStylesheet();           
     }
 
@@ -266,23 +266,22 @@ export default class Openbar extends Extension {
     }
 
     applySectionStyles(list, add) {
-        list.get_children().forEach((section, idx) => {
-            for(const msgList of section?.get_children()) {                
-                if(add && !this.msgListIds[idx]) {
-                    this.msgListIds[idx] = msgList?.connect(this.addedSignal, (container, actor) => {
-                        this.applyMenuClass(actor.child, add);
-                    });
-                    this.msgLists[idx] = msgList;
-                }
-                else if(!add && this.msgListIds[idx]) {
-                    msgList?.disconnect(this.msgListIds[idx]);
-                    this.msgListIds[idx] = null;
-                    this.msgLists[idx] = null;
-                }
-                msgList?.get_children().forEach(msg => {
-                    this.applyMenuClass(msg.child, add);
+        list.get_children().forEach((section, idx) => { 
+            let msgList = section._list;
+            if(add && !this.msgListIds[idx]) { 
+                this.msgListIds[idx] = msgList?.connect(this.addedSignal, (container, actor) => {
+                    this.applyMenuClass(actor.child, add);
                 });
+                this.msgLists[idx] = msgList;
             }
+            else if(!add && this.msgListIds[idx]) {
+                msgList?.disconnect(this.msgListIds[idx]);
+                this.msgListIds[idx] = null;
+                this.msgLists[idx] = null;
+            }
+            msgList?.get_children().forEach(msg => {
+                this.applyMenuClass(msg.child, add);
+            });
         });
     }
 
@@ -875,31 +874,24 @@ export default class Openbar extends Extension {
         if(bguri == '') this.updateBguri();        
 
         // Update calendar style on Calendar rebuild through fn injection
-        let calendar = Main.panel.statusArea.dateMenu._calendar;
-        this.origRebuildCal = calendar._rebuildCalendar;
         const obar = this;
-        calendar._rebuildCalendar = function () {
-            let ret = obar.origRebuildCal.apply(this, arguments);
+        this._injections["_rebuildCalendar"] = this._injectToFunction(
+            Main.panel.statusArea.dateMenu._calendar,
+            "_rebuildCalendar",
+            function () {
+                if(!obar._settings) {
+                    return;
+                }
 
-            // console.log('In obar rebuild calendar');
-            if(!obar._settings) {
-                // console.log('In obar rebuild calendar. No settings');
-                return;
+                let menustyle = obar._settings.get_boolean('menustyle');
+                let setOverview = obar._settings.get_boolean('set-overview');
+                if(menustyle) {  
+                    if(setOverview || !Main.panel.has_style_pseudo_class('overview')) { 
+                        obar.applyCalendarGridStyle(this, menustyle);                           
+                    } 
+                }
             }
-            let menustyle = obar._settings.get_boolean('menustyle');
-            let setOverview = obar._settings.get_boolean('set-overview');
-            if(menustyle) {  
-                if(setOverview || !Main.panel.has_style_pseudo_class('overview')) { 
-                    // console.log('Open Bar: Applying Calendar style in Rebuild'); 
-                    obar.applyCalendarGridStyle(calendar, menustyle);  
-                    let sectionList = Main.panel.statusArea.dateMenu._messageList._sectionList;
-                    if(sectionList.get_children().length > 2)
-                        this.secListTimeoutId = setTimeout(() => {obar.applySectionStyles(sectionList, menustyle)}, 20);                          
-                } 
-            }
-
-            return ret;
-        }
+        );
 
         // Apply the initial style
         this.updatePanelStyle(null, 'enabled');
@@ -957,8 +949,8 @@ export default class Openbar extends Extension {
             }
         }
 
-        let calendar = Main.panel.statusArea.dateMenu._calendar;
-        calendar._rebuildCalendar = this.origRebuildCal;
+        this._removeInjection(Calendar.Calendar.prototype, this._injections, "_rebuildCalendar");
+        this._injections = [];
 
         // Reset the style for Panel and Menus
         this.resetStyle(panel);
