@@ -1295,6 +1295,7 @@ function saveStylesheet(obar, Me) {
         .openmenu.quick-menu-toggle .quick-toggle-arrow {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
             background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
+            border-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
         }
         /* adjust borders in expandable menu button */
         .openmenu.quick-menu-toggle .quick-toggle-arrow:ltr {
