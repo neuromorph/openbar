@@ -634,7 +634,7 @@ function autoApplyBGPalette(obar) {
     obar._settings.set_strv('shcolor', shcolor);
     // obar._settings.set_double('shalpha', shalpha);
     obar._settings.set_strv('bcolor', bcolor);
-    obar._settings.set_double('balpha', balpha);
+    // obar._settings.set_double('balpha', balpha);
     obar._settings.set_strv('hcolor', hcolor);
     obar._settings.set_double('halpha', halpha);
     obar._settings.set_strv('bgcolor-wmax', bgcolorWmax);
@@ -648,9 +648,9 @@ function autoApplyBGPalette(obar) {
     obar._settings.set_strv('smbgcolor', smbgcolor);
     obar._settings.set_double('smbgalpha', smbgalpha);
     obar._settings.set_strv('mbcolor', mbcolor);
-    obar._settings.set_double('mbalpha', mbalpha);
+    // obar._settings.set_double('mbalpha', mbalpha);
     obar._settings.set_strv('mhcolor', mhcolor);
-    obar._settings.set_double('mhalpha', mhalpha);
+    // obar._settings.set_double('mhalpha', mhalpha);
     obar._settings.set_strv('mshcolor', mshcolor);
     // obar._settings.set_double('mshalpha', mshalpha);
     obar._settings.set_strv('mscolor', mscolor);
