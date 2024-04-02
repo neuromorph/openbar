@@ -2,16 +2,17 @@ Top Bar ( Top Panel ) customization / styling. Open the Top Bar and let the colo
 
 **Please report on Github if something is broken due to an update or if you have any suggestions/feedback.
 
-Update ( v23/v24 ): BugFix about extension crashing on screen-lock for multi-monitors
+Update ( v25/v26 ): 
+- Compatibility with more extensions: Fullscreen Avoider,  Lunar Calendar, Dash-to-Panel* and others**.
+- New option to apply the panel menu styles to all the shell pop-ups
+* You may have to turn on 'Apply menu styles to shell' under 'Beyond Bar' in settings
+** Some extensions do not use standard widget and API (e.g. PanelMenu Button and main.addToStatusArea) when adding indicator to Panel and fixing that makes them work correctly with Open Bar or user themes.
 
-Update ( v19/v20 ):
+Features from recent updates:
 - Auto FG option to automatically switch (black/white) FG color based on widget background
 - Option to set Panel Box / Margins BG color
 - Light-Gradient option for Menu background
 - More tweaks for Border width and radius to change the way the Bar/Buttons look
-- Other fixes and enhancements
-
-Update ( v17/v18 ):
 -  Auto-theming options 
 -  Import, export theme settings to file.
 -  Window-Max Bar: Change Bar props when a window is maximized
