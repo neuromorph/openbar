@@ -197,7 +197,7 @@ export function autoApplyBGPalette(obar) {
             colorful2 = allColorful[l-1];
         }
 
-        // Dealta Factor logic (everywhere): 
+        // Delta Factor logic (everywhere): 
         // Compute distance from threshold as percentage (e.g. (180-c1Hsp)/180 )
         // Add one to it (e.g. if % dist is 0.25 make it 1.25. 1+(180-c1Hsp)/180) = 2-c1Hsp/180
         // Then multiply delta with it (e.g. delta*1.25)
@@ -634,7 +634,7 @@ export function autoApplyBGPalette(obar) {
     obar._settings.set_strv('shcolor', shcolor);
     // obar._settings.set_double('shalpha', shalpha);
     obar._settings.set_strv('bcolor', bcolor);
-    obar._settings.set_double('balpha', balpha);
+    // obar._settings.set_double('balpha', balpha);
     obar._settings.set_strv('hcolor', hcolor);
     obar._settings.set_double('halpha', halpha);
     obar._settings.set_strv('bgcolor-wmax', bgcolorWmax);
@@ -648,9 +648,9 @@ export function autoApplyBGPalette(obar) {
     obar._settings.set_strv('smbgcolor', smbgcolor);
     obar._settings.set_double('smbgalpha', smbgalpha);
     obar._settings.set_strv('mbcolor', mbcolor);
-    obar._settings.set_double('mbalpha', mbalpha);
+    // obar._settings.set_double('mbalpha', mbalpha);
     obar._settings.set_strv('mhcolor', mhcolor);
-    obar._settings.set_double('mhalpha', mhalpha);
+    // obar._settings.set_double('mhalpha', mhalpha);
     obar._settings.set_strv('mshcolor', mshcolor);
     // obar._settings.set_double('mshalpha', mshalpha);
     obar._settings.set_strv('mscolor', mscolor);
