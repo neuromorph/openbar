@@ -587,10 +587,10 @@
       <summary>Apply border radius to Bottom Right corner</summary>
       <description>Apply border radius to Bottom Right corner.</description>
     </key>
-    <key type="b" name="candybar-fg">
+    <key type="b" name="extend-menu-shell">
       <default>false</default>
-      <summary>Apply candybar pallete to foreground</summary>
-      <description>Apply candybar pallete to foreground of panel buttons.</description>
+      <summary>Extend menu styles to the Gnome shell</summary>
+      <description>Extend menu styles to the Gnome shell.</description>
     </key>
   </schema>
 </schemalist>
