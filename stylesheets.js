@@ -60,6 +60,37 @@ function getBgDark(r, g, b) {
         return true;
 }
 
+function saveCalEventSVG(obar, Me) {
+    let svg, svgpath, svgcolor;
+    svg = `
+    <svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+    <circle style="color:#000;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;
+    mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000;solid-opacity:1;
+    fill:#REPLACE;fill-opacity:.858277;fill-rule:nonzero;stroke:none;stroke-width:.999999;stroke-linecap:butt;stroke-linejoin:miter;
+    stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;marker-start:none;marker-mid:none;
+    marker-end:none;paint-order:normal;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate" cx="16" cy="28" r="2"/>
+    </svg>
+    `;
+    svgpath = Me.path + '/media/calendar-today.svg';
+    svgcolor = obar.smfgHex;
+    
+    svg = svg.replace(`#REPLACE`, svgcolor);
+   
+    let file = Gio.File.new_for_path(svgpath);
+    let bytearray = new TextEncoder().encode(svg);
+
+    if (bytearray.length) {
+        let output = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
+        let outputStream = Gio.BufferedOutputStream.new_sized(output, 4096);
+        outputStream.write_all(bytearray, null);
+        outputStream.close(null);
+    }
+    else {
+      console.log("Failed to write calendar-today.svg file: " + svgpath);
+    }
+
+}
+
 function saveToggleSVG(toggleOn, obar, Me) {
     let svg, svgpath, svgcolor;
     if(toggleOn) {
@@ -441,7 +472,8 @@ function saveStylesheet(obar, Me) {
         amhfggreen = mhfggreen;
         amhfgblue = mhfgblue;
     }
-
+    // Save submenu fg hex for use in calendar-today svg
+    obar.smfgHex = rgbToHex(smfgred, smfggreen, smfgblue);
 
     let fgStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, 
     islandStyle, dotStyle, neonStyle, gradientStyle, triLeftStyle, triBothStyle, triRightStyle, 
@@ -1157,6 +1189,10 @@ function saveStylesheet(obar, Me) {
         ${openmenuClass}.calendar .calendar-today:selected, ${openmenuClass}.calendar .calendar-today:focus {
             box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
         }
+        ${openmenuClass}.calendar .calendar-today .calendar-day-with-events, ${openmenuClass}.calendar .calendar-day-with-events {
+            background-image: url("media/calendar-today.svg");
+            background-size: contain;
+        }
         ${openmenuClass}.calendar-week-number {
             font-weight: bold;
             font-feature-settings: "tnum";
@@ -1432,6 +1468,11 @@ function saveStylesheet(obar, Me) {
         saveToggleSVG(false, obar, Me);
         saveCheckboxSVG(false, obar, Me);
         obar.bgSVG = false;
+    }
+
+    if(obar.smfgSVG) {
+        saveCalEventSVG(obar, Me);
+        obar.smfgSVG = false;
     }
 
 }
