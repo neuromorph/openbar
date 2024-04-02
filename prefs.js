@@ -23,7 +23,6 @@ import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
 import Gdk from 'gi://Gdk';
 import Gio from 'gi://Gio';
-// import Pango from 'gi://Pango';
 import GLib from 'gi://GLib';
 
 import {ExtensionPreferences, gettext as _, pgettext} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
@@ -332,7 +331,7 @@ class OpenbarPrefs {
         let settEvents = ['bartype', 'position', 'font', 'gradient', 'cust-margin-wmax', 'border-wmax', 'neon-wmax',
         'gradient-direction', 'shadow', 'neon', 'heffect', 'smbgoverride', 'mbg-gradient', 'autofg-bar', 'autofg-menu',
         'width-top', 'width-bottom', 'width-left', 'width-right', 'radius-topleft', 'radius-topright',
-        'radius-bottomleft', 'radius-bottomright'];
+        'radius-bottomleft', 'radius-bottomright', 'extend-menu-shell'];
         settEvents.forEach(event => {
             this._settings.connect('changed::'+event, () => {this.triggerStyleReload();});
         });
@@ -1353,7 +1352,7 @@ class OpenbarPrefs {
 
         rowNo += 1;
         const menuprop = new Gtk.Expander({
-            label: `<b>MENUS</b>`,
+            label: `<b>MENU</b>`,
             expanded: false,
             use_markup: true,
         });
@@ -1362,19 +1361,19 @@ class OpenbarPrefs {
         rowbar = 1;
 
         // Add Menu style apply / remove info 
-        let menuInfoLabel = new Gtk.Label({
-            use_markup: true,
-            label: `<span allow_breaks="true">Click on Apply / Reset buttons below to Enable / Disable Menu styles. \nOnce enabled, setting-changes will apply immediately.</span>`,
-            halign: Gtk.Align.START,
-        });
-        menugrid.attach(menuInfoLabel, 1, rowbar, 2, 1);
+        // let menuInfoLabel = new Gtk.Label({
+        //     use_markup: true,
+        //     label: `<span allow_breaks="true">Click on Apply / Reset buttons below to Enable / Disable Menu styles. \nOnce enabled, setting-changes will apply immediately.</span>`,
+        //     halign: Gtk.Align.START,
+        // });
+        // menugrid.attach(menuInfoLabel, 1, rowbar, 2, 1);
 
         // rowbar += 2;
         //
         // let menuSwitch = this.createSwitchWidget();
         // menugrid.attach(menuSwitch, 2, rowbar, 1, 1);
 
-        rowbar += 3;
+        rowbar += 1;
 
         // Add a Auto FG color switch for Menu
         let autofgMenuLabel = new Gtk.Label({
@@ -1630,45 +1629,45 @@ class OpenbarPrefs {
         rowbar += 1;
 
         // Add menu style apply/remove buttons
-        const removeMenuLabel = new Gtk.Label({
-            use_markup: true,
-            label: `<span color="#fa6555">${_("Reset Menu Styles")}</span>`, 
-        });
-        const removeMenuBtn = new Gtk.Button({
-            child: removeMenuLabel,
-            margin_top: 25,
-            tooltip_text: _("Reset the style settings for Menu"),
-            halign: Gtk.Align.START,
-        });
-        removeMenuBtn.connect('clicked', () => {
-            this._settings.set_boolean('menustyle', false);
-            // Trigger updateStyles() by toggling 'removestyle'
-            let removestyle = this._settings.get_boolean('removestyle');
-            if(removestyle)
-                this._settings.set_boolean('removestyle', false);
-            else
-                this._settings.set_boolean('removestyle', true);
-        });
-        menugrid.attach(removeMenuBtn, 1, rowbar, 1, 1);
+        // const removeMenuLabel = new Gtk.Label({
+        //     use_markup: true,
+        //     label: `<span color="#fa6555">${_("Reset Menu Styles")}</span>`, 
+        // });
+        // const removeMenuBtn = new Gtk.Button({
+        //     child: removeMenuLabel,
+        //     margin_top: 25,
+        //     tooltip_text: _("Reset the style settings for Menu"),
+        //     halign: Gtk.Align.START,
+        // });
+        // removeMenuBtn.connect('clicked', () => {
+        //     this._settings.set_boolean('menustyle', false);
+        //     // Trigger updateStyles() by toggling 'removestyle'
+        //     let removestyle = this._settings.get_boolean('removestyle');
+        //     if(removestyle)
+        //         this._settings.set_boolean('removestyle', false);
+        //     else
+        //         this._settings.set_boolean('removestyle', true);
+        // });
+        // menugrid.attach(removeMenuBtn, 1, rowbar, 1, 1);
 
-        const applyMenuLabel = new Gtk.Label({
-            use_markup: true,
-            label: `<span color="#03c4d0">${_("Apply Menu Styles")}</span>`, 
-        });
-        const applyMenuBtn = new Gtk.Button({
-            child: applyMenuLabel,
-            margin_top: 25,
-            tooltip_text: _("Apply the style settings for Menu"),
-            halign: Gtk.Align.END,
-        });
-        applyMenuBtn.connect('clicked', () => {
-            // Save stylesheet and trigger reload
-            this.triggerStyleReload();
-            // Apply menustyle
-            this._settings.set_boolean('menustyle', true);
+        // const applyMenuLabel = new Gtk.Label({
+        //     use_markup: true,
+        //     label: `<span color="#03c4d0">${_("Apply Menu Styles")}</span>`, 
+        // });
+        // const applyMenuBtn = new Gtk.Button({
+        //     child: applyMenuLabel,
+        //     margin_top: 25,
+        //     tooltip_text: _("Apply the style settings for Menu"),
+        //     halign: Gtk.Align.END,
+        // });
+        // applyMenuBtn.connect('clicked', () => {
+        //     // Save stylesheet and trigger reload
+        //     this.triggerStyleReload();
+        //     // Apply menustyle
+        //     this._settings.set_boolean('menustyle', true);
 
-        });
-        menugrid.attach(applyMenuBtn, 1, rowbar, 2, 1);
+        // });
+        // menugrid.attach(applyMenuBtn, 1, rowbar, 2, 1);
 
 
         menuprop.set_child(menugrid);
@@ -1682,6 +1681,50 @@ class OpenbarPrefs {
 
         ////////////////////////////////////////////////////////////////////
 
+        rowNo += 1;
+        const beyondprop = new Gtk.Expander({
+            label: `<b>BEYOND BAR</b>`,
+            expanded: false,
+            use_markup: true,
+        });
+        let beyondgrid = this.createGridWidget();
+
+        rowbar = 1;
+
+        // Add Extend Menu to Shell switch
+        let extMenuLbl = new Gtk.Label({
+            label: `Apply Menu Styles to Shell Pop-ups`,
+            halign: Gtk.Align.START,
+        });
+        beyondgrid.attach(extMenuLbl, 1, rowbar, 1, 1);
+
+        let extMenuSwitch = this.createSwitchWidget('Apply Menu styles to all Shell pop-ups');
+        beyondgrid.attach(extMenuSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add Extend Accent to Shell switch
+        let extAccentLbl = new Gtk.Label({
+            label: `[UPCOMING] Extend Accent/Colors to Shell`,
+            halign: Gtk.Align.START,
+        });
+        beyondgrid.attach(extAccentLbl, 1, rowbar, 1, 1);
+
+        let extAccentSwitch = this.createSwitchWidget('Apply Accent, FG, BG colors to Shell components');
+        extAccentSwitch.set_sensitive(false);
+        beyondgrid.attach(extAccentSwitch, 2, rowbar, 1, 1);
+
+        beyondprop.set_child(beyondgrid);
+        prefsWidget.attach(beyondprop, 1, rowNo, 2, 1);
+
+        ////////////////////////////////////////////////////////////////////
+        rowNo += 1
+
+        let separator7 = this.createSeparatorWidget();
+        prefsWidget.attach(separator7, 1, rowNo, 2, 1);
+
+        ////////////////////////////////////////////////////////////////////
+        
         rowNo += 1;
 
         // Add buttons to Import Settings and Export Settings
@@ -2028,49 +2071,55 @@ class OpenbarPrefs {
             widthTop,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
         this._settings.bind(
             'width-bottom',
             widthBottom,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
         this._settings.bind(
             'width-left',
             widthLeft,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
         this._settings.bind(
             'width-right',
             widthRight,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
         this._settings.bind(
             'radius-topleft',
             radiusTopLeft,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
         this._settings.bind(
             'radius-topright',
             radiusTopRight,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
         this._settings.bind(
             'radius-bottomleft',
             radiusBottomLeft,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
         this._settings.bind(
             'radius-bottomright',
             radiusBottomRight,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
+        this._settings.bind(
+            'extend-menu-shell',
+            extMenuSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
         // this._settings.bind(
         //     'menustyle',
         //     menuSwitch,
