@@ -842,7 +842,7 @@ function saveStylesheet(obar, Me) {
             color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
         }
 
-        ${openmenuClass}.popup-menu-content, ${openmenuClass}.candidate-popup-content ${openmenuClass}.modal-dialog{
+        ${openmenuClass}.popup-menu-content, ${openmenuClass}.candidate-popup-content {
             ${menuContentStyle}
         }
     `;
@@ -952,11 +952,12 @@ function saveStylesheet(obar, Me) {
         ${openmenuClass}.popup-menu-item .toggle-switch:checked {
             color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
         }
-        ${openmenuClass}.popup-menu-item .button {
+        ${openmenuClass}.popup-menu-item .button, ${openmenuClass}.notification-button {
             color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
             background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
         }
-        ${openmenuClass}.popup-menu-item .button:hover, ${openmenuClass}.popup-menu-item .button:focus, ${openmenuClass}.popup-menu-item .button:selected {
+        ${openmenuClass}.popup-menu-item .button:hover, ${openmenuClass}.popup-menu-item .button:focus, ${openmenuClass}.popup-menu-item .button:selected,
+        ${openmenuClass}.notification-button:hover, ${openmenuClass}.notification-button:focus, ${openmenuClass}.notification-button:selected {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
             background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
             border-color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});

@@ -197,7 +197,7 @@ function autoApplyBGPalette(obar) {
             colorful2 = allColorful[l-1];
         }
 
-        // Dealta Factor logic (everywhere): 
+        // Delta Factor logic (everywhere): 
         // Compute distance from threshold as percentage (e.g. (180-c1Hsp)/180 )
         // Add one to it (e.g. if % dist is 0.25 make it 1.25. 1+(180-c1Hsp)/180) = 2-c1Hsp/180
         // Then multiply delta with it (e.g. delta*1.25)
@@ -568,7 +568,7 @@ function autoApplyBGPalette(obar) {
 
 
     let bgcolorWmax, bgalphaWmax, fgcolor, fgalpha, bgcolor, bgalpha, iscolor, isalpha, bgcolor2, bgalpha2, shcolor, shalpha, 
-    hcolor, halpha, bradius, bwidth, bcolor, balpha, mfgcolor, mfgalpha, mbgcolor, mbgalpha, smbgcolor, smbgalpha, mbcolor, 
+    hcolor, halpha, bcolor, balpha, mfgcolor, mfgalpha, mbgcolor, mbgalpha, smbgcolor, smbgalpha, mbcolor, 
     mbalpha, mhcolor, mhalpha, mshcolor, mshalpha, mscolor, msalpha;
 
     let bartype = obar._settings.get_string('bartype');

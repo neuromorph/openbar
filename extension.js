@@ -889,7 +889,6 @@ class Extension {
                 if(!obar._settings) {
                     return;
                 }
-
                 let menustyle = obar._settings.get_boolean('menustyle');
                 let setOverview = obar._settings.get_boolean('set-overview');
                 if(menustyle) {  

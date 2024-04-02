@@ -1689,7 +1689,7 @@ class OpenbarPrefs {
 
         // Add Extend Menu to Shell switch
         let extMenuLbl = new Gtk.Label({
-            label: `Extend Menu Styles to Shell`,
+            label: `Apply Menu Styles to Shell Pop-ups`,
             halign: Gtk.Align.START,
         });
         beyondgrid.attach(extMenuLbl, 1, rowbar, 1, 1);
@@ -1701,12 +1701,12 @@ class OpenbarPrefs {
 
         // Add Extend Accent to Shell switch
         let extAccentLbl = new Gtk.Label({
-            label: `[UPCOMING] Extend Accent to Shell`,
+            label: `[UPCOMING] Extend Accent/Colors to Shell`,
             halign: Gtk.Align.START,
         });
         beyondgrid.attach(extAccentLbl, 1, rowbar, 1, 1);
 
-        let extAccentSwitch = this.createSwitchWidget('Apply Accent color to Shell components');
+        let extAccentSwitch = this.createSwitchWidget('Apply Accent, FG, BG colors to Shell components');
         extAccentSwitch.set_sensitive(false);
         beyondgrid.attach(extAccentSwitch, 2, rowbar, 1, 1);
 
@@ -2067,49 +2067,49 @@ class OpenbarPrefs {
             widthTop,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
         this._settings.bind(
             'width-bottom',
             widthBottom,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
         this._settings.bind(
             'width-left',
             widthLeft,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
         this._settings.bind(
             'width-right',
             widthRight,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
         this._settings.bind(
             'radius-topleft',
             radiusTopLeft,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
         this._settings.bind(
             'radius-topright',
             radiusTopRight,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
         this._settings.bind(
             'radius-bottomleft',
             radiusBottomLeft,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
         this._settings.bind(
             'radius-bottomright',
             radiusBottomRight,
             'active',
             Gio.SettingsBindFlags.DEFAULT
-        )
+        );
         this._settings.bind(
             'extend-menu-shell',
             extMenuSwitch,
