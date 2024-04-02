@@ -222,10 +222,11 @@ export default class Openbar extends Extension {
         // Unload stylesheet
         this.unloadStylesheet();
 
-        // Load stylesheet_injectToFunction(parent, name, func)
+        // Load stylesheet
         this.loadStylesheet();           
     }
 
+    // Add or renove 'openmenu' class
     applyMenuClass(obj, add) {
         if(!obj)
             return;
@@ -239,6 +240,7 @@ export default class Openbar extends Extension {
         }
     }
 
+    // Add/Remove openmenu class to the object and its children/subchildren
     applyBoxStyles(box, add) {
         this.applyMenuClass(box, add);
 
@@ -265,6 +267,8 @@ export default class Openbar extends Extension {
         });
     }
 
+    // Add/Remove openmenu class to Notifications and Media message lists
+    // as well as to any other lists added by other extensions
     applySectionStyles(list, add) {
         list.get_children().forEach((section, idx) => { 
             let msgList = section._list;
@@ -285,6 +289,7 @@ export default class Openbar extends Extension {
         });
     }
 
+    // Go through each panel button's menu to add/remove openmenu class to its children
     applyMenuStyles(panel, add) {
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
@@ -483,7 +488,7 @@ export default class Openbar extends Extension {
         let barKeys = ['bgcolor', 'gradient', 'gradient-direction', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'bcolor', 'balpha', 'bradius', 
         'bordertype', 'shcolor', 'shalpha', 'iscolor', 'isalpha', 'neon', 'shadow', 'font', 'default-font', 'hcolor', 'halpha', 'heffect', 'bgcolor-wmax', 
         'bgalpha-wmax', 'neon-wmax', 'boxcolor', 'boxalpha', 'autofg-bar', 'autofg-menu', 'width-top', 'width-bottom', 'width-left', 'width-right',
-        'radius-topleft', 'radius-topright', 'radius-bottomleft', 'radius-bottomright'];
+        'radius-topleft', 'radius-topright', 'radius-bottomleft', 'radius-bottomright', 'extend-menu-shell'];
         let keys = [...barKeys, ...menuKeys, 'autotheme', 'variation', 'autotheme-refresh', 'accent-override', 'accent-color'];
         if(keys.includes(key)) {
             return;
@@ -821,6 +826,10 @@ export default class Openbar extends Extension {
         this.isObarReset = false;
         this.addedSignal = this.gnomeVersion > 45? 'child-added': 'actor-added';
         this.removedSignal = this.gnomeVersion > 45? 'child-removed': 'actor-removed';
+        this.calendarTimeoutId = null;
+        this.panelPosTimeoutId = null;
+        this.bgMgrTimeOutId = null;
+        this.onFullScrTimeoutId = null;
         this.msgLists = [];
         this.msgListIds = [];
 
@@ -882,7 +891,6 @@ export default class Openbar extends Extension {
                 if(!obar._settings) {
                     return;
                 }
-
                 let menustyle = obar._settings.get_boolean('menustyle');
                 let setOverview = obar._settings.get_boolean('set-overview');
                 if(menustyle) {  
@@ -936,11 +944,6 @@ export default class Openbar extends Extension {
             this.onFullScrTimeoutId = null;
         }
 
-        if(this.secListTimeoutId) {
-            clearTimeout(this.secListTimeoutId);
-            this.secListTimeoutId = null;
-        }
-
         for(let i=0; i<this.msgLists.length; i++) {
             if(this.msgListIds[i]) {
                 this.msgLists[i]?.disconnect(this.msgListIds[i]);
@@ -948,6 +951,8 @@ export default class Openbar extends Extension {
                 this.msgLists[i] = null;
             }
         }
+        this.msgLists = [];
+        this.msgListIds = [];
 
         this._removeInjection(Calendar.Calendar.prototype, this._injections, "_rebuildCalendar");
         this._injections = [];
