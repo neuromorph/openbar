@@ -222,6 +222,7 @@ class Extension {
         this.loadStylesheet();        
     }
 
+    // Add or renove 'openmenu' class
     applyMenuClass(obj, add) {
         if(!obj)
             return;
@@ -235,6 +236,7 @@ class Extension {
         }
     }
     
+    // Add/Remove openmenu class to the object and its children/subchildren
     applyBoxStyles(box, add) {
         this.applyMenuClass(box, add);
 
@@ -261,6 +263,29 @@ class Extension {
         });
     }
 
+    // Add/Remove openmenu class to Notifications and Media message lists
+    // as well as to any other lists added by other extensions
+    applySectionStyles(list, add) {
+        list.get_children().forEach((section, idx) => { 
+            let msgList = section._list;
+            if(add && !this.msgListIds[idx]) { 
+                this.msgListIds[idx] = msgList?.connect(this.addedSignal, (container, actor) => {
+                    this.applyMenuClass(actor.child, add);
+                });
+                this.msgLists[idx] = msgList;
+            }
+            else if(!add && this.msgListIds[idx]) {
+                msgList?.disconnect(this.msgListIds[idx]);
+                this.msgListIds[idx] = null;
+                this.msgLists[idx] = null;
+            }
+            msgList?.get_children().forEach(msg => {
+                this.applyMenuClass(msg.child, add);
+            });
+        });
+    }
+
+    // Go through each panel button's menu to add/remove openmenu class to its children
     applyMenuStyles(panel, add) {
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
@@ -309,35 +334,12 @@ class Extension {
                         const msgbox = msgList.get_child_at_index(1);
                         const msgScroll = msgbox.get_child_at_index(0);
                         const sectionList = msgScroll.child;
-                        const mediaSection = sectionList.get_child_at_index(0); // Media notifications (play music/video)
-                        this.mediaList = mediaSection?.get_child_at_index(0); 
-                        if(add && !this.mediaListId) {
-                            this.mediaListId = this.mediaList?.connect(this.addedSignal, (container, actor) => {
-                                this.applyMenuClass(actor.child, add);
-                            });
-                        }
-                        else if(!add && this.mediaListId) {
-                            this.mediaList?.disconnect(this.mediaListId);
-                            this.mediaListId = null;
-                        }
-                        this.mediaList?.get_children().forEach(media => {
-                            this.applyMenuClass(media.child, add);
-                        });                      
-
-                        const notifSection = sectionList.get_child_at_index(1); // Message notifications
-                        this.notifList = notifSection?.get_child_at_index(0);
-                        if(add && !this.notifListId) {
-                            this.notifListId = this.notifList?.connect(this.addedSignal, (container, actor) => {
-                                this.applyMenuClass(actor.child, add);
-                            });
-                        }
-                        else if(!add && this.notifListId) {
-                            this.notifList?.disconnect(this.notifListId);
-                            this.notifListId = null;
-                        }
-                        this.notifList?.get_children().forEach(message => {
-                            this.applyMenuClass(message.child, add);
-                        })
+                        this.sectionListId = sectionList?.connect(this.addedSignal, (container, actor) => {
+                            console.log('section added: ', actor.constructor.name);
+                            this.applySectionStyles(sectionList, add);
+                        });
+                        this.applySectionStyles(sectionList, add);
+                        
                         const msgHbox = msgbox.get_child_at_index(1); // hbox at botton for dnd and clear buttons
                         const dndBtn = msgHbox.get_child_at_index(1);
                         this.applyMenuClass(dndBtn, add);
@@ -369,6 +371,7 @@ class Extension {
     }
 
     applyCalendarGridStyle(item, add) { // calendar days grid with week numbers
+        // item = Main.panel.statusArea.dateMenu._calendar;
         for(let i=0; i<8; i++) {
             for(let j=0; j<8; j++) {
                 const child = item.layout_manager.get_child_at(i, j);
@@ -393,8 +396,7 @@ class Extension {
             let bottomY = panelMonitor.y + panelMonitor.height - height - 2*borderWidth - 2*margin;
             panelBox.set_position(bottomX, bottomY);
             panelBox.set_size(panelMonitor.width, height + 2*borderWidth + 2*margin);
-        }
-        
+        }        
     }
 
     updatePanelStyle(obj, key, sig_param, callbk_param) { 
@@ -483,7 +485,7 @@ class Extension {
         let barKeys = ['bgcolor', 'gradient', 'gradient-direction', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'bcolor', 'balpha', 'bradius', 
         'bordertype', 'shcolor', 'shalpha', 'iscolor', 'isalpha', 'neon', 'shadow', 'font', 'default-font', 'hcolor', 'halpha', 'heffect', 'bgcolor-wmax', 
         'bgalpha-wmax', 'neon-wmax', 'boxcolor', 'boxalpha', 'autofg-bar', 'autofg-menu', 'width-top', 'width-bottom', 'width-left', 'width-right',
-        'radius-topleft', 'radius-topright', 'radius-bottomleft', 'radius-bottomright'];
+        'radius-topleft', 'radius-topright', 'radius-bottomleft', 'radius-bottomright', 'extend-menu-shell'];
         let keys = [...barKeys, ...menuKeys, 'autotheme', 'variation', 'autotheme-refresh', 'accent-override', 'accent-color'];
         if(keys.includes(key)) {
             return;
@@ -822,6 +824,12 @@ class Extension {
         this.isObarReset = false;
         this.addedSignal = this.gnomeVersion > 45? 'child-added': 'actor-added';
         this.removedSignal = this.gnomeVersion > 45? 'child-removed': 'actor-removed';
+        this.calendarTimeoutId = null;
+        this.panelPosTimeoutId = null;
+        this.bgMgrTimeOutId = null;
+        this.onFullScrTimeoutId = null;
+        this.msgLists = [];
+        this.msgListIds = [];
 
         // Settings for desktop background image (set bg-uri as per color scheme)
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
@@ -875,18 +883,23 @@ class Extension {
         // Update calendar style on Calendar rebuild through fn injection
         const obar = this;
         this._injections["_rebuildCalendar"] = this._injectToFunction(
-            Calendar.Calendar.prototype,
+            Main.panel.statusArea.dateMenu._calendar,
             "_rebuildCalendar",
             function () {
+                if(!obar._settings) {
+                    return;
+                }
+
                 let menustyle = obar._settings.get_boolean('menustyle');
                 let setOverview = obar._settings.get_boolean('set-overview');
                 if(menustyle) {  
-                    if(setOverview || !Main.panel.has_style_pseudo_class('overview'))
-                        obar.applyCalendarGridStyle(this, menustyle);            
+                    if(setOverview || !Main.panel.has_style_pseudo_class('overview')) { 
+                        obar.applyCalendarGridStyle(this, menustyle);                           
+                    } 
                 }
             }
         );
-        
+                
         // Apply the initial style
         this.updatePanelStyle(null, 'enabled');
         let menustyle = this._settings.get_boolean('menustyle');
@@ -930,14 +943,15 @@ class Extension {
             this.onFullScrTimeoutId = null;
         }
 
-        if(this.mediaListId) {
-            this.mediaList?.disconnect(this.mediaListId);
-            this.mediaListId = null;
+        for(let i=0; i<this.msgLists.length; i++) {
+            if(this.msgListIds[i]) {
+                this.msgLists[i]?.disconnect(this.msgListIds[i]);
+                this.msgListIds[i] = null;
+                this.msgLists[i] = null;
+            }
         }
-        if(this.notifListId) {
-            this.notifList?.disconnect(this.notifListId);
-            this.notifListId = null;
-        }
+        this.msgLists = [];
+        this.msgListIds = [];
 
         this._removeInjection(Calendar.Calendar.prototype, this._injections, "_rebuildCalendar");
         this._injections = [];
