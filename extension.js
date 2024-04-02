@@ -338,8 +338,8 @@ export default class Openbar extends Extension {
                         const msgbox = msgList.get_child_at_index(1);
                         const msgScroll = msgbox.get_child_at_index(0);
                         const sectionList = msgScroll.child;
-                        this.sectionListId = sectionList?.connect(this.addedSignal, (container, actor) => {
-                            console.log('section added: ', actor.constructor.name);
+                        this._connections.connect(sectionList, this.addedSignal, (container, actor) => {
+                            // console.log('section added: ', actor.constructor.name);
                             this.applySectionStyles(sectionList, add);
                         });
                         this.applySectionStyles(sectionList, add);
@@ -478,10 +478,17 @@ export default class Openbar extends Extension {
             this.applyMenuStyles(panel, menustyle);
         }
         
-        if(key == 'mscolor')
+        if(key == 'mscolor') {
             this.msSVG = true;
-        else if(key == 'mbgcolor' || key == 'smbgcolor' || key == 'smbgoverride')
+            this.smfgSVG = true;
+        }
+        else if(key == 'mbgcolor' || key == 'smbgcolor' || key == 'smbgoverride') {
             this.bgSVG = true;
+            this.smfgSVG = true;
+        }
+        else if(key == 'mfgcolor') {
+            this.smfgSVG = true;
+        }
 
         let menuKeys = ['trigger-reload', 'reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 
         'mhcolor', 'mhalpha', 'mscolor', 'msalpha', 'mshcolor', 'mshalpha', 'smbgoverride', 'smbgcolor', 'qtoggle-radius', 'slider-height', 'mbg-gradient'];
