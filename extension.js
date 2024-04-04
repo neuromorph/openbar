@@ -466,20 +466,32 @@ export default class Openbar extends Extension {
                 }
                 this.setPanelBoxPosition(position, panel.height, 0, 0, 'Mainland');
             }
-            else if(this.isObarReset) { // Overview style is enabled but obar is reset due to Fullscreen
+            else if(this.isObarReset) { // Overview style is enabled but obar was reset due to Fullscreen
                 this.loadStylesheet();
                 this.isObarReset = false;
             }
             return;           
         }
-        else if(key == 'hiding') {
-            this.onFullScreen(null, 'hiding');
+        else if(key == 'hiding') {            
             if(this.styleUnloaded) {
                 this.loadStylesheet();
                 this.styleUnloaded = false;
             }
+            this.onFullScreen(null, 'hiding');
             // Continue to update style     
-        }            
+        }    
+        
+        if(key == 'set-fullscreen') {
+            const fullscreen = this._settings.get_boolean('set-fullscreen');
+            if(fullscreen && this.isObarReset) {
+                this.loadStylesheet();
+                this.isObarReset = false;
+            }
+            else if(!fullscreen && !this.isObarReset) {
+                this.onFullScreen(null, 'fullscreen');
+            }
+            return;
+        }
 
         if(key == 'reloadstyle') { // A toggle key to trigger update for reload stylesheet
             this.reloadStylesheet();
@@ -790,6 +802,9 @@ export default class Openbar extends Extension {
     }
 
     onFullScreen(obj, signal, sig_param, timeout = 0) {
+        if(this._settings.get_boolean('set-fullscreen'))
+            return;
+        
         this.onFullScrTimeoutId = setTimeout(() => { // Timeout to allow other extensions to move panel to another monitor
             // Check if panelBox is on the monitor which is in fullscreen
             const LM = Main.layoutManager;
