@@ -334,10 +334,14 @@ class Extension {
                         const msgbox = msgList.get_child_at_index(1);
                         const msgScroll = msgbox.get_child_at_index(0);
                         const sectionList = msgScroll.child;
-                        this._connections.connect(sectionList, this.addedSignal, (container, actor) => {
-                            // console.log('section added: ', actor.constructor.name);
-                            this.applySectionStyles(sectionList, add);
-                        });
+                        if(add) {
+                            this._connections.connect(sectionList, this.addedSignal, (container, actor) => {
+                                // console.log('section added: ', actor.constructor.name);
+                                this.applySectionStyles(sectionList, add);
+                            });
+                        }
+                        else
+                            this._connections?.disconnect(sectionList, this.addedSignal);
                         this.applySectionStyles(sectionList, add);
                         
                         const msgHbox = msgbox.get_child_at_index(1); // hbox at botton for dnd and clear buttons
@@ -449,20 +453,38 @@ class Extension {
         let setOverview = this._settings.get_boolean('set-overview');
         if(key == 'showing') {
             if(!setOverview) { // Reset in overview, if 'overview' style disabled
-                this.resetStyle(panel);
-                this.applyMenuStyles(panel, false);
+                if(this._settings.get_boolean('extend-menu-shell')) {
+                    this.unloadStylesheet();
+                    this.styleUnloaded = true;
+                }
+                else {
+                    this.resetStyle(panel);
+                    this.applyMenuStyles(panel, false);
+                }
                 this.setPanelBoxPosition(position, panel.height, 0, 0, 'Mainland');
             }
-            else if(this.isObarReset) { // Overview style is enabled but obar is reset due to Fullscreen
+            else if(this.isObarReset) { // Overview style is enabled but obar was reset due to Fullscreen
                 this.loadStylesheet();
                 this.isObarReset = false;
             }
             return;           
         }
-        else if(key == 'hiding') {
-            this.onFullScreen(null, 'hiding')
+        else if(key == 'hiding') {                 
+            if(this.styleUnloaded) {
+                this.loadStylesheet();
+                this.styleUnloaded = false;
+            }
+            this.onFullScreen(null, 'hiding');  
             // Continue to update style     
-        }            
+        }         
+        
+        if(key == 'set-fullscreen') {
+            if(this._settings.get_boolean('set-fullscreen') && this.isObarReset) {
+                this.loadStylesheet();
+                this.isObarReset = false;
+            }
+            return;
+        }
 
         if(key == 'reloadstyle') { // A toggle key to trigger update for reload stylesheet
             this.reloadStylesheet();
@@ -774,6 +796,9 @@ class Extension {
     }
 
     onFullScreen(obj, signal, sig_param, timeout = 0) {
+        if(this._settings.get_boolean('set-fullscreen'))
+            return;
+
         this.onFullScrTimeoutId = setTimeout(() => { // Timeout to allow other extensions to move panel to another monitor
             // Check if panelBox is on the monitor which is in fullscreen
             const LM = Main.layoutManager;
@@ -824,8 +849,9 @@ class Extension {
         // Get the top panel
         let panel = Main.panel;
 
-        this.msSVG = false;
-        this.bgSVG = false;
+        this.msSVG = true;
+        this.bgSVG = true;
+        this.smfgSVG = true;
         this.position = null;
         this.wmax = null;
         this.isObarReset = false;
@@ -837,6 +863,7 @@ class Extension {
         this.onFullScrTimeoutId = null;
         this.msgLists = [];
         this.msgListIds = [];
+        this.styleUnloaded = false;
 
         // Settings for desktop background image (set bg-uri as per color scheme)
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
