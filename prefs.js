@@ -659,6 +659,19 @@ class OpenbarPrefs {
         let notificationsSwitch = this.createSwitchWidget();
         bargrid.attach(notificationsSwitch, 2, rowbar, 1, 1);
 
+        rowbar += 1;
+
+        // Add a fullscreen switch
+        let fullscreenLabel = new Gtk.Label({
+            label: 'Apply in Fullscreen',
+            halign: Gtk.Align.START,
+        });
+        bargrid.attach(fullscreenLabel, 1, rowbar, 1, 1);
+
+        let fullscreenSwitch = this.createSwitchWidget("Turn Off if you face any 'crash' issue (Mutter fullscreen lock issue)");
+        bargrid.attach(fullscreenSwitch, 2, rowbar, 1, 1);
+
+
         barprop.set_child(bargrid);
         prefsWidget.attach(barprop, 1, rowNo, 2, 1);
 
@@ -2113,6 +2126,12 @@ class OpenbarPrefs {
         this._settings.bind(
             'extend-menu-shell',
             extMenuSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'set-fullscreen',
+            fullscreenSwitch,
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
