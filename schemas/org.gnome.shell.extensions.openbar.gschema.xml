@@ -592,5 +592,10 @@
       <summary>Extend menu styles to the Gnome shell</summary>
       <description>Extend menu styles to the Gnome shell.</description>
     </key>
+    <key type="b" name="set-fullscreen">
+      <default>false</default>
+      <summary>Apply in fullscreen</summary>
+      <description>Whether customization is applied in fullscreen.</description>
+    </key>
   </schema>
 </schemalist>
