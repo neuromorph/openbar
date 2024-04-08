@@ -459,9 +459,12 @@ export default class Openbar extends Extension {
                 this.resetStyle(panel);
                 this.setPanelBoxPosition(position, panel.height, 0, 0, 'Mainland');
             }
-            else if(this.isObarReset) { // Overview style is enabled but obar was reset due to Fullscreen
-                this.loadStylesheet();
-                this.isObarReset = false;
+            else {
+                if(this.isObarReset) { // Overview style is enabled but obar was reset due to Fullscreen
+                    this.loadStylesheet();
+                    this.isObarReset = false;
+                }
+                this.setWindowMaxBar('showing');
             }
             return;           
         }
@@ -470,6 +473,7 @@ export default class Openbar extends Extension {
                 this.loadStylesheet();
                 this.styleUnloaded = false;
             }
+            this.setWindowMaxBar('hiding');
             this.onFullScreen(null, 'hiding');
             // Continue to update style     
         }    
@@ -675,8 +679,11 @@ export default class Openbar extends Extension {
         if(!this._settings)
             return;                 
         const wmaxbar = this._settings.get_boolean('wmaxbar');
-        if(!wmaxbar) {
-            Main.panel.remove_style_pseudo_class('windowmax');
+        if(!wmaxbar || Main.panel.has_style_pseudo_class('overview')) {
+            if(Main.panel.has_style_pseudo_class('windowmax')) {
+                Main.panel.remove_style_pseudo_class('windowmax');
+                this.setPanelBoxPosWindowMax(false, signal);
+            }                
             return;
         }
         
