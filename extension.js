@@ -456,14 +456,7 @@ export default class Openbar extends Extension {
         let setOverview = this._settings.get_boolean('set-overview');
         if(key == 'showing') { 
             if(!setOverview) { // Reset in overview, if 'overview' style disabled
-                if(this._settings.get_boolean('extend-menu-shell')) {
-                    this.unloadStylesheet();
-                    this.styleUnloaded = true;
-                }
-                else {
-                    this.resetStyle(panel);
-                    this.applyMenuStyles(panel, false);
-                }
+                this.resetStyle(panel);
                 this.setPanelBoxPosition(position, panel.height, 0, 0, 'Mainland');
             }
             else if(this.isObarReset) { // Overview style is enabled but obar was reset due to Fullscreen
