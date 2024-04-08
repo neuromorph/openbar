@@ -453,19 +453,15 @@ class Extension {
         let setOverview = this._settings.get_boolean('set-overview');
         if(key == 'showing') {
             if(!setOverview) { // Reset in overview, if 'overview' style disabled
-                if(this._settings.get_boolean('extend-menu-shell')) {
-                    this.unloadStylesheet();
-                    this.styleUnloaded = true;
-                }
-                else {
                     this.resetStyle(panel);
-                    this.applyMenuStyles(panel, false);
-                }
                 this.setPanelBoxPosition(position, panel.height, 0, 0, 'Mainland');
             }
-            else if(this.isObarReset) { // Overview style is enabled but obar was reset due to Fullscreen
-                this.loadStylesheet();
-                this.isObarReset = false;
+            else {
+                if(this.isObarReset) { // Overview style is enabled but obar was reset due to Fullscreen
+                    this.loadStylesheet();
+                    this.isObarReset = false;
+                }
+                this.setWindowMaxBar('showing');
             }
             return;           
         }
@@ -474,14 +470,19 @@ class Extension {
                 this.loadStylesheet();
                 this.styleUnloaded = false;
             }
+            this.setWindowMaxBar('hiding');
             this.onFullScreen(null, 'hiding');  
             // Continue to update style     
         }         
         
         if(key == 'set-fullscreen') {
-            if(this._settings.get_boolean('set-fullscreen') && this.isObarReset) {
+            const fullscreen = this._settings.get_boolean('set-fullscreen');
+            if(fullscreen && this.isObarReset) {
                 this.loadStylesheet();
                 this.isObarReset = false;
+            }
+            else if(!fullscreen && !this.isObarReset) {
+                this.onFullScreen(null, 'fullscreen');
             }
             return;
         }
@@ -676,8 +677,11 @@ class Extension {
         if(!this._settings)
             return;
         const wmaxbar = this._settings.get_boolean('wmaxbar');
-        if(!wmaxbar) {
-            Main.panel.remove_style_pseudo_class('windowmax');
+        if(!wmaxbar || Main.panel.has_style_pseudo_class('overview')) {
+            if(Main.panel.has_style_pseudo_class('windowmax')) {
+                Main.panel.remove_style_pseudo_class('windowmax');
+                this.setPanelBoxPosWindowMax(false, signal);
+            }
             return;
         }
         
@@ -881,7 +885,9 @@ class Extension {
             [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this) ],
             [ Main.layoutManager, 'monitors-changed', this.updatePanelStyle.bind(this) ],
             [ Main.messageTray._bannerBin, this.addedSignal, this.updatePanelStyle.bind(this), 'message-banner' ],
-            [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this), 100 ],
+            [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this), 50 ],
+            [ global.display, 'window-entered-monitor', this.setWindowMaxBar.bind(this), 'window-entered-monitor' ],
+            [ global.display, 'window-left-monitor', this.setWindowMaxBar.bind(this), 'window-left-monitor' ],
         ];
         // Connections for actor-added/removed OR child-added/removed as per Gnome version
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
