@@ -741,7 +741,7 @@ function saveStylesheet(obar, Me) {
     // Add/Remove .openmenu class to Restrict/Extend menu styles to the shell
     let openmenuClass = extendMenuShell? '' : '.openmenu';
     // Placeholder for .openbar class
-    let openbarClass = '';
+    let openbarClass = '.openbar';
 
     // Create Stylesheet string to write to file
     let stylesheet = `
