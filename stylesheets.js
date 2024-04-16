@@ -390,10 +390,15 @@ function saveStylesheet(obar, Me) {
     let hfgred, hfggreen, hfgblue;
     if(autofgBar) {
         // Bar auto fg color
-        if(getBgDark(bgred, bggreen, bgblue))
+        let dark;
+        if(bartype == 'Mainland' || bartype == 'Floating')
+            dark = getBgDark(bgred, bggreen, bgblue);
+        else
+            dark = getBgDark(isred, isgreen, isblue);
+        if(dark)
             fgred = fggreen = fgblue = 255;
         else
-            fgred = fggreen = fgblue = 0;
+            fgred = fggreen = fgblue = 20;
 
         // Bar highlight auto fg color
         const hbgred = bgred*(1-hAlpha) + hred*hAlpha;
@@ -763,6 +768,7 @@ function saveStylesheet(obar, Me) {
         #panel${openbarClass} {
             ${panelStyle}
         }
+
         #panel${openbarClass}:windowmax {
             background-color: rgba(${bgredwmax},${bggreenwmax},${bgbluewmax},${bgalphaWMax}) !important;
             border-radius: 0px;
@@ -786,6 +792,14 @@ function saveStylesheet(obar, Me) {
         #panel${openbarClass}:windowmax .panel-button {
             ${borderWMax? '': 'border-color: transparent;'}
             ${neonWMax? '': 'box-shadow: none;'}                
+        }
+
+        #panel${openbarClass}:overview, #panel${openbarClass}:overview:windowmax, #panel${openbarClass}:overview .panel-button {
+            background-color: transparent !important; 
+            border-color: transparent !important; 
+        }
+        #panel${openbarClass}:overview .panel-button:checked, #panel${openbarClass}:overview .panel-button:overview {
+            ${btnHoverStyle} 
         }
 
         #panel${openbarClass} .panel-button.candy1 {
