@@ -454,17 +454,17 @@ export default class Openbar extends Extension {
 
         let position = this._settings.get_string('position');
         let setOverview = this._settings.get_boolean('set-overview');
-        if(key == 'showing') { 
-            if(!setOverview) { // Reset in overview, if 'overview' style disabled
-                this.resetStyle(panel);
-                this.setPanelBoxPosition(position, panel.height, 0, 0, 'Mainland');
-            }
-            else {
+        if(key == 'showing' || panel.has_style_pseudo_class('overview')) { 
+            // if(!setOverview) { // Reset in overview, if 'overview' style disabled
+            //     this.resetStyle(panel);
+            //     this.setPanelBoxPosition(position, panel.height, 0, 0, 'Mainland');
+            // }
+            if(setOverview) {
                 if(this.isObarReset) { // Overview style is enabled but obar was reset due to Fullscreen
                     this.loadStylesheet();
                     this.isObarReset = false;
                 }
-                this.setWindowMaxBar('showing');
+                // this.setWindowMaxBar('showing');
             }
             return;           
         }
@@ -675,11 +675,11 @@ export default class Openbar extends Extension {
         }
     }
 
-    setWindowMaxBar(signal) {
-        if(!this._settings)
+    setWindowMaxBar(obj, signal, sig2) {
+        if(!this._settings || Main.panel.has_style_pseudo_class('overview'))
             return;                 
         const wmaxbar = this._settings.get_boolean('wmaxbar');
-        if(!wmaxbar || Main.panel.has_style_pseudo_class('overview')) {
+        if(!wmaxbar) {
             if(Main.panel.has_style_pseudo_class('windowmax')) {
                 Main.panel.remove_style_pseudo_class('windowmax');
                 this.setPanelBoxPosWindowMax(false, signal);
@@ -696,11 +696,10 @@ export default class Openbar extends Extension {
             window.get_monitor() == panelMonIndex && 
             window.showing_on_its_workspace() && 
             !window.is_hidden() && 
-            window.get_window_type() !== Meta.WindowType.DESKTOP && 
-            // exclude Desktop Icons NG
-            window.get_gtk_application_id() !== "com.rastersoft.ding" && 
-            (window.maximized_horizontally 
-                || window.maximized_vertically) 
+            window.get_window_type() !== Meta.WindowType.DESKTOP && // exclude Desktop
+            window.get_gtk_application_id() !== "com.rastersoft.ding" && // exclude Desktop Icons NG
+            (window.maximized_horizontally || window.maximized_vertically) &&
+            !window.fullscreen
         );
 
         if(windows.length) {
@@ -834,12 +833,13 @@ export default class Openbar extends Extension {
         else
             bguriNew = this._bgSettings.get_string('picture-uri');
 
+        this._settings.set_string('bguri', bguriNew);
         // Gnome45+: if bgnd changed with right click on image file, 
         // filepath (bguri) remains same, so manually call updatePanelStyle
         if(bguriOld == bguriNew)
             this.updatePanelStyle(this._settings, 'bguri');
-        else
-            this._settings.set_string('bguri', bguriNew);
+        // else
+        //     this._settings.set_string('bguri', bguriNew);
     }
 
     connectPrimaryBGChanged() {
@@ -887,7 +887,7 @@ export default class Openbar extends Extension {
             [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this) ],
             [ Main.layoutManager, 'monitors-changed', this.updatePanelStyle.bind(this) ],
             [ Main.messageTray._bannerBin, this.addedSignal, this.updatePanelStyle.bind(this), 'message-banner' ],
-            [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this), 50 ],
+            [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this), 100 ],
             [ global.display, 'window-entered-monitor', this.setWindowMaxBar.bind(this), 'window-entered-monitor' ],
             [ global.display, 'window-left-monitor', this.setWindowMaxBar.bind(this), 'window-left-monitor' ],
         ];
