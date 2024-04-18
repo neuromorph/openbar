@@ -743,6 +743,13 @@ function saveStylesheet(obar, Me) {
             background-size: cover; `;
     }
 
+    // Define Overview style (reset) if Disabled in Overview
+    let setOverview = obar._settings.get_boolean('set-overview');
+    let overviewStyle = 
+    `   background-color: transparent !important; 
+        border-color: transparent !important; 
+        box-shadow: none; `;
+
     // Add/Remove .openmenu class to Restrict/Extend menu styles to the shell
     let openmenuClass = extendMenuShell? '' : '.openmenu';
     // Placeholder for .openbar class
@@ -794,9 +801,11 @@ function saveStylesheet(obar, Me) {
             ${neonWMax? '': 'box-shadow: none;'}                
         }
 
-        #panel${openbarClass}:overview, #panel${openbarClass}:overview:windowmax, #panel${openbarClass}:overview .panel-button {
-            background-color: transparent !important; 
-            border-color: transparent !important; 
+        #panel${openbarClass}:overview, #panel${openbarClass}:overview .panel-button {
+            ${setOverview? '': overviewStyle}
+        }
+        #panel${openbarClass}:overview:windowmax {
+            ${overviewStyle}
         }
         #panel${openbarClass}:overview .panel-button:checked, #panel${openbarClass}:overview .panel-button:overview {
             ${btnHoverStyle} 
@@ -873,13 +882,18 @@ function saveStylesheet(obar, Me) {
         #panel${openbarClass} .trilands:mid-child {
             ${triMidStyle}
         }
+        #panel${openbarClass}:overview .trilands:mid-child {
+            ${setOverview? '': 'box-shadow: none;'}
+        }
         #panel${openbarClass}:windowmax .trilands:mid-child {
             ${neonWMax? '': 'box-shadow: none;'}
         }
         #panel${openbarClass} .trilands:mid-child:hover, #panel${openbarClass} .trilands:mid-child:focus, #panel${openbarClass} .trilands:mid-child:active, #panel${openbarClass} .trilands:mid-child:checked {
             ${triMidNeonHoverStyle}
         }
-        
+        #panel${openbarClass}:overview .trilands:mid-child:hover, #panel${openbarClass}:overview .trilands:mid-child:focus, #panel${openbarClass}:overview .trilands:mid-child:active, #panel${openbarClass}:overview .trilands:mid-child:checked {
+            ${setOverview? '': 'box-shadow: none;'}
+        }
     `;
 
     // Menu styles

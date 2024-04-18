@@ -331,7 +331,7 @@ class OpenbarPrefs {
         let settEvents = ['bartype', 'position', 'font', 'gradient', 'cust-margin-wmax', 'border-wmax', 'neon-wmax',
         'gradient-direction', 'shadow', 'neon', 'heffect', 'smbgoverride', 'mbg-gradient', 'autofg-bar', 'autofg-menu',
         'width-top', 'width-bottom', 'width-left', 'width-right', 'radius-topleft', 'radius-topright',
-        'radius-bottomleft', 'radius-bottomright', 'extend-menu-shell'];
+        'radius-bottomleft', 'radius-bottomright', 'extend-menu-shell', 'set-overview'];
         settEvents.forEach(event => {
             this._settings.connect('changed::'+event, () => {this.triggerStyleReload();});
         });
