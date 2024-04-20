@@ -639,8 +639,8 @@ export default class Openbar extends Extension {
         const panelBox = LM.panelBox;
         for(let i=0; i<monitors.length; i++) {
             let monitor = monitors[i];  
-            if(panelBox.x >= monitor.x && panelBox.x <= (monitor.x + monitor.width) &&
-                panelBox.y >= monitor.y && panelBox.y <= (monitor.y + monitor.height)) {
+            if(panelBox.x >= monitor.x && panelBox.x < (monitor.x + monitor.width) &&
+                panelBox.y >= monitor.y && panelBox.y < (monitor.y + monitor.height)) {
                 panelMonIndex = i; 
                 break;
             }
