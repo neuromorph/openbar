@@ -1771,6 +1771,120 @@ class OpenbarPrefs {
 
         ////////////////////////////////////////////////////////////////////
 
+        // DASH / DOCK
+
+        let dashgrid = this.createGridWidget();
+
+        rowbar = 1;
+
+        // Dash / Dock Label
+        let dashLbl = new Gtk.Label({
+            label: `<span size="large">Dash / Dock Style\n\n</span>`,
+            halign: Gtk.Align.CENTER,
+            use_markup: true,
+            css_classes: ['openbar-title'],
+        });
+        dashgrid.attach(dashLbl, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add a dash to dock info label
+        let dashInfoLabel = new Gtk.Label({
+            label: `<span allow_breaks="true">Dash-to-Dock:\n• Enable 'Use built-in theme' in its settings under 'Appearance' tab.\n• Set 'Icon size limit' as needed in its 'Position and Size' tab.\n </span>`,
+            use_markup: true,
+            halign: Gtk.Align.CENTER,
+            wrap: true,
+            margin_bottom: 10,
+            width_chars: 55,
+        });
+        dashgrid.attach(dashInfoLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add dash-dock style combo
+        let applyDashLbl = new Gtk.Label({
+            label: `Dash / Dock Style`,
+            halign: Gtk.Align.START,
+        });
+        dashgrid.attach(applyDashLbl, 1, rowbar, 1, 1);
+
+        let applyDashCombo = this.createComboboxWidget([ ["Default", _("Keep Default Theme")], ["Menu", _("Use Menu Colors")], ["Bar", _("Use Top Bar Colors")], ["Custom", _("Custom Colors (as below)")] ]);
+        dashgrid.attach(applyDashCombo, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a dash BG color chooser
+        let dashBgColorLabel = new Gtk.Label({
+            label: 'BG Color',
+            halign: Gtk.Align.START,
+        });
+        dashgrid.attach(dashBgColorLabel, 1, rowbar, 1, 1);
+
+        let dashBgColorChooser = this.createColorWidget(window, 'Dash/Dock BG Color', 'Custom BG color for the Dash/Dock.', 'dbgcolor');
+        dashgrid.attach(dashBgColorChooser, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a dash BG alpha scale
+        let dashBgAlphaLbl = new Gtk.Label({
+            label: 'BG Alpha',
+            halign: Gtk.Align.START,
+        });
+        dashgrid.attach(dashBgAlphaLbl, 1, rowbar, 1, 1);
+
+        let dashBgAlpha = this.createScaleWidget(0, 1, 0.01, 2);
+        dashgrid.attach(dashBgAlpha, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a dash border radius scale
+        let dashbRadiusLbl = new Gtk.Label({
+            label: 'Border Radius',
+            halign: Gtk.Align.START,
+        });
+        dashgrid.attach(dashbRadiusLbl, 1, rowbar, 1, 1);
+
+        let dashbRadius = this.createScaleWidget(0, 100, 1, 0);
+        dashgrid.attach(dashbRadius, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a dash Icon Size scale
+        let dashIconSizeLbl = new Gtk.Label({
+            label: 'Icon Size',
+            halign: Gtk.Align.START,
+        });
+        dashgrid.attach(dashIconSizeLbl, 1, rowbar, 1, 1);
+
+        let dashIconSize = this.createScaleWidget(16, 96, 1, 0);
+        dashgrid.attach(dashIconSize, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a border switch
+        let dashBorderLbl = new Gtk.Label({
+            label: `Enable Border`,
+            halign: Gtk.Align.START,
+        });
+        dashgrid.attach(dashBorderLbl, 1, rowbar, 1, 1);
+
+        let dashBorderSwitch = this.createSwitchWidget('Show dash border.');
+        dashgrid.attach(dashBorderSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a shadow switch
+        let dashShadowLbl = new Gtk.Label({
+            label: `Enable Shadow`,
+            halign: Gtk.Align.START,
+        });
+        dashgrid.attach(dashShadowLbl, 1, rowbar, 1, 1);
+
+        let dashShadowSwitch = this.createSwitchWidget('Show dash shadow.');
+        dashgrid.attach(dashShadowSwitch, 2, rowbar, 1, 1);
+
+        ////////////////////////////////////////////////////////////////////
+
         // IMPORT / EXPORT SETTINGS
 
         let iegrid = this.createGridWidget();
