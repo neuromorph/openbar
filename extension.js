@@ -426,7 +426,8 @@ export default class Openbar extends Extension {
             if(!importExport) {
                 if(key == 'bgpalette')
                     this.updateBguri();
-                this.backgroundPalette();
+                else
+                    this.backgroundPalette();
             }
             return;
         }
@@ -838,10 +839,18 @@ export default class Openbar extends Extension {
     }
 
     updateBguri(obj, signal) {
-        const colorScheme = this._intSettings.get_string('color-scheme');
+        // If the function is triggered multiple times in succession, ignore till timeout 
+        if(this.updatingBguri)
+            return;
+        this.updatingBguri = true;
+        this.updatingBguriId = setTimeout(() => {this.updatingBguri = false;}, 200);
+
+        this.colorScheme = this._intSettings.get_string('color-scheme');
+        this._settings.set_string('color-scheme', this.colorScheme);
+        
         let bguriOld = this._settings.get_string('bguri');
         let bguriNew;
-        if(colorScheme == 'prefer-dark')
+        if(this.colorScheme == 'prefer-dark')
             bguriNew = this._bgSettings.get_string('picture-uri-dark');
         else
             bguriNew = this._bgSettings.get_string('picture-uri');
@@ -851,14 +860,15 @@ export default class Openbar extends Extension {
         // filepath (bguri) remains same, so manually call updatePanelStyle
         if(bguriOld == bguriNew)
             this.updatePanelStyle(this._settings, 'bguri');
-        // else
-        //     this._settings.set_string('bguri', bguriNew);
     }
 
     // Connect multiple signals to ensure detecting background-change in all Gnome versions
     connectPrimaryBGChanged() {
         const pMonitorIdx = Main.layoutManager.primaryIndex;
         this._connections.connect(Main.layoutManager._bgManagers[pMonitorIdx], 'changed', this.updateBguri.bind(this));
+        this._connections.connect(this._bgSettings, 'changed::picture-uri', this.updateBguri.bind(this));
+        this._connections.connect(this._bgSettings, 'changed::picture-uri-dark', this.updateBguri.bind(this));
+        this._connections.connect(this._intSettings, 'changed::color-scheme', this.updateBguri.bind(this));
     }
 
     enable() {
@@ -879,16 +889,19 @@ export default class Openbar extends Extension {
         this.addedSignal = this.gnomeVersion > 45? 'child-added': 'actor-added';
         this.removedSignal = this.gnomeVersion > 45? 'child-removed': 'actor-removed';
         this.calendarTimeoutId = null;
-        this.panelPosTimeoutId = null;
+        this.updatingBguriId = null;
         this.bgMgrTimeOutId = null;
         this.onFullScrTimeoutId = null;
         this.msgLists = [];
         this.msgListIds = [];
         this.styleUnloaded = false;
+        this.updatingBguri = false;
 
-         // Settings for desktop background image (set bg-uri as per color scheme)
-         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
-         this._intSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
+        // Settings for desktop background image (set bg-uri as per color scheme)
+        this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
+        this._intSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
+
+        this.colorScheme = this._intSettings.get_string('color-scheme');
 
         this._settings = this.getSettings(); 
         // Connect to the settings changes
@@ -984,16 +997,14 @@ export default class Openbar extends Extension {
             clearTimeout(this.calendarTimeoutId);
             this.calendarTimeoutId = null;
         }
-        if(this.panelPosTimeoutId) {
-            clearTimeout(this.panelPosTimeoutId);
-            this.panelPosTimeoutId = null;
+        if(this.updatingBguriId) {
+            clearTimeout(this.updatingBguriId);
+            this.updatingBguriId = null;
         }
-
         if(this.bgMgrTimeOutId) {
             clearTimeout(this.bgMgrTimeOutId);
             this.bgMgrTimeOutId = null;
         }
-
         if(this.onFullScrTimeoutId) {
             clearTimeout(this.onFullScrTimeoutId);
             this.onFullScrTimeoutId = null;
