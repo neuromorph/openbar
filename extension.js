@@ -92,32 +92,26 @@ export default class Openbar extends Extension {
         this._injections = [];
     }
 
+    // Generate a color palette from desktop background image
     backgroundPalette() {
         // Get the latest background image file (from picture-uri Or picture-uri-dark)
         let pictureUri = this._settings.get_string('bguri');
         let pictureFile = Gio.File.new_for_uri(pictureUri);
     
         // Load the image into a pixbuf
-        let pixbuf = GdkPixbuf.Pixbuf.new_from_file(pictureFile.get_path());
+        let pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(pictureFile.get_path(), 1000, -1);
         let nChannels = pixbuf.n_channels;
     
         // Get the width, height and pixel count of the image
         let width = pixbuf.get_width();
         let height = pixbuf.get_height();
         let pixelCount = width*height;
-        let offset;
-
-        // Sample about a million pixels to quantize
-        if(pixelCount <= 1000000)
-            offset = 1;
-        else
-            offset = parseInt(pixelCount/1000000);
+        let offset = 1;
 
         // Get the pixel data as an array of bytes
         let pixels = pixbuf.get_pixels();
     
-        let pixelArray = [];
-    
+        let pixelArray = [];    
         // Loop through the pixels and get the rgba values
         for (let i = 0, index, r, g, b, a; i < pixelCount; i = i + offset) {
             index = i * nChannels;
@@ -137,40 +131,43 @@ export default class Openbar extends Extension {
             }
         }
         // console.log('pixelCount, pixelarray len ', pixelCount, pixelArray.length);
-    
-        // Generate color palette of 6 colors using Quantize to get prominant colors
-        const cmap6 = Quantize.quantize(pixelArray, 6);
-        const palette6 = cmap6? cmap6.palette() : null;
-
-        let i = 1;
-        palette6?.forEach(color => {
-            this._settings.set_strv('prominent'+i, [String(color[0]), String(color[1]), String(color[2])]);
-            i++;
-        });
 
         // Generate color palette of 12 colors using Quantize to possibly get all colors for color-button
         const cmap12 = Quantize.quantize(pixelArray, 12);
         const palette12 = cmap12? cmap12.palette() : null;
+        const count12 = cmap12? cmap12.colorCounts() : null;
+
+        // Sort palette12 and count12 arrays by count descending
+        palette12?.sort((a, b) => count12[palette12.indexOf(b)] - count12[palette12.indexOf(a)]);
+        count12?.sort((a, b) => b - a);
+        // console.log('palette12 sorted ', palette12, 'count12 sorted ', count12);
     
-        i = 1;
+        // Save palette and counts to settings
+        let i = 1;
         palette12?.forEach(color => {
             this._settings.set_strv('palette'+i, [String(color[0]), String(color[1]), String(color[2])]);
+            this._settings.set_int('count'+i, count12[i-1]);
             i++;
         });
 
-        // Toggle setting 'bg-change' to indicate background change
+        // Toggle setting 'bg-change' to update palette in preferences window
         let bgchange = this._settings.get_boolean('bg-change');
         if(bgchange)
             this._settings.set_boolean('bg-change', false);
         else
             this._settings.set_boolean('bg-change', true);
 
-        // Apply auto theme for new background palette if auto-refresh enabled and theme-variation set
-        const theme = this._settings.get_string('autotheme');
-        const variation = this._settings.get_string('variation');
+        // Apply auto theme for new background palette if auto-refresh enabled and theme set for current mode
         const autoRefresh = this._settings.get_boolean('autotheme-refresh')
-        if(autoRefresh && theme != 'Select Theme' && variation != 'Select Variation')
+        const mode = this._intSettings.get_string('color-scheme');
+        let theme;
+        if(mode == 'prefer-dark')
+            theme = this._settings.get_string('autotheme-dark');
+        else
+            theme = this._settings.get_string('autotheme-light');
+        if(autoRefresh && theme != 'Select Theme') {
             AutoThemes.autoApplyBGPalette(this);
+        }
     }
 
     _injectToFunction(parent, name, func) {
