@@ -451,6 +451,12 @@ export default class Openbar extends Extension {
             return;
         }
 
+        // Reload stylesheet on session-mode-updated (only needed for unlock-dialog)
+        if(callbk_param == 'session-mode-updated') {
+            StyleSheets.reloadStyle(this, Me);
+            return;
+        }
+
         let bartype = this._settings.get_string('bartype');
         // Update triland classes if actor (panel button) removed in triland mode else return
         if(key == this.removedSignal && bartype != 'Trilands')
@@ -459,16 +465,11 @@ export default class Openbar extends Extension {
         let position = this._settings.get_string('position');
         let setOverview = this._settings.get_boolean('set-overview');
         if(key == 'showing' || panel.has_style_pseudo_class('overview')) { 
-            // if(!setOverview) { // Reset in overview, if 'overview' style disabled
-            //     this.resetStyle(panel);
-            //     this.setPanelBoxPosition(position, panel.height, 0, 0, 'Mainland');
-            // }
             if(setOverview) {
                 if(this.isObarReset) { // Overview style is enabled but obar was reset due to Fullscreen
                     this.loadStylesheet();
                     this.isObarReset = false;
                 }
-                // this.setWindowMaxBar('showing');
             }
             return;           
         }
@@ -531,7 +532,7 @@ export default class Openbar extends Extension {
         let barKeys = ['bgcolor', 'gradient', 'gradient-direction', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'bcolor', 'balpha', 'bradius', 
         'bordertype', 'shcolor', 'shalpha', 'iscolor', 'isalpha', 'neon', 'shadow', 'font', 'default-font', 'hcolor', 'halpha', 'heffect', 'bgcolor-wmax', 
         'bgalpha-wmax', 'neon-wmax', 'boxcolor', 'boxalpha', 'autofg-bar', 'autofg-menu', 'width-top', 'width-bottom', 'width-left', 'width-right',
-        'radius-topleft', 'radius-topright', 'radius-bottomleft', 'radius-bottomright', 'extend-menu-shell'];
+        'radius-topleft', 'radius-topright', 'radius-bottomleft', 'radius-bottomright', 'apply-menu-shell'];
         let keys = [...barKeys, ...menuKeys, 'autotheme', 'variation', 'autotheme-refresh', 'accent-override', 'accent-color'];
         if(keys.includes(key)) {
             return;
@@ -879,6 +880,7 @@ export default class Openbar extends Extension {
         // Get the top panel
         let panel = Main.panel;
 
+        this.main = Main;
         this.msSVG = true;
         this.mhSVG = true;
         this.smfgSVG = true;
@@ -918,6 +920,7 @@ export default class Openbar extends Extension {
             [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this), 100 ],
             [ global.display, 'window-entered-monitor', this.setWindowMaxBar.bind(this), 'window-entered-monitor' ],
             [ global.display, 'window-left-monitor', this.setWindowMaxBar.bind(this), 'window-left-monitor' ],
+            [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this), 'session-mode-updated' ],
         ];
         // Connections for actor-added/removed OR child-added/removed as per Gnome version
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
@@ -1030,6 +1033,7 @@ export default class Openbar extends Extension {
         this.setPanelBoxPosition('Top');
         Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
 
+        this.main = null;
         this._settings = null;
         this._bgSettings = null;
         this._intSettings = null;
