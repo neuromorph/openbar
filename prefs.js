@@ -2266,7 +2266,54 @@ class OpenbarPrefs {
         //     'active',
         //     Gio.SettingsBindFlags.DEFAULT
         // );
+
+        window.connect('unrealize', () => {
+            if(this.quoteTimeoutId) {
+                clearTimeout(this.quoteTimeoutId);
+                this.quoteTimeoutId = null;
+            }
+        });
         
+    }
+
+    setQuoteLabel(quoteLabel) {
+        this.animateQuote(quoteLabel, this.quoteBlank);
+        const timeout = this.quoteBlank? 500 : 10500;
+        if(this.quoteTimeoutId)
+            clearTimeout(this.quoteTimeoutId);
+        this.quoteTimeoutId = setTimeout(() => {
+            this.setQuoteLabel(quoteLabel);
+        }, timeout);
+        this.quoteBlank = !this.quoteBlank;
+    }
+
+    animateQuote(quoteLabel, blank) {
+        if(blank) {
+            quoteLabel.label = '';
+            return;
+        }
+        if(this.quoteIdx >= this.quotes.length)
+            this.quoteIdx = 0;
+        quoteLabel.label = `<span size="medium" allow_breaks="true" font_family="cursive">${this.quotes[this.quoteIdx++]}</span>`;
+    }
+
+    shuffleQuotes() {
+        // Shuffle this.quotes array randomly
+        for (let i = this.quotes.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.quotes[i], this.quotes[j]] = [this.quotes[j], this.quotes[i]];
+        }
+        this.quoteIdx = 0;
+    }
+
+    loadQuotesFromFile() { 
+        const file = Gio.File.new_for_path(Me.path + '/media/OpenBarQuotes.txt');
+        const [ok, contents, etag] = file.load_contents(null);
+        const decoder = new TextDecoder('utf-8');
+        const quotesString = decoder.decode(contents);
+        this.quotes = quotesString.split('\n');
+        this.shuffleQuotes();
+        // console.log('QUTES: ' + this.quotes);
     }
 
     importSettings(window) {
