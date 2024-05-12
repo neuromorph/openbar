@@ -2721,7 +2721,7 @@ class OpenbarPrefs {
 
     importSettings(window) {
         let fileChooser = new Gtk.FileChooserDialog({
-            title: _("Import Settings Profile"),
+            title: _("Import Settings for Open Bar Theme"),
             action: Gtk.FileChooserAction.OPEN,
             transient_for: window,
         });
@@ -2735,13 +2735,13 @@ class OpenbarPrefs {
             let bguri = this._settings.get_string('bguri');
             // Save prominent and palette colors from the current/valid background
             let currentPaletteArr = [];
-            for(let i=1; i<=18; i++) {
-                if(i<=6) {
-                    currentPaletteArr.push(this._settings.get_strv('prominent'+i));
-                }
-                else {
-                    currentPaletteArr.push(this._settings.get_strv('palette'+(i-6)));
-                }
+            for(let i=1; i<=12; i++) {
+                // if(i<=6) {
+                //     currentPaletteArr.push(this._settings.get_strv('prominent'+i));
+                // }
+                // else {
+                    currentPaletteArr.push(this._settings.get_strv('palette'+i));
+                // }
             }
             
             // Load settings from file
@@ -2769,14 +2769,14 @@ class OpenbarPrefs {
                     // Replace BG uri with saved uri and update background palette
                     this._settings.set_string('bguri', bguri);
 
-                    // Restore background palettes
-                    for(let i=1; i<=18; i++) {
-                        if(i<=6) {
-                            this._settings.set_strv('prominent'+i, currentPaletteArr[i-1]);
-                        }
-                        else {
-                            this._settings.set_strv('palette'+(i-6), currentPaletteArr[i-1]);
-                        }
+                    // Restore background palette
+                    for(let i=1; i<=12; i++) {
+                        // if(i<=6) {
+                        //     this._settings.set_strv('prominent'+i, currentPaletteArr[i-1]);
+                        // }
+                        // else {
+                            this._settings.set_strv('palette'+i, currentPaletteArr[i-1]);
+                        // }
                     }
 
                     // Disable import/export pause to enable style reload
@@ -2796,7 +2796,7 @@ class OpenbarPrefs {
 
     exportSettings(window) {
         let fileChooser = new Gtk.FileChooserDialog({
-            title: _("Export Settings Profile"),
+            title: _("Export Settings for Open Bar Theme"),
             action: Gtk.FileChooserAction.SAVE,
             transient_for: window,
         });
