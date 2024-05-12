@@ -215,6 +215,31 @@ export default class Openbar extends Extension {
         }        
     }
 
+    unloadStylesheet() {
+        const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
+        const stylesheetFile = Me.dir.get_child('stylesheet.css');
+        try { 
+            theme.unload_stylesheet(stylesheetFile); 
+            delete Me.stylesheet;
+        } catch (e) {
+            console.log('Openbar: Error unloading stylesheet: ');
+            throw e;
+        }
+    }
+
+    loadStylesheet() {
+        const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
+        const stylesheetFile = Me.dir.get_child('stylesheet.css');
+        try {
+            theme.load_stylesheet(stylesheetFile);
+            Me.stylesheet = stylesheetFile;
+        } catch (e) {
+            console.log('Openbar: Error loading stylesheet: ');
+            throw e;
+        }
+        
+    }
+
     reloadStylesheet() {
         // Unload stylesheet
         this.unloadStylesheet();
@@ -223,7 +248,7 @@ export default class Openbar extends Extension {
         this.loadStylesheet();           
     }
 
-    // Add or renove 'openmenu' class
+    // Add or remove 'openmenu' class
     applyMenuClass(obj, add) {
         if(!obj)
             return;
@@ -382,25 +407,6 @@ export default class Openbar extends Extension {
                 this.applyMenuClass(child, add);
              }
         }
-    }
-
-    setPanelBoxPosition(position, height, margin, borderWidth, bartype) {
-        let panelMonitor = this.getPanelMonitor()[0];
-        let panelBox = Main.layoutManager.panelBox; 
-        if(position == 'Top') {       
-            let topX = panelMonitor.x;
-            let topY = panelMonitor.y;
-            panelBox.set_position(topX, topY);
-            panelBox.set_size(panelMonitor.width, -1);        
-        }
-        else if(position == 'Bottom') {
-            margin = (bartype == 'Mainland')? 0: margin;
-            borderWidth = (bartype == 'Trilands' || bartype == 'Islands')? 0: borderWidth;  
-            let bottomX = panelMonitor.x;
-            let bottomY = panelMonitor.y + panelMonitor.height - height - 2*borderWidth - 2*margin;
-            panelBox.set_position(bottomX, bottomY);
-            panelBox.set_size(panelMonitor.width, height + 2*borderWidth + 2*margin);
-        }        
     }
 
     updatePanelStyle(obj, key, sig_param, callbk_param) { 
@@ -637,8 +643,8 @@ export default class Openbar extends Extension {
         });
     }
 
+    // Find the monitor which has the panel/panelBox
     getPanelMonitor() {
-        // Find out index of the monitor which has the panel/panelBox
         let panelMonIndex = 0;
         const LM = Main.layoutManager;
         const monitors = LM.monitors;
@@ -654,8 +660,28 @@ export default class Openbar extends Extension {
         return [monitors[panelMonIndex], panelMonIndex];
     }
     
+    setPanelBoxPosition(position, height, margin, borderWidth, bartype) {
+        let panelMonitor = this.getPanelMonitor()[0];
+        let panelBox = Main.layoutManager.panelBox; 
+        if(position == 'Top') {       
+            let topX = panelMonitor.x;
+            let topY = panelMonitor.y;
+            panelBox.set_position(topX, topY);
+            panelBox.set_size(panelMonitor.width, -1);        
+        }
+        else if(position == 'Bottom') {
+            margin = (bartype == 'Mainland')? 0: margin;
+            borderWidth = (bartype == 'Trilands' || bartype == 'Islands')? 0: borderWidth;  
+            let bottomX = panelMonitor.x;
+            let bottomY = panelMonitor.y + panelMonitor.height - height - 2*borderWidth - 2*margin;
+            panelBox.set_position(bottomX, bottomY);
+            panelBox.set_size(panelMonitor.width, height + 2*borderWidth + 2*margin);
+        }        
+    }
+
+    // Set panelbox position for window max
+    // Need to set panelBox position since bar margins/height can change with WMax
     setPanelBoxPosWindowMax(wmax, signal) {
-        // Need to set panelBox position since bar margins/height can change with WMax
         const position = this._settings.get_string('position');
         if(position == 'Bottom') {
             if(this.position == position && this.wmax == wmax && signal != 'cust-margin-wmax')
@@ -681,9 +707,12 @@ export default class Openbar extends Extension {
         }
     }
 
+    // Check for maximized window on Panel monitor
     setWindowMaxBar(obj, signal, sig2) {
+        // Retain wmax status as-is in Overview (do nothing here)
         if(!this._settings || Main.panel.has_style_pseudo_class('overview'))
-            return;                 
+            return;  
+
         const wmaxbar = this._settings.get_boolean('wmaxbar');
         if(!wmaxbar) {
             if(Main.panel.has_style_pseudo_class('windowmax')) {
@@ -751,6 +780,7 @@ export default class Openbar extends Extension {
         this.setWindowMaxBar(this.removedSignal);
     }
 
+    // Connect/disconnect window signals based on Window-Max bar On/Off
     onWindowMaxBar() {
         let wmaxbar = this._settings.get_boolean('wmaxbar');
         if(wmaxbar) {
@@ -781,36 +811,13 @@ export default class Openbar extends Extension {
         this._windowSignals = null;
     }
 
-    unloadStylesheet() {
-        const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        const stylesheetFile = this.dir.get_child('stylesheet.css');
-        try { 
-            theme.unload_stylesheet(stylesheetFile); 
-            delete this.stylesheet;
-        } catch (e) {
-            console.log('Openbar: Error unloading stylesheet: ');
-            throw e;
-        }
-    }
-
-    loadStylesheet() {
-        const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        const stylesheetFile = this.dir.get_child('stylesheet.css');
-        try {
-            theme.load_stylesheet(stylesheetFile);
-            this.stylesheet = stylesheetFile;
-        } catch (e) {
-            console.log('Openbar: Error loading stylesheet: ');
-            throw e;
-        }
-        
-    }
-
     onFullScreen(obj, signal, sig_param, timeout = 0) {
         if(this._settings.get_boolean('set-fullscreen'))
             return;
         
-        this.onFullScrTimeoutId = setTimeout(() => { // Timeout to allow other extensions to move panel to another monitor
+        this.onFullScrTimeoutId = 
+        // Timeout to allow other extensions to move panel to another monitor
+        setTimeout(() => {
             // Check if panelBox is on the monitor which is in fullscreen
             const LM = Main.layoutManager;
             let panelBoxMonitor = this.getPanelMonitor()[0];
@@ -848,6 +855,7 @@ export default class Openbar extends Extension {
         //     this._settings.set_string('bguri', bguriNew);
     }
 
+    // Connect multiple signals to ensure detecting background-change in all Gnome versions
     connectPrimaryBGChanged() {
         const pMonitorIdx = Main.layoutManager.primaryIndex;
         this._connections.connect(Main.layoutManager._bgManagers[pMonitorIdx], 'changed', this.updateBguri.bind(this));
