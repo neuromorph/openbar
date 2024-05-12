@@ -2174,6 +2174,9 @@ class OpenbarPrefs {
         stack.add_titled(hgrid, 'highlights',       '⊹   Bar Highlights');
         stack.add_titled(bgrid, 'barborder',        '▣   Bar Border');
         stack.add_titled(menugrid, 'menu',          '☰   Popup Menus');
+        stack.add_titled(dashgrid, 'dashdock',      '⏏   Dash / Dock');
+        stack.add_titled(beyondgrid, 'shell',       'ଳ     Gnome Shell');
+        stack.add_titled(appgrid, 'gtkflatpak',     'ꕤ   Gtk / Flatpak Apps');
         stack.add_titled(iegrid, 'importexport',    '⎙    Import / Export Settings');
 
         scrollWindow.set_child(stack);
@@ -2336,12 +2339,12 @@ class OpenbarPrefs {
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
-        this._settings.bind(
-            'set-notifications',
-            notificationsSwitch,
-            'active',
-            Gio.SettingsBindFlags.DEFAULT
-        );
+        // this._settings.bind(
+        //     'set-notifications',
+        //     notificationsSwitch,
+        //     'active',
+        //     Gio.SettingsBindFlags.DEFAULT
+        // );
         this._settings.bind(
             'mfgalpha',
             mfgAlpha.adjustment,
@@ -2499,8 +2502,20 @@ class OpenbarPrefs {
             Gio.SettingsBindFlags.DEFAULT
         );
         this._settings.bind(
+            'autohg-bar',
+            autohgBarSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
             'autofg-menu',
             autofgMenuSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'autohg-menu',
+            autohgMenuSwitch,
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
@@ -2553,12 +2568,6 @@ class OpenbarPrefs {
             Gio.SettingsBindFlags.DEFAULT
         );
         this._settings.bind(
-            'extend-menu-shell',
-            extMenuSwitch,
-            'active',
-            Gio.SettingsBindFlags.DEFAULT
-        );
-        this._settings.bind(
             'set-fullscreen',
             fullscreenSwitch,
             'active',
@@ -2570,6 +2579,96 @@ class OpenbarPrefs {
         //     'active',
         //     Gio.SettingsBindFlags.DEFAULT
         // );
+        this._settings.bind(
+            'dashdock-style',
+            applyDashCombo,
+            'active-id',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'dbgalpha',
+            dashBgAlpha.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'dbradius',
+            dashbRadius.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'disize',
+            dashIconSize.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'dborder',
+            dashBorderSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'dshadow',
+            dashShadowSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'apply-menu-notif',
+            appNotifSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'apply-menu-shell',
+            appMenuSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'apply-accent-shell',
+            appAccentSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'apply-all-shell',
+            appAllSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'apply-gtk',
+            appGtkSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'headerbar-hint',
+            hbHintScale.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'sidebar-hint',
+            sbHintScale.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'sidebar-transparency',
+            sbTransSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'apply-flatpak',
+            flatpakSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
 
         window.connect('unrealize', () => {
             if(this.quoteTimeoutId) {
