@@ -1885,6 +1885,83 @@ class OpenbarPrefs {
 
         ////////////////////////////////////////////////////////////////////
 
+        // GNOME SHELL STYLES
+
+        let beyondgrid = this.createGridWidget();
+
+        rowbar = 1;
+
+        // Gnome Shell label
+        let shellLabel = new Gtk.Label({
+            label: `<span size="large">Gnome Shell Styles</span>\n`,
+            use_markup: true,
+            halign: Gtk.Align.CENTER,
+            css_classes: ['openbar-title'],
+        });
+        beyondgrid.attach(shellLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add a info label
+        let beyondLabel = new Gtk.Label({
+            label: `<span allow_breaks="true">Styles primarily derived from panel menus will be applied to shell components as selected:</span>\n`,
+            use_markup: true,
+            halign: Gtk.Align.CENTER,
+            wrap: true,
+            width_chars: 55,
+        });
+        beyondgrid.attach(beyondLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add apply Menu to notifications switch
+        let appNotifLbl = new Gtk.Label({
+            label: `Apply Menu Styles to Notifications`,
+            halign: Gtk.Align.START,
+        });
+        beyondgrid.attach(appNotifLbl, 1, rowbar, 1, 1);
+
+        let appNotifSwitch = this.createSwitchWidget('Apply Menu styles to notifications banners');
+        beyondgrid.attach(appNotifSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add apply Menu to Shell pop-ups switch
+        let appMenuLbl = new Gtk.Label({
+            label: `Apply Menu Styles to all Shell Pop-ups`,
+            halign: Gtk.Align.START,
+        });
+        beyondgrid.attach(appMenuLbl, 1, rowbar, 1, 1);
+
+        let appMenuSwitch = this.createSwitchWidget('Apply Menu styles to all Shell pop-up menus');
+        beyondgrid.attach(appMenuSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add apply Accent to Shell switch
+        let appAccentLbl = new Gtk.Label({
+            label: `Apply Accent to Shell allover`,
+            halign: Gtk.Align.START,
+        });
+        beyondgrid.attach(appAccentLbl, 1, rowbar, 1, 1);
+
+        let appAccentSwitch = this.createSwitchWidget('Apply only Accent color to Shell components');
+        beyondgrid.attach(appAccentSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add apply All styles to Shell switch
+        let appAllLbl = new Gtk.Label({
+            label: `Apply All Styles to Shell allover`,
+            halign: Gtk.Align.START,
+        });
+        beyondgrid.attach(appAllLbl, 1, rowbar, 1, 1);
+
+        let appAllSwitch = this.createSwitchWidget('Apply Accent, FG, BG colors to Shell components');
+        beyondgrid.attach(appAllSwitch, 2, rowbar, 1, 1);
+
+        ////////////////////////////////////////////////////////////////////
+
         // IMPORT / EXPORT SETTINGS
 
         let iegrid = this.createGridWidget();
