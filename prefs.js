@@ -1962,6 +1962,119 @@ class OpenbarPrefs {
 
         ////////////////////////////////////////////////////////////////////
 
+        // GTK / FLATPAK APPS
+
+        let appgrid = this.createGridWidget();
+
+        rowbar = 1;
+
+        // GTK FLATPAK label
+        let gtkflatpakLabel = new Gtk.Label({
+            label: `<span size="large">GTK / Flatpak Apps 🧪</span>\n`,
+            use_markup: true,
+            halign: Gtk.Align.CENTER,
+            css_classes: ['openbar-title'],
+        });
+        appgrid.attach(gtkflatpakLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add a Gtk/Flatpak info label
+        let appInfoLabel = new Gtk.Label({
+            label: `<span>• Apply theme Accent Color to Gtk / Flatpak apps.\n• Reload the app for changes to take effect.\n• Snaps unsupported.</span>\n\n`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+            wrap: true,
+            margin_top: 10,
+        });
+        appgrid.attach(appInfoLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add a headerbar tint scale
+        let hbHintLbl = new Gtk.Label({
+            label: `Headerbar Hint`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(hbHintLbl, 1, rowbar, 1, 1);
+
+        let hbHintScale = this.createScaleWidget(0, 100, 1, 0, 'Adds hint of Accent color to Headerbars');
+        appgrid.attach(hbHintScale, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a sidebar tint scale
+        let sbHintLbl = new Gtk.Label({
+            label: `Sidebar Hint`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(sbHintLbl, 1, rowbar, 1, 1);
+
+        let sbHintScale = this.createScaleWidget(0, 100, 1, 0, 'Adds hint of Accent color to Sidebars');
+        appgrid.attach(sbHintScale, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a sidebar transparency switch
+        let sbTransLbl = new Gtk.Label({
+            label: `Sidebar Transparency`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(sbTransLbl, 1, rowbar, 1, 1);
+
+        let sbTransSwitch = this.createSwitchWidget('Apply Sidebar Transparency');
+        appgrid.attach(sbTransSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 2;
+
+        // Add a Gtk info label
+        let appLabel = new Gtk.Label({
+            label: `<span><b>GTK3 / GTK4</b></span>\n\n<span size="small" allow_breaks="true">⚠ Warning: It will overwrite 'gtk.css' under '$HOME/.config/gtk-3.0/' and 'gtk-4.0'.</span>\n<span size="small" allow_breaks="true">    Take backup if you have added custom settings that you may want to restore later.</span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+            wrap: true,
+            margin_top: 30,
+        });
+        appgrid.attach(appLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add apply Accent to Gtk switch
+        let appGtkLbl = new Gtk.Label({
+            label: `Apply to Gtk Apps`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(appGtkLbl, 1, rowbar, 1, 1);
+
+        let appGtkSwitch = this.createSwitchWidget('Apply Accent color to Gtk app components');
+        appgrid.attach(appGtkSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 2;
+
+        // Add a Flatpak info label
+        let flatLabel = new Gtk.Label({
+            label: `<span><b>FLATPAK</b></span>\n\n<span size="small" allow_breaks="true">⚠ Warning: Applies overrides to provide flatpak apps access to Gtk configs.</span>\n<span size="small" allow_breaks="true">    Disabling it will remove the overrides.</span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+            wrap: true,
+            margin_top: 10,
+        });
+        appgrid.attach(flatLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add an apply to flatpak switch
+        let flatpakLabel = new Gtk.Label({
+            label: `Apply to Flatpak Apps`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(flatpakLabel, 1, rowbar, 1, 1);
+
+        let flatpakSwitch = this.createSwitchWidget('Apply to Flatpak app components');
+        appgrid.attach(flatpakSwitch, 2, rowbar, 1, 1);
+
+        ////////////////////////////////////////////////////////////////////
+
         // IMPORT / EXPORT SETTINGS
 
         let iegrid = this.createGridWidget();
