@@ -490,6 +490,12 @@ export default class Openbar extends Extension {
         if(key == 'reloadstyle') { // A toggle key to trigger update for reload stylesheet
             this.reloadStylesheet();
         }
+
+        if(key == 'apply-gtk' || key == 'apply-flatpak' || key == 'headerbar-hint' || key == 'sidebar-hint' 
+        || key == 'sidebar-transparency' || key == 'mscolor' || key == 'msalpha') {
+            console.log('Call saveGtkCss from extension for key: ', key);
+            this.gtkCSS = true;
+        }
         
         let menustyle = this._settings.get_boolean('menustyle');
         if(['reloadstyle', 'removestyle', 'menustyle'].includes(key) ||
@@ -502,12 +508,15 @@ export default class Openbar extends Extension {
             this.msSVG = true;
             this.smfgSVG = true;
         }
-        else if(key == 'mbgcolor' || key == 'smbgcolor' || key == 'smbgoverride') {
-            this.bgSVG = true;
+        else if(key == 'mfgcolor' || key == 'mbgcolor' || key == 'smbgcolor' || key == 'smbgoverride') {
             this.smfgSVG = true;
         }
-        else if(key == 'mfgcolor') {
-            this.smfgSVG = true;
+        else if(key == 'mhcolor') {
+            this.mhSVG = true;
+        }
+
+        if(key == 'font') {
+            this._settings.set_boolean('autotheme-font', false);
         }
 
         let menuKeys = ['trigger-reload', 'reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 
@@ -853,8 +862,9 @@ export default class Openbar extends Extension {
         let panel = Main.panel;
 
         this.msSVG = true;
-        this.bgSVG = true;
+        this.mhSVG = true;
         this.smfgSVG = true;
+        this.gtkCSS = true;
         this.position = null;
         this.wmax = null;
         this.isObarReset = false;
