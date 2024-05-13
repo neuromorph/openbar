@@ -471,7 +471,6 @@ function saveStylesheet(obar, Me) {
     let msColor = obar._settings.get_strv('mscolor');
     let msAlpha = obar._settings.get_double('msalpha');
     let smbgColor = obar._settings.get_strv('smbgcolor');
-    // let smbgAlpha = obar._settings.get_double('smbgalpha');
     let smbgOverride = obar._settings.get_boolean('smbgoverride');
     let bgcolorWMax = obar._settings.get_strv('bgcolor-wmax');
     let bgalphaWMax = obar._settings.get_double('bgalpha-wmax');
@@ -495,7 +494,35 @@ function saveStylesheet(obar, Me) {
     let radiusTopRight = obar._settings.get_boolean('radius-topright');
     let radiusBottomLeft = obar._settings.get_boolean('radius-bottomleft');
     let radiusBottomRight = obar._settings.get_boolean('radius-bottomright');
-    let extendMenuShell = obar._settings.get_boolean('extend-menu-shell');
+    let applyMenuShell = obar._settings.get_boolean('apply-menu-shell');
+    let dbgColor = obar._settings.get_strv('dbgcolor');
+    let dbgAlpha = obar._settings.get_double('dbgalpha');
+    let dbRadius = obar._settings.get_double('dbradius');
+    let dIconSize = obar._settings.get_double('disize');
+    let dBorder = obar._settings.get_boolean('dborder');
+    let dShadow = obar._settings.get_boolean('dshadow');
+    let warningColor = obar._settings.get_strv('warning-color');
+    let successColor = obar._settings.get_strv('success-color');
+    let destructColor = obar._settings.get_strv('destruct-color');
+    
+    // Gnome default colors
+    // destructive Dark: c01c28 (192,28,40)    Light: e01b24 (224,27,36)
+    // success     Dark: 26a269 (38,162,105)   Light: 2ec27e (46,194,126)
+    // warning     Dark: f6d32d (246,211,45)   Light: f5c211 (245,194,17)
+
+    const darkMode = obar.colorScheme == 'prefer-dark';
+
+    let warningRed = parseInt(parseFloat(warningColor[0]) * 255);
+    let warningGreen = parseInt(parseFloat(warningColor[1]) * 255);
+    let warningBlue = parseInt(parseFloat(warningColor[2]) * 255);
+
+    let successRed = parseInt(parseFloat(successColor[0]) * 255);
+    let successGreen = parseInt(parseFloat(successColor[1]) * 255);
+    let successBlue = parseInt(parseFloat(successColor[2]) * 255);
+
+    let destructRed = parseInt(parseFloat(destructColor[0]) * 255);
+    let destructGreen = parseInt(parseFloat(destructColor[1]) * 255);
+    let destructBlue = parseInt(parseFloat(destructColor[2]) * 255);
 
     let fgred = parseInt(parseFloat(fgcolor[0]) * 255);
     let fggreen = parseInt(parseFloat(fgcolor[1]) * 255);
@@ -533,6 +560,10 @@ function saveStylesheet(obar, Me) {
     const hgreen = parseInt(parseFloat(hColor[1]) * 255);
     const hblue = parseInt(parseFloat(hColor[2]) * 255);
 
+    const dbgred = parseInt(parseFloat(dbgColor[0]) * 255);
+    const dbggreen = parseInt(parseFloat(dbgColor[1]) * 255);
+    const dbgblue = parseInt(parseFloat(dbgColor[2]) * 255);
+
     let mfgred = parseInt(parseFloat(mfgColor[0]) * 255);
     let mfggreen = parseInt(parseFloat(mfgColor[1]) * 255);
     let mfgblue = parseInt(parseFloat(mfgColor[2]) * 255);
@@ -548,6 +579,8 @@ function saveStylesheet(obar, Me) {
     const mhred = parseInt(parseFloat(mhColor[0]) * 255);
     const mhgreen = parseInt(parseFloat(mhColor[1]) * 255);
     const mhblue = parseInt(parseFloat(mhColor[2]) * 255);
+    // Save menu highlight hex for use in focused svg
+    obar.mhHex = rgbToHex(mhred, mhgreen, mhblue);
 
     const mshred = parseInt(parseFloat(mshColor[0]) * 255);
     const mshgreen = parseInt(parseFloat(mshColor[1]) * 255);
@@ -560,11 +593,11 @@ function saveStylesheet(obar, Me) {
     obar.msHex = rgbToHex(msred, msgreen, msblue);
     obar.msHex = obar.msHex + parseInt(parseFloat(msAlpha)*255).toString(16);
 
-    const pbg = `rgba(${bgred},${bggreen},${bgblue},${bgalpha})`; // panel bg color
-    const phg = `rgba(${hred},${hgreen},${hblue},1.0)`; // panel highlight color
-    const phbg = colorBlend(pbg, phg, hAlpha); // panel highlight blended bg color
-    const isbg = `rgba(${isred},${isgreen},${isblue},${isalpha})`; // island bg color
-    const ihbg = colorBlend(isbg, phg, hAlpha); // island highlight blended bg color
+    // const pbg = `rgba(${bgred},${bggreen},${bgblue},${bgalpha})`; // panel bg color
+    // const phg = `rgba(${hred},${hgreen},${hblue},1.0)`; // panel highlight color
+    // const phbg = colorBlend(pbg, phg, hAlpha); // panel highlight blended bg color
+    // const isbg = `rgba(${isred},${isgreen},${isblue},${isalpha})`; // island bg color
+    // const ihbg = colorBlend(isbg, phg, hAlpha); // island highlight blended bg color
 
 
     const mbg = `rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha})`; // menu bg
@@ -607,10 +640,11 @@ function saveStylesheet(obar, Me) {
     
     // Submenu highlight bg color (notifications pane)
     const mhg1 = `rgba(${mhred},${mhgreen},${mhblue},1)`; // menu highlight with 1 alpha
-    const smhbg = colorBlend(smbg, mhg1, mhAlpha); // sub menu blended highlight bg 
+    let mhbg = colorBlend(mbg, mhg1, mhAlpha); // menu blended highlight bg
+    let smhbg = colorBlend(smbg, mhg1, mhAlpha); // sub menu blended highlight bg 
 
     // Menu selection highlight color
-    const mshg = colorBlend(msc, mhg, 0.3);
+    let mshg = colorBlend(msc, mhg, mhAlpha);
 
     ///// FG COLORS for BAR and MENU
     let hfgred, hfggreen, hfgblue;
@@ -621,19 +655,14 @@ function saveStylesheet(obar, Me) {
             dark = getBgDark(bgred, bggreen, bgblue);
         else
             dark = getBgDark(isred, isgreen, isblue);
-        if(dark)
-            fgred = fggreen = fgblue = 255;
-        else
-            fgred = fggreen = fgblue = 20;
-
-        // Bar highlight auto fg color
-        const hbgred = bgred*(1-hAlpha) + hred*hAlpha;
-        const hbggreen = bggreen*(1-hAlpha) + hgreen*hAlpha;
-        const hbgblue = bgblue*(1-hAlpha) + hblue*hAlpha;
-        if(getBgDark(hbgred, hbggreen, hbgblue))
+        if(dark) {
+            fgred = fggreen = fgblue = 250;
             hfgred = hfggreen = hfgblue = 255;
-        else
+        }
+        else {
+            fgred = fggreen = fgblue = 5;
             hfgred = hfggreen = hfgblue = 0;
+        }
     }
     else { // Manual overrides
         hfgred = fgred;
@@ -646,49 +675,33 @@ function saveStylesheet(obar, Me) {
     if(autofgMenu) {
         // Menu auto fg color
         if(getBgDark(mbgred, mbggreen, mbgblue)) {
-            mfgred = mfggreen = mfgblue = 255;
-        }
-        else
-            mfgred = mfggreen = mfgblue = 25;
-
-        // Menu highlight auto fg color
-        const mhbgred = mbgred*(1-mhAlpha) + mhred*mhAlpha;
-        const mhbggreen = mbggreen*(1-mhAlpha) + mhgreen*mhAlpha;
-        const mhbgblue = mbgblue*(1-mhAlpha) + mhblue*mhAlpha;
-        if(getBgDark(mhbgred, mhbggreen, mhbgblue))
+            mfgred = mfggreen = mfgblue = 230;
             mhfgred = mhfggreen = mhfgblue = 255;
-        else
+        }
+        else {
+            mfgred = mfggreen = mfgblue = 25;
             mhfgred = mhfggreen = mhfgblue = 0;
+        }
 
         // Sub menu auto fg color
-        if(getBgDark(smbgred, smbggreen, smbgblue))
-            smfgred = smfggreen = smfgblue = 255;
-        else
-            smfgred = smfggreen = smfgblue = 25;
-
-        // Sub menu highlight auto fg color
-        const smhbgred = smbgred*(1-mhAlpha) + mhred*mhAlpha;
-        const smhbggreen = smbggreen*(1-mhAlpha) + mhgreen*mhAlpha;
-        const smhbgblue = smbgblue*(1-mhAlpha) + mhblue*mhAlpha;
-        if(getBgDark(smhbgred, smhbggreen, smhbgblue))
+        if(getBgDark(smbgred, smbggreen, smbgblue)) {
+            smfgred = smfggreen = smfgblue = 230;
             smhfgred = smhfggreen = smhfgblue = 255;
-        else
+        }
+        else {
+            smfgred = smfggreen = smfgblue = 25;
             smhfgred = smhfggreen = smhfgblue = 0;
+        }
 
-        // Menu/Submenu active auto fg color
-        if(getBgDark(msred, msgreen, msblue))
-            amfgred = amfggreen = amfgblue = 255;
-        else
-            amfgred = amfggreen = amfgblue = 20;
-
-        // Menu/Submenu active highlight auto fg color    
-        const amhbgred = msred*(1-mhAlpha) + mhred*mhAlpha;
-        const amhbggreen = msgreen*(1-mhAlpha) + mhgreen*mhAlpha;
-        const amhbgblue = msblue*(1-mhAlpha) + mhblue*mhAlpha;
-        if(getBgDark(amhbgred, amhbggreen, amhbgblue))
+        // Accent / active auto fg color
+        if(getBgDark(msred, msgreen, msblue)) {
+            amfgred = amfggreen = amfgblue = 250;
             amhfgred = amhfggreen = amhfgblue = 255;
-        else
+        }
+        else {
+            amfgred = amfggreen = amfgblue = 10;
             amhfgred = amhfggreen = amhfgblue = 0;
+        }
     }
     else { // Manual overrides
         smfgred = mfgred;
@@ -706,6 +719,85 @@ function saveStylesheet(obar, Me) {
     }
     // Save submenu fg hex for use in calendar-today svg
     obar.smfgHex = rgbToHex(smfgred, smfggreen, smfgblue);
+    
+
+    // Auto Highlight BG colors
+    let hspThresh = 155, hgColor, bgColor, bgDarkThresh = 135, bgLightThresh = 190;
+    function getAutoHgColor(bgColor) { 
+        let bgHsp = getHSP(bgColor[0], bgColor[1], bgColor[2]);
+
+        if(bgHsp <= bgLightThresh) {
+            let rgb = bgHsp + 50;
+            // if(bgHsp < hspThresh)
+            //     rgb = bgHsp + 50;
+            hgColor = [rgb, rgb, rgb];
+        }
+        else {
+            let rgb = bgHsp - 80;
+            hgColor = [rgb, rgb, rgb];
+        }
+        log('getAutoHgColor: hgColor, bgColor, bgHsp ', hgColor, bgColor, bgHsp);
+
+        return hgColor;
+    }
+
+    // Bar Auto Highlight
+    let autohgBar = obar._settings.get_boolean('autohg-bar');
+    hgColor = [hred, hgreen, hblue];
+    bgColor = [bgred, bggreen, bgblue];
+    if(autohgBar)
+        hgColor = getAutoHgColor(bgColor);
+    
+    let hbgred = bgred*(1-hAlpha) + hgColor[0]*hAlpha;
+    let hbggreen = bggreen*(1-hAlpha) + hgColor[1]*hAlpha;
+    let hbgblue = bgblue*(1-hAlpha) + hgColor[2]*hAlpha;
+    phbg = `rgba(${hbgred},${hbggreen},${hbgblue},${bgalpha})`;
+
+    // Island Auto Highlight
+    hgColor = [hred, hgreen, hblue];
+    bgColor = [isred, isgreen, isblue];
+    if(autohgBar)
+        hgColor = getAutoHgColor(bgColor);
+
+    let ishbgred = isred*(1-hAlpha) + hgColor[0]*hAlpha;
+    let ishbggreen = isgreen*(1-hAlpha) + hgColor[1]*hAlpha;
+    let ishbgblue = isblue*(1-hAlpha) + hgColor[2]*hAlpha;
+    ihbg = `rgba(${ishbgred},${ishbggreen},${ishbgblue},${isalpha})`;
+
+    // Menu Auto Highlight
+    let autohgMenu = obar._settings.get_boolean('autohg-menu');
+    hgColor = [mhred, mhgreen, mhblue];
+    bgColor = [mbgred, mbggreen, mbgblue];
+    if(autohgMenu)
+        hgColor = getAutoHgColor(bgColor);
+
+    let mhbgred = mbgred*(1-mhAlpha) + hgColor[0]*mhAlpha;
+    let mhbggreen = mbggreen*(1-mhAlpha) + hgColor[1]*mhAlpha;
+    let mhbgblue = mbgblue*(1-mhAlpha) + hgColor[2]*mhAlpha;
+    mhbg = `rgba(${mhbgred},${mhbggreen},${mhbgblue},${mbgAlpha})`;
+    
+    // Sub Menu Auto Highlight
+    hgColor = [mhred, mhgreen, mhblue];
+    bgColor = [smbgred, smbggreen, smbgblue];
+    if(autohgMenu)
+        hgColor = getAutoHgColor(bgColor);   
+
+    let smhbgred = smbgred*(1-mhAlpha) + hgColor[0]*mhAlpha;
+    let smhbggreen = smbggreen*(1-mhAlpha) + hgColor[1]*mhAlpha;
+    let smhbgblue = smbgblue*(1-mhAlpha) + hgColor[2]*mhAlpha;
+    smhbg = `rgba(${smhbgred},${smhbggreen},${smhbgblue},${mbgAlpha})`;
+
+    // Active/Accent Auto Highlight
+    hgColor = [mhred, mhgreen, mhblue];
+    bgColor = [msred, msgreen, msblue];
+    if(autohgMenu)
+        hgColor = getAutoHgColor(bgColor);
+
+    let mshbgred = msred*(1-mhAlpha) + hgColor[0]*mhAlpha;
+    let mshbggreen = msgreen*(1-mhAlpha) + hgColor[1]*mhAlpha;
+    let mshbgblue = msblue*(1-mhAlpha) + hgColor[2]*mhAlpha;
+    mshg = `rgba(${mshbgred},${mshbggreen},${mshbgblue},${msAlpha})`; //msalpha
+
 
     let fgStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, 
     islandStyle, dotStyle, neonStyle, gradientStyle, triLeftStyle, triBothStyle, triRightStyle, 
