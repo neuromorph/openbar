@@ -719,7 +719,7 @@ function saveStylesheet(obar, Me) {
     }
     // Save submenu fg hex for use in calendar-today svg
     obar.smfgHex = rgbToHex(smfgred, smfggreen, smfgblue);
-    
+
 
     // Auto Highlight BG colors
     let hspThresh = 155, hgColor, bgColor, bgDarkThresh = 135, bgLightThresh = 190;
@@ -799,7 +799,9 @@ function saveStylesheet(obar, Me) {
     mshg = `rgba(${mshbgred},${mshbggreen},${mshbgblue},${msAlpha})`; //msalpha
 
 
-    let fgStyle, panelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, 
+    //== Define Styles for Bar components ==//
+
+    let fgStyle, panelStyle, panelLabelStyle, btnStyle, btnContainerStyle, borderStyle, radiusStyle, fontStyle, 
     islandStyle, dotStyle, neonStyle, gradientStyle, triLeftStyle, triBothStyle, triRightStyle, 
     triMidStyle, triMidNeonStyle, btnHoverStyle;      
 
@@ -875,6 +877,11 @@ function saveStylesheet(obar, Me) {
         }catch(e){
             font_weight = Math.round(font_weight/100)*100;
         }
+        // Apply semi-bold if font weight is less than 500 when auto-theme is applied
+        let autothemeApplied = obar._settings.get_boolean('autotheme-font');
+        if(autothemeApplied && font_weight < 500)
+            font_weight = 500;
+
         fontStyle = 
         `   font-size: ${font_size}pt; 
             font-weight: ${font_weight};
@@ -886,7 +893,7 @@ function saveStylesheet(obar, Me) {
     else
         fontStyle = '';
 
-    panelStyle += 
+    panelLabelStyle = 
     ` ${fontStyle} `;
 
     // Box shadow not working with rectangular box (for smaller radius), why Gnome??
@@ -1046,7 +1053,7 @@ function saveStylesheet(obar, Me) {
     }
 
     let menuContentStyle =
-    `   box-shadow: 0 5px 10px 0 rgba(${mshred},${mshgreen},${mshblue},${mshAlpha}) !important; /* menu shadow */
+    `   box-shadow: 0 2px 6px 0 rgba(${mshred},${mshgreen},${mshblue},${mshAlpha}) !important; /* menu shadow */
         border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${mbAlpha}) !important; /* menu border */
         /* add menu font */
         background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}); /* menu bg */
@@ -1061,15 +1068,99 @@ function saveStylesheet(obar, Me) {
             background-size: cover; `;
     }
 
+    // Slider
+    let sliderBaseColor = `${colorMix(smbgred, mbgred, -0.2)},${colorMix(smbggreen, mbggreen, -0.2)},${colorMix(smbgblue, mbgblue, -0.2)}`;
+    let sliderActiveColor = `${colorMix(msred, mbgred, -0.2)},${colorMix(msgreen, mbggreen, -0.2)},${colorMix(msblue, mbgblue, -0.2)}`;
+    let bCol = mfgred > 200? 255: 0; // Slider border color
+    let sliHandRadius = Math.ceil(8 - sliHandBorder/2);
+    if(sliHandRadius < 4) sliHandRadius = 4;
+    let sliderStyle = 
+    `   color: rgba(${sliderBaseColor}, 1) !important;
+        -barlevel-height: ${sliderHeight}px;
+        -barlevel-border-width: 0.5px;
+        -barlevel-border-color: rgba(${bCol},${bCol},${bCol},0.25) !important;
+        -barlevel-active-border-color: rgba(${bCol},${bCol},${bCol},0.25) !important;
+        -slider-handle-border-width: ${sliHandBorder}px;
+        -slider-handle-radius: ${sliHandRadius}px;
+        -slider-handle-border-color: rgba(${sliderActiveColor}, 1) !important;
+        -barlevel-background-color: rgba(${sliderBaseColor}, 1) !important;
+        -barlevel-active-background-color: rgba(${sliderActiveColor}, 1) !important;
+        -barlevel-overdrive-color: rgba(${destructRed}, ${destructGreen}, ${destructBlue}, 1) !important;
+         `;
+
     // Define Overview style (reset) if Disabled in Overview
     let setOverview = obar._settings.get_boolean('set-overview');
-    let overviewStyle = 
-    `   background-color: transparent !important; 
-        border-color: transparent !important; 
-        box-shadow: none; `;
+    let overviewStyle, barFgOverview, barHFgOverview, barHBgOverview;
+    if(!setOverview) {
+        overviewStyle = 
+        `   background-color: transparent !important; 
+            border-color: transparent !important; 
+            box-shadow: none !important; 
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important; `;
+        barFgOverview = 
+        `   color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;`;
+        barHFgOverview = 
+        `   color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;`;
+        barHBgOverview = 
+        `   background-color: rgba(${smhbgred},${smhbggreen},${smhbgblue},${mbgAlpha}) !important;`;
+    }
+    else {
+        overviewStyle = ``;
+        barFgOverview = ``;
+        barHFgOverview = ``;
+        barHBgOverview = ``;
+    }
 
+    let wmaxColorStyle, wmaxHoverStyle;
+    if(bartype == 'Mainland' || bartype == 'Floating') {
+        if(getBgDark(bgredwmax, bggreenwmax, bgbluewmax)) {
+            wmaxColorStyle = 
+            `color: rgba(250,250,250,1.0) !important;
+            transition-duration: 100ms;`;
+        }
+        else {
+            wmaxColorStyle = 
+            `color: rgba(5,5,5,1.0) !important;
+            transition-duration: 100ms;`;
+        }
+    }
+    else {
+        wmaxColorStyle = ``;
+    }
+    if(bartype == 'Mainland' || bartype == 'Floating') {
+        let hgColor = getAutoHgColor([bgredwmax, bggreenwmax, bgbluewmax]);
+        wmaxHoverStyle = 
+        `background-color: rgba(${hgColor[0]},${hgColor[1]},${hgColor[2]},${1.2*hAlpha}) !important;
+        transition-duration: 100ms;`;
+    }
+    else {
+        wmaxHoverStyle = ``;
+    }
+
+    let unlockStyle, unlockHoverStyle;
+    if(obar.main.sessionMode.isLocked) {
+        unlockStyle =
+        `   background-color: transparent !important; 
+            border-color: transparent !important; 
+            color: rgba(255,255,255,1.0) !important;
+            box-shadow: none !important;
+            transition-duration: 100ms;`;
+    }
+    else {
+        unlockStyle = ``;
+    }
+    if(obar.main.sessionMode.isLocked) {
+        unlockHoverStyle =
+        `   color: rgba(255,255,255,1.0) !important;`;
+    }
+    else {
+        unlockHoverStyle = ``;
+    }
+    
+
+    let applyToShell = obar._settings.get_boolean('apply-all-shell');
     // Add/Remove .openmenu class to Restrict/Extend menu styles to the shell
-    let openmenuClass = extendMenuShell? '' : '.openmenu';
+    let openmenuClass = (applyMenuShell || applyToShell) ? '' : '.openmenu';
     // Placeholder for .openbar class
     let openbarClass = '.openbar';
 
