@@ -1183,6 +1183,11 @@ function saveStylesheet(obar, Me) {
     
         #panel${openbarClass} {
             ${panelStyle}
+            ${unlockStyle}
+        }
+
+        #panel${openbarClass} StLabel {
+            ${panelLabelStyle}
         }
 
         #panel${openbarClass}:windowmax {
@@ -1192,6 +1197,8 @@ function saveStylesheet(obar, Me) {
             box-shadow: none;
             margin: 0px;
             height: ${heightWMax}px !important;
+            ${wmaxColorStyle}        
+            ${unlockStyle}
         }
 
         #panel${openbarClass} .button-container {
@@ -1204,20 +1211,20 @@ function saveStylesheet(obar, Me) {
         #panel${openbarClass} .panel-button {
             ${btnStyle}
             color: rgba(${fgred},${fggreen},${fgblue},${fgalpha});
+            ${unlockStyle}
         }
         #panel${openbarClass}:windowmax .panel-button {
             ${borderWMax? '': 'border-color: transparent;'}
-            ${neonWMax? '': 'box-shadow: none;'}                
+            ${neonWMax? '': 'box-shadow: none;'} 
+            ${wmaxColorStyle}             
         }
 
         #panel${openbarClass}:overview, #panel${openbarClass}:overview .panel-button {
             ${setOverview? '': overviewStyle}
         }
+
         #panel${openbarClass}:overview:windowmax {
             ${overviewStyle}
-        }
-        #panel${openbarClass}:overview .panel-button:checked, #panel${openbarClass}:overview .panel-button:overview {
-            ${btnHoverStyle} 
         }
 
         #panel${openbarClass} .panel-button.candy1 {
@@ -1245,34 +1252,67 @@ function saveStylesheet(obar, Me) {
             ${candyStyleArr[7]}
         }
 
-        #panel${openbarClass} .panel-button:hover, #panel${openbarClass} .panel-button:focus, #panel${openbarClass} .panel-button:active, #panel${openbarClass} .panel-button:checked {
+        #panel${openbarClass} .panel-button:hover, #panel${openbarClass} .panel-button:focus, 
+        #panel${openbarClass} .panel-button:active, #panel${openbarClass} .panel-button:checked {
             ${btnHoverStyle}
-            color: rgba(${hfgred},${hfggreen},${hfgblue},${fgalpha});
+            color: rgba(${hfgred},${hfggreen},${hfgblue},${fgalpha}) !important;
+            ${unlockHoverStyle}
+        }
+        #panel${openbarClass}:windowmax .panel-button:hover, #panel${openbarClass}:windowmax .panel-button:focus, 
+        #panel${openbarClass}:windowmax .panel-button:active, #panel${openbarClass}:windowmax .panel-button:checked {
+            ${wmaxColorStyle}
+            ${wmaxHoverStyle}
+        }
+        #panel${openbarClass}:overview .panel-button:hover, #panel${openbarClass}:overview .panel-button:focus, 
+        #panel${openbarClass}:overview .panel-button:checked, #panel${openbarClass}:overview .panel-button:active,
+        #panel${openbarClass}:overview .panel-button:overview {
+            ${btnHoverStyle} 
+            ${setOverview? '': barHBgOverview}
         }
 
         #panel${openbarClass} .panel-button.clock-display .clock {
-            color: rgba(${fgred},${fggreen},${fgblue},${fgalpha});
+            color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}) !important;
         }
+        #panel${openbarClass}:windowmax .panel-button.clock-display .clock {
+            ${wmaxColorStyle}
+        }
+        #panel${openbarClass}:overview .panel-button.clock-display .clock {
+            ${barFgOverview}
+        }
+        
         #panel${openbarClass} .panel-button:hover.clock-display .clock, #panel${openbarClass} .panel-button:focus.clock-display .clock,
         #panel${openbarClass} .panel-button:active.clock-display .clock, #panel${openbarClass} .panel-button:checked.clock-display .clock {
-            color: rgba(${hfgred},${hfggreen},${hfgblue},1.0);
+            color: rgba(${hfgred},${hfggreen},${hfgblue},1.0) !important;
         }
+        #panel${openbarClass}:windowmax .panel-button:hover.clock-display .clock, #panel${openbarClass}:windowmax .panel-button:focus.clock-display .clock,
+        #panel${openbarClass}:windowmax .panel-button:active.clock-display .clock, #panel${openbarClass}:windowmax .panel-button:checked.clock-display .clock {
+            ${wmaxColorStyle}
+        }
+        #panel${openbarClass}:overview .panel-button:hover.clock-display .clock, #panel${openbarClass}:overview .panel-button:focus.clock-display .clock,
+        #panel${openbarClass}:overview .panel-button:active.clock-display .clock, #panel${openbarClass}:overview .panel-button:checked.clock-display .clock {
+            ${barHFgOverview}
+        }
+        
         #panel${openbarClass} .panel-button.clock-display .clock, #panel${openbarClass} .panel-button:hover.clock-display .clock,
         #panel${openbarClass} .panel-button:active.clock-display .clock, #panel${openbarClass} .panel-button:overview.clock-display .clock, 
         #panel${openbarClass} .panel-button:focus.clock-display .clock, #panel${openbarClass} .panel-button:checked.clock-display .clock {
-            background-color: transparent;
-            box-shadow: none;
+            background-color: transparent !important;
+            box-shadow: none !important;
         }
 
         #panel${openbarClass} .panel-button.screen-recording-indicator {
             transition-duration: 150ms;
             font-weight: bold;
-            background-color: rgba(224, 27, 36, 0.8);
+            background-color: rgba(${destructRed},${destructGreen},${destructBlue}, 0.8);
+            box-shadow: none !important;
         }
-        #panel${openbarClass} .panel-button.screen-sharing-indicator {
+        #panel${openbarClass} .panel-button.screen-sharing-indicator,
+        #panel${openbarClass} .screencast-indicator,
+        #panel${openbarClass} .remote-access-indicator {
             transition-duration: 150ms;
             font-weight: bold;
-            background-color: rgba(255, 90, 0, 0.9); 
+            background-color: rgba(${(destructRed+warningRed)/2},${(destructGreen+warningGreen)/2},${(destructBlue+warningBlue)/2}, 0.9); 
+            box-shadow: none !important;
         }
 
         #panel${openbarClass} .workspace-dot {
