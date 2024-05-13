@@ -187,6 +187,180 @@ function saveCheckboxSVG(type, obar, Me) {
 
 }
 
+// Save Gtk stylesheet to user config dir
+function saveGtkCss(obar) {
+    const importExport = obar._settings.get_boolean('import-export');
+    const pauseStyleReload = obar._settings.get_boolean('pause-reload');
+    if(importExport || pauseStyleReload)
+        return;
+    console.log('saveGtkCss called with ImportExport false, Pause false');
+
+    // Save stylesheet from string to css file
+    let applyGtk = obar._settings.get_boolean('apply-gtk');
+    let applyFlatpak = obar._settings.get_boolean('apply-flatpak');
+    if(!applyGtk && !applyFlatpak)
+        return;
+
+    // Add hint of Accent color to Headerbar and Sidebar
+    let hBarHint = obar._settings.get_int('headerbar-hint')/100;
+    let sBarHint = obar._settings.get_int('sidebar-hint')/100;
+    let hBarHintBd = hBarHint/2;
+    let sBarHintBd = sBarHint/2;
+    let sBarTransparency = obar._settings.get_boolean('sidebar-transparency');
+    let accent = obar._settings.get_strv('mscolor');
+    // let accAlpha = obar._settings.get_double('msalpha');
+    const accRed = parseInt(parseFloat(accent[0]) * 255);
+    const accGreen = parseInt(parseFloat(accent[1]) * 255);
+    const accBlue = parseInt(parseFloat(accent[2]) * 255);
+    
+    let bgRed, bgGreen, bgBlue;
+    const colorScheme = obar._intSettings.get_string('color-scheme');
+    if(colorScheme == 'prefer-dark') 
+        bgRed = bgGreen = bgBlue = 25;
+    else
+        bgRed = bgGreen = bgBlue = 225;
+    
+    const hbgRed = hBarHint * accRed + (1-hBarHint) * bgRed;
+    const hbgGreen = hBarHint * accGreen + (1-hBarHint) * bgGreen;
+    const hbgBlue = hBarHint * accBlue + (1-hBarHint) * bgBlue;
+    const hbdRed = hBarHintBd * accRed + (1-hBarHintBd) * bgRed;
+    const hbdGreen = hBarHintBd * accGreen + (1-hBarHintBd) * bgGreen;
+    const hbdBlue = hBarHintBd * accBlue + (1-hBarHintBd) * bgBlue;
+
+    const sbgRed = sBarHint * accRed + (1-sBarHint) * bgRed;
+    const sbgGreen = sBarHint * accGreen + (1-sBarHint) * bgGreen;
+    const sbgBlue = sBarHint * accBlue + (1-sBarHint) * bgBlue;
+    const sbdRed = sBarHintBd * accRed + (1-sBarHintBd) * bgRed;
+    const sbdGreen = sBarHintBd * accGreen + (1-sBarHintBd) * bgGreen;
+    const sbdBlue = sBarHintBd * accBlue + (1-sBarHintBd) * bgBlue;
+
+    const sbAlpha = sBarTransparency? 0.75 : 1.0;
+
+    let hfgRed, hfgGreen, hfgBlue;
+    if(getBgDark(hbgRed, hbgGreen, hbgBlue))
+        hfgRed = hfgGreen = hfgBlue = 255;
+    else
+        hfgRed = hfgGreen = hfgBlue = 20;
+
+    let sfgRed, sfgGreen, sfgBlue;
+    if(getBgDark(sbgRed, sbgGreen, sbgBlue))
+        sfgRed = sfgGreen = sfgBlue = 255;
+    else
+        sfgRed = sfgGreen = sfgBlue = 20;
+
+    
+    let gtkstring = `
+    @define-color accent_color rgba(${accRed}, ${accGreen}, ${accBlue}, 1.0);
+    @define-color accent_bg_color rgba(${accRed}, ${accGreen}, ${accBlue}, 0.65);
+
+    @define-color headerbar_bg_color rgb(${hbgRed}, ${hbgGreen}, ${hbgBlue});
+    @define-color headerbar_backdrop_color rgb(${hbdRed}, ${hbdGreen}, ${hbdBlue});
+
+    @define-color sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${sbAlpha});
+    @define-color sidebar_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${sbAlpha});
+
+    @define-color secondary_sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${1.1*sbAlpha});
+    @define-color secondary_sidebar_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${1.1*sbAlpha});    
+
+    @define-color headerbar_fg_color rgba(${hfgRed}, ${hfgGreen}, ${hfgBlue}, 0.85);
+    @define-color sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.85);
+    @define-color secondary_sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.85);
+
+    /*
+    window {
+        background-color: alpha(@window_bg_color, 0.85);
+    }
+    .content-pane, 
+    scrolledwindow>viewport, 
+    grid>box {
+        background-color: alpha(@view_bg_color, 1.0);
+    }
+    */
+
+    .sidebar,
+    .navigation-sidebar,
+    .sidebar-pane,
+    .content-pane .sidebar-pane,
+    .sidebar-pane .content-pane,
+    scrolledwindow>viewport>list /* Gnome Tweaks */{
+        background-color: @sidebar_bg_color;
+    }
+    .sidebar:backdrop,
+    .navigation-sidebar:backdrop,
+    .sidebar-pane:backdrop,
+    .content-pane .sidebar-pane:backdrop,
+    .sidebar-pane .content-pane:backdrop,
+    scrolledwindow>viewport>list:backdrop {
+        background-color: @sidebar_backdrop_color;
+    }
+    
+    headerbar, 
+    .top-bar, /* Files */
+    .titlebar { 
+        background-color: @headerbar_bg_color;
+        background-image:none;
+    } 
+    headerbar:backdrop,
+    .top-bar:backdrop,
+    .titlebar:backdrop { 
+        background-color: @headerbar_backdrop_color;
+    }
+    `;
+
+    if(!applyGtk)
+        gtkstring = '';
+
+    const configDir = GLib.get_user_config_dir();
+    const gtk3Dir = Gio.File.new_for_path(`${configDir}/gtk-3.0`);
+    const gtk4Dir = Gio.File.new_for_path(`${configDir}/gtk-4.0`);
+    [gtk3Dir, gtk4Dir].forEach(dir => {
+        // console.log(dir.get_path() +'\n' + gtkstring);
+        if (!dir.query_exists(null)) {
+            try {
+                const file = Gio.File.new_for_path(dir.get_path());
+                file.make_directory_with_parents(null);
+            } catch (e) {
+                console.error('Error creating gtk config: ' + e);
+            }
+        }
+
+        let file = Gio.File.new_for_path(dir.get_path() + '/gtk.css');
+        let bytearray = new TextEncoder().encode(gtkstring);
+
+        try {
+            let output = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
+            let outputStream = Gio.BufferedOutputStream.new_sized(output, 4096);
+            outputStream.write_all(bytearray, null);
+            outputStream.close(null);
+            console.log('Saved gtk.css at: ' + dir.get_path());
+        }
+        catch (e) {
+            console.log("Failed to write gtk.css file: " + dir.get_path() + e);
+        }
+    });
+
+    // Apply override to provide flatpak apps access to Gtk config css files
+    if(applyFlatpak) {
+        try {
+            GLib.spawn_command_line_async(
+                'flatpak override --user --filesystem=xdg-config/gtk-4.0:ro --filesystem=xdg-config/gtk-3.0:ro'
+            );
+        } catch (e) {
+            console.error(e);
+        }
+    } 
+    else {
+        try {
+            GLib.spawn_command_line_async(
+                'flatpak override --user --nofilesystem=xdg-config/gtk-4.0 --nofilesystem=xdg-config/gtk-3.0'
+            );
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    
+}
+
 function rgbToHex(r, g, b) {
     return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1);
 }
