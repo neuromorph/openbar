@@ -21,6 +21,7 @@
 
 import Gio from 'gi://Gio';
 import Pango from 'gi://Pango';
+import GLib from 'gi://GLib';
 
 // Called separately for R,G and B. Moves startColor towards or away from endColor
 function colorMix(startColor, endColor, factor) {
@@ -55,19 +56,20 @@ function getHSP(r, g, b) {
 // Check if Dark or Light color as per HSP threshold
 function getBgDark(r, g, b) {
     let hsp = getHSP(r, g, b);
-    if(hsp > 175)
+    if(hsp > 155)
         return false;
     else
         return true;
 }
 
+// SVG for calendar event dot icon (use fg color)
 function saveCalEventSVG(obar, Me) {
     let svg, svgpath, svgcolor;
     svg = `
     <svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
     <circle style="color:#000;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;
     mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000;solid-opacity:1;
-    fill:#REPLACE;fill-opacity:.858277;fill-rule:nonzero;stroke:none;stroke-width:.999999;stroke-linecap:butt;stroke-linejoin:miter;
+    fill:#REPLACE;fill-opacity:.858;fill-rule:nonzero;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;
     stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;marker-start:none;marker-mid:none;
     marker-end:none;paint-order:normal;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate" cx="16" cy="28" r="2"/>
     </svg>
@@ -92,36 +94,26 @@ function saveCalEventSVG(obar, Me) {
 
 }
 
-function saveToggleSVG(toggleOn, obar, Me) {
-    let svg, svgpath, svgcolor;
-    if(toggleOn) {
-        svg = `
-        <svg viewBox="0 0 48 26" xmlns="http://www.w3.org/2000/svg">
-        <g transform="translate(0 -291.18)">
-        <rect y="291.18" width="48" height="26" rx="13" ry="13" fill="#REPLACE"/>
-        <rect x="24" y="294.18" width="22" height="22" rx="11" ry="11" fill-opacity=".2"/>
-        <rect x="24" y="293.18" width="22" height="22" rx="11" ry="11" fill="#fff"/>
-        </g>
-        </svg>
-        `;
+// SVG for toggle switch (toggle On)
+function saveToggleSVG(type, obar, Me) {
+    let svg, svgpath, svgFill = svgStroke = '';
+    if(type == 'on') {
+        svg =
+        `<svg viewBox="0 0 48 26" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(0 -291.18)">
+                <rect y="291.18" width="48" height="26" rx="13" ry="13" style="fill:#SVGFILL;stroke:#SVGSTROKE;stroke-width:1;marker:none"/>
+                <rect x="24" y="294.18" width="22" height="22" rx="11" ry="11" fill-opacity=".2"/>
+                <rect x="24" y="293.18" width="22" height="22" rx="11" ry="11" fill="#fff"/>
+            </g>
+        </svg>`;
 
         svgpath = Me.path + '/media/toggle-on.svg';
-        svgcolor = obar.msHex;
+        svgFill = obar.msHex;
+        svgStroke = obar.msHex;
     }
-    else {
-        svg = `
-        <svg width="48" height="26" xmlns="http://www.w3.org/2000/svg">
-        <rect style="fill:#REPLACE;fill-opacity:1;stroke:none;stroke-width:1;marker:none" width="48" height="26" x="-48" ry="13" fill="#3081e3" rx="13" transform="scale(-1 1)"/>
-        <rect ry="11" rx="11" y="3" x="-24" height="22" width="22" style="fill:#000;fill-opacity:.2;stroke:none;stroke-width:.999999;marker:none" fill="#f8f7f7" transform="scale(-1 1)"/>
-        <rect ry="11" rx="11" y="2" x="-24" height="22" width="22" style="fill:#fff;fill-opacity:1;stroke:none;stroke-width:.999999;marker:none" fill="#f8f7f7" transform="scale(-1 1)"/>
-        </svg>
-        `;
-
-        svgpath = Me.path + '/media/toggle-off.svg';
-        svgcolor = obar.smbgHex;
-    }
-    
-    svg = svg.replace(`#REPLACE`, svgcolor);
+        
+    svg = svg.replace(`#SVGFILL`, svgFill);
+    svg = svg.replace(`#SVGSTROKE`, svgStroke);
    
     let file = Gio.File.new_for_path(svgpath);
     let bytearray = new TextEncoder().encode(svg);
@@ -138,47 +130,47 @@ function saveToggleSVG(toggleOn, obar, Me) {
 
 }
 
-function saveCheckboxSVG(checked, obar, Me) {
-    let svg, svgpath, svgcolor;
-    if(checked) {
+// SVG for checkbox buttons (On, On-focused, Off-focused)
+function saveCheckboxSVG(type, obar, Me) {
+    let svg, svgpath, svgFill = svgStroke = 'none';
+    if(type == 'on') {
         svg = `
-        <svg width="24" height="24" version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-        <filter id="filter946" x="-.094335" y="-.12629" width="1.1887" height="1.2526" color-interpolation-filters="sRGB">
-        <feGaussianBlur stdDeviation="0.39306292"/>
-        </filter>
-        <linearGradient id="linearGradient866" x1="11" x2="11" y1="21" y2="4" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#000000" stop-opacity=".35" offset="0"/>
-        <stop stop-color="#000000" stop-opacity=".1" offset="1"/>
-        </linearGradient>
-        </defs>
-        <rect x="4" y="4" width="16" height="16" fill="none"/>
-        <rect x="2" y="2" width="20" height="20" rx="4" ry="4" opacity=".12"/>
-        <rect x="3" y="3" width="18" height="18" rx="3" ry="3" fill="#REPLACE"/>
-        <rect x="3" y="3" width="18" height="18" rx="3" ry="3" fill="#ffffff" opacity=".1"/>
-        <rect x="3" y="4" width="18" height="17" rx="3" ry="3" fill="url(#linearGradient866)"/>
-        <rect transform="rotate(45)" x="13.79" y="1.1834" width="3" height="1" fill-opacity="0"/>
-        <path d="m15.806 9.1937c-0.30486 0-0.60961 0.1158-0.84321 0.3494l-4.2161 4.2161-1.7633-1.761c-0.42502-0.42502-1.1424-0.39264-1.6095 0.07454-0.46719 0.46718-0.50189 1.1869-0.076923 1.6119l2.6066 2.6042 0.0768 0.07686c0.42502 0.42502 1.1424 0.39032 1.6095-0.07686l5.0593-5.0593c0.46719-0.46719 0.46719-1.2192 0-1.6865-0.2336-0.2336-0.53836-0.3494-0.84321-0.3494z" fill="#000000" filter="url(#filter946)" opacity=".15"/>
-        <path d="m15.806 8.2653c-0.30486 0-0.60961 0.1158-0.84321 0.3494l-4.2161 4.2161-1.7633-1.761c-0.42502-0.42502-1.1424-0.39264-1.6095 0.07454-0.46719 0.46718-0.50189 1.1869-0.076923 1.6119l2.6066 2.6042 0.0768 0.07686c0.42502 0.42502 1.1424 0.39032 1.6095-0.07686l5.0593-5.0593c0.46719-0.46719 0.46719-1.2192 0-1.6865-0.2336-0.2336-0.53836-0.3494-0.84321-0.3494z" fill="#ffffff"/>
+        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1.5" y="1.5" width="21" height="21" rx="3" fill="#SVGFILL" stroke="#SVGSTROKE" stroke-linejoin="round" style="stroke-width:1"/>
+            <path d="m20.16 7.527-1.253-1.414-.118.104-8.478 7.426-4.97-4.263-1.503 1.699 6.474 6.811z" fill="#fff" fill-rule="evenodd"/>
         </svg>
         `;
 
         svgpath = Me.path + '/media/checkbox-on.svg';
-        svgcolor = obar.msHex;
+        svgFill = obar.msHex;
+        svgStroke = obar.msHex;
     }
-    else {
+    else if(type == 'on-focused'){
         svg = `
-        <svg width="24" height="24" fill="#000000" opacity=".54" version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <rect x="2" y="2" width="20" height="20" rx="4" ry="4" color="#000000" opacity=".12" stroke-width="1.25" style="paint-order:fill markers stroke"/>
-        <rect x="3" y="3" width="18" height="18" rx="3" ry="3" color="#000000" fill="#REPLACE" stroke-width="1.2857" style="paint-order:fill markers stroke"/>
+        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1.5" y="1.5" width="21" height="21" rx="3" fill="#SVGFILL" stroke="#SVGSTROKE" stroke-linejoin="round"/>
+            <path d="m20.16 7.527-1.253-1.414-.118.104-8.478 7.426-4.97-4.263-1.503 1.699 6.474 6.811z" fill="#fff" fill-rule="evenodd"/>
         </svg>
         `;
 
-        svgpath = Me.path + '/media/checkbox-off.svg';
-        svgcolor = obar.smbgHex;
+        svgpath = Me.path + '/media/checkbox-on-focused.svg';
+        svgFill = obar.msHex;
+        svgStroke = obar.mhHex;
+    }
+    else if(type == 'off-focused'){
+        svg = `
+        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1.5" y="1.5" width="21" height="21" rx="3" fill="#SVGFILL" stroke="#SVGSTROKE" stroke-linejoin="round"/>
+        </svg>
+        `;
+
+        svgpath = Me.path + '/media/checkbox-off-focused.svg';
+        svgFill = '#aaa';
+        svgStroke = obar.mhHex;
     }
     
-    svg = svg.replace(`#REPLACE`, svgcolor);
+    svg = svg.replace(`#SVGFILL`, svgFill);
+    svg = svg.replace(`#SVGSTROKE`, svgStroke);
    
     let file = Gio.File.new_for_path(svgpath);
     let bytearray = new TextEncoder().encode(svg);
