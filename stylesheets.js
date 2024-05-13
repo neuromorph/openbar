@@ -595,9 +595,9 @@ function saveStylesheet(obar, Me) {
 
     // const pbg = `rgba(${bgred},${bggreen},${bgblue},${bgalpha})`; // panel bg color
     // const phg = `rgba(${hred},${hgreen},${hblue},1.0)`; // panel highlight color
-    // const phbg = colorBlend(pbg, phg, hAlpha); // panel highlight blended bg color
+    // let phbg = colorBlend(pbg, phg, hAlpha); // panel highlight blended bg color
     // const isbg = `rgba(${isred},${isgreen},${isblue},${isalpha})`; // island bg color
-    // const ihbg = colorBlend(isbg, phg, hAlpha); // island highlight blended bg color
+    // let ihbg = colorBlend(isbg, phg, hAlpha); // island highlight blended bg color
 
 
     const mbg = `rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha})`; // menu bg
@@ -1925,6 +1925,741 @@ function saveStylesheet(obar, Me) {
             background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
         }
     `;
+
+    //== BEYOND BAR ==//
+
+    function shadeAccent(transparentize, shade) {
+        return colorShade(`rgba(${msred},${msgreen},${msblue},${transparentize*msAlpha})`, shade);
+    }
+    function shadeMbg(transparentize, shade) {
+        return colorShade(`rgba(${mbgred},${mbggreen},${mbgblue},${transparentize*mbgAlpha})`, shade);
+    }
+    function shadeSMbg(transparentize, shade) {
+        return colorShade(`rgba(${smbgred},${smbggreen},${smbgblue},${transparentize*mbgAlpha})`, shade);
+    }
+    let baseBgColor = darkMode? 'rgba(75, 75, 75, 0.8)' : 'rgba(200, 200, 200, 0.8)';
+    let baseFgColor = darkMode? 'rgb(255, 255, 255)' : 'rgb(25, 25, 25)';
+    // let accentColor = `rgba(${msred},${msgreen},${msblue},${msAlpha})`;
+    let applyAccent, applyToNotif, applyToDashDock;
+    applyAccent = obar._settings.get_boolean('apply-accent-shell');
+    // applyToShell = obar._settings.get_boolean('apply-all-shell');
+    applyToNotif = obar._settings.get_boolean('apply-menu-notif');
+    dashDockStyle = obar._settings.get_string('dashdock-style');
+
+    let tooltipBgRed = 0.8*mbgred + 0.2*(255 - mfgred);
+    let tooltipBgGreen = 0.8*mbggreen + 0.2*(255 - mfggreen);
+    let tooltipBgBlue = 0.8*mbgblue + 0.2*(255 - mfgblue);
+
+    if(applyToShell) {
+        applyAccent = true;
+        applyToNotif = true;
+        // applyToDashDock = true;
+    }
+
+
+    /* Common Stylings */
+    if(applyAccent) {
+        stylesheet += `    
+        .slider{                
+            ${sliderStyle}
+        }
+        .toggle-switch {
+            background-image: url(media/toggle-off.svg);
+            background-color: transparent !important;
+        }
+        .toggle-switch:checked {
+            background-image: url(media/toggle-on.svg);
+            background-color: transparent !important;
+        }
+        .check-box StBin {
+            background-image: url(media/checkbox-off.svg);
+        }
+        .check-box:checked StBin {
+            background-image: url(media/checkbox-on.svg);
+        }
+        .check-box:focus StBin {
+            background-image: url(media/checkbox-off-focused.svg);
+        }  
+        .check-box:focus:checked StBin {
+            background-image: url(media/checkbox-on-focused.svg);
+        } `;
+    }
+
+    if(applyToShell) {
+        stylesheet += `
+        .workspace-switcher, .resize-popup, .osd-monitor-label {
+            box-shadow: 0 5px 10px 0 rgba(${mshred},${mshgreen},${mshblue},${mshAlpha}) !important; /* menu shadow */
+            background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}); /* menu bg */
+            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}); /* menu fg */ 
+            border-color: rgba(${mbred},${mbgreen},${mbblue},${mbAlpha}) !important;
+        } `;
+    }
+        
+
+    /* a11y */
+    if(applyAccent) {
+        stylesheet += `
+        /* Location and Activities Ripple */
+        .ripple-pointer-location, .ripple-box {
+            background-color: ${shadeAccent(0.7, 0.3)} !important;
+            box-shadow: 0 0 2px 2px ${shadeAccent(1, 0.1)} !important;
+        }
+
+        .pie-timer {
+            -pie-border-color: ${msc} !important;
+            -pie-background-color: ${shadeAccent(0.7, 0.3)} !important;
+        }
+
+        .magnifier-zoom-region {
+            border-color: ${msc} !important;
+        } `;
+    }
+
+    /* app-grid */
+    if(applyAccent) {
+        stylesheet += `
+        .overview-tile:active .overview-icon, .overview-tile:checked .overview-icon,
+        .app-well-app:active .overview-icon, .app-well-app:checked .overview-icon 
+        .show-apps:active .overview-icon, .show-apps:checked .overview-icon, 
+        .grid-search-result:active .overview-icon, .grid-search-result:checked .overview-icon {
+            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) ;
+            background-color: ${msc} ;
+        }
+        StWidget.focused .app-well-app-running-dot, StWidget.focused .show-apps-running-dot, StWidget.focused .app-grid-running-dot {
+            background-color: rgba(${msred},${msgreen},${msblue}, 1.0) !important;
+            border-color: rgba(${msred},${msgreen},${msblue}, 1.0) !important;
+        } `;
+    }
+
+    if(applyToShell) {
+        stylesheet += `
+        .overview-tile .overview-icon, .app-well-app .overview-icon, .show-apps .overview-icon, .grid-search-result .overview-icon {
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) ;
+            border-radius: ${menuRadius}px;
+            /*background-color: transparent; Removes default focus from first search result*/
+        }
+        .overview-tile:hover .overview-icon, .app-well-app:hover .overview-icon, .grid-search-result:hover .overview-icon {
+            background-color: rgba(${smhbgred},${smhbggreen},${smhbgblue},${0.95*mbgAlpha}) ;
+            transition-duration: 100ms;
+        }
+        .overview-tile:focus .overview-icon, .overview-tile:selected .overview-icon,
+        .app-well-app:focus .overview-icon, .app-well-app:selected .overview-icon
+        .grid-search-result:focus .overview-icon, .grid-search-result:selected .overview-icon {
+            background-color: ${smhbg} ;
+            transition-duration: 100ms;
+        }   
+        .app-well-app.app-folder .overview-icon, .app-folder.grid-search-result .overview-icon {    
+            background-color: rgba(${smfgred},${smfggreen},${smfgblue},0.08);   
+        }
+        .app-well-app.app-folder:hover .overview-icon, .app-folder.grid-search-result:hover .overview-icon,
+        .app-well-app.app-folder:focus .overview-icon, .app-folder.grid-search-result:focus .overview-icon {    
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) ;
+            background-color: ${smhbg} ;   
+        }
+        .app-folder-dialog {
+            background-color: ${smbg} !important;
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1) !important;
+        }
+        .app-folder-dialog .folder-name-container .folder-name-label {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1) !important;
+        }
+        .app-folder-dialog .folder-name-container .edit-folder-button {
+            color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
+            background-color: ${mbg} !important;
+        }
+        .app-folder-dialog .folder-name-container .edit-folder-button:hover, 
+        .app-folder-dialog .folder-name-container .edit-folder-button:focus {
+            color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
+            background-color: ${mhbg} !important;
+        }
+        .app-folder-dialog .folder-name-container .edit-folder-button:active,
+        .app-folder-dialog .folder-name-container .edit-folder-button:checked {
+            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+            background-color: ${msc} !important;
+        }
+
+        .app-well-app-running-dot, .app-grid-running-dot {
+            background-color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+            border: 2px solid rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+        }
+        
+        .page-indicator .page-indicator-icon {
+            color: transparent;
+            background-color: rgba(${smfgred},${smfggreen},${smfgblue},1) !important;
+        }
+        /*.page-indicator:hover .page-indicator-icon {
+            background-color: rgba(${smfgred},${smfggreen},${smfgblue},0.5) !important;
+        }
+        .page-indicator:active .page-indicator-icon, .page-indicator:checked .page-indicator-icon {
+            background-color: rgba(${smfgred},${smfggreen},${smfgblue},0.9) !important;
+        }*/ `;
+    }
+
+    /* App Switcher */
+    if(applyAccent) {
+        stylesheet += `
+        .switcher-list .item-box:active {
+            background-color: rgba(${msred},${msgreen},${msblue}, 0.9) !important;
+        }
+        .cycler-highlight {
+            border: 5px solid rgba(211,141,75,0.9);
+        } `;
+    }
+
+    if(applyToShell) {
+        stylesheet += `
+        .switcher-list {
+            ${menuContentStyle}
+        }
+        .switcher-list .item-box {
+            color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
+        }
+        .switcher-list .item-box:hover, .switcher-list .item-box:selected {
+            background-color: ${mhbg} !important;
+            color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
+        }         
+        .switcher-arrow {
+            border-color: rgba(${mfgred},${mfggreen},${mfgblue},0.8) !important; 
+            color: rgba(${mfgred},${mfggreen},${mfgblue},0.8) !important; 
+        } `;
+    }
+
+    /* Search */
+    if(applyToShell) {
+        stylesheet += `
+        .search-section-content {
+            background-color: ${mbg} !important;
+            color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
+            border-radius: ${menuRadius}px;
+            border: 2px solid transparent;
+        }
+        /*.search_section_content_item:hover, .search_section_content_item:focus {
+            background-color: ${smhbg} !important;
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+        }*/
+        .search-provider-icon .list-search-provider-content .list-search-provider-details {
+            color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
+        }
+        .search-provider-icon:hover, .search-provider-icon:focus {
+            background-color: ${mhbg} !important;
+        }
+        .search-provider-icon:hover .list-search-provider-content .list-search-provider-details, 
+        .search-provider-icon:focus .list-search-provider-content .list-search-provider-details {
+            color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
+        }
+        .search-statustext {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1) !important;
+        }
+        .list-search-result-title {
+            color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
+        }
+        .list-search-result-description {
+            color: rgba(${mfgred},${mfggreen},${mfgblue},0.65) !important;
+        }
+        .list-search-result:hover .list-search-result-title, .list-search-result:focus .list-search-result-title {
+            color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
+        }
+        .list-search-result:hover .list-search-result-description, .list-search-result:focus .list-search-result-description {
+            color: rgba(${mhfgred},${mhfggreen},${mhfgblue},0.65) !important;
+        }
+        .list-search-result:hover, .list-search-result:focus {
+            background-color: ${mhbg} !important;
+        } `;
+    }
+
+    /* Workspace Overview and Workspace Switcher */
+    if(applyAccent) {
+        stylesheet += `
+        .workspace-thumbnail-indicator {
+            border: 3px solid ${msc} !important;
+        } `;
+    }
+    if(applyToShell) {
+        stylesheet += `
+        .workspace-thumbnails .workspace-thumbnail:hover, .workspace-thumbnails .workspace-thumbnail:focus {
+            border: 2px solid ${mhbg} !important;
+        } 
+        StEntry .search-entry {
+            border-color: rgba(${smfgred},${smfggreen},${smfgblue},0.8) !important;
+        }
+        StEntry .search-entry:hover, StEntry .search-entry:focus {
+            border-color: ${msc} !important;
+        }
+        .system-action-icon {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+        }
+        /*.workspace-background {
+            box-shadow: 0 4px 16px 4px rgba(${smfgred}, ${smfggreen}, ${smfgblue}, 0.275); 
+        } Dark shadow is better */   
+        .window-caption { /* window tooltip */
+            box-shadow: 0 2px 0 0 rgba(${mshred},${mshgreen},${mshblue}, 0.25) !important; /* menu shadow */
+            background-color: rgba(${tooltipBgRed},${tooltipBgGreen},${tooltipBgBlue}, 0.85) !important; /* menu bg */
+            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important; /* menu fg */ 
+            border-color: transparent !important;
+        }
+        .window-close {
+            background-color: rgba(${tooltipBgRed},${tooltipBgGreen},${tooltipBgBlue}, 0.8) !important;
+            color: rgba(${mfgred},${mfggreen},${mfgblue}, 1) !important;
+        }
+        .ws-switcher-indicator {
+            background-color: rgba(${mfgred},${mfggreen},${mfgblue},0.65) !important;
+        }
+        .ws-switcher-indicator:active {
+            background-color: rgba(${mfgred},${mfggreen},${mfgblue}, 1) !important;
+        } `;
+    }
+
+    /* Dash => Provide options in settings?  */
+    let dashBgColor, dashFgColor, dashBorderColor, dashShadowColor, dashHighlightColor;
+    if(dashDockStyle == 'Menu') {
+        dashBgColor = `rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha})`;
+        dashFgColor = `rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha})`;
+        dashBorderColor = `rgba(${mbred},${mbgreen},${mbblue},${mbAlpha})`;
+        dashShadowColor = `rgba(${mshred},${mshgreen},${mshblue},${mshAlpha})`;
+        dashHighlightColor = mhbg;
+    }
+    else if(dashDockStyle == 'Bar') {
+        if(bartype == 'Mainland' || bartype == 'Floating') {
+            dashBgColor = `rgba(${bgred},${bggreen},${bgblue},${bgalpha})`;
+            dashHighlightColor = phbg;
+        }
+        else {
+            dashBgColor = `rgba(${isred},${isgreen},${isblue},${isalpha})`;
+            dashHighlightColor = ihbg;
+        }
+        dashFgColor = `rgba(${fgred},${fggreen},${fgblue},${fgalpha})`;
+        dashBorderColor = `rgba(${bred},${bgreen},${bblue},${balpha})`;
+        dashShadowColor = `rgba(${mshred},${mshgreen},${mshblue},${mshAlpha})`;        
+    }
+    else if(dashDockStyle == 'Custom') {
+        dashBgColor = `rgba(${dbgred},${dbggreen},${dbgblue},${dbgAlpha})`;
+        dashFgColor = `rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha})`;
+        dashBorderColor = `rgba(${mbred},${mbgreen},${mbblue},${mbAlpha})`;
+        dashShadowColor = `rgba(${mshred},${mshgreen},${mshblue},${mshAlpha})`;
+        dashHighlightColor = `rgba(${mhred},${mhgreen},${mhblue},${mhAlpha})`;
+    }    
+    
+    if(dashDockStyle != 'Default') {
+        dashBorderColor = dBorder? dashBorderColor : 'transparent';
+        dashShadowColor = dShadow? dashShadowColor : 'transparent';
+
+        stylesheet += `
+        .dash-background {
+            background-color: ${dashBgColor} !important;
+            color: ${dashFgColor} !important;
+            border-color: ${dashBorderColor} !important;
+            box-shadow: 0 5px 10px 0 ${dashShadowColor} !important;
+            border-radius: ${dbRadius}px;
+        }
+        .dash-separator {
+            background-color: ${dashBorderColor} !important;
+            box-shadow: 1px 1px 0px rgba(25,25,25,0.1) !important;
+        }
+        .dash-item-container .app-well-app .overview-icon, .dash-item-container .show-apps .overview-icon {
+            color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
+        }
+        .dash-item-container .app-well-app:hover .overview-icon, .dash-item-container .app-well-app.focused .overview-icon,
+        .dash-item-container .show-apps:hover .overview-icon, .dash-item-container .show-apps.focused .overview-icon {
+            background-color: ${dashHighlightColor} !important; 
+        }
+        .dash-label { /* app-icon tooltip */
+            background-color: rgba(${tooltipBgRed},${tooltipBgGreen},${tooltipBgBlue}, 0.9) !important;
+            color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
+            box-shadow: 0 2px 0 0 rgba(${mshred},${mshgreen},${mshblue}, 0.25) !important; /* menu shadow */
+            border-color: transparent !important;
+        } 
+        
+        #dash StIcon { 
+            height: ${dIconSize}px !important; 
+            width: ${dIconSize}px !important; 
+        }
+        #dash .app-well-app-running-dot, #dash .show-apps-running-dot {
+            height: ${dIconSize/10.0}px;
+            width: ${dIconSize/10.0}px;
+            border-radius: ${dIconSize/10.0}px;
+            background-color: ${dashFgColor} !important;
+            border: 2px solid ${dashFgColor} !important;
+        } 
+        #dash StWidget.focused .app-well-app-running-dot, #dash StWidget.focused .show-apps-running-dot {
+            background-color: rgba(${msred},${msgreen},${msblue}, 1.0) !important;
+            border-color: rgba(${msred},${msgreen},${msblue}, 1.0) !important;
+            box-shadow: 0 0 2px rgba(225,225,225,0.5) !important;
+        }
+        
+        /*.show-apps:hover .overview-icon, .show-apps:focus .overview-icon, .show-apps:selected .overview-icon {
+            color:${dashFgColor} !important;
+            background-color: ${dashHighlightColor} !important;
+        }*/
+        `;
+    }
+
+
+    /* Modal Dialogs  .end-session-dialog, .message-dialog-content, .run-dialog, .prompt-dialog, */
+    if(applyAccent) {
+        stylesheet += `
+        .modal-dialog-linked-button:focus, .modal-dialog-linked-button:selected {
+            border-color: ${msc} !important;
+            box-shadow: none !important;
+        }
+        .audio-selection-device:active {
+            background-color: ${msc} !important;
+            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+        }
+        .nm-dialog-item:selected {
+            background-color: ${msc} !important;
+            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important; 
+        } `;
+    }
+    
+    if(applyToShell) {
+        stylesheet += `
+        .modal-dialog  {
+            ${menuContentStyle}
+        }
+        .dialog-list .dialog-list-box {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
+            background-color: ${smbg} !important;
+        }
+        .dialog-list .dialog-list-box .dialog-list-item:hover {
+            background-color: ${smhbg} !important;
+        }
+        .dialog-list .dialog-list-box .dialog-list-item .dialog-list-item-title {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
+        }
+        .dialog-list .dialog-list-box .dialog-list-item .dialog-list-item-description {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},0.85) !important;
+        }
+        .modal-dialog-linked-button {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
+            background-color: ${smbg} !important;
+            border: 2px solid transparent;
+        }
+        .modal-dialog-linked-button:hover {
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
+            background-color: ${smhbg} !important;
+            box-shadow: none !important;
+        }
+        .modal-dialog-linked-button:focus, .modal-dialog-linked-button:selected {
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
+            background-color: ${smhbg} !important;
+            /*border-color: ${msc} !important;
+            box-shadow: none !important;*/
+        }
+
+        .audio-selection-device:hover, .audio-selection-device:focus {
+            background-color: ${mhbg} !important;
+        }
+
+        .run-dialog .run-dialog-description {
+            color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important; 
+        }
+
+        .caps-lock-warning-label, 
+        .prompt-dialog-error-label,
+        .polkit-dialog-user-layout .polkit-dialog-user-root-label,
+        .end-session-dialog .end-session-dialog-battery-warning,
+        .end-session-dialog .dialog-list-title,
+        .conflicting-session-dialog-content .conflicting-session-dialog-desc-warning {
+            color: rgba(${warningRed},${warningGreen},${warningBlue}, 1) !important;
+            background-color: rgba(25, 25, 25, 0.6) !important;
+            border-radius: 5px;
+            padding: 4px;
+            margin: 2px;
+        }
+
+        .nm-dialog-subheader {
+            color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important; 
+        }
+        .nm-dialog-scroll-view {
+            background-color: ${smbg} !important; 
+        }
+
+        .nm-dialog-item {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important; 
+        }
+        .nm-dialog-item:hover {
+            background-color: ${smhbg} !important; 
+        }
+
+        .no-networks-label {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important; 
+        }
+        .nm-dialog-airplane-box, .nm-dialog-airplane-text {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important; 
+        } `;
+    }
+          
+    /* Login Dialog */
+    if(applyAccent) {
+        stylesheet += `
+        .login-dialog .modal-dialog-button, .unlock-dialog .modal-dialog-button {
+            border-color: ${msc} !important;
+        }
+        .login-dialog StEntry:focus, .unlock-dialog StEntry:focus {
+            border-color: ${msc} !important;
+        }
+        .login-dialog-user-list:expanded .login-dialog-user-list-item:selected {
+            background-color: ${msc} !important;
+            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important; 
+        }
+        .login-dialog-user-list:expanded .login-dialog-user-list-item:logged-in {
+            border-right: 2px solid ${msc} !important;
+        } 
+        .login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:logged-in .user-icon {
+            border-color: ${msc} !important;
+        }
+        .user-icon.user-avatar {
+            box-shadow:inset 0 0 0 1px rgba(${amfgred},${amfggreen},${amfgblue},0.5) !important;
+        }
+        .unlock-dialog .user-widget .user-icon {
+            background-color: ${msc} !important;
+        } `;
+    }
+
+    /* Entries */ // Placeholder text color???
+    if(applyAccent) {
+        stylesheet += `
+        StEntry {
+            selection-background-color: ${msc} !important;
+            selected-color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important; 
+            border: 1px solid transparent !important;
+        }
+        StEntry:hover, StEntry:focus {
+            border-color: ${msc} !important;
+            box-shadow: none;
+        }
+        StEntry:active, StEntry:checked {
+            border-color: ${msc} !important;
+            box-shadow: none;
+        } `;
+    }
+    if(applyToShell) {
+        stylesheet += `
+        StEntry {
+            color: ${baseFgColor} !important;
+            background-color: ${baseBgColor} !important;
+        }
+        /*StLabel.hint-text {
+            color: transparentize($fg_color, 0.3);
+        }*/ `;
+    }
+
+    let mbgShade = getBgDark(mbgred, mbggreen, mbgblue)? -1: 1;
+
+    /* On-screen Keyboard */
+    if(applyAccent) {
+        stylesheet += `
+        .keyboard-key.enter-key {
+            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important; 
+            background-color: ${msc} !important;
+        }
+        .keyboard-key.enter-key:focus, .keyboard-key.enter-key:hover {
+            background-color: ${mshg} !important;
+        }
+        .keyboard-key.enter-key:checked, .keyboard-key.enter-key:active {
+            background-color: ${shadeAccent(0.9, 0.3)} !important;
+        } `;
+    }
+    if(applyToShell) {
+        stylesheet += `    
+        #keyboard {
+            background-color: ${shadeMbg(0.9, 0.2*mbgShade)} !important;            
+        }
+        .keyboard-key {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
+            background-color: ${shadeSMbg(1, -0.2*mbgShade)} !important;
+        }
+        .keyboard-key:focus, .keyboard-key:focus:hover, .keyboard-key:focus:active {
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
+            background-color: ${smhbg} !important;
+        }
+        .keyboard-key:hover {
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
+            background-color: ${smhbg} !important;
+        }
+        .keyboard-key:active {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
+            background-color: ${smbg} !important;
+        }
+        .keyboard-key:checked {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
+            background-color: ${smbg} !important;
+        }
+        .keyboard-key.default-key {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important; 
+            background-color: ${smbg} !important;
+        }
+        .keyboard-key:grayed {
+            background-color: rgb(125, 125, 125) !important;
+        }               
+        .keyboard-key.shift-key-uppercase:checked, .keyboard-key.shift-key-uppercase:active {
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
+            background-color: ${smhbg} !important;
+        }
+        .keyboard-key.shift-key-uppercase:focus, .keyboard-key.shift-key-uppercase:hover {
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
+            background-color: ${smhbg} !important;
+        }
+        .keyboard-subkeys {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
+            -arrow-background-color: ${shadeMbg(0.9, 0.2*mbgShade)} !important;
+        } `;
+    }
+
+    /* Looking Glass */
+        /* #LookingGlassDialog {
+            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
+            background-color: ${mbg} !important;            
+        }*/
+    if(applyToShell) {
+        stylesheet += `
+        #Toolbar .lg-toolbar-button {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
+            background-color: ${smbg} !important;
+        }
+        #Toolbar .lg-toolbar-button:hover, #Toolbar .lg-toolbar-button:focus {
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
+            background-color: ${smhbg} !important;
+        } 
+        #Toolbar .lg-toolbar-button:active, #Toolbar .lg-toolbar-button:checked {
+            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+            background-color: ${msc} !important;
+        }`;
+    }
+
+    /* Overview */
+    /* Workspace animation */
+    /* Tiled window previews */
+    if(applyToShell) {
+        stylesheet += `
+        #overviewGroup {
+            background-color: rgba(${smbgred},${smbggreen},${smbgblue},1.0) !important; 
+        }
+        .workspace-animation {
+            background-color: ${smbg} ;
+        }    
+        .tile-preview {
+            background-color: rgba(${mbgred},${mbggreen},${mbgblue},0.6) !important;
+            border: 1px solid rgba(${mbgred},${mbggreen},${mbgblue},1.0) !important;
+        } `;
+    }        
+
+    /* Notifications & Message Tray - chat bubbles?? */
+    if(applyToNotif) {
+        stylesheet += `
+        .notification-banner {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+            background-color: ${smbg} !important;
+            border-radius: ${notifRadius}px;
+        }
+        .notification-button {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
+            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
+        }
+        .notification-button:hover, .notification-button:focus, .notification-button:selected {
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
+            background-color: ${smhbg} !important;
+            border-color: transparent !important; 
+        }
+        .summary-source-counter {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
+            background-color: ${smbg} !important;
+        } `;
+    }
+
+    /* OSD Window */
+    if(applyToShell) {
+        stylesheet += `
+        .osd-window, .pad-osd-window {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
+            background-color: ${smbg} !important;
+        } `;
+    }
+
+    /* Screenshot UI */
+    if(applyAccent) {
+        stylesheet += `
+        .screenshot-ui-type-button:active, .screenshot-ui-type-button:checked {
+            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+            background-color: ${msc} !important;
+        }
+        .screenshot-ui-type-button:active:hover, .screenshot-ui-type-button:checked:hover,
+        .screenshot-ui-type-button:active:focus, .screenshot-ui-type-button:checked:focus {
+            color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1.0) !important;
+            background-color: ${mshg} !important;
+        }
+        .screenshot-ui-show-pointer-button:active, .screenshot-ui-show-pointer-button:checked,
+        .screenshot-ui-shot-cast-button:active, .screenshot-ui-shot-cast-button:checked {
+            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+            background-color: ${msc} !important;
+        }
+        .screenshot-ui-show-pointer-button:active:hover, .screenshot-ui-show-pointer-button:checked:hover,
+        .screenshot-ui-show-pointer-button:active:focus, .screenshot-ui-show-pointer-button:checked:focus,
+        .screenshot-ui-shot-cast-button:active:hover, .screenshot-ui-shot-cast-button:checked:hover,
+        .screenshot-ui-shot-cast-button:active:focus, .screenshot-ui-shot-cast-button:checked:focus {
+            color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1.0) !important;
+            background-color: ${mshg} !important;
+        } 
+        .screenshot-ui-window-selector-window:hover .screenshot-ui-window-selector-window-border {
+            border-color: ${msc} !important;
+        }
+        .screenshot-ui-window-selector-window:checked .screenshot-ui-window-selector-window-border {
+            border-color: ${msc} !important;
+            background-color: rgba(${msred},${msgreen},${msblue},0.2) !important;
+        }  
+        .screenshot-ui-window-selector-window:checked .screenshot-ui-window-selector-check {
+            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+            background-color: ${msc} !important;
+        } `;
+    }
+    if(applyToShell) {
+        stylesheet += `
+        .screenshot-ui-panel {
+            ${menuContentStyle}
+        }
+        .screenshot-ui-type-button, .screenshot-ui-close-button {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
+            background-color: ${smbg} !important;
+        }
+        .screenshot-ui-type-button:hover, .screenshot-ui-type-button:focus,
+        .screenshot-ui-close-button:hover, .screenshot-ui-close-button:focus {
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
+            background-color: ${smhbg} !important;
+        }        
+        .screenshot-ui-capture-button:hover, .screenshot-ui-capture-button:focus {
+            border-color: rgba(${mhred},${mhgreen},${mhblue},1) !important;
+        }
+        .screenshot-ui-capture-button:cast .screenshot-ui-capture-button-circle {
+            background-color: rgba(${destructRed},${destructGreen},${destructBlue},1.0) !important;
+        }
+        .screenshot-ui-show-pointer-button:hover, .screenshot-ui-show-pointer-button:focus,
+        .screenshot-ui-shot-cast-button:hover, .screenshot-ui-shot-cast-button:focus {
+            color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
+            background-color: ${msc} !important;
+        }        
+        .screenshot-ui-tooltip {
+            box-shadow: 0 2px 0 0 rgba(${mshred},${mshgreen},${mshblue}, 0.25) !important; /* menu shadow */
+            background-color: rgba(${tooltipBgRed},${tooltipBgGreen},${tooltipBgBlue}, 0.85); /* menu bg */
+            color: rgba(${mfgred},${mfggreen},${mfgblue},1.0); /* menu fg */ 
+            border-color: transparent !important;
+        }
+
+        /* Rubberband for select-area screenshots */
+        .select-area-rubberband {
+            background-color: rgba(${mfgred},${mfggreen},${mfgblue},0.6) !important;
+            border: 1px solid rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+        } `;
+
+        // .screenshot-ui-area-selector .screenshot-ui-area-indicator-selection {
+        //     border: 2px white; }          
+        // .screenshot-ui-area-selector-handle {
+        //     border-radius: 99px;
+        //     background-color: white;
+        //     box-shadow: 0 1px 3px 2px rgba(0, 0, 0, 0.2);
+        //     width: 24px;
+        //     height: 24px; }
+    }
     
     let stylepath = Me.path + '/stylesheet.css';
     let file = Gio.File.new_for_path(stylepath);
@@ -1940,21 +2675,30 @@ function saveStylesheet(obar, Me) {
       console.log("Failed to write stylsheet file: " + stylepath);
     }
 
-    if(obar.msSVG) {
-        saveToggleSVG(true, obar, Me); 
-        saveCheckboxSVG(true, obar, Me);
+    if(obar.msSVG) { // Accent color is changed
+        saveToggleSVG('on', obar, Me); 
+        saveCheckboxSVG('on', obar, Me);
+        // saveToggleSVG('on-focused', obar, Me); 
+        saveCheckboxSVG('on-focused', obar, Me);
         obar.msSVG = false;
     }
 
-    if(obar.bgSVG) {
-        saveToggleSVG(false, obar, Me);
-        saveCheckboxSVG(false, obar, Me);
-        obar.bgSVG = false;
+    if(obar.mhSVG) { // Highlight color is changed
+        // saveToggleSVG('on-focused', obar, Me);
+        saveCheckboxSVG('on-focused', obar, Me);
+        // saveToggleSVG('off-focused', obar, Me);
+        saveCheckboxSVG('off-focused', obar, Me);
+        obar.mhSVG = false;
     }
 
-    if(obar.smfgSVG) {
+    if(obar.smfgSVG) { // Foreground color is changed
         saveCalEventSVG(obar, Me);
         obar.smfgSVG = false;
+    }
+
+    if(obar.gtkCSS) { // accent or Gtk/Flatpak options changed
+        saveGtkCss(obar);
+        obar.gtkCSS = false;
     }
 
 }
@@ -1967,6 +2711,7 @@ export function reloadStyle(obar, Me) {
     // console.log('reloadStyle called with ImportExport false, Pause false');
     // Save stylesheet from string to css file
     saveStylesheet(obar, Me);
+
     // Cause stylesheet to reload by toggling 'reloadstyle'
     let reloadstyle = obar._settings.get_boolean('reloadstyle');
     if(reloadstyle)
