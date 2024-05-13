@@ -347,6 +347,66 @@
       <summary>BG Palette Color 12 (RGB)</summary>
       <description>Palette Color 12 of background image.</description>
     </key>
+    <key type="i" name="count1">
+      <default>0</default>
+      <summary>BG Palette Color-Count 1 (RGB)</summary>
+      <description>Palette Color-Count 1 of background image.</description>
+    </key>
+    <key type="i" name="count2">
+      <default>0</default>
+      <summary>BG Palette Color-Count 2 (RGB)</summary>
+      <description>Palette Color-Count 2 of background image.</description>
+    </key>
+    <key type="i" name="count3">
+      <default>0</default>
+      <summary>BG Palette Color-Count 3 (RGB)</summary>
+      <description>Palette Color-Count 3 of background image.</description>
+    </key>
+    <key type="i" name="count4">
+      <default>0</default>
+      <summary>BG Palette Color-Count 4 (RGB)</summary>
+      <description>Palette Color-Count 4 of background image.</description>
+    </key>
+    <key type="i" name="count5">
+      <default>0</default>
+      <summary>BG Palette Color-Count 5 (RGB)</summary>
+      <description>Palette Color-Count 5 of background image.</description>
+    </key>
+    <key type="i" name="count6">
+      <default>0</default>
+      <summary>BG Palette Color-Count 6 (RGB)</summary>
+      <description>Palette Color-Count 6 of background image.</description>
+    </key>
+    <key type="i" name="count7">
+      <default>0</default>
+      <summary>BG Palette Color-Count 7 (RGB)</summary>
+      <description>Palette Color-Count 7 of background image.</description>
+    </key>
+    <key type="i" name="count8">
+      <default>0</default>
+      <summary>BG Palette Color-Count 8 (RGB)</summary>
+      <description>Palette Color-Count 8 of background image.</description>
+    </key>
+    <key type="i" name="count9">
+      <default>0</default>
+      <summary>BG Palette Color-Count 9 (RGB)</summary>
+      <description>Palette Color-Count 9 of background image.</description>
+    </key>
+    <key type="i" name="count10">
+      <default>0</default>
+      <summary>BG Palette Color-Count 10 (RGB)</summary>
+      <description>Palette Color-Count 10 of background image.</description>
+    </key>
+    <key type="i" name="count11">
+      <default>0</default>
+      <summary>BG Palette Color-Count 11 (RGB)</summary>
+      <description>Palette Color-Count 11 of background image.</description>
+    </key>
+    <key type="i" name="count12">
+      <default>0</default>
+      <summary>BG Palette Color-Count 12 (RGB)</summary>
+      <description>Palette Color-Count 12 of background image.</description>
+    </key>
     <key type="b" name="bgpalette">
       <default>true</default>
       <summary>Trigger generation BG palette</summary>
@@ -447,20 +507,40 @@
       <summary>Save stylesheet on extension enabled</summary>
       <description>Save stylesheet on extension enabled and trigger reload.</description>
     </key> -->
-    <key type="s" name="autotheme">
-      <default>"Select Theme"</default>
-      <summary>Desktop Background based auto theme type</summary>
-      <description>Desktop Background based auto theme type.</description>
+    <key type="s" name="color-scheme">
+      <default>"prefer-dark"</default>
+      <summary>Gnome interface-scheme aka Light/Dark mode</summary>
+      <description>Gnome interface-scheme aka Light/Dark mode.</description>
     </key>
-    <key type="s" name="variation">
-      <default>"Select Variation"</default>
-      <summary>Desktop Background based auto theme variation</summary>
-      <description>Desktop Background based auto theme variation.</description>
+    <key type="s" name="autotheme-dark">
+      <default>"Select Theme"</default>
+      <summary>Desktop Background based auto theme type for Dark mode</summary>
+      <description>Desktop Background based auto theme type for Dark mode.</description>
+    </key>
+    <key type="s" name="autotheme-light">
+      <default>"Select Theme"</default>
+      <summary>Desktop Background based auto theme type for Light mode</summary>
+      <description>Desktop Background based auto theme type for Light mode.</description>
     </key>
     <key type="b" name="autotheme-refresh">
       <default>false</default>
       <summary>Refresh auto theme on change of Desktop Background</summary>
       <description>Refresh auto theme on change of Desktop Background.</description>
+    </key>
+    <key type="b" name="autotheme-font">
+      <default>false</default>
+      <summary>Turned On when Autotheme is applied and Off when font changed by user</summary>
+      <description>Turned On when Autotheme is applied and Off when font changed by user.</description>
+    </key>
+    <key type="b" name="autohg-bar">
+      <default>false</default>
+      <summary>Turned On by user or when Autotheme is applied and Off when changed by user</summary>
+      <description>Turned On by user or when Autotheme is applied and Off when changed by user.</description>
+    </key>
+    <key type="b" name="autohg-menu">
+      <default>false</default>
+      <summary>Turned On when Autotheme is applied and Off when changed by user</summary>
+      <description>Turned On when Autotheme is applied and Off when changed by user.</description>
     </key>
     <key type="b" name="bg-change">
       <default>false</default>
@@ -586,16 +666,106 @@
       <default>true</default>
       <summary>Apply border radius to Bottom Right corner</summary>
       <description>Apply border radius to Bottom Right corner.</description>
-    </key>
-    <key type="b" name="extend-menu-shell">
-      <default>false</default>
-      <summary>Extend menu styles to the Gnome shell</summary>
-      <description>Extend menu styles to the Gnome shell.</description>
-    </key>
+    </key>    
     <key type="b" name="set-fullscreen">
-      <default>false</default>
+      <default>true</default>
       <summary>Apply in fullscreen</summary>
       <description>Whether customization is applied in fullscreen.</description>
+    </key>
+    <key type="b" name="apply-menu-shell">
+      <default>false</default>
+      <summary>Apply menu styles to all shell pop-ups</summary>
+      <description>Apply menu styles to all shell pop-ups.</description>
+    </key>
+    <key type="b" name="apply-accent-shell">
+      <default>true</default>
+      <summary>Apply menu accent color to the Gnome shell</summary>
+      <description>Apply menu accent color to the Gnome shell.</description>
+    </key>
+    <key type="b" name="apply-all-shell">
+      <default>true</default>
+      <summary>Apply menu styles to the Gnome shell</summary>
+      <description>Apply menu styles to the Gnome shell.</description>
+    </key>
+    <key type="b" name="apply-menu-notif">
+      <default>true</default>
+      <summary>Apply message styles to Notifications</summary>
+      <description>Apply message styles to Notifications.</description>
+    </key>
+    <key type="s" name="dashdock-style">
+      <default>"Menu"</default>
+      <summary>Dash-Dock style like bar or menu or custom</summary>
+      <description>Dash-Dock style like bar or menu or custom.</description>
+    </key>
+    <key type="as" name="dbgcolor">
+      <default>['0.125', '0.125', '0.125']</default>
+      <summary>BG Color (RGB) of Dash</summary>
+      <description>Background Color of Dash or Dock.</description>
+    </key>
+    <key type="d" name="dbgalpha">
+      <default>0</default>
+      <summary>Transparency (alpha) of Dash</summary>
+      <description>Transparency of Dash or Dock.</description>
+    </key>
+    <key type="d" name="dbradius">
+      <default>100</default>
+      <summary>Radius of Dash</summary>
+      <description>Radius of Dash or Dock.</description>
+    </key>
+    <key type="d" name="disize">
+      <default>36</default>
+      <summary>Icon size of Dash</summary>
+      <description>Icon size of Dash or Dock.</description>
+    </key>
+    <key type="b" name="dborder">
+      <default>true</default>
+      <summary>Dash border On-Off</summary>
+      <description>Show border of Dash or Dock.</description>
+    </key>
+    <key type="b" name="dshadow">
+      <default>true</default>
+      <summary>Dash shadow On-Off</summary>
+      <description>Show shadow of Dash or Dock.</description>
+    </key>
+    <key type="b" name="apply-gtk">
+      <default>true</default>
+      <summary>Apply accent color to Gtk apps</summary>
+      <description>Apply accent color to Gtk apps.</description>
+    </key>
+    <key type="i" name="headerbar-hint">
+      <default>10</default>
+      <summary>Add hint of accent color to headerbars</summary>
+      <description>Add hint of accent color to headerbarss.</description>
+    </key>
+    <key type="i" name="sidebar-hint">
+      <default>10</default>
+      <summary>Add hint of accent color to sidebars</summary>
+      <description>Add hint of accent color to sidebars.</description>
+    </key>
+    <key type="b" name="sidebar-transparency">
+      <default>true</default>
+      <summary>Add transparency to sidebars</summary>
+      <description>Add transparency to sidebars.</description>
+    </key>
+    <key type="b" name="apply-flatpak">
+      <default>true</default>
+      <summary>Apply accent color to Flatpak apps</summary>
+      <description>Apply accent color to Flatpak apps.</description>
+    </key>
+    <key type="as" name="warning-color">
+      <default>['0.96', '0.83', '0.17']</default>
+      <summary>Warning Color</summary>
+      <description>Shell warning color.</description>
+    </key>
+    <key type="as" name="destruct-color">
+      <default>['0.75', '0.11', '0.16']</default>
+      <summary>Destructive Color</summary>
+      <description>Shell destructive color.</description>
+    </key>
+    <key type="as" name="success-color">
+      <default>['0.15', '0.635', '0.41']</default>
+      <summary>Success Color</summary>
+      <description>Shell success color.</description>
     </key>
   </schema>
 </schemalist>
