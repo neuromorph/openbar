@@ -96,24 +96,24 @@ function saveCalEventSVG(obar, Me) {
 
 // SVG for toggle switch (toggle On)
 function saveToggleSVG(type, obar, Me) {
-    let svg, svgpath, svgFill = svgStroke = '';
-    if(type == 'on') {
-        svg =
-        `<svg viewBox="0 0 48 26" xmlns="http://www.w3.org/2000/svg">
-            <g transform="translate(0 -291.18)">
-                <rect y="291.18" width="48" height="26" rx="13" ry="13" style="fill:#SVGFILL;stroke:#SVGSTROKE;stroke-width:1;marker:none"/>
-                <rect x="24" y="294.18" width="22" height="22" rx="11" ry="11" fill-opacity=".2"/>
-                <rect x="24" y="293.18" width="22" height="22" rx="11" ry="11" fill="#fff"/>
-            </g>
-        </svg>`;
+    let svg, svgpath, svgFill = '', svgStroke = '', hc = '';    
+    svg =
+    `<svg viewBox="0 0 44 26" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(0 -291.18)">
+            <rect y="295.18" width="44" height="18" rx="9" ry="9" style="fill:#SVGFILL;stroke:none;stroke-width:1;marker:none"/>
+            <rect x="22" y="293.18" width="22" height="22" rx="11" ry="11" fill="#f8f7f7"/>
+        </g>
+        #HIGHCONTRAST
+    </svg>`;
 
-        svgpath = Me.path + '/media/toggle-on.svg';
-        svgFill = obar.msHex;
-        svgStroke = obar.msHex;
-    }
-        
+    svgFill = obar.msHex;
     svg = svg.replace(`#SVGFILL`, svgFill);
-    svg = svg.replace(`#SVGSTROKE`, svgStroke);
+    svgpath = Me.path + '/media/toggle-on.svg';
+    if(type == 'on-hc') {
+        svgpath = Me.path + '/media/toggle-on-hc.svg';
+        hc = `<path style="fill:#f8f7f7;fill-opacity:1;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-dashoffset:2" d="M14 8v10h-2V8Z"/>`;
+    }
+    svg = svg.replace(`#HIGHCONTRAST`, hc);
    
     let file = Gio.File.new_for_path(svgpath);
     let bytearray = new TextEncoder().encode(svg);
@@ -132,7 +132,7 @@ function saveToggleSVG(type, obar, Me) {
 
 // SVG for checkbox buttons (On, On-focused, Off-focused)
 function saveCheckboxSVG(type, obar, Me) {
-    let svg, svgpath, svgFill = svgStroke = 'none';
+    let svg, svgpath, svgFill = 'none', svgStroke = 'none';
     if(type == 'on') {
         svg = `
         <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
@@ -304,6 +304,19 @@ function saveGtkCss(obar) {
     .top-bar:backdrop,
     .titlebar:backdrop { 
         background-color: @headerbar_backdrop_color;
+    }
+
+    switch {
+        margin: 2px 0;
+        padding: 0 2px;
+    }
+    switch image {
+        margin: -8px;
+    }
+    switch > slider {
+        min-width: 20px;
+        min-height: 20px;
+        margin: -3px -2px;
     }
     `;
 
@@ -751,7 +764,7 @@ function saveStylesheet(obar, Me) {
     let hbgred = bgred*(1-hAlpha) + hgColor[0]*hAlpha;
     let hbggreen = bggreen*(1-hAlpha) + hgColor[1]*hAlpha;
     let hbgblue = bgblue*(1-hAlpha) + hgColor[2]*hAlpha;
-    phbg = `rgba(${hbgred},${hbggreen},${hbgblue},${bgalpha})`;
+    let phbg = `rgba(${hbgred},${hbggreen},${hbgblue},${bgalpha})`;
 
     // Island Auto Highlight
     hgColor = [hred, hgreen, hblue];
@@ -762,7 +775,7 @@ function saveStylesheet(obar, Me) {
     let ishbgred = isred*(1-hAlpha) + hgColor[0]*hAlpha;
     let ishbggreen = isgreen*(1-hAlpha) + hgColor[1]*hAlpha;
     let ishbgblue = isblue*(1-hAlpha) + hgColor[2]*hAlpha;
-    ihbg = `rgba(${ishbgred},${ishbggreen},${ishbgblue},${isalpha})`;
+    let ihbg = `rgba(${ishbgred},${ishbggreen},${ishbgblue},${isalpha})`;
 
     // Menu Auto Highlight
     let autohgMenu = obar._settings.get_boolean('autohg-menu');
@@ -1157,6 +1170,13 @@ function saveStylesheet(obar, Me) {
         unlockHoverStyle = ``;
     }
     
+    // Toggle switch SVG
+    let toggleOnSVG = 'toggle-on.svg', toggleOffSVG = 'toggle-off.svg';
+    let hcMode = obar._hcSettings.get_boolean('high-contrast');
+    if(hcMode) {
+        toggleOnSVG = 'toggle-on-hc.svg';
+        toggleOffSVG = 'toggle-off-hc.svg';
+    }
 
     let applyToShell = obar._settings.get_boolean('apply-all-shell');
     // Add/Remove .openmenu class to Restrict/Extend menu styles to the shell
@@ -1557,11 +1577,11 @@ function saveStylesheet(obar, Me) {
             box-shadow: none;
         }        
         ${openmenuClass} .toggle-switch {
-            background-image: url(media/toggle-off.svg);
+            background-image: url(media/${toggleOffSVG});
             background-color: transparent !important;
         }
         ${openmenuClass} .toggle-switch:checked {
-            background-image: url(media/toggle-on.svg);
+            background-image: url(media/${toggleOnSVG});
             background-color: transparent !important;
         }
         ${openmenuClass} .check-box StBin {
@@ -1939,8 +1959,9 @@ function saveStylesheet(obar, Me) {
     }
     let baseBgColor = darkMode? 'rgba(75, 75, 75, 0.8)' : 'rgba(200, 200, 200, 0.8)';
     let baseFgColor = darkMode? 'rgb(255, 255, 255)' : 'rgb(25, 25, 25)';
+    let baseHintFgColor = darkMode? 'rgba(255, 255, 255, 0.7)' : 'rgba(25, 25, 25, 0.7)';
     // let accentColor = `rgba(${msred},${msgreen},${msblue},${msAlpha})`;
-    let applyAccent, applyToNotif, applyToDashDock;
+    let applyAccent, applyToNotif, dashDockStyle;
     applyAccent = obar._settings.get_boolean('apply-accent-shell');
     // applyToShell = obar._settings.get_boolean('apply-all-shell');
     applyToNotif = obar._settings.get_boolean('apply-menu-notif');
@@ -1964,11 +1985,11 @@ function saveStylesheet(obar, Me) {
             ${sliderStyle}
         }
         .toggle-switch {
-            background-image: url(media/toggle-off.svg);
+            background-image: url(media/${toggleOffSVG});
             background-color: transparent !important;
         }
         .toggle-switch:checked {
-            background-image: url(media/toggle-on.svg);
+            background-image: url(media/${toggleOnSVG});
             background-color: transparent !important;
         }
         .check-box StBin {
@@ -2018,6 +2039,9 @@ function saveStylesheet(obar, Me) {
     /* app-grid */
     if(applyAccent) {
         stylesheet += `
+        .overview-tile {
+            background-color: transparent;
+        }
         .overview-tile:active .overview-icon, .overview-tile:checked .overview-icon,
         .app-well-app:active .overview-icon, .app-well-app:checked .overview-icon 
         .show-apps:active .overview-icon, .show-apps:checked .overview-icon, 
@@ -2048,11 +2072,13 @@ function saveStylesheet(obar, Me) {
             background-color: ${smhbg} ;
             transition-duration: 100ms;
         }   
-        .app-well-app.app-folder .overview-icon, .app-folder.grid-search-result .overview-icon {    
+        .app-well-app.app-folder .overview-icon, .overview-tile.app-folder .overview-icon,
+        .app-folder.grid-search-result .overview-icon {    
             background-color: rgba(${smfgred},${smfggreen},${smfgblue},0.08);   
         }
-        .app-well-app.app-folder:hover .overview-icon, .app-folder.grid-search-result:hover .overview-icon,
-        .app-well-app.app-folder:focus .overview-icon, .app-folder.grid-search-result:focus .overview-icon {    
+        .app-well-app.app-folder:hover .overview-icon, .app-well-app.app-folder:focus .overview-icon, 
+        .overview-tile.app-folder:hover .overview-icon, .overview-tile.app-folder:focus .overview-icon, 
+        .app-folder.grid-search-result:hover .overview-icon, .app-folder.grid-search-result:focus .overview-icon {    
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) ;
             background-color: ${smhbg} ;   
         }
@@ -2063,17 +2089,22 @@ function saveStylesheet(obar, Me) {
         .app-folder-dialog .folder-name-container .folder-name-label {
             color: rgba(${smfgred},${smfggreen},${smfgblue},1) !important;
         }
-        .app-folder-dialog .folder-name-container .edit-folder-button {
+        .app-folder-dialog .folder-name-container .edit-folder-button,
+        .app-folder-dialog .folder-name-container .icon-button {
             color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
             background-color: ${mbg} !important;
         }
         .app-folder-dialog .folder-name-container .edit-folder-button:hover, 
-        .app-folder-dialog .folder-name-container .edit-folder-button:focus {
+        .app-folder-dialog .folder-name-container .edit-folder-button:focus,
+        .app-folder-dialog .folder-name-container .icon-button:hover, 
+        .app-folder-dialog .folder-name-container .icon-button:focus {
             color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
             background-color: ${mhbg} !important;
         }
         .app-folder-dialog .folder-name-container .edit-folder-button:active,
-        .app-folder-dialog .folder-name-container .edit-folder-button:checked {
+        .app-folder-dialog .folder-name-container .edit-folder-button:checked,
+        .app-folder-dialog .folder-name-container .icon-button:active,
+        .app-folder-dialog .folder-name-container .icon-button:checked {
             color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
             background-color: ${msc} !important;
         }
@@ -2113,6 +2144,7 @@ function saveStylesheet(obar, Me) {
         }
         .switcher-list .item-box {
             color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
+            background-color: transparent;
         }
         .switcher-list .item-box:hover, .switcher-list .item-box:selected {
             background-color: ${mhbg} !important;
@@ -2140,6 +2172,9 @@ function saveStylesheet(obar, Me) {
         .search-provider-icon .list-search-provider-content .list-search-provider-details {
             color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
         }
+        .search-provider-icon {
+            background-color: transparent;
+        }
         .search-provider-icon:hover, .search-provider-icon:focus {
             background-color: ${mhbg} !important;
         }
@@ -2161,6 +2196,9 @@ function saveStylesheet(obar, Me) {
         }
         .list-search-result:hover .list-search-result-description, .list-search-result:focus .list-search-result-description {
             color: rgba(${mhfgred},${mhfggreen},${mhfgblue},0.65) !important;
+        }
+        .list-search-result {
+            background-color: transparent;
         }
         .list-search-result:hover, .list-search-result:focus {
             background-color: ${mhbg} !important;
@@ -2250,16 +2288,22 @@ function saveStylesheet(obar, Me) {
             color: ${dashFgColor} !important;
             border-color: ${dashBorderColor} !important;
             box-shadow: 0 5px 10px 0 ${dashShadowColor} !important;
-            border-radius: ${dbRadius}px;
+            border-radius: ${dbRadius}px !important;
+        }
+        #dashtodockContainer.left #dash .dash-background, #dashtodockContainer.right #dash .dash-background,
+        #dashtodockContainer.top #dash .dash-background, #dashtodockContainer.bottom #dash .dash-background {
+            border-radius: ${dbRadius}px !important;
         }
         .dash-separator {
             background-color: ${dashBorderColor} !important;
             box-shadow: 1px 1px 0px rgba(25,25,25,0.1) !important;
         }
-        .dash-item-container .app-well-app .overview-icon, .dash-item-container .show-apps .overview-icon {
+        .dash-item-container .app-well-app .overview-icon, .dash-item-container .overview-tile .overview-icon, .dash-item-container .show-apps .overview-icon {
             color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
+            background-color: transparent;
         }
         .dash-item-container .app-well-app:hover .overview-icon, .dash-item-container .app-well-app.focused .overview-icon,
+        .dash-item-container .overview-tile:hover .overview-icon, .dash-item-container .overview-tile.focused .overview-icon,
         .dash-item-container .show-apps:hover .overview-icon, .dash-item-container .show-apps.focused .overview-icon {
             background-color: ${dashHighlightColor} !important; 
         }
@@ -2274,14 +2318,14 @@ function saveStylesheet(obar, Me) {
             height: ${dIconSize}px !important; 
             width: ${dIconSize}px !important; 
         }
-        #dash .app-well-app-running-dot, #dash .show-apps-running-dot {
+        #dash .app-well-app-running-dot, #dash .app-grid-running-dot, #dash .show-apps-running-dot {
             height: ${dIconSize/10.0}px;
             width: ${dIconSize/10.0}px;
             border-radius: ${dIconSize/10.0}px;
             background-color: ${dashFgColor} !important;
             border: 2px solid ${dashFgColor} !important;
         } 
-        #dash StWidget.focused .app-well-app-running-dot, #dash StWidget.focused .show-apps-running-dot {
+        #dash StWidget.focused .app-well-app-running-dot, #dash StWidget.focused .app-grid-running-dot, #dash StWidget.focused .show-apps-running-dot {
             background-color: rgba(${msred},${msgreen},${msblue}, 1.0) !important;
             border-color: rgba(${msred},${msgreen},${msblue}, 1.0) !important;
             box-shadow: 0 0 2px rgba(225,225,225,0.5) !important;
@@ -2440,9 +2484,9 @@ function saveStylesheet(obar, Me) {
             color: ${baseFgColor} !important;
             background-color: ${baseBgColor} !important;
         }
-        /*StLabel.hint-text {
-            color: transparentize($fg_color, 0.3);
-        }*/ `;
+        StLabel.hint-text {
+            color: ${baseHintFgColor} !important;
+        } `;
     }
 
     let mbgShade = getBgDark(mbgred, mbggreen, mbgblue)? -1: 1;
@@ -2589,6 +2633,10 @@ function saveStylesheet(obar, Me) {
             color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1.0) !important;
             background-color: ${mshg} !important;
         }
+        .screenshot-ui-show-pointer-button {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
+            background-color: transparent;
+        }
         .screenshot-ui-show-pointer-button:active, .screenshot-ui-show-pointer-button:checked,
         .screenshot-ui-shot-cast-button:active, .screenshot-ui-shot-cast-button:checked {
             color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
@@ -2677,16 +2725,14 @@ function saveStylesheet(obar, Me) {
 
     if(obar.msSVG) { // Accent color is changed
         saveToggleSVG('on', obar, Me); 
+        saveToggleSVG('on-hc', obar, Me); 
         saveCheckboxSVG('on', obar, Me);
-        // saveToggleSVG('on-focused', obar, Me); 
         saveCheckboxSVG('on-focused', obar, Me);
         obar.msSVG = false;
     }
 
     if(obar.mhSVG) { // Highlight color is changed
-        // saveToggleSVG('on-focused', obar, Me);
         saveCheckboxSVG('on-focused', obar, Me);
-        // saveToggleSVG('off-focused', obar, Me);
         saveCheckboxSVG('off-focused', obar, Me);
         obar.mhSVG = false;
     }
