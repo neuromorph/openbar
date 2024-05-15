@@ -324,7 +324,7 @@ function contrastRatio(color1, color2) {
 
 // Auto-Theming: Select colors from color palette as per theme & dark/light mode
 // Manipulate colors, as needed, for better contrast and readability (except for 'True Color')
-function autoApplyBGPalette(obar) {
+export function autoApplyBGPalette(obar) {
     const importExport = obar._settings.get_boolean('import-export');
     if(importExport)
         return;
@@ -372,7 +372,7 @@ function autoApplyBGPalette(obar) {
     // console.log('paletteArr:', paletteArr);
 
     // Find prominent colors in palette (top 90% pixel count)
-    let prominentPercents = 0, prominentIdx;
+    let prominentPercents = 0, prominentIdx = 0;
     for(let i=0; i<12; i++) {
         prominentPercents += paletteArr[i][1];
         if(prominentPercents >= 90) {
@@ -391,7 +391,7 @@ function autoApplyBGPalette(obar) {
     prominentArr = paletteArr.slice(0, prominentIdx+1);
 
     // Compute Expectation for Saturation and Lightness of prominent colors in Image
-    let promSatExpected = promLightExpected = 0;
+    let promSatExpected = 0, promLightExpected = 0;
     prominentArr.forEach(color => {
         let [h, s, l] = rgbToHsl(color[0]);
         promSatExpected += s * color[1]/100;
@@ -591,10 +591,10 @@ function autoApplyBGPalette(obar) {
         MBG_SAT_TARGET = 30;
         MBG_SAT_MULT = 1.15;
         // MBG_PROM_LOW = 1;
-        MBG_LIGHT_MIN = 40; //45
-        MBG_LIGHT_MAX = 70; // 75
-        MBG_SAT_MIN = 20;
-        MBG_SAT_MAX = 30;
+        MBG_LIGHT_MIN = 60; //40
+        MBG_LIGHT_MAX = 75; // 75
+        MBG_SAT_MIN = 15;
+        MBG_SAT_MAX = 25;
         MBG_SAT_DND_MIN = 0;
         MBG_ACC_CONTRAST_MULT = 4;
 
@@ -607,10 +607,10 @@ function autoApplyBGPalette(obar) {
         SMBG_SAT_TARGET = 40;
         SMBG_SAT_MULT = 1.15;
 
-        SMBG_LIGHT_MIN = 50;
-        SMBG_LIGHT_MAX = 80;
-        SMBG_SAT_MIN = 25;
-        SMBG_SAT_MAX = 35;
+        SMBG_LIGHT_MIN = 70;
+        SMBG_LIGHT_MAX = 85;
+        SMBG_SAT_MIN = 20;
+        SMBG_SAT_MAX = 30;
         SMBG_SAT_DND_MIN = 0;
         SMBG_ACC_CONTRAST_MULT = 4;
         SMBG_MBG_CONTRAST_MULT = 4;
@@ -627,7 +627,7 @@ function autoApplyBGPalette(obar) {
     let minTotal, best, closest, promLen, paletteLen;
 
     // ACCENT COLOR SELECTION
-    best = closest = null; 
+    best = null, closest = null; 
     promLen = prominentArr.length;
     paletteLen = paletteArr.length;
     let accentColor, bestAccent = 1000, bestAccentIdx=0, closestAccent=1000, closestAccentIdx=0;
@@ -749,7 +749,7 @@ function autoApplyBGPalette(obar) {
 
     // MENU BG COLOR SELECTION
     let mbgColor, closestMbg=1000, closestMbgIdx=0, bestMbg=1000, bestMbgIdx=0;;
-    best = closest = null;
+    best = null, closest = null;
     promLen = prominentArr.length;
     
     for(let i=0, promColor; i<promLen; i++) {
@@ -796,7 +796,7 @@ function autoApplyBGPalette(obar) {
 
     // Sub-Menu BG COLOR SELECTION
     let smbgColor, bestSmbg=1000, bestSmbgIdx=0, closestSmbg=1000, closestSmbgIdx=0;
-    best = closest = null;
+    best = null, closest = null;
     promLen = prominentArr.length;
 
     for(let i=0, promColor; i<promLen; i++) {
@@ -905,10 +905,10 @@ function autoApplyBGPalette(obar) {
             mbgColor = addTint(mbgColor, 0.15);
         if(theme == 'Pastel') {
             if(hue < 0.08 || hue > 0.58) {
-                mbgColor = addTint(mbgColor, 0.1);
+                mbgColor = addTint(mbgColor, 0.16);
             }
             else {
-                mbgColor = addShade(mbgColor, 0.1);
+                mbgColor = addShade(mbgColor, 0.08);
             }
         }
         
@@ -966,10 +966,10 @@ function autoApplyBGPalette(obar) {
         }
         if(theme == 'Pastel') {
             if(hue < 0.08 || hue > 0.58) {
-                smbgColor = addTint(smbgColor, 0.1);
+                smbgColor = addTint(smbgColor, 0.16);
             }
             else {
-                smbgColor = addShade(smbgColor, 0.1);
+                smbgColor = addShade(smbgColor, 0.08);
             }
         }
 
@@ -1058,7 +1058,7 @@ function autoApplyBGPalette(obar) {
      
 
     // BAR BG COLOR SELECTION
-    best = closest = null;
+    best = null, closest = null;
     let barBgColor, bestBar = 1000, bestBarIdx=0, closestBarBg=1000, closestBarBgIdx=0;
     paletteLen = paletteArr.length;
 
