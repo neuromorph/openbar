@@ -503,4 +503,4 @@ var MMCQ = (function() {
 // export default MMCQ.quantize
 
 // export
-var quantize = MMCQ.quantize;
+export const quantize = MMCQ.quantize;
