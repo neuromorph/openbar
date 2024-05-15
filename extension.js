@@ -217,10 +217,10 @@ export default class Openbar extends Extension {
 
     unloadStylesheet() {
         const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        const stylesheetFile = Me.dir.get_child('stylesheet.css');
+        const stylesheetFile = this.dir.get_child('stylesheet.css');
         try { 
             theme.unload_stylesheet(stylesheetFile); 
-            delete Me.stylesheet;
+            delete this.stylesheet;
         } catch (e) {
             console.log('Openbar: Error unloading stylesheet: ');
             throw e;
@@ -229,10 +229,10 @@ export default class Openbar extends Extension {
 
     loadStylesheet() {
         const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        const stylesheetFile = Me.dir.get_child('stylesheet.css');
+        const stylesheetFile = this.dir.get_child('stylesheet.css');
         try {
             theme.load_stylesheet(stylesheetFile);
-            Me.stylesheet = stylesheetFile;
+            this.stylesheet = stylesheetFile;
         } catch (e) {
             console.log('Openbar: Error loading stylesheet: ');
             throw e;
@@ -452,8 +452,8 @@ export default class Openbar extends Extension {
         }
 
         // Reload stylesheet on session-mode-updated (only needed for unlock-dialog)
-        if(callbk_param == 'session-mode-updated') {
-            StyleSheets.reloadStyle(this, Me);
+        if(callbk_param == 'session-mode-updated' || callbk_param == 'high-contrast') {
+            StyleSheets.reloadStyle(this, this);
             return;
         }
 
@@ -902,6 +902,7 @@ export default class Openbar extends Extension {
         // Settings for desktop background image (set bg-uri as per color scheme)
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
         this._intSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
+        this._hcSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.a11y.interface' });
 
         this.colorScheme = this._intSettings.get_string('color-scheme');
 
@@ -921,6 +922,7 @@ export default class Openbar extends Extension {
             [ global.display, 'window-entered-monitor', this.setWindowMaxBar.bind(this), 'window-entered-monitor' ],
             [ global.display, 'window-left-monitor', this.setWindowMaxBar.bind(this), 'window-left-monitor' ],
             [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this), 'session-mode-updated' ],
+            [ this._hcSettings, 'changed::high-contrast', this.updatePanelStyle.bind(this), 'high-contrast' ],
         ];
         // Connections for actor-added/removed OR child-added/removed as per Gnome version
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
@@ -1037,6 +1039,7 @@ export default class Openbar extends Extension {
         this._settings = null;
         this._bgSettings = null;
         this._intSettings = null;
+        this._hcSettings = null;
     }
     
 }
