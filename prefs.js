@@ -317,6 +317,9 @@ class OpenbarPrefs {
     fillOpenbarPrefs(window, openbar) {
 
         window.set_title(_("Open Bar 🍹"));
+        window.set_decorated(true);
+        window.default_height = 950;
+        window.default_width = 820;
 
         window.paletteButtons = [];
         window.colorButtons = [];
@@ -324,7 +327,7 @@ class OpenbarPrefs {
         this.openbar = openbar;
 
         this.cssProvider = new Gtk.CssProvider();
-        this.cssProvider.load_from_path(`${Me.path}/prefs.css`);
+        this.cssProvider.load_from_path(`${this.openbar.path}/prefs.css`);
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), this.cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
 
         // console.log('fillOpenbarPrefs: loadQuotesFromFile');
@@ -420,7 +423,7 @@ class OpenbarPrefs {
 
         // Add a title label
         let titleLabel = new Gtk.Label({
-            label: `<span size="x-large">Top Bar and Beyond</span>\n\n<span underline="none"><b>${_('Version:')} ${Me.metadata.version}  |  <a href="${Me.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${Me.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕      </a></b></span>`,
+            label: `<span size="x-large">Top Bar and Beyond</span>\n\n<span underline="none"><b>${_('Version:')} ${this.openbar.metadata.version}  |  <a href="${this.openbar.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${this.openbar.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕      </a></b></span>`,
             halign: Gtk.Align.CENTER,
             valign: Gtk.Align.CENTER,
             justify: Gtk.Justification.CENTER,
@@ -479,6 +482,7 @@ class OpenbarPrefs {
             vexpand: false,
             margin_top: 0,
             margin_bottom: 0,
+            css_classes: ['openbar-quote'],
         });
         quoteBox.append(quoteLabel);
         this.setQuoteLabel(quoteLabel);
@@ -1981,11 +1985,12 @@ class OpenbarPrefs {
 
         // Add a Gtk/Flatpak info label
         let appInfoLabel = new Gtk.Label({
-            label: `<span>• Apply theme Accent Color to Gtk / Flatpak apps.\n• Reload the app for changes to take effect.\n• Snaps unsupported.</span>\n\n`,
+            label: `<span>This applies theme Accent Color to Gtk / Flatpak apps:\n• Set accent hint(%) for headerbar/sidebar and turn On Gtk/Flatpak below.\n• Reload the apps (or Gnome) for changes to take effect.\n• You may need to set 'theme' in apps (e.g. Terminal) to 'System' or 'Default'.\n• Snaps unsupported.</span>\n\n`,
             use_markup: true,
             halign: Gtk.Align.START,
             wrap: true,
             margin_top: 10,
+            width_chars: 55,
         });
         appgrid.attach(appInfoLabel, 1, rowbar, 2, 1);
 
@@ -2167,17 +2172,17 @@ class OpenbarPrefs {
         });
         // Add pages to the stack
         stack.add_titled(palettegrid, 'autotheme',  '✨  Auto Theming');
-        stack.add_titled(bargrid, 'barprops',       '=   Top Bar Properties');
+        stack.add_titled(bargrid, 'barprops',       '⚌  Top Bar Properties');
         stack.add_titled(bargridwmax, 'wmaxbar',    '⊞   Window-Max Bar');
         stack.add_titled(fggrid, 'barfg',           '❂   Bar Foreground');
         stack.add_titled(bggrid, 'barbg',           '●   Bar Background');
-        stack.add_titled(hgrid, 'highlights',       '⊹   Bar Highlights');
+        stack.add_titled(hgrid, 'highlights',       '✠   Bar Highlights');
         stack.add_titled(bgrid, 'barborder',        '▣   Bar Border');
         stack.add_titled(menugrid, 'menu',          '☰   Popup Menus');
         stack.add_titled(dashgrid, 'dashdock',      '⏏   Dash / Dock');
-        stack.add_titled(beyondgrid, 'shell',       'ଳ     Gnome Shell');
-        stack.add_titled(appgrid, 'gtkflatpak',     'ꕤ   Gtk / Flatpak Apps');
-        stack.add_titled(iegrid, 'importexport',    '⎙    Import / Export Settings');
+        stack.add_titled(beyondgrid, 'shell',       'ଳ   Gnome Shell');
+        stack.add_titled(appgrid, 'gtkflatpak',     '⌘    Gtk / Flatpak Apps');
+        stack.add_titled(iegrid, 'importexport',    '⧉   Import / Export Settings');
 
         scrollWindow.set_child(stack);
 
@@ -2197,10 +2202,7 @@ class OpenbarPrefs {
         prefsBox.append(titlegrid);
         prefsBox.append(stackBox);
         prefsBox.append(quoteBox);
-
-        // window.set_content(stackBox);
-        window.set_decorated(true);
-        window.set_default_size(650, 950);
+        
         settingsGroup.add(prefsBox);
 
         /////////////////////////////////////////////////////////////////////
@@ -2697,7 +2699,7 @@ class OpenbarPrefs {
         }
         if(this.quoteIdx >= this.quotes.length)
             this.quoteIdx = 0;
-        quoteLabel.label = `<span size="medium" allow_breaks="true" font_family="cursive">${this.quotes[this.quoteIdx++]}</span>`;
+        quoteLabel.label = `<span size="medium" allow_breaks="true">${this.quotes[this.quoteIdx++]}</span>`;
     }
 
     shuffleQuotes() {
@@ -2710,7 +2712,7 @@ class OpenbarPrefs {
     }
 
     loadQuotesFromFile() { 
-        const file = Gio.File.new_for_path(Me.path + '/media/OpenBarQuotes.txt');
+        const file = Gio.File.new_for_path(this.openbar.path + '/media/OpenBarQuotes.txt');
         const [ok, contents, etag] = file.load_contents(null);
         const decoder = new TextDecoder('utf-8');
         const quotesString = decoder.decode(contents);
