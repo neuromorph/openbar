@@ -591,8 +591,8 @@ export function autoApplyBGPalette(obar) {
         MBG_SAT_TARGET = 30;
         MBG_SAT_MULT = 1.15;
         // MBG_PROM_LOW = 1;
-        MBG_LIGHT_MIN = 60; //40
-        MBG_LIGHT_MAX = 75; // 75
+        MBG_LIGHT_MIN = 70; //40
+        MBG_LIGHT_MAX = 80; // 75
         MBG_SAT_MIN = 15;
         MBG_SAT_MAX = 25;
         MBG_SAT_DND_MIN = 0;
@@ -607,8 +607,8 @@ export function autoApplyBGPalette(obar) {
         SMBG_SAT_TARGET = 40;
         SMBG_SAT_MULT = 1.15;
 
-        SMBG_LIGHT_MIN = 70;
-        SMBG_LIGHT_MAX = 85;
+        SMBG_LIGHT_MIN = 80;
+        SMBG_LIGHT_MAX = 90;
         SMBG_SAT_MIN = 20;
         SMBG_SAT_MAX = 30;
         SMBG_SAT_DND_MIN = 0;
