@@ -266,17 +266,6 @@ function saveGtkCss(obar) {
     @define-color sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.85);
     @define-color secondary_sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.85);
 
-    /*
-    window {
-        background-color: alpha(@window_bg_color, 0.85);
-    }
-    .content-pane, 
-    scrolledwindow>viewport, 
-    grid>box {
-        background-color: alpha(@view_bg_color, 1.0);
-    }
-    */
-
     .sidebar,
     .navigation-sidebar,
     .sidebar-pane,
@@ -319,6 +308,19 @@ function saveGtkCss(obar) {
         margin: -3px -2px;
     }
     `;
+
+    if(sBarTransparency) {
+        gtkstring += `
+        window {
+            background-color: alpha(@window_bg_color, 0.85);
+        }
+        .content-pane, 
+        scrolledwindow>viewport, 
+        grid>box {
+            background-color: alpha(@view_bg_color, 1.0);
+        }
+        `;
+    }
 
     if(!applyGtk)
         gtkstring = '';
