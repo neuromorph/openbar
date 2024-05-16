@@ -503,6 +503,8 @@ export default class Openbar extends Extension {
         || key == 'sidebar-transparency' || key == 'mscolor' || key == 'msalpha') {
             // console.log('Call saveGtkCss from extension for key: ', key);
             this.gtkCSS = true;
+            if(key != 'mscolor' && key != 'msalpha')
+                StyleSheets.saveGtkCss(this);
         }
         
         let menustyle = this._settings.get_boolean('menustyle');
