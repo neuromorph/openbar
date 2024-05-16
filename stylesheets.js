@@ -2041,6 +2041,10 @@ function saveStylesheet(obar, Me) {
         stylesheet += `
         .overview-tile {
             background-color: transparent;
+            padding: 0px;
+        }
+        .overview-tile .overview-icon {
+            padding: 12px;
         }
         .overview-tile:active .overview-icon, .overview-tile:checked .overview-icon,
         .app-well-app:active .overview-icon, .app-well-app:checked .overview-icon 
