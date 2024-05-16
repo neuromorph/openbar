@@ -193,7 +193,7 @@ function saveGtkCss(obar) {
     const pauseStyleReload = obar._settings.get_boolean('pause-reload');
     if(importExport || pauseStyleReload)
         return;
-    console.log('saveGtkCss called with ImportExport false, Pause false');
+    // console.log('saveGtkCss called with ImportExport false, Pause false');
 
     // Save stylesheet from string to css file
     let applyGtk = obar._settings.get_boolean('apply-gtk');
@@ -749,7 +749,7 @@ function saveStylesheet(obar, Me) {
             let rgb = bgHsp - 80;
             hgColor = [rgb, rgb, rgb];
         }
-        log('getAutoHgColor: hgColor, bgColor, bgHsp ', hgColor, bgColor, bgHsp);
+        // log('getAutoHgColor: hgColor, bgColor, bgHsp ', hgColor, bgColor, bgHsp);
 
         return hgColor;
     }

@@ -501,7 +501,7 @@ export default class Openbar extends Extension {
 
         if(key == 'apply-gtk' || key == 'apply-flatpak' || key == 'headerbar-hint' || key == 'sidebar-hint' 
         || key == 'sidebar-transparency' || key == 'mscolor' || key == 'msalpha') {
-            console.log('Call saveGtkCss from extension for key: ', key);
+            // console.log('Call saveGtkCss from extension for key: ', key);
             this.gtkCSS = true;
         }
         
