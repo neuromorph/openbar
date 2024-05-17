@@ -678,22 +678,22 @@
       <description>Apply menu styles to all shell pop-ups.</description>
     </key>
     <key type="b" name="apply-accent-shell">
-      <default>true</default>
+      <default>false</default>
       <summary>Apply menu accent color to the Gnome shell</summary>
       <description>Apply menu accent color to the Gnome shell.</description>
     </key>
     <key type="b" name="apply-all-shell">
-      <default>true</default>
+      <default>false</default>
       <summary>Apply menu styles to the Gnome shell</summary>
       <description>Apply menu styles to the Gnome shell.</description>
     </key>
     <key type="b" name="apply-menu-notif">
-      <default>true</default>
+      <default>false</default>
       <summary>Apply message styles to Notifications</summary>
       <description>Apply message styles to Notifications.</description>
     </key>
     <key type="s" name="dashdock-style">
-      <default>"Menu"</default>
+      <default>"Default"</default>
       <summary>Dash-Dock style like bar or menu or custom</summary>
       <description>Dash-Dock style like bar or menu or custom.</description>
     </key>
@@ -703,7 +703,7 @@
       <description>Background Color of Dash or Dock.</description>
     </key>
     <key type="d" name="dbgalpha">
-      <default>0</default>
+      <default>0.9</default>
       <summary>Transparency (alpha) of Dash</summary>
       <description>Transparency of Dash or Dock.</description>
     </key>
@@ -713,7 +713,7 @@
       <description>Radius of Dash or Dock.</description>
     </key>
     <key type="d" name="disize">
-      <default>36</default>
+      <default>48</default>
       <summary>Icon size of Dash</summary>
       <description>Icon size of Dash or Dock.</description>
     </key>
@@ -728,7 +728,7 @@
       <description>Show shadow of Dash or Dock.</description>
     </key>
     <key type="b" name="apply-gtk">
-      <default>true</default>
+      <default>false</default>
       <summary>Apply accent color to Gtk apps</summary>
       <description>Apply accent color to Gtk apps.</description>
     </key>
@@ -743,12 +743,12 @@
       <description>Add hint of accent color to sidebars.</description>
     </key>
     <key type="b" name="sidebar-transparency">
-      <default>true</default>
+      <default>false</default>
       <summary>Add transparency to sidebars</summary>
       <description>Add transparency to sidebars.</description>
     </key>
     <key type="b" name="apply-flatpak">
-      <default>true</default>
+      <default>false</default>
       <summary>Apply accent color to Flatpak apps</summary>
       <description>Apply accent color to Flatpak apps.</description>
     </key>
