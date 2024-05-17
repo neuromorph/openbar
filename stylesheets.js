@@ -17,7 +17,7 @@
  * author: neuromorph
  */
 
-/* exported reloadStyle() */
+/* exported reloadStyle() saveGtkCss() */
 
 import Gio from 'gi://Gio';
 import Pango from 'gi://Pango';
@@ -188,7 +188,7 @@ function saveCheckboxSVG(type, obar, Me) {
 }
 
 // Save Gtk stylesheet to user config dir
-function saveGtkCss(obar) {
+export function saveGtkCss(obar) {
     const importExport = obar._settings.get_boolean('import-export');
     const pauseStyleReload = obar._settings.get_boolean('pause-reload');
     if(importExport || pauseStyleReload)
@@ -198,8 +198,8 @@ function saveGtkCss(obar) {
     // Save stylesheet from string to css file
     let applyGtk = obar._settings.get_boolean('apply-gtk');
     let applyFlatpak = obar._settings.get_boolean('apply-flatpak');
-    if(!applyGtk && !applyFlatpak)
-        return;
+    // if(!applyGtk && !applyFlatpak)
+    //     return;
 
     // Add hint of Accent color to Headerbar and Sidebar
     let hBarHint = obar._settings.get_int('headerbar-hint')/100;

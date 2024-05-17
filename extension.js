@@ -1036,6 +1036,10 @@ export default class Openbar extends Extension {
         // Reset panel position to Top
         this.setPanelBoxPosition('Top');
         Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
+        // Clear Gtk css and Flatpak override
+        this._settings.set_boolean('apply-gtk', false);
+        this._settings.set_boolean('apply-flatpak', false);
+        StyleSheets.saveGtkCss(this);
 
         this.main = null;
         this._settings = null;
