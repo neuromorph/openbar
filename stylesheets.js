@@ -2043,12 +2043,8 @@ function saveStylesheet(obar, Me) {
         stylesheet += `
         .overview-tile {
             background-color: transparent;
-            padding: 0px;
         }
-        .overview-tile .overview-icon {
-            padding: 12px;
-        }
-        .overview-tile:active .overview-icon, .overview-tile:checked .overview-icon,
+        .overview-tile:active, .overview-tile:checked,
         .app-well-app:active .overview-icon, .app-well-app:checked .overview-icon 
         .show-apps:active .overview-icon, .show-apps:checked .overview-icon, 
         .grid-search-result:active .overview-icon, .grid-search-result:checked .overview-icon {
@@ -2063,27 +2059,27 @@ function saveStylesheet(obar, Me) {
 
     if(applyToShell) {
         stylesheet += `
-        .overview-tile .overview-icon, .app-well-app .overview-icon, .show-apps .overview-icon, .grid-search-result .overview-icon {
+        .overview-tile, .app-well-app .overview-icon, .show-apps .overview-icon, .grid-search-result .overview-icon {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) ;
             border-radius: ${menuRadius}px;
             /*background-color: transparent; Removes default focus from first search result*/
         }
-        .overview-tile:hover .overview-icon, .app-well-app:hover .overview-icon, .grid-search-result:hover .overview-icon {
+        .overview-tile:hover, .app-well-app:hover .overview-icon, .grid-search-result:hover .overview-icon {
             background-color: rgba(${smhbgred},${smhbggreen},${smhbgblue},${0.95*mbgAlpha}) ;
             transition-duration: 100ms;
         }
-        .overview-tile:focus .overview-icon, .overview-tile:selected .overview-icon,
+        .overview-tile:focus, .overview-tile:selected,
         .app-well-app:focus .overview-icon, .app-well-app:selected .overview-icon
         .grid-search-result:focus .overview-icon, .grid-search-result:selected .overview-icon {
             background-color: ${smhbg} ;
             transition-duration: 100ms;
         }   
-        .app-well-app.app-folder .overview-icon, .overview-tile.app-folder .overview-icon,
+        .app-well-app.app-folder .overview-icon, .overview-tile.app-folder,
         .app-folder.grid-search-result .overview-icon {    
             background-color: rgba(${smfgred},${smfggreen},${smfgblue},0.08);   
         }
         .app-well-app.app-folder:hover .overview-icon, .app-well-app.app-folder:focus .overview-icon, 
-        .overview-tile.app-folder:hover .overview-icon, .overview-tile.app-folder:focus .overview-icon, 
+        .overview-tile.app-folder:hover, .overview-tile.app-folder:focus, 
         .app-folder.grid-search-result:hover .overview-icon, .app-folder.grid-search-result:focus .overview-icon {    
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) ;
             background-color: ${smhbg} ;   
@@ -2278,7 +2274,15 @@ function saveStylesheet(obar, Me) {
     }
     else if(dashDockStyle == 'Custom') {
         dashBgColor = `rgba(${dbgred},${dbggreen},${dbgblue},${dbgAlpha})`;
-        dashFgColor = `rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha})`;
+        let bgDark = getBgDark(dbgred, dbggreen, dbgblue);
+        let dfgred, dfggreen, dfgblue;
+        if(bgDark) {
+            dfgred = dfggreen = dfgblue = 250;
+        }
+        else {
+            dfgred = dfggreen = dfgblue = 20;
+        }
+        dashFgColor = `rgba(${dfgred},${dfggreen},${dfgblue},1.0)`;
         dashBorderColor = `rgba(${mbred},${mbgreen},${mbblue},${mbAlpha})`;
         dashShadowColor = `rgba(${mshred},${mshgreen},${mshblue},${mshAlpha})`;
         dashHighlightColor = `rgba(${mhred},${mhgreen},${mhblue},${mhAlpha})`;
@@ -2292,7 +2296,7 @@ function saveStylesheet(obar, Me) {
         .dash-background {
             background-color: ${dashBgColor} !important;
             color: ${dashFgColor} !important;
-            border-color: ${dashBorderColor} !important;
+            border: 1.5px solid ${dashBorderColor} !important;
             box-shadow: 0 5px 10px 0 ${dashShadowColor} !important;
             border-radius: ${dbRadius}px !important;
         }
@@ -2313,6 +2317,9 @@ function saveStylesheet(obar, Me) {
         .dash-item-container .show-apps:hover .overview-icon, .dash-item-container .show-apps.focused .overview-icon {
             background-color: ${dashHighlightColor} !important; 
         }
+        .dash-item-container .overview-tile:hover, .dash-item-container .overview-tile.focused {
+            background-color: transparent;
+        }
         .dash-label { /* app-icon tooltip */
             background-color: rgba(${tooltipBgRed},${tooltipBgGreen},${tooltipBgBlue}, 0.9) !important;
             color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
@@ -2325,9 +2332,9 @@ function saveStylesheet(obar, Me) {
             width: ${dIconSize}px !important; 
         }
         #dash .app-well-app-running-dot, #dash .app-grid-running-dot, #dash .show-apps-running-dot {
-            height: ${dIconSize/10.0}px;
-            width: ${dIconSize/10.0}px;
-            border-radius: ${dIconSize/10.0}px;
+            height: ${dIconSize/15.0}px;
+            width: ${dIconSize/15.0}px;
+            border-radius: ${dIconSize/15.0}px;
             background-color: ${dashFgColor} !important;
             border: 2px solid ${dashFgColor} !important;
         } 
