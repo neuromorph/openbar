@@ -251,7 +251,7 @@ export function saveGtkCss(obar) {
     
     let gtkstring = `
     @define-color accent_color rgba(${accRed}, ${accGreen}, ${accBlue}, 1.0);
-    @define-color accent_bg_color rgba(${accRed}, ${accGreen}, ${accBlue}, 0.65);
+    @define-color accent_bg_color rgba(${accRed}, ${accGreen}, ${accBlue}, 0.85);
 
     @define-color headerbar_bg_color rgb(${hbgRed}, ${hbgGreen}, ${hbgBlue});
     @define-color headerbar_backdrop_color rgb(${hbdRed}, ${hbdGreen}, ${hbdBlue});
@@ -347,7 +347,7 @@ export function saveGtkCss(obar) {
             let outputStream = Gio.BufferedOutputStream.new_sized(output, 4096);
             outputStream.write_all(bytearray, null);
             outputStream.close(null);
-            console.log('Saved gtk.css at: ' + dir.get_path());
+            // console.log('Saved gtk.css at: ' + dir.get_path());
         }
         catch (e) {
             console.log("Failed to write gtk.css file: " + dir.get_path() + e);
@@ -1289,6 +1289,7 @@ function saveStylesheet(obar, Me) {
         #panel${openbarClass}:overview .panel-button:checked, #panel${openbarClass}:overview .panel-button:active,
         #panel${openbarClass}:overview .panel-button:overview {
             ${btnHoverStyle} 
+            ${setOverview? '': barHFgOverview}
             ${setOverview? '': barHBgOverview}
         }
 
@@ -2296,7 +2297,7 @@ function saveStylesheet(obar, Me) {
         .dash-background {
             background-color: ${dashBgColor} !important;
             color: ${dashFgColor} !important;
-            border: 1.5px solid ${dashBorderColor} !important;
+            border: 1px solid ${dashBorderColor} !important;
             box-shadow: 0 5px 10px 0 ${dashShadowColor} !important;
             border-radius: ${dbRadius}px !important;
         }
@@ -2309,7 +2310,7 @@ function saveStylesheet(obar, Me) {
             box-shadow: 1px 1px 0px rgba(25,25,25,0.1) !important;
         }
         .dash-item-container .app-well-app .overview-icon, .dash-item-container .overview-tile .overview-icon, .dash-item-container .show-apps .overview-icon {
-            color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
+            color: ${dashFgColor} !important;
             background-color: transparent;
         }
         .dash-item-container .app-well-app:hover .overview-icon, .dash-item-container .app-well-app.focused .overview-icon,
