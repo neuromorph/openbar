@@ -504,7 +504,7 @@ export default class Openbar extends Extension {
             // console.log('Call saveGtkCss from extension for key: ', key);
             this.gtkCSS = true;
             if(key != 'mscolor' && key != 'msalpha')
-                StyleSheets.saveGtkCss(this);
+                StyleSheets.saveGtkCss(this, 'enable');
         }
         
         let menustyle = this._settings.get_boolean('menustyle');
@@ -1037,9 +1037,7 @@ export default class Openbar extends Extension {
         this.setPanelBoxPosition('Top');
         Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
         // Clear Gtk css and Flatpak override
-        this._settings.set_boolean('apply-gtk', false);
-        this._settings.set_boolean('apply-flatpak', false);
-        StyleSheets.saveGtkCss(this);
+        StyleSheets.saveGtkCss(this, 'disable');
 
         this.main = null;
         this._settings = null;

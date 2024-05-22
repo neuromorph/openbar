@@ -1974,7 +1974,7 @@ class OpenbarPrefs {
 
         // GTK FLATPAK label
         let gtkflatpakLabel = new Gtk.Label({
-            label: `<span size="large">GTK / Flatpak Apps 🧪</span>\n`,
+            label: `<span size="large">GTK / Flatpak Apps   🧪</span>\n`,
             use_markup: true,
             halign: Gtk.Align.CENTER,
             css_classes: ['openbar-title'],
@@ -1985,7 +1985,7 @@ class OpenbarPrefs {
 
         // Add a Gtk/Flatpak info label
         let appInfoLabel = new Gtk.Label({
-            label: `<span>This applies theme Accent Color to Gtk / Flatpak apps:\n• Set accent hint(%) for headerbar/sidebar and turn On Gtk/Flatpak below.\n• Reload the apps (or Gnome) for changes to take effect.\n• You may need to set 'theme' in apps (e.g. Terminal) to 'System' or 'Default'.\n• Snaps unsupported.</span>\n\n`,
+            label: `<span>This applies theme Accent Color to Gtk / Flatpak apps:\n• Set accent hint(%) for headerbar/sidebar and turn On Gtk/Flatpak below.\n• Reload the apps (or Gnome) for changes to take effect.\n• You may need to set 'theme' in apps (e.g. Terminal) to 'System' or 'Default'.</span>\n\n`,
             use_markup: true,
             halign: Gtk.Align.START,
             wrap: true,
@@ -2034,7 +2034,7 @@ class OpenbarPrefs {
 
         // Add a Gtk info label
         let appLabel = new Gtk.Label({
-            label: `<span><b>GTK3 / GTK4</b></span>\n\n<span size="small" allow_breaks="true">⚠ Warning: It will overwrite 'gtk.css' under '$HOME/.config/gtk-3.0/' and 'gtk-4.0'.</span>\n<span size="small" allow_breaks="true">    Take backup if you have added custom settings that you may want to restore later.</span>`,
+            label: `<span><b>GTK3 / GTK4</b></span>\n\n<span size="small" allow_breaks="true">⚠ Warning: This will write to 'gtk.css' under '$HOME/.config/gtk-3.0/' and 'gtk-4.0'.\n    If existing gtk.css is detected, Open Bar will create a backup and restore it on disable.\n    You are advised to also take a manual backup as a failsafe.</span>`,
             use_markup: true,
             halign: Gtk.Align.START,
             wrap: true,
@@ -2058,8 +2058,8 @@ class OpenbarPrefs {
 
         // Add a Flatpak info label
         let flatLabel = new Gtk.Label({
-            label: `<span><b>FLATPAK</b></span>\n\n<span size="small" allow_breaks="true">⚠ Warning: Applies overrides to provide flatpak apps access to Gtk configs.</span>\n<span size="small" allow_breaks="true">    Disabling it will remove the overrides.</span>`,
-            use_markup: true,
+            label: `<span><b>FLATPAK</b></span>\n\n<span size="small" allow_breaks="true">⚠ Warning: Applies overrides to provide flatpak apps access to Gtk configs.\n    Overrides will be removed on disable.\n    Requires 'Apply to Gtk Apps' to be tunrned On.</span>`,
+                    use_markup: true,
             halign: Gtk.Align.START,
             wrap: true,
             margin_top: 10,
@@ -2697,7 +2697,7 @@ class OpenbarPrefs {
             quoteLabel.label = '';
             return;
         }
-        if(this.quoteIdx >= this.quotes.length)
+        if(this.quoteIdx >= this.quotes.length - 1)
             this.quoteIdx = 0;
         quoteLabel.label = `<span size="medium" allow_breaks="true">${this.quotes[this.quoteIdx++]}</span>`;
     }
