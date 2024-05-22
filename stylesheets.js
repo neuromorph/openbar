@@ -353,14 +353,19 @@ export function saveGtkCss(obar, caller) {
         const isBackupOpenBar = backup.query_exists(null);
         let isGtkOpenBar = false;
         if(isGtk) {
-            const [ok, contents, etag] = file.load_contents(null);
-            if(ok) {
-                const decoder = new TextDecoder('utf-8');
-                const contentsString = decoder.decode(contents);
-                const contentsHeader = contentsString.split('\n')[1]; //log('Header: ' + contentsHeader);
-                if(contentsHeader)
-                    isGtkOpenBar = contentsHeader.includes('/*** Open Bar GTK CSS ***/');
+            try {
+                const [ok, contents, etag] = file.load_contents(null);
+                if(ok) {
+                    const decoder = new TextDecoder('utf-8');
+                    const contentsString = decoder.decode(contents);
+                    const contentsHeader = contentsString.split('\n')[1];
+                    if(contentsHeader)
+                        isGtkOpenBar = contentsHeader.includes('/*** Open Bar GTK CSS ***/');
+                }
             }
+            catch (e) {
+                console.error('Error reading gtk.css: ' + e);
+            }            
         }        
 
         // let source, destination;
@@ -885,12 +890,12 @@ function saveStylesheet(obar, Me) {
     // radiusStyle = 
     // ` border-radius: 0px; `;
     let rTopLeft, rTopRight, rBottomLeft, rBottomRight;
-    if(borderRadius > height/2) borderRadius = height/2;
+    if(borderRadius > (height-borderWidth)/2) borderRadius = (height-borderWidth)/2;
     rTopLeft = radiusTopLeft? borderRadius: 0;
     rTopRight = radiusTopRight? borderRadius: 0;
     rBottomLeft = radiusBottomLeft? borderRadius: 0;
     rBottomRight = radiusBottomRight? borderRadius: 0;
-    radiusStyle += ` border-radius: ${rTopLeft}px ${rTopRight}px ${rBottomRight}px ${rBottomLeft}px; `;
+    radiusStyle = ` border-radius: ${rTopLeft}px ${rTopRight}px ${rBottomRight}px ${rBottomLeft}px; `;
 
     // if (bordertype == 'double') // Radius not supported on outline
     //     style += ` outline: ${borderWidth}px ${bordertype} rgba(${bred},${bgreen},${bblue},${balpha}); `;
