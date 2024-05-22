@@ -46,7 +46,7 @@
     padding: 0px;
 }
 .openbar-sidebar {
-    border: 0px solid rgba(128, 128, 128, 0.15);
+    border: 0px solid rgba(128, 128, 128, 0.125);
     border-right-width: 1px;
 }
 .openbar-sidebar StBin {
