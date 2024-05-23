@@ -890,7 +890,8 @@ function saveStylesheet(obar, Me) {
     // radiusStyle = 
     // ` border-radius: 0px; `;
     let rTopLeft, rTopRight, rBottomLeft, rBottomRight;
-    if(borderRadius > (height-borderWidth)/2) borderRadius = (height-borderWidth)/2;
+    // Limit on max border radius (border grows inwards for Islands)
+    if(borderRadius > height/2 - borderWidth) borderRadius = height/2 - borderWidth;
     rTopLeft = radiusTopLeft? borderRadius: 0;
     rTopRight = radiusTopRight? borderRadius: 0;
     rBottomLeft = radiusBottomLeft? borderRadius: 0;
@@ -983,8 +984,12 @@ function saveStylesheet(obar, Me) {
         if(borderRadius <= radThreshold) {
             spread = gradient? -3: 0;               
         }
-        else
-            spread = 2;
+        else {
+            if((rTopLeft == 0 && rTopRight == 0) || (rBottomLeft == 0 && rBottomRight == 0))
+                spread = 0;
+            else
+                spread = 2;
+        }
 
         neonStyle =               
         ` box-shadow: 0px 0px 4px ${spread}px rgba(${bred},${bgreen},${bblue},0.55); `;
