@@ -195,8 +195,13 @@ function createGtkCss(obar) {
     let hBarHintBd = hBarHint/2;
     let sBarHintBd = sBarHint/2;
     let sBarTransparency = obar._settings.get_boolean('sidebar-transparency');
+    let winBAlpha = obar._settings.get_double('winbalpha');
+    let winBWidth = obar._settings.get_double('winbwidth');
+    let winBColor = obar._settings.get_strv('winbcolor');
+    const winBRed = parseInt(parseFloat(winBColor[0]) * 255);
+    const winBGreen = parseInt(parseFloat(winBColor[1]) * 255);
+    const winBBlue = parseInt(parseFloat(winBColor[2]) * 255);
     let accent = obar._settings.get_strv('mscolor');
-    // let accAlpha = obar._settings.get_double('msalpha');
     const accRed = parseInt(parseFloat(accent[0]) * 255);
     const accGreen = parseInt(parseFloat(accent[1]) * 255);
     const accBlue = parseInt(parseFloat(accent[2]) * 255);
@@ -223,6 +228,10 @@ function createGtkCss(obar) {
     const sbdBlue = sBarHintBd * accBlue + (1-sBarHintBd) * bgBlue;
 
     const sbAlpha = sBarTransparency? 0.75 : 1.0;
+
+    const winBRedBd = 0.6 * winBRed + 0.4 * bgRed;
+    const winBGreenBd = 0.6 * winBGreen + 0.4 * bgGreen;
+    const winBBlueBd = 0.6 * winBBlue + 0.4 * bgBlue;
 
     let hfgRed, hfgGreen, hfgBlue;
     if(getBgDark(hbgRed, hbgGreen, hbgBlue))
@@ -301,6 +310,17 @@ function createGtkCss(obar) {
     switch:checked > slider {
         margin: -3px -2px -3px 0px;
     }
+
+    window,
+    decoration,
+    decoration-overlay  {
+        border: ${winBWidth}px solid rgba(${winBRed}, ${winBGreen}, ${winBBlue}, ${winBAlpha});
+    }
+    window:backdrop,
+    decoration:backdrop,
+    decoration-overlay:backdrop   {
+        border: ${winBWidth}px solid rgba(${winBRedBd}, ${winBGreenBd}, ${winBBlueBd}, ${winBAlpha});
+    } 
     `;
 
     if(sBarTransparency) {

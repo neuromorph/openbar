@@ -2030,6 +2030,42 @@ class OpenbarPrefs {
         let sbTransSwitch = this.createSwitchWidget('Apply Sidebar Transparency');
         appgrid.attach(sbTransSwitch, 2, rowbar, 1, 1);
 
+        rowbar += 1;
+
+        // Add a window border color button
+        let winBColorLbl = new Gtk.Label({
+            label: `Window Border Color`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(winBColorLbl, 1, rowbar, 1, 1);
+
+        let winBColorBtn = this.createColorWidget(window, 'Window Border Color', '', 'winbcolor');
+        appgrid.attach(winBColorBtn, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a window border alpha scale
+        let winBAlphaLbl = new Gtk.Label({
+            label: `Window Border Alpha`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(winBAlphaLbl, 1, rowbar, 1, 1);
+
+        let winBAlphaScale = this.createScaleWidget(0, 1, 0.01, 2, 'Window Border Opacity / Alpha');
+        appgrid.attach(winBAlphaScale, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a window border width scale
+        let winBWidthLbl = new Gtk.Label({
+            label: `Window Border Width`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(winBWidthLbl, 1, rowbar, 1, 1);
+
+        let winBWidthScale = this.createScaleWidget(0, 10, 0.1, 1, 'Window Border Width');
+        appgrid.attach(winBWidthScale, 2, rowbar, 1, 1);
+
         rowbar += 2;
 
         // Add a Gtk info label
@@ -2669,6 +2705,24 @@ class OpenbarPrefs {
             'apply-flatpak',
             flatpakSwitch,
             'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'apply-flatpak',
+            flatpakSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'winbalpha',
+            winBAlphaScale.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'winbwidth',
+            winBWidthScale.adjustment,
+            'value',
             Gio.SettingsBindFlags.DEFAULT
         );
 
