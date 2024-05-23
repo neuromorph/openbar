@@ -758,7 +758,7 @@
       <description>Transparency of gtk window border.</description>
     </key>
     <key type="d" name="winbwidth">
-      <default>2</default>
+      <default>1</default>
       <summary>Border width of gtk window</summary>
       <description>Border width of gtk window.</description>
     </key>
