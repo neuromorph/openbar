@@ -910,8 +910,10 @@ function saveStylesheet(obar, Me) {
     // radiusStyle = 
     // ` border-radius: 0px; `;
     let rTopLeft, rTopRight, rBottomLeft, rBottomRight;
-    // Limit on max border radius (border grows inwards for Islands)
-    if(borderRadius > height/2 - borderWidth) borderRadius = height/2 - borderWidth;
+    // Limit on max border radius (border grows inwards for Islands. '-1' for sub-pixel rounding)
+    let bWidthRound = Math.ceil(borderWidth);
+    if(borderRadius > height/2 - bWidthRound - 1) 
+        borderRadius = Math.floor(height/2 - bWidthRound - 1);
     rTopLeft = radiusTopLeft? borderRadius: 0;
     rTopRight = radiusTopRight? borderRadius: 0;
     rBottomLeft = radiusBottomLeft? borderRadius: 0;
