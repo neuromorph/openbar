@@ -1271,6 +1271,8 @@ export function autoApplyBGPalette(obar) {
     obar._settings.set_boolean('autohg-menu', true);
     obar._settings.set_strv('mshcolor', mshcolor);
     obar._settings.set_strv('mscolor', mscolor);
+
+    obar._settings.set_strv('winbcolor', mscolor);
     
     // Mark auto-theme is applied for font weight and trigger style reload 
     obar._settings.set_boolean('autotheme-font', true);

@@ -320,7 +320,13 @@ function createGtkCss(obar) {
     decoration:backdrop,
     decoration-overlay:backdrop   {
         border: ${winBWidth}px solid rgba(${winBRedBd}, ${winBGreenBd}, ${winBBlueBd}, ${winBAlpha});
-    } 
+    }
+    window.maximized,
+    window.maximized > decoration,
+    window.maximized > decoration-overlay   {    
+        border: none;
+        /*border-radius: 0px;*/
+    }
     `;
 
     if(sBarTransparency) {
@@ -444,17 +450,19 @@ export function saveFlatpakOverrides(obar, caller) {
         }
     }
 
+    let keyfile = GLib.KeyFile.new();
     let global = Gio.File.new_for_path(overrideDir.get_path() + '/global');
     if(!global.query_exists(null)) {
         try {
-            global.create(Gio.FileCreateFlags.NONE, None);
+            global.create(Gio.FileCreateFlags.NONE, null);
+            keyfile.set_string('Context', 'filesystems', '');
+            keyfile.save_to_file(global.get_path());
         }
         catch (e) {
             console.error('Error creating flatpak override global file: ' + e);
         }
     }
 
-    let keyfile = GLib.KeyFile.new();
     try {
         keyfile.load_from_file(global.get_path(), GLib.KeyFileFlags.NONE);
     }
