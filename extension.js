@@ -499,12 +499,15 @@ export default class Openbar extends Extension {
             this.reloadStylesheet();
         }
 
-        if(key == 'apply-gtk' || key == 'apply-flatpak' || key == 'headerbar-hint' || key == 'sidebar-hint' 
+        if(key == 'apply-gtk' || key == 'headerbar-hint' || key == 'sidebar-hint' 
         || key == 'sidebar-transparency' || key == 'mscolor' || key == 'msalpha') {
             // console.log('Call saveGtkCss from extension for key: ', key);
             this.gtkCSS = true;
             if(key != 'mscolor' && key != 'msalpha')
                 StyleSheets.saveGtkCss(this, 'enable');
+        }
+        if(key == 'apply-flatpak') {
+            StyleSheets.saveFlatpakOverrides(this, 'enable');
         }
         
         let menustyle = this._settings.get_boolean('menustyle');
@@ -983,6 +986,8 @@ export default class Openbar extends Extension {
 
         // Cause stylesheet to save and reload on Enable
         StyleSheets.reloadStyle(this, this);
+        // Add Open Bar Flatpak Overrides
+        StyleSheets.saveFlatpakOverrides(this, 'enable');
 
         // Set initial Window Max Bar
         this.onWindowMaxBar();
@@ -1033,11 +1038,12 @@ export default class Openbar extends Extension {
         // Reset the style for Panel and Menus
         this.resetStyle(panel);
         this.applyMenuStyles(panel, false);
-        // Reset panel position to Top
+        // Reset panel and banner position to Top
         this.setPanelBoxPosition('Top');
         Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
         // Clear Gtk css and Flatpak override
         StyleSheets.saveGtkCss(this, 'disable');
+        StyleSheets.saveFlatpakOverrides(this, 'disable');
 
         this.main = null;
         this._settings = null;

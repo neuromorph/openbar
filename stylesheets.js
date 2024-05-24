@@ -17,7 +17,7 @@
  * author: neuromorph
  */
 
-/* exported reloadStyle() saveGtkCss() */
+/* exported reloadStyle() saveGtkCss() saveFlatpakOverrides() */
 
 import Gio from 'gi://Gio';
 import Pango from 'gi://Pango';
@@ -347,11 +347,7 @@ export function saveGtkCss(obar, caller) {
         return;
     // console.log('saveGtkCss called with ImportExport false, Pause false');
     
-    let applyGtk = obar._settings.get_boolean('apply-gtk');
-    let applyFlatpak = obar._settings.get_boolean('apply-flatpak');
-    // if(!applyGtk && !applyFlatpak)
-    //     return;
-
+    const applyGtk = obar._settings.get_boolean('apply-gtk');
     const configDir = GLib.get_user_config_dir();
     const gtk3Dir = Gio.File.new_for_path(`${configDir}/gtk-3.0`);
     const gtk4Dir = Gio.File.new_for_path(`${configDir}/gtk-4.0`);
@@ -431,28 +427,58 @@ export function saveGtkCss(obar, caller) {
                 console.log("Failed to write gtk.css file: " + dir.get_path() + e);
             }
         }        
-    });
+    });  
+}
 
-    // Apply override to provide flatpak apps access to Gtk config css files
-    if(applyFlatpak) {
+// Apply override to provide flatpak apps access to Gtk config css files
+export function saveFlatpakOverrides(obar, caller) {
+    const applyFlatpak = obar._settings.get_boolean('apply-flatpak');
+    const dataDir = GLib.get_user_data_dir(); //log('Data DIR: ', dataDir);
+    const overrideDir = Gio.File.new_for_path(`${dataDir}/flatpak/overrides`);
+    if (!overrideDir.query_exists(null)) {
         try {
-            GLib.spawn_command_line_async(
-                'flatpak override --user --filesystem=xdg-config/gtk-4.0:ro --filesystem=xdg-config/gtk-3.0:ro'
-            );
+            const file = Gio.File.new_for_path(overrideDir.get_path());
+            file.make_directory_with_parents(null);
         } catch (e) {
-            console.error(e);
-        }
-    } 
-    else {
-        try {
-            GLib.spawn_command_line_async(
-                'flatpak override --user --nofilesystem=xdg-config/gtk-4.0 --nofilesystem=xdg-config/gtk-3.0'
-            );
-        } catch (e) {
-            console.error(e);
+            console.error('Error creating flatpak override directory: ' + e);
         }
     }
-    
+
+    let global = Gio.File.new_for_path(overrideDir.get_path() + '/global');
+    if(!global.query_exists(null)) {
+        try {
+            global.create(Gio.FileCreateFlags.NONE, None);
+        }
+        catch (e) {
+            console.error('Error creating flatpak override global file: ' + e);
+        }
+    }
+
+    let keyfile = GLib.KeyFile.new();
+    try {
+        keyfile.load_from_file(global.get_path(), GLib.KeyFileFlags.NONE);
+    }
+    catch (e) {
+        console.error('Error loading flatpak override global file: ' + e);
+    }
+
+    try {
+        if(caller == 'disable' || !applyFlatpak) { //log('Restoring global file with ', obar.fsystemBackup);
+            keyfile.set_string('Context', 'filesystems', obar.fsystemBackup);
+            keyfile.save_to_file(global.get_path());
+        }
+        else if(applyFlatpak) {
+            obar.fsystemBackup = keyfile.get_string('Context', 'filesystems');
+            if(!obar.fsystemBackup) 
+                obar.fsystemBackup = '';
+            let fsystem = obar.fsystemBackup + ';xdg-config/gtk-3.0:ro;xdg-config/gtk-4.0:ro;';
+            keyfile.set_string('Context', 'filesystems', fsystem);
+            keyfile.save_to_file(global.get_path()); //log('Saving global file with ', fsystem);
+        }
+    }
+    catch (e) {
+        console.error('Error saving flatpak override global file: ' + e);
+    }
 }
 
 function rgbToHex(r, g, b) {
