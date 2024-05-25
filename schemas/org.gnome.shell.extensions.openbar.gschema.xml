@@ -527,6 +527,11 @@
       <summary>Refresh auto theme on change of Desktop Background</summary>
       <description>Refresh auto theme on change of Desktop Background.</description>
     </key>
+    <key type="b" name="auto-bgalpha">
+      <default>true</default>
+      <summary>Auto set Bar/Margins/Islands alpha in autotheme</summary>
+      <description>Auto set Bar/Margins/Islands Alpha when setting autotheme.</description>
+    </key>
     <key type="b" name="autotheme-font">
       <default>false</default>
       <summary>Turned On when Autotheme is applied and Off when font changed by user</summary>

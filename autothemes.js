@@ -1219,6 +1219,7 @@ export function autoApplyBGPalette(obar) {
     mbgcolor, mbgalpha, smbgcolor, smbgalpha, mbcolor, mbalpha, mhcolor, mhalpha, mshcolor, mshalpha, mscolor, msalpha;
 
     let bartype = obar._settings.get_string('bartype');
+    let autobgAlpha = obar._settings.get_boolean('auto-bgalpha');
 
     // BAR
     bgcolor = getStrv(barBgColor);
@@ -1245,22 +1246,26 @@ export function autoApplyBGPalette(obar) {
     mscolor = getStrv(accentColor);
 
     // Update settings for bar and menu
+    
+    // BAR
     if(bartype == 'Trilands' || bartype == 'Islands')
         obar._settings.set_boolean('shadow', false);
-    // BAR
-    obar._settings.set_double('boxalpha', 0);
+    if(autobgAlpha) {
+        obar._settings.set_double('boxalpha', 0);
+        obar._settings.set_double('bgalpha', bgalpha);
+        obar._settings.set_double('isalpha', isalpha);
+    }
     obar._settings.set_double('fgalpha', 1.0);
     obar._settings.set_boolean('autofg-bar', true);
     obar._settings.set_strv('bgcolor', bgcolor);
-    obar._settings.set_double('bgalpha', bgalpha);
     obar._settings.set_strv('bgcolor2', bgcolor2);
     obar._settings.set_strv('iscolor', iscolor);
-    obar._settings.set_double('isalpha', isalpha);
     obar._settings.set_strv('shcolor', shcolor);
     obar._settings.set_strv('bcolor', bcolor);
     // obar._settings.set_strv('hcolor', hcolor);
     obar._settings.set_boolean('autohg-bar', true);
     obar._settings.set_strv('bgcolor-wmax', bgcolorWmax);
+
     // MENU
     obar._settings.set_double('mfgalpha', 1.0);
     obar._settings.set_boolean('autofg-menu', true);
@@ -1272,6 +1277,7 @@ export function autoApplyBGPalette(obar) {
     obar._settings.set_strv('mshcolor', mshcolor);
     obar._settings.set_strv('mscolor', mscolor);
 
+    // GTK Window
     obar._settings.set_strv('winbcolor', mscolor);
     
     // Mark auto-theme is applied for font weight and trigger style reload 

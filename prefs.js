@@ -609,6 +609,18 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
+        let autoAlphaSetLabel = new Gtk.Label({
+            label: `<span>Auto-Set Bar, Margins and Islands BG Alpha</span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(autoAlphaSetLabel, 1, rowbar, 1, 1);
+
+        let autoAlphaSetSwitch = this.createSwitchWidget('Turn Off to retain user-set values for BG alpha');
+        palettegrid.attach(autoAlphaSetSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
         // Secondary menu color Override
         // Add a secondary color override switch
         let autosmbgOLbl = new Gtk.Label({
@@ -2476,6 +2488,12 @@ class OpenbarPrefs {
         this._settings.bind(
             'autotheme-refresh',
             autoThemeChgSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'auto-bgalpha',
+            autoAlphaSetSwitch,
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
