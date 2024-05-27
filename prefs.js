@@ -152,6 +152,19 @@ class OpenbarPrefs {
                 rgba.green.toString(),
                 rgba.blue.toString(),
             ]);
+            if(gsetting != 'accent-color' && gsetting != 'winbcolor') {
+                let prefix, mode = this._settings.get_string('color-scheme');
+                if(mode == 'prefer-dark')
+                    prefix = 'dark-';
+                else
+                    prefix = 'light-';
+                log('saving from key: ' + gsetting + ' to key: ' + `${prefix}${gsetting}`);
+                this._settings.set_strv(`${prefix}${gsetting}`, [
+                    rgba.red.toString(),
+                    rgba.green.toString(),
+                    rgba.blue.toString(),
+                ]);
+            }
             this.triggerStyleReload();
         });
 
@@ -166,7 +179,7 @@ class OpenbarPrefs {
             color.set_rgba(rgba);
         });
 
-        // Add-palette removes existing default array so add it back first
+        // First call to add-palette removes existing default array so add it back first
         let defaultArray = this.createDefaultPaletteArray();
         let bgPaletteArray = this.createBgPaletteArray();
         color.add_palette(Gtk.Orientation.VERTICAL, 5, defaultArray);
@@ -315,33 +328,46 @@ class OpenbarPrefs {
     fillOpenbarPrefs(window) {
 
         window.set_title(_("Open Bar 🍹"));
-        window.default_height = 800;
-        window.default_width = 700;
+        window.set_decorated(true);
+        window.default_height = 950;
+        window.default_width = 820;
 
         window.paletteButtons = [];
         window.colorButtons = [];
+
+        this.cssProvider = new Gtk.CssProvider();
+        this.cssProvider.load_from_path(`${Me.path}/prefs.css`);
+        Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), this.cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+        // console.log('fillOpenbarPrefs: loadQuotesFromFile');
+        this.loadQuotesFromFile();
 
         // Get the settings object
         this._settings = ExtensionUtils.getSettings();
         // Connect settings to update/save/reload stylesheet
         let settEvents = ['bartype', 'position', 'font', 'gradient', 'cust-margin-wmax', 'border-wmax', 'neon-wmax',
         'gradient-direction', 'shadow', 'neon', 'heffect', 'smbgoverride', 'mbg-gradient', 'autofg-bar', 'autofg-menu',
-        'width-top', 'width-bottom', 'width-left', 'width-right', 'radius-topleft', 'radius-topright',
-        'radius-bottomleft', 'radius-bottomright', 'extend-menu-shell']; 
+        'width-top', 'width-bottom', 'width-left', 'width-right', 'radius-topleft', 'radius-topright', 'autohg-bar', 'autohg-menu',
+        'radius-bottomleft', 'radius-bottomright', 'apply-menu-notif', 'apply-menu-shell', 'apply-accent-shell', 'apply-all-shell', 
+        'dashdock-style', 'dborder', 'dshadow', 'set-overview']; 
         settEvents.forEach(event => {
             this._settings.connect('changed::'+event, () => {this.triggerStyleReload();});
         });
         
-        // Update palette on background change
+        // Update palette in preferences window on background change
         this._settings.connect('changed::bg-change', () => {
             this.updatePalette(window, false);
         });
 
         // Refresh auto-theme on accent-override switch change, if auto-theme set
         this._settings.connect('changed::accent-override', () => {
-            let theme = this._settings.get_string('autotheme');
-            let variation = this._settings.get_string('variation');
-            if(theme == 'Select Theme' || variation == 'Select Variation')
+            const mode = this._settings.get_string('color-scheme');
+            let theme;
+            if(mode == 'prefer-dark')
+                theme = this._settings.get_string('autotheme-dark');
+            else
+                theme = this._settings.get_string('autotheme-light');
+            if(theme == 'Select Theme')
                 return;
             setTimeout(() => {                
                 this.triggerAutoTheme();
@@ -353,6 +379,34 @@ class OpenbarPrefs {
         ////////////////////////////////////////////////////////////
         // PREFERENCES UI                                         //
         ////////////////////////////////////////////////////////////
+
+        // const navigation = new Adw.NavigationSplitView({
+        //     vexpand: true,
+        //     hexpand: true
+        // });
+        // window.set_content(navigation);
+    
+        // const mainPage = new Adw.NavigationPage({
+        //     title: "Test Page"
+        // });
+    
+        // let toolbar = new Adw.ToolbarView();
+        // let header = new Adw.HeaderBar();
+        // toolbar.add_top_bar(header);
+        // mainPage.set_child(toolbar);
+        
+        // const sidebar = new Adw.NavigationPage({
+        //     title: "Sections"
+        // });
+    
+        // toolbar = new Adw.ToolbarView();
+        // header = new Adw.HeaderBar();
+        // toolbar.add_top_bar(header);
+        // sidebar.set_child(toolbar);
+    
+        // navigation.set_content(mainPage);
+        // navigation.set_sidebar(sidebar);
+
 
         // Create the Settings page
         const settingsPage = new Adw.PreferencesPage({
@@ -366,73 +420,154 @@ class OpenbarPrefs {
         settingsPage.add(settingsGroup);
 
 
-        let prefsWidget = this.createGridWidget();
+        // Open Bar Title Grid
+        let titlegrid = this.createGridWidget();
+        titlegrid.halign = Gtk.Align.CENTER;
+        titlegrid.valign = Gtk.Align.CENTER;
+        titlegrid.margin_top = 0;
+        titlegrid.margin_bottom = 10;
+        titlegrid.css_classes = ['openbar-titlegrid'];
 
-        let rowNo = 1;
+        let rowbar = 1;        
+
+        // Add a title label
+        let titleLabel = new Gtk.Label({
+            label: `<span size="x-large">Top Bar and Beyond</span>\n\n<span underline="none"><b>${_('Version:')} ${Me.metadata.version}  |  <a href="${Me.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${Me.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕      </a></b></span>`,
+            halign: Gtk.Align.CENTER,
+            valign: Gtk.Align.CENTER,
+            justify: Gtk.Justification.CENTER,
+            use_markup: true,
+            css_classes: ['openbar-title'],
+        });
+        titlegrid.attach(titleLabel, 1, rowbar, 1, 1);
+
         // Add a logo image
         const aboutImage = new Gtk.Image({
             file: Me.path + "/media/openbar.png",
             vexpand: false,
             hexpand: false,
-            pixel_size: 100,
-            margin_bottom: 15,
-            halign: Gtk.Align.END,
+            valign: Gtk.Align.CENTER,
+            pixel_size: 70,
+            margin_top: 0,
+            margin_bottom: 0,
+            halign: Gtk.Align.CENTER,
+            css_classes: ['openbar-image'],
         });
-        prefsWidget.attach(aboutImage, 2, rowNo, 1, 1);
+        titlegrid.attach(aboutImage, 2, rowbar, 1, 1);
 
-        // Add a title label
-        let titleLabel = new Gtk.Label({
-            label: `<span size="large"><b>Top Bar Customization</b></span>\n\n<span underline="none" color="#edad40"><b>${_('Version:')} ${Me.metadata.version}  |  <a href="${Me.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${Me.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕      </a></b></span>`,
-            // halign: Gtk.Align.CENTER,
+
+        // Quote Box
+        const quoteBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 10,
+            halign: Gtk.Align.CENTER,
+            homogeneous: false,
+            // margin_top: 15,
+            css_classes: ['openbar-quotebox'],
+        });
+
+        // Add a quote image
+        const quoteImage = new Gtk.Image({
+            file: Me.path + "/media/quote.png",
+            vexpand: false,
+            hexpand: false,
+            valign: Gtk.Align.CENTER,
+            pixel_size: 45,
+            halign: Gtk.Align.CENTER,
+            margin_top: 25,
+            margin_bottom: 20,
+        });
+        quoteBox.append(quoteImage);
+
+        // Add a quote label
+        let quoteLabel = new Gtk.Label({
+            label: ``,
+            halign: Gtk.Align.CENTER,
+            valign: Gtk.Align.CENTER,
             use_markup: true,
+            justify: Gtk.Justification.CENTER,
+            wrap: true,
+            width_chars: 72,
+            vexpand: false,
+            margin_top: 0,
+            margin_bottom: 0,
+            css_classes: ['openbar-quote'],
         });
-        prefsWidget.attach(titleLabel, 1, rowNo, 1, 1);
+        quoteBox.append(quoteLabel);
+        this.setQuoteLabel(quoteLabel);
 
-        rowNo += 1;
+        //////////////////////////////////////////////////////////////////////////////////
 
-        // Auto Theme and Background Palette
-        const paletteprop = new Gtk.Expander({
-            label: `<b>AUTO THEMING</b>`,
-            expanded: false,
-            use_markup: true,
-        });
+        // AUTO THEMING and BACKGROUND PALETTE
+
         let palettegrid = this.createGridWidget();
 
-        let rowbar = 1;
+        rowbar = 1;
 
         let autoThemeLabel = new Gtk.Label({
-            label: `<span><b>Automatic Themes and Variations</b></span>\n\n<span size="small" allow_breaks="true">Note: Select desired bar properties in 'Bar Props' below before applying a theme.\nThemes below are auto-generated from Desktop Background. \nSelect a theme and its variation (default or alt) and click 'Apply'.</span>`,
+            label: `\n<span size="large">Automatic Themes from Desktop Background</span>\n`,
+            halign: Gtk.Align.CENTER,
             use_markup: true,
-            halign: Gtk.Align.START,
+            css_classes: ['openbar-title'],
         });
         palettegrid.attach(autoThemeLabel, 1, rowbar, 2, 1);
 
+        rowbar += 1;
+
+        let autoThemeNotesLabel = new Gtk.Label({
+            label: `<span  allow_breaks="true">• Auto-themes will use the <b>colors</b> derived from the background image.\n• Other settings will be set as selected by user in the tabs below.\n• Styles will apply to the Top Bar and Menus and optionally to the shell.\n• Select desired Type of bar before applying a theme.\n• If you change the bar type, apply the theme again.
+        
+        <b>True Color     </b>    : Palette colors as-is (biased towards dark). 
+        <b>Pastel Theme   </b>: Colors are pastelified (biased towards light).
+        <b>Dark Theme     </b> : Colors are darkened as needed.
+        <b>Light Theme    </b>  : Colors are lightened as needed.
+        </span>`,
+            wrap: true,
+            use_markup: true,
+            halign: Gtk.Align.START,
+            width_chars: 55,
+        });
+        palettegrid.attach(autoThemeNotesLabel, 1, rowbar, 2, 1);
+
         rowbar += 1; 
 
-        const themeBox = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 5,
-            margin_top: 5,
-            margin_bottom: 5,
-            halign: Gtk.Align.CENTER,
-            homogeneous: true,
+        const themeGrid = this.createGridWidget();
+        themeGrid.halign = Gtk.Align.CENTER;
+        let rownum = 1;
+
+        // Add a Dark mode label
+        let darkModeLabel = new Gtk.Label({
+            label: `<b>Gnome Dark Mode:</b>`,
+            halign: Gtk.Align.START,
+            use_markup: true,
         });
+        themeGrid.attach(darkModeLabel, 1, rownum, 1, 1);
 
-        let themeType = this.createComboboxWidget([ ["Select Theme", _("Select Theme")], ["Color", _("Color")], ["Dark", _("Dark")], ["Light", _("Light")]]);
-        themeType.set_active_id(this._settings.get_string('autotheme'));
-        themeBox.append(themeType);
+        let themeTypeDark = this.createComboboxWidget([ ["Select Theme", _("Select Theme")], ["Color", _("True Color")], ["Pastel", _("Pastel Theme")], ["Dark", _("Dark Theme")], ["Light", _("Light Theme")]]);
+        themeTypeDark.set_active_id(this._settings.get_string('autotheme-dark'));
+        themeGrid.attach(themeTypeDark, 2, rownum, 1, 1);
+        rownum += 1;
+        
+        // Add a Light mode label
+        let lightModeLabel = new Gtk.Label({
+            label: `<b>Gnome Light Mode:</b>`,
+            halign: Gtk.Align.START,
+            use_markup: true,
+        });
+        themeGrid.attach(lightModeLabel, 1, rownum, 1, 1);
 
-        let themeVariation = this.createComboboxWidget([ ["Select Variation", _("Select Variation")], ["Default", _("Default")], ["Alt", _("Alt")]]);
-        themeVariation.set_active_id(this._settings.get_string('variation'));
-        themeBox.append(themeVariation);       
+        let themeTypeLight = this.createComboboxWidget([ ["Select Theme", _("Select Theme")], ["Color", _("True Color")], ["Pastel", _("Pastel Theme")], ["Dark", _("Dark Theme")], ["Light", _("Light Theme")]]);
+        themeTypeLight.set_active_id(this._settings.get_string('autotheme-light'));
+        themeGrid.attach(themeTypeLight, 2, rownum, 1, 1);
+        rownum += 1;
 
         const applyThemeBtn = new Gtk.Button({
             label: 'Apply',
-            tooltip_text: 'Apply/ Refresh selected theme and variation'
+            tooltip_text: 'Apply selected themes to Dark/Light modes'
         });
-        themeBox.append(applyThemeBtn);
+        themeGrid.attach(applyThemeBtn, 3, 1, 1, 2);
 
-        palettegrid.attach(themeBox, 1, rowbar, 2, 1);
+        palettegrid.attach(themeGrid, 1, rowbar, 2, 1);
 
         rowbar += 1;
 
@@ -441,29 +576,38 @@ class OpenbarPrefs {
             sensitive: false,
             halign: Gtk.Align.CENTER,
             use_markup: true,
+            css_classes: ['openbar-message']
         });
         palettegrid.attach(applyThemeErrLbl, 1, rowbar, 2, 1);
 
         applyThemeBtn.connect('clicked', () => {
-            // this.triggerBackgroundPalette(window);
-            let theme = themeType.get_active_id();
-            let variation = themeVariation.get_active_id();
-            if(theme == 'Select Theme' || variation == 'Select Variation') {
-                applyThemeErrLbl.label = `<span color="#ff8c00">Please select a theme and a variation to apply.</span>`;
+            let themeDark = themeTypeDark.get_active_id();
+            let themeLight = themeTypeLight.get_active_id();
+            if(themeDark == 'Select Theme' && themeLight == 'Select Theme') {
+                applyThemeErrLbl.label = `<span color="#ff8c00">Please select desired themes to apply.</span>`;
                 applyThemeErrLbl.sensitive = true;
                 setTimeout(() => { applyThemeErrLbl.label = ``;
                                     applyThemeErrLbl.sensitive = false;}, 3000);
                 return;
             }
-            this._settings.set_string('autotheme', theme);
-            this._settings.set_string('variation', variation);
+            else {
+                applyThemeErrLbl.label = `<span color="#00ddee">Selected theme will apply in respective mode.</span>`;
+                applyThemeErrLbl.sensitive = true;
+                setTimeout(() => { applyThemeErrLbl.label = ``;
+                                    applyThemeErrLbl.sensitive = false;}, 3000);
+            }
+            if(themeDark != 'Select Theme')
+                this._settings.set_string('autotheme-dark', themeDark);
+            if(themeLight != 'Select Theme')
+                this._settings.set_string('autotheme-light', themeLight);
+
             this.triggerAutoTheme();
         });
         
         rowbar += 1;
 
         let autoThemeChgLabel = new Gtk.Label({
-            label: `<span>Auto Refresh theme on Background change</span>`,
+            label: `<span>Auto-Refresh theme on Background or Mode change</span>`,
             use_markup: true,
             halign: Gtk.Align.START,
         });
@@ -471,6 +615,18 @@ class OpenbarPrefs {
 
         let autoThemeChgSwitch = this.createSwitchWidget();
         palettegrid.attach(autoThemeChgSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        let autoAlphaSetLabel = new Gtk.Label({
+            label: `<span>Auto-Set Bar, Margins and Islands BG Alpha</span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(autoAlphaSetLabel, 1, rowbar, 1, 1);
+
+        let autoAlphaSetSwitch = this.createSwitchWidget('Turn Off to retain user-set values for BG alpha');
+        palettegrid.attach(autoAlphaSetSwitch, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
@@ -482,14 +638,14 @@ class OpenbarPrefs {
         });
         palettegrid.attach(autosmbgOLbl, 1, rowbar, 1, 1);
 
-        let autosmbgOSwitch = this.createSwitchWidget('Auto-Theme will choose alternate secondary color instead of deriving from BG color');
+        let autosmbgOSwitch = this.createSwitchWidget('Auto-Theme will choose alternate secondary/sub-menu color instead of deriving from BG color');
         palettegrid.attach(autosmbgOSwitch, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
         // Add an accent color override switch
         let accentOLbl = new Gtk.Label({
-            label: `Override Auto theme Accent Color`,
+            label: `Override auto-theme Accent Color (as selected below)`,
             halign: Gtk.Align.START,
         });
         palettegrid.attach(accentOLbl, 1, rowbar, 1, 1);
@@ -513,9 +669,11 @@ class OpenbarPrefs {
 
 
         let paletteLabel = new Gtk.Label({
-            label: `<span><b>Desktop Background Color Palette</b></span>\n\n<span size="small" allow_breaks="true">The palette will auto-refresh upon changing the background. It is available in each color \nbutton popup under the default palette. It is shown here only for reference (visual feedback).</span>`,
+            label: `<span>\n<b>Desktop Background Color Palette</b></span>\n\n<span allow_breaks="true">• The palette will auto-refresh when the background changes.\n• Unless the extension is disabled during the change.\n• Click on 'Get' button to manually refresh the palette.\n• This palette is available in each color button popup (under default one).</span>`,
             use_markup: true,
             margin_top: 15,
+            wrap: true,
+            halign: Gtk.Align.START,
         });
         palettegrid.attach(paletteLabel, 1, rowbar, 2, 1);
         
@@ -525,12 +683,14 @@ class OpenbarPrefs {
             label: `<span>Manual trigger to get/ refresh the palette</span>`,
             use_markup: true,
             halign: Gtk.Align.START,
+            margin_top: 10,
         });
         palettegrid.attach(getPaletteLabel, 1, rowbar, 1, 1);
 
         const getPaletteBtn = new Gtk.Button({
             label: `🔄 Get`,
             halign: Gtk.Align.END,
+            margin_top: 10,
             tooltip_text: 'Generate/ Refresh Color Palette from desktop background'
         });
         getPaletteBtn.connect('clicked', () => {
@@ -566,28 +726,23 @@ class OpenbarPrefs {
         rowbar += 1;
         palettegrid.attach(paletteBox2, 1, rowbar, 2, 1);
 
-        paletteprop.set_child(palettegrid);
-        prefsWidget.attach(paletteprop, 1, rowNo, 2, 1);
-
-        ////////////////////////////////////////////////////////////////////////////////
-        rowNo += 1
-
-        let separator0 = this.createSeparatorWidget();
-        prefsWidget.attach(separator0, 1, rowNo, 2, 1);
-
         //////////////////////////////////////////////////////////////////////////////////
 
-        rowNo += 1;
-
         // BAR PROPERTIES
-        const barprop = new Gtk.Expander({
-            label: `<b>BAR PROPS</b>`,
-            expanded: false,
-            use_markup: true,
-        });
+
         let bargrid = this.createGridWidget();
 
         rowbar = 1;
+
+        // Label for Top Bar Properties
+        let topBarLbl = new Gtk.Label({
+            label: `<span size="large">Top Bar Properties\n\n</span>`,
+            use_markup: true,
+            halign: Gtk.Align.CENTER,
+            css_classes: ['openbar-title'],
+        });
+        bargrid.attach(topBarLbl, 1, rowbar, 2, 1);
+        rowbar += 1;
         
         //Type of bar
         let barTypeLbl = new Gtk.Label({
@@ -649,18 +804,6 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a notification popups switch
-        let notificationsLabel = new Gtk.Label({
-            label: 'Apply to Notification Pop-ups',
-            halign: Gtk.Align.START,
-        });
-        bargrid.attach(notificationsLabel, 1, rowbar, 1, 1);
-
-        let notificationsSwitch = this.createSwitchWidget();
-        bargrid.attach(notificationsSwitch, 2, rowbar, 1, 1);
-
-        rowbar += 1;
-
         // Add a fullscreen switch
         let fullscreenLabel = new Gtk.Label({
             label: 'Apply in Fullscreen',
@@ -668,38 +811,35 @@ class OpenbarPrefs {
         });
         bargrid.attach(fullscreenLabel, 1, rowbar, 1, 1);
 
-        let fullscreenSwitch = this.createSwitchWidget("Turn Off if you face any 'crash' issue (Mutter fullscreen lock issue)");
+        let fullscreenSwitch = this.createSwitchWidget("Turn Off only if you face any 'crash' issue (Mutter fullscreen lock issue)");
         bargrid.attach(fullscreenSwitch, 2, rowbar, 1, 1);
-
-
-        barprop.set_child(bargrid);
-        prefsWidget.attach(barprop, 1, rowNo, 2, 1);
-
-        ////////////////////////////////////////////////////////////////////////////////
-        rowNo += 1
-
-        let separator01 = this.createSeparatorWidget();
-        prefsWidget.attach(separator01, 1, rowNo, 2, 1);
 
         //////////////////////////////////////////////////////////////////////////////////
 
-        rowNo += 1;
-
         // WMAX BAR PROPERTIES
-        const barpropwmax = new Gtk.Expander({
-            label: `<b>BAR PROPS: WINDOW-MAX</b>`,
-            expanded: false,
-            use_markup: true,
-        });
+
         let bargridwmax = this.createGridWidget();
 
         rowbar = 1;
 
+        // Label for WMax Bar Properties
+        let wmaxBarPropLabel = new Gtk.Label({
+            label: `<span size="large">Window-Max Bar Properties\n\n</span>`,
+            halign: Gtk.Align.CENTER,
+            use_markup: true,
+            css_classes: ['openbar-title'],
+        });
+        bargridwmax.attach(wmaxBarPropLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
         // Add a WMax Bar label
         let wmaxBarLabel = new Gtk.Label({
             use_markup: true,
-            label: `<span size="small" allow_breaks="true">When enabled, following properties will apply to the Bar when a window is maximized</span>`,
+            label: `<span allow_breaks="true">When Window-Max bar is enabled, the following properties will apply to the Bar when a window is maximized.\n</span>`,
             halign: Gtk.Align.START,
+            wrap: true,
+            width_chars: 55,
         });
         bargridwmax.attach(wmaxBarLabel, 1, rowbar, 2, 1);
 
@@ -787,27 +927,24 @@ class OpenbarPrefs {
         let wmaxNeonSwitch = this.createSwitchWidget();
         bargridwmax.attach(wmaxNeonSwitch, 2, rowbar, 1, 1);
 
-        barpropwmax.set_child(bargridwmax);
-        prefsWidget.attach(barpropwmax, 1, rowNo, 2, 1);
-
-
-        ////////////////////////////////////////////////////////////////////////////////
-        rowNo += 1
-
-        let separator1 = this.createSeparatorWidget();
-        prefsWidget.attach(separator1, 1, rowNo, 2, 1);
-
         //////////////////////////////////////////////////////////////////////////////////
-        rowNo += 1;
-        const fgprop = new Gtk.Expander({
-            label: `<b>FRONT BAR</b>`,
-            expanded: false,
-            use_markup: true,
-        });
+
+        // BAR FOREGROUND
 
         let fggrid = this.createGridWidget();
 
         rowbar = 1;
+
+        // Add a Bar Foreground label
+        let fgLabel = new Gtk.Label({
+            label: `<span size="large">Bar Foreground\n\n</span>`,
+            halign: Gtk.Align.CENTER,
+            use_markup: true,
+            css_classes: ['openbar-title'],
+        });
+        fggrid.attach(fgLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
 
         // Add an Auto FG color switch for Bar
         let autofgBarLabel = new Gtk.Label({
@@ -896,26 +1033,25 @@ class OpenbarPrefs {
             // obar.triggerStyleReload();
         });
         fggrid.attach(resetFontBtn, 3, rowbar, 1, 1);
-
-        fgprop.set_child(fggrid);
-        prefsWidget.attach(fgprop, 1, rowNo, 2, 1);
-
-        ///////////////////////////////////////////////////////////////////
-        rowNo += 1
-
-        let separator2 = this.createSeparatorWidget();
-        prefsWidget.attach(separator2, 1, rowNo, 2, 1);
         
         ///////////////////////////////////////////////////////////////////
-        rowNo += 1;
-        const bgprop = new Gtk.Expander({
-            label: `<b>BACK BAR</b>`,
-            expanded: false,
-            use_markup: true,
-        });
+        
+        // BAR BACKGROUND
+
         let bggrid = this.createGridWidget();
 
         rowbar = 1;
+
+        // Add a Bar Background label
+        let bgLabel = new Gtk.Label({
+            label: `<span size="large">Bar Background\n\n</span>`,
+            halign: Gtk.Align.CENTER,
+            use_markup: true,
+            css_classes: ['openbar-title'],
+        });
+        bggrid.attach(bgLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
 
         // Add a Panel Box background color chooser
         let boxColorLbl = new Gtk.Label({
@@ -1112,27 +1248,46 @@ class OpenbarPrefs {
         let shAlpha = this.createScaleWidget(0, 1, 0.01, 2);
         bggrid.attach(shAlpha, 2, rowbar, 1, 1);
 
-        bgprop.set_child(bggrid);
-        prefsWidget.attach(bgprop, 1, rowNo, 2, 1);
-
-        ////////////////////////////////////////////////////////////////////////////
-        rowNo += 1
-
-        let separator3 = this.createSeparatorWidget();
-        prefsWidget.attach(separator3, 1, rowNo, 2, 1);
-
         ////////////////////////////////////////////////////////////////////////////
 
-        rowNo += 1;
-
-        const hprop = new Gtk.Expander({
-            label: `<b>HIGHLIGHTS</b>`,
-            expanded: false,
-            use_markup: true,
-        });
+        // BAR HIGHLIGHTS
+        
         let hgrid = this.createGridWidget();
 
         rowbar = 1;
+
+        // Bar Highlights label
+        let highlightsLbl = new Gtk.Label({
+            label: `<span size="large">Bar Highlights (Hover - Focus)</span>\n\n`,
+            use_markup: true,
+            halign: Gtk.Align.CENTER,
+            css_classes: ['openbar-title'],
+        });
+        hgrid.attach(highlightsLbl, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Bar highlights info label
+        let highlightInfo = new Gtk.Label({
+            label: '<span>Hover/focus highlight colors and paddings for Panel Buttons.</span>\n',
+            use_markup: true,
+            halign: Gtk.Align.CENTER,
+        });
+        hgrid.attach(highlightInfo, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add an Auto highlight color switch for Bar
+        let autohgBarLabel = new Gtk.Label({
+            label: 'Auto Highlight Color',
+            halign: Gtk.Align.START,
+        });
+        hgrid.attach(autohgBarLabel, 1, rowbar, 1, 1);
+
+        let autohgBarSwitch = this.createSwitchWidget('Automatically set highlight color as per background color of bar/buttons');
+        hgrid.attach(autohgBarSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
 
         // Add a highlight color chooser
         let highlightColorLabel = new Gtk.Label({
@@ -1156,7 +1311,7 @@ class OpenbarPrefs {
         });
         hgrid.attach(hgAlphaLbl, 1, rowbar, 1, 1);
 
-        let hgAlpha = this.createScaleWidget(0, 1, 0.05, 2);
+        let hgAlpha = this.createScaleWidget(0, 1, 0.01, 2);
         hgrid.attach(hgAlpha, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1195,25 +1350,10 @@ class OpenbarPrefs {
         let vBtnPad = this.createScaleWidget(0, 30, 0.5, 1, 'Vertical padding for panel buttons/highlights');
         hgrid.attach(vBtnPad, 2, rowbar, 1, 1);
 
-        hprop.set_child(hgrid);
-        prefsWidget.attach(hprop, 1, rowNo, 2, 1);
-
-        ////////////////////////////////////////////////////////////////////////////
-        
-        rowNo += 1
-
-        let separator4 = this.createSeparatorWidget();
-        prefsWidget.attach(separator4, 1, rowNo, 2, 1);
-
         ////////////////////////////////////////////////////////////////////////////
 
-        rowNo += 1;
+        // BAR BORDER
 
-        const bprop = new Gtk.Expander({
-            label: `<b>BORDER</b>`,
-            expanded: false,
-            use_markup: true,
-        });
         let bgrid = this.createGridWidget();
 
         rowbar = 1;
@@ -1232,6 +1372,17 @@ class OpenbarPrefs {
         // bgrid.attach(borderType, 2, rowbar, 1, 1);
 
         // rowbar += 1;
+
+        // Bar Border label
+        let borderBarLabel = new Gtk.Label({
+            label: `<span size="large">Bar Border\n\n</span>`,
+            halign: Gtk.Align.CENTER,
+            use_markup: true,
+            css_classes: ['openbar-title'],
+        });
+        bgrid.attach(borderBarLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
 
         // Add a border width scale
         let borderWidthLabel = new Gtk.Label({
@@ -1348,23 +1499,10 @@ class OpenbarPrefs {
         let neon = this.createSwitchWidget('Select bright/neon color for border and dark-opaque background');
         bgrid.attach(neon, 2, rowbar, 1, 1);
 
-        bprop.set_child(bgrid);
-        prefsWidget.attach(bprop, 1, rowNo, 2, 1);
-
-        ////////////////////////////////////////////////////////////////////
-        rowNo += 1
-
-        let separator5 = this.createSeparatorWidget();
-        prefsWidget.attach(separator5, 1, rowNo, 2, 1);
-
         ////////////////////////////////////////////////////////////////////
 
-        rowNo += 1;
-        const menuprop = new Gtk.Expander({
-            label: `<b>MENU</b>`,
-            expanded: false,
-            use_markup: true,
-        });
+        // POPUP MENUS
+
         let menugrid = this.createGridWidget();
 
         rowbar = 1;
@@ -1381,6 +1519,15 @@ class OpenbarPrefs {
         //
         // let menuSwitch = this.createSwitchWidget();
         // menugrid.attach(menuSwitch, 2, rowbar, 1, 1);
+
+        // Popup Menus label
+        let popupMenuLabel = new Gtk.Label({
+            label: `\n<span size="large">Popup Menus\n\n</span>`,
+            halign: Gtk.Align.CENTER,
+            use_markup: true,
+            css_classes: ['openbar-title'],
+        });
+        menugrid.attach(popupMenuLabel, 1, rowbar, 2, 1);
 
         rowbar += 1;
 
@@ -1502,6 +1649,18 @@ class OpenbarPrefs {
 
         let mbAlpha = this.createScaleWidget(0, 1, 0.01, 2);
         menugrid.attach(mbAlpha, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a Auto FG color switch for Menu
+        let autohgMenuLabel = new Gtk.Label({
+            label: 'Auto Highlight Color',
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(autohgMenuLabel, 1, rowbar, 1, 1);
+
+        let autohgMenuSwitch = this.createSwitchWidget('Automatically set highlight color as per background color of menu widgets');
+        menugrid.attach(autohgMenuSwitch, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
@@ -1635,143 +1794,476 @@ class OpenbarPrefs {
         let mSliHandBord = this.createScaleWidget(0, 20, 1, 0, 'Width of the border of Slider handle');
         menugrid.attach(mSliHandBord, 2, rowbar, 1, 1);
 
+        ////////////////////////////////////////////////////////////////////
+
+        // DASH / DOCK
+
+        let dashgrid = this.createGridWidget();
+
+        rowbar = 1;
+
+        // Dash / Dock Label
+        let dashLbl = new Gtk.Label({
+            label: `<span size="large">Dash / Dock Style\n\n</span>`,
+            halign: Gtk.Align.CENTER,
+            use_markup: true,
+            css_classes: ['openbar-title'],
+        });
+        dashgrid.attach(dashLbl, 1, rowbar, 2, 1);
+
         rowbar += 1;
 
-        // Add menu style apply/remove buttons
-        // const removeMenuLabel = new Gtk.Label({
-        //     use_markup: true,
-        //     label: `<span color="#fa6555">${_("Reset Menu Styles")}</span>`, 
-        // });
-        // const removeMenuBtn = new Gtk.Button({
-        //     child: removeMenuLabel,
-        //     margin_top: 25,
-        //     tooltip_text: _("Reset the style settings for Menu"),
-        //     halign: Gtk.Align.START,
-        // });
-        // removeMenuBtn.connect('clicked', () => {
-        //     this._settings.set_boolean('menustyle', false);
-        //     // Trigger updateStyles() by toggling 'removestyle'
-        //     let removestyle = this._settings.get_boolean('removestyle');
-        //     if(removestyle)
-        //         this._settings.set_boolean('removestyle', false);
-        //     else
-        //         this._settings.set_boolean('removestyle', true);
-        // });
-        // menugrid.attach(removeMenuBtn, 1, rowbar, 1, 1);
-
-        // const applyMenuLabel = new Gtk.Label({
-        //     use_markup: true,
-        //     label: `<span color="#03c4d0">${_("Apply Menu Styles")}</span>`, 
-        // });
-        // const applyMenuBtn = new Gtk.Button({
-        //     child: applyMenuLabel,
-        //     margin_top: 25,
-        //     tooltip_text: _("Apply the style settings for Menu"),
-        //     halign: Gtk.Align.END,
-        // });
-        // applyMenuBtn.connect('clicked', () => {
-        //     // Save stylesheet and trigger reload
-        //     this.triggerStyleReload();
-        //     // Apply menustyle
-        //     this._settings.set_boolean('menustyle', true);
-
-        // });
-        // menugrid.attach(applyMenuBtn, 1, rowbar, 2, 1);
-
-
-        menuprop.set_child(menugrid);
-        prefsWidget.attach(menuprop, 1, rowNo, 2, 1);
-
-        ////////////////////////////////////////////////////////////////////
-        rowNo += 1
-
-        let separator6 = this.createSeparatorWidget();
-        prefsWidget.attach(separator6, 1, rowNo, 2, 1);
-
-        ////////////////////////////////////////////////////////////////////
-
-        rowNo += 1;
-        const beyondprop = new Gtk.Expander({
-            label: `<b>BEYOND BAR</b>`,
-            expanded: false,
+        // Add a dash to dock info label
+        let dashInfoLabel = new Gtk.Label({
+            label: `<span allow_breaks="true">Dash-to-Dock:\n• Enable 'Use built-in theme' in its settings under 'Appearance' tab.\n• Set 'Icon size limit' as needed in its 'Position and Size' tab.\n </span>`,
             use_markup: true,
+            halign: Gtk.Align.CENTER,
+            wrap: true,
+            margin_bottom: 10,
+            width_chars: 55,
         });
+        dashgrid.attach(dashInfoLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add dash-dock style combo
+        let applyDashLbl = new Gtk.Label({
+            label: `Dash / Dock Style`,
+            halign: Gtk.Align.START,
+        });
+        dashgrid.attach(applyDashLbl, 1, rowbar, 1, 1);
+
+        let applyDashCombo = this.createComboboxWidget([ ["Default", _("Keep Default Theme")], ["Menu", _("Use Menu Colors")], ["Bar", _("Use Top Bar Colors")], ["Custom", _("Custom Colors (as below)")] ]);
+        dashgrid.attach(applyDashCombo, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a dash BG color chooser
+        let dashBgColorLabel = new Gtk.Label({
+            label: 'BG Color',
+            halign: Gtk.Align.START,
+        });
+        dashgrid.attach(dashBgColorLabel, 1, rowbar, 1, 1);
+
+        let dashBgColorChooser = this.createColorWidget(window, 'Dash/Dock BG Color', 'Custom BG color for the Dash/Dock.', 'dbgcolor');
+        dashgrid.attach(dashBgColorChooser, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a dash BG alpha scale
+        let dashBgAlphaLbl = new Gtk.Label({
+            label: 'BG Alpha',
+            halign: Gtk.Align.START,
+        });
+        dashgrid.attach(dashBgAlphaLbl, 1, rowbar, 1, 1);
+
+        let dashBgAlpha = this.createScaleWidget(0, 1, 0.01, 2);
+        dashgrid.attach(dashBgAlpha, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a dash border radius scale
+        let dashbRadiusLbl = new Gtk.Label({
+            label: 'Border Radius',
+            halign: Gtk.Align.START,
+        });
+        dashgrid.attach(dashbRadiusLbl, 1, rowbar, 1, 1);
+
+        let dashbRadius = this.createScaleWidget(0, 100, 1, 0);
+        dashgrid.attach(dashbRadius, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a dash Icon Size scale
+        let dashIconSizeLbl = new Gtk.Label({
+            label: 'Icon Size',
+            halign: Gtk.Align.START,
+        });
+        dashgrid.attach(dashIconSizeLbl, 1, rowbar, 1, 1);
+
+        let dashIconSize = this.createScaleWidget(16, 96, 1, 0);
+        dashgrid.attach(dashIconSize, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a border switch
+        let dashBorderLbl = new Gtk.Label({
+            label: `Enable Border`,
+            halign: Gtk.Align.START,
+        });
+        dashgrid.attach(dashBorderLbl, 1, rowbar, 1, 1);
+
+        let dashBorderSwitch = this.createSwitchWidget('Show dash border.');
+        dashgrid.attach(dashBorderSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a shadow switch
+        let dashShadowLbl = new Gtk.Label({
+            label: `Enable Shadow`,
+            halign: Gtk.Align.START,
+        });
+        dashgrid.attach(dashShadowLbl, 1, rowbar, 1, 1);
+
+        let dashShadowSwitch = this.createSwitchWidget('Show dash shadow.');
+        dashgrid.attach(dashShadowSwitch, 2, rowbar, 1, 1);
+
+        ////////////////////////////////////////////////////////////////////
+
+        // GNOME SHELL STYLES
+
         let beyondgrid = this.createGridWidget();
 
         rowbar = 1;
 
-        // Add Extend Menu to Shell switch
-        let extMenuLbl = new Gtk.Label({
-            label: `Apply Menu Styles to Shell Pop-ups`,
-            halign: Gtk.Align.START,
+        // Gnome Shell label
+        let shellLabel = new Gtk.Label({
+            label: `<span size="large">Gnome Shell Styles</span>\n`,
+            use_markup: true,
+            halign: Gtk.Align.CENTER,
+            css_classes: ['openbar-title'],
         });
-        beyondgrid.attach(extMenuLbl, 1, rowbar, 1, 1);
-
-        let extMenuSwitch = this.createSwitchWidget('Apply Menu styles to all Shell pop-ups');
-        beyondgrid.attach(extMenuSwitch, 2, rowbar, 1, 1);
+        beyondgrid.attach(shellLabel, 1, rowbar, 2, 1);
 
         rowbar += 1;
 
-        // Add Extend Accent to Shell switch
-        let extAccentLbl = new Gtk.Label({
-            label: `[UPCOMING] Extend Accent/Colors to Shell`,
+        // Add a info label
+        let beyondLabel = new Gtk.Label({
+            label: `<span allow_breaks="true">Styles primarily derived from panel menus will be applied to shell components as selected:</span>\n`,
+            use_markup: true,
+            halign: Gtk.Align.CENTER,
+            wrap: true,
+            width_chars: 55,
+        });
+        beyondgrid.attach(beyondLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add apply Menu to notifications switch
+        let appNotifLbl = new Gtk.Label({
+            label: `Apply Menu Styles to Notifications`,
             halign: Gtk.Align.START,
         });
-        beyondgrid.attach(extAccentLbl, 1, rowbar, 1, 1);
+        beyondgrid.attach(appNotifLbl, 1, rowbar, 1, 1);
 
-        let extAccentSwitch = this.createSwitchWidget('Apply Accent, FG, BG colors to Shell components');
-        extAccentSwitch.set_sensitive(false);
-        beyondgrid.attach(extAccentSwitch, 2, rowbar, 1, 1);
+        let appNotifSwitch = this.createSwitchWidget('Apply Menu styles to notifications banners');
+        beyondgrid.attach(appNotifSwitch, 2, rowbar, 1, 1);
 
-        beyondprop.set_child(beyondgrid);
-        prefsWidget.attach(beyondprop, 1, rowNo, 2, 1);
+        rowbar += 1;
+
+        // Add apply Menu to Shell pop-ups switch
+        let appMenuLbl = new Gtk.Label({
+            label: `Apply Menu Styles to all Shell Pop-ups`,
+            halign: Gtk.Align.START,
+        });
+        beyondgrid.attach(appMenuLbl, 1, rowbar, 1, 1);
+
+        let appMenuSwitch = this.createSwitchWidget('Apply Menu styles to all Shell pop-up menus');
+        beyondgrid.attach(appMenuSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add apply Accent to Shell switch
+        let appAccentLbl = new Gtk.Label({
+            label: `Apply Accent to Shell allover`,
+            halign: Gtk.Align.START,
+        });
+        beyondgrid.attach(appAccentLbl, 1, rowbar, 1, 1);
+
+        let appAccentSwitch = this.createSwitchWidget('Apply only Accent color to Shell components');
+        beyondgrid.attach(appAccentSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add apply All styles to Shell switch
+        let appAllLbl = new Gtk.Label({
+            label: `Apply All Styles to Shell allover`,
+            halign: Gtk.Align.START,
+        });
+        beyondgrid.attach(appAllLbl, 1, rowbar, 1, 1);
+
+        let appAllSwitch = this.createSwitchWidget('Apply Accent, FG, BG colors to Shell components');
+        beyondgrid.attach(appAllSwitch, 2, rowbar, 1, 1);
 
         ////////////////////////////////////////////////////////////////////
-        rowNo += 1
 
-        let separator7 = this.createSeparatorWidget();
-        prefsWidget.attach(separator7, 1, rowNo, 2, 1);
+        // GTK / FLATPAK APPS
+
+        let appgrid = this.createGridWidget();
+
+        rowbar = 1;
+
+        // GTK FLATPAK label
+        let gtkflatpakLabel = new Gtk.Label({
+            label: `<span size="large">GTK / Flatpak Apps   🧪</span>\n`,
+            use_markup: true,
+            halign: Gtk.Align.CENTER,
+            tooltip_text: 'App theming is experimental',
+            css_classes: ['openbar-title'],
+        });
+        appgrid.attach(gtkflatpakLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add a Gtk/Flatpak info label
+        let appInfoLabel = new Gtk.Label({
+            label: `<span>This applies theme Accent Color to Gtk / Flatpak apps:\n• Set accent hint(%) for headerbar/sidebar and turn On Gtk/Flatpak below.\n• Reload the apps (or Gnome) for changes to take effect.\n• You may need to set 'theme' in apps (e.g. Terminal) to 'System' or 'Default'.</span>\n\n`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+            wrap: true,
+            margin_top: 10,
+            width_chars: 57,
+        });
+        appgrid.attach(appInfoLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add a headerbar tint scale
+        let hbHintLbl = new Gtk.Label({
+            label: `Headerbar Hint`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(hbHintLbl, 1, rowbar, 1, 1);
+
+        let hbHintScale = this.createScaleWidget(0, 100, 1, 0, 'Adds hint of Accent color to Headerbars');
+        appgrid.attach(hbHintScale, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a sidebar tint scale
+        let sbHintLbl = new Gtk.Label({
+            label: `Sidebar Hint`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(sbHintLbl, 1, rowbar, 1, 1);
+
+        let sbHintScale = this.createScaleWidget(0, 100, 1, 0, 'Adds hint of Accent color to Sidebars');
+        appgrid.attach(sbHintScale, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a sidebar transparency switch
+        let sbTransLbl = new Gtk.Label({
+            label: `Sidebar Transparency`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(sbTransLbl, 1, rowbar, 1, 1);
+
+        let sbTransSwitch = this.createSwitchWidget('Apply Sidebar Transparency');
+        appgrid.attach(sbTransSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a window border color button
+        let winBColorLbl = new Gtk.Label({
+            label: `Window Border Color`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(winBColorLbl, 1, rowbar, 1, 1);
+
+        let winBColorBtn = this.createColorWidget(window, 'Window Border Color', '', 'winbcolor');
+        appgrid.attach(winBColorBtn, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a window border alpha scale
+        let winBAlphaLbl = new Gtk.Label({
+            label: `Window Border Alpha`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(winBAlphaLbl, 1, rowbar, 1, 1);
+
+        let winBAlphaScale = this.createScaleWidget(0, 1, 0.01, 2, 'Window Border Opacity / Alpha');
+        appgrid.attach(winBAlphaScale, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a window border width scale
+        let winBWidthLbl = new Gtk.Label({
+            label: `Window Border Width`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(winBWidthLbl, 1, rowbar, 1, 1);
+
+        let winBWidthScale = this.createScaleWidget(0, 10, 0.1, 1, 'Window Border Width');
+        appgrid.attach(winBWidthScale, 2, rowbar, 1, 1);
+
+        rowbar += 2;
+
+        // Add a Gtk info label
+        let appLabel = new Gtk.Label({
+            label: `<span><b>GTK3 / GTK4</b></span>\n\n<span size="small" allow_breaks="true">⚠ Warning: This will write to 'gtk.css' under '$XDG_CONFIG_HOME/gtk-3.0/' and 'gtk-4.0'.\n    If existing gtk.css is detected, Open Bar will create a backup and restore it on disable.\n    You are advised to also take a manual backup as a failsafe.</span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+            wrap: true,
+            margin_top: 30,
+        });
+        appgrid.attach(appLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add apply Accent to Gtk switch
+        let appGtkLbl = new Gtk.Label({
+            label: `Apply to Gtk Apps`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(appGtkLbl, 1, rowbar, 1, 1);
+
+        let appGtkSwitch = this.createSwitchWidget('Apply Accent color to Gtk app components');
+        appgrid.attach(appGtkSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 2;
+
+        // Add a Flatpak info label
+        let flatLabel = new Gtk.Label({
+            label: `<span><b>FLATPAK</b></span>\n\n<span size="small" allow_breaks="true">⚠ Warning: Applies overrides to provide flatpak apps access to Gtk configs.\n    Overrides will be removed on disable.\n    Requires 'Apply to Gtk Apps' to be tunrned On.</span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+            wrap: true,
+            margin_top: 10,
+        });
+        appgrid.attach(flatLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add an apply to flatpak switch
+        let flatpakLabel = new Gtk.Label({
+            label: `Apply to Flatpak Apps`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(flatpakLabel, 1, rowbar, 1, 1);
+
+        let flatpakSwitch = this.createSwitchWidget('Apply to Flatpak app components');
+        appgrid.attach(flatpakSwitch, 2, rowbar, 1, 1);
 
         ////////////////////////////////////////////////////////////////////
 
-        rowNo += 1;
+        // IMPORT / EXPORT SETTINGS
 
-        // Add buttons to Import Settings and Export Settings
+        let iegrid = this.createGridWidget();
+        iegrid.column_spacing = 100;
+        iegrid.halign = Gtk.Align.CENTER;
+
+        rowbar = 1;
+
+        // Import Export Label
+        let ieLabel = new Gtk.Label({
+            label: `<span size="large">Import / Export Settings</span>\n\n`,
+            use_markup: true,
+            halign: Gtk.Align.CENTER,
+            css_classes: ['openbar-title'],
+        });
+        iegrid.attach(ieLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add an Import Settings button
+        let importLbl = new Gtk.Label({
+            label: `Import Open Bar Settings from a file`,
+            halign: Gtk.Align.START,
+        });
+        iegrid.attach(importLbl, 1, rowbar, 1, 1);
+
+        // Add button to Import Settings 
         const importLabel = new Gtk.Label({
             use_markup: true,
-            label: `<span>${_("Import Settings")}</span>`, 
+            label: `<span>${_("Import ⚙")}</span>`, 
         });
         const importBtn = new Gtk.Button({
             child: importLabel,
-            margin_top: 25,
+            // margin_top: 35,
             tooltip_text: _("Import theme-settings from a file"),
-            halign: Gtk.Align.START,
+            halign: Gtk.Align.END,
         });
         importBtn.connect('clicked', () => {
             this.importSettings(window);
         });
-        prefsWidget.attach(importBtn, 1, rowNo, 1, 1);
+        iegrid.attach(importBtn, 2, rowbar, 1, 1);
 
+        rowbar += 2;
+
+        // Add an Export Settings button
+        let exportLbl = new Gtk.Label({
+            label: `Export Open Bar Settings to a file`,
+            halign: Gtk.Align.START,
+        });
+        iegrid.attach(exportLbl, 1, rowbar, 1, 1);
+
+        // Add button to Export Settings
         const exportLabel = new Gtk.Label({
             use_markup: true,
-            label: `<span>${_("Export Settings")}</span>`, 
+            label: `<span>${_("Export ⚙")}</span>`, 
         });
         const exportBtn = new Gtk.Button({
             child: exportLabel,
-            margin_top: 25,
+            // margin_top: 35,
             tooltip_text: _("Export current theme-settings to a file"),
             halign: Gtk.Align.END,
         });
         exportBtn.connect('clicked', () => {
             this.exportSettings(window);
         });
-        prefsWidget.attach(exportBtn, 2, rowNo, 1, 1);
-
-
-        settingsGroup.add(prefsWidget);
+        iegrid.attach(exportBtn, 2, rowbar, 1, 1);
 
         /////////////////////////////////////////////////////////////////////
 
+        // PREFERENCES LAYOUT:
+        // Preferences Window > Prefs Page > Settings Group > Prefs Box
+        // Prefs Box  >  Title Grid
+        //               Stack Box  >   Sidebar | ScrollWindow > StackPages
+        //               Quote Box 
+
+        const scrollWindow = new Gtk.ScrolledWindow({
+            hscrollbar_policy: Gtk.PolicyType.NEVER,
+            vscrollbar_policy: Gtk.PolicyType.AUTOMATIC,
+            css_classes: ['openbar-scroll'],
+        });
+
+        let stack = new Gtk.Stack({
+            transition_type: Gtk.StackTransitionType.NONE,//ROTATE_LEFT_RIGHT,
+            hhomogeneous: true,
+            vhomogeneous: false,
+            valign: Gtk.Align.CENTER,
+            halign: Gtk.Align.CENTER,
+            // vexpand: true,
+            css_classes: ['openbar-stack'],
+        });
+        // Add pages to the stack
+        stack.add_titled(palettegrid, 'autotheme',  '✨  Auto Theming');
+        stack.add_titled(bargrid, 'barprops',       '⚌  Top Bar Properties');
+        stack.add_titled(bargridwmax, 'wmaxbar',    '⊞   Window-Max Bar');
+        stack.add_titled(fggrid, 'barfg',           '❂   Bar Foreground');
+        stack.add_titled(bggrid, 'barbg',           '●   Bar Background');
+        stack.add_titled(hgrid, 'highlights',       '✠   Bar Highlights');
+        stack.add_titled(bgrid, 'barborder',        '▣   Bar Border');
+        stack.add_titled(menugrid, 'menu',          '☰   Popup Menus');
+        stack.add_titled(dashgrid, 'dashdock',      '⏏   Dash / Dock');
+        stack.add_titled(beyondgrid, 'shell',       'ଳ      Gnome Shell');
+        stack.add_titled(appgrid, 'gtkflatpak',     '⌘  Gtk / Flatpak Apps');
+        stack.add_titled(iegrid, 'importexport',    '⧉   Import / Export Settings');
+
+        scrollWindow.set_child(stack);
+
+        let stackBox = new Gtk.Box({css_classes: ['openbar-stack-box']});
+        let sideBar = new Gtk.StackSidebar({
+            stack: stack, 
+            css_classes: ['openbar-sidebar'],     
+            vexpand: true,       
+        });
+        stackBox.append(sideBar);
+        stackBox.append(scrollWindow);
+
+        let prefsBox = new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL, 
+            css_classes: ['openbar-prefs-box'],
+        });
+        prefsBox.append(titlegrid);
+        prefsBox.append(stackBox);
+        prefsBox.append(quoteBox);
+
+        settingsGroup.add(prefsBox);
+
+        /////////////////////////////////////////////////////////////////////
 
 
         // Bind the settings to the widgets
@@ -1907,12 +2399,12 @@ class OpenbarPrefs {
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
-        this._settings.bind(
-            'set-notifications',
-            notificationsSwitch,
-            'active',
-            Gio.SettingsBindFlags.DEFAULT
-        );
+        // this._settings.bind(
+        //     'set-notifications',
+        //     notificationsSwitch,
+        //     'active',
+        //     Gio.SettingsBindFlags.DEFAULT
+        // );
         this._settings.bind(
             'mfgalpha',
             mfgAlpha.adjustment,
@@ -2010,6 +2502,12 @@ class OpenbarPrefs {
             Gio.SettingsBindFlags.DEFAULT
         );
         this._settings.bind(
+            'auto-bgalpha',
+            autoAlphaSetSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
             'smbgoverride',
             autosmbgOSwitch,
             'active',
@@ -2070,8 +2568,20 @@ class OpenbarPrefs {
             Gio.SettingsBindFlags.DEFAULT
         );
         this._settings.bind(
+            'autohg-bar',
+            autohgBarSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
             'autofg-menu',
             autofgMenuSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'autohg-menu',
+            autohgMenuSwitch,
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
@@ -2124,12 +2634,6 @@ class OpenbarPrefs {
             Gio.SettingsBindFlags.DEFAULT
         );
         this._settings.bind(
-            'extend-menu-shell',
-            extMenuSwitch,
-            'active',
-            Gio.SettingsBindFlags.DEFAULT
-        );
-        this._settings.bind(
             'set-fullscreen',
             fullscreenSwitch,
             'active',
@@ -2141,12 +2645,161 @@ class OpenbarPrefs {
         //     'active',
         //     Gio.SettingsBindFlags.DEFAULT
         // );
+        this._settings.bind(
+            'dashdock-style',
+            applyDashCombo,
+            'active-id',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'dbgalpha',
+            dashBgAlpha.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'dbradius',
+            dashbRadius.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'disize',
+            dashIconSize.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'dborder',
+            dashBorderSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'dshadow',
+            dashShadowSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'apply-menu-notif',
+            appNotifSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'apply-menu-shell',
+            appMenuSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'apply-accent-shell',
+            appAccentSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'apply-all-shell',
+            appAllSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'apply-gtk',
+            appGtkSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'headerbar-hint',
+            hbHintScale.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'sidebar-hint',
+            sbHintScale.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'sidebar-transparency',
+            sbTransSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'apply-flatpak',
+            flatpakSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'winbalpha',
+            winBAlphaScale.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'winbwidth',
+            winBWidthScale.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+
+        window.connect('unrealize', () => {
+            if(this.quoteTimeoutId) {
+                clearTimeout(this.quoteTimeoutId);
+                this.quoteTimeoutId = null;
+            }
+        });
         
+    }
+
+    setQuoteLabel(quoteLabel) {
+        this.animateQuote(quoteLabel, this.quoteBlank);
+        const timeout = this.quoteBlank? 500 : 10500;
+        if(this.quoteTimeoutId)
+            clearTimeout(this.quoteTimeoutId);
+        this.quoteTimeoutId = setTimeout(() => {
+            this.setQuoteLabel(quoteLabel);
+        }, timeout);
+        this.quoteBlank = !this.quoteBlank;
+    }
+
+    animateQuote(quoteLabel, blank) {
+        if(blank) {
+            quoteLabel.label = '';
+            return;
+        }
+        if(this.quoteIdx >= this.quotes.length - 1)
+            this.quoteIdx = 0;
+        quoteLabel.label = `<span size="medium" allow_breaks="true">${this.quotes[this.quoteIdx++]}</span>`;
+    }
+
+    shuffleQuotes() {
+        // Shuffle this.quotes array randomly
+        for (let i = this.quotes.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.quotes[i], this.quotes[j]] = [this.quotes[j], this.quotes[i]];
+        }
+        this.quoteIdx = 0;
+    }
+
+    loadQuotesFromFile() { 
+        const file = Gio.File.new_for_path(Me.path + '/media/OpenBarQuotes.txt');
+        const [ok, contents, etag] = file.load_contents(null);
+        const decoder = new TextDecoder('utf-8');
+        const quotesString = decoder.decode(contents);
+        this.quotes = quotesString.split('\n');
+        this.shuffleQuotes();
+        // console.log('QUTES: ' + this.quotes);
     }
 
     importSettings(window) {
         let fileChooser = new Gtk.FileChooserDialog({
-            title: _("Import Settings Profile"),
+            title: _("Import Settings for Open Bar Theme"),
             action: Gtk.FileChooserAction.OPEN,
             transient_for: window,
         });
@@ -2160,13 +2813,13 @@ class OpenbarPrefs {
             let bguri = this._settings.get_string('bguri');
             // Save prominent and palette colors from the current/valid background
             let currentPaletteArr = [];
-            for(let i=1; i<=18; i++) {
-                if(i<=6) {
-                    currentPaletteArr.push(this._settings.get_strv('prominent'+i));
-                }
-                else {
-                    currentPaletteArr.push(this._settings.get_strv('palette'+(i-6)));
-                }
+            for(let i=1; i<=12; i++) {
+                // if(i<=6) {
+                //     currentPaletteArr.push(this._settings.get_strv('prominent'+i));
+                // }
+                // else {
+                    currentPaletteArr.push(this._settings.get_strv('palette'+i));
+                // }
             }
            
             // Load settings from file
@@ -2194,14 +2847,14 @@ class OpenbarPrefs {
                     // Replace BG uri with saved uri and update background palette
                     this._settings.set_string('bguri', bguri);
 
-                    // Restore background palettes
-                    for(let i=1; i<=18; i++) {
-                        if(i<=6) {
-                            this._settings.set_strv('prominent'+i, currentPaletteArr[i-1]);
-                        }
-                        else {
-                            this._settings.set_strv('palette'+(i-6), currentPaletteArr[i-1]);
-                        }
+                    // Restore background palette
+                    for(let i=1; i<=12; i++) {
+                        // if(i<=6) {
+                        //     this._settings.set_strv('prominent'+i, currentPaletteArr[i-1]);
+                        // }
+                        // else {
+                            this._settings.set_strv('palette'+i, currentPaletteArr[i-1]);
+                        // }
                     }
                 
                     // Disable import/export pause to enable style reload
@@ -2221,7 +2874,7 @@ class OpenbarPrefs {
 
     exportSettings(window) {
         let fileChooser = new Gtk.FileChooserDialog({
-            title: _("Export Settings Profile"),
+            title: _("Export Settings for Open Bar Theme"),
             action: Gtk.FileChooserAction.SAVE,
             transient_for: window,
         });

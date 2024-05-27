@@ -2,5 +2,6 @@
 <g transform="translate(0 -291.18)">
 <rect style="fill:#999;stroke:none;stroke-width:1;marker:none;fill-opacity:0.5" width="44" height="18" x="-44" y="295.18" ry="9" rx="9" transform="scale(-1 1)"/>
 <rect ry="11" rx="11" y="293.18" x="-23" height="22" width="22" style="stroke:none;stroke-width:.999999;marker:none" fill="#f8f7f7" transform="scale(-1 1)"/>
+<rect ry="10" rx="10" y="299.68" x="30" height="9" width="9" style="fill:none;fill-opacity:1;stroke:#f8f7f7;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker:none" fill="#f8f7f7" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 </svg>

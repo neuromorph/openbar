@@ -31,6 +31,7 @@ const Quantize = Me.imports.quantize;
 const AutoThemes = Me.imports.autothemes;
 const StyleSheets = Me.imports.stylesheets;
 
+
 // ConnectManager class to manage connections for events to trigger Openbar style updates
 // This class is modified from Floating Panel extension (Thanks Aylur!)
 class ConnectManager{
@@ -88,32 +89,23 @@ class Extension {
         this._injections = [];
     }
 
-    backgroundPalette() {
-        // Get the latest background image file (from picture-uri Or picture-uri-dark)
-        let pictureUri = this._settings.get_string('bguri');
-        let pictureFile = Gio.File.new_for_uri(pictureUri);
-    
+    // Generate a color palette from desktop background image
+    getPaletteFromImage(pictureUri) {
+        let pictureFile = Gio.File.new_for_uri(pictureUri);        
         // Load the image into a pixbuf
-        let pixbuf = GdkPixbuf.Pixbuf.new_from_file(pictureFile.get_path());
+        let pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(pictureFile.get_path(), 1000, -1);
         let nChannels = pixbuf.n_channels;
     
         // Get the width, height and pixel count of the image
         let width = pixbuf.get_width();
         let height = pixbuf.get_height();
         let pixelCount = width*height;
-        let offset;
-
-        // Sample about a million pixels to quantize
-        if(pixelCount <= 1000000)
-            offset = 1;
-        else
-            offset = parseInt(pixelCount/1000000);
+        let offset = 1;
 
         // Get the pixel data as an array of bytes
         let pixels = pixbuf.get_pixels();
     
-        let pixelArray = [];
-    
+        let pixelArray = [];    
         // Loop through the pixels and get the rgba values
         for (let i = 0, index, r, g, b, a; i < pixelCount; i = i + offset) {
             index = i * nChannels;
@@ -129,44 +121,104 @@ class Extension {
             if (typeof a === 'undefined' || a >= 125) {
                 if (!(r > 250 && g > 250 && b > 250) && !(r < 5 && g < 5 && b < 5)) {
                     pixelArray.push([r, g, b]);
+                    // pixelArray.push(Material.argbFromRgb(r, g, b));
                 }
             }
         }
         // console.log('pixelCount, pixelarray len ', pixelCount, pixelArray.length);
     
-        // Generate color palette of 6 colors using Quantize to get prominant colors
-        const cmap6 = Quantize.quantize(pixelArray, 6);
-        const palette6 = cmap6? cmap6.palette() : null;
-
-        let i = 1;
-        palette6?.forEach(color => {
-            this._settings.set_strv('prominent'+i, [String(color[0]), String(color[1]), String(color[2])]);
-            i++;
-        });
-
         // Generate color palette of 12 colors using Quantize to possibly get all colors for color-button
         const cmap12 = Quantize.quantize(pixelArray, 12);
         const palette12 = cmap12? cmap12.palette() : null;
-    
-        i = 1;
-        palette12?.forEach(color => {
-            this._settings.set_strv('palette'+i, [String(color[0]), String(color[1]), String(color[2])]);
-            i++;
-        });
+        const count12 = cmap12? cmap12.colorCounts() : null;
 
-        // Toggle setting 'bg-change' to indicate background change
-        let bgchange = this._settings.get_boolean('bg-change');
-        if(bgchange)
-            this._settings.set_boolean('bg-change', false);
-        else
-            this._settings.set_boolean('bg-change', true);
+        // Sort palette12 and count12 arrays by count descending
+        palette12?.sort((a, b) => count12[palette12.indexOf(b)] - count12[palette12.indexOf(a)]);
+        count12?.sort((a, b) => b - a);
+        // console.log('palette12 sorted ', palette12, 'count12 sorted ', count12);
 
-        // Apply auto theme for new background palette if auto-refresh enabled and theme-variation set
-        const theme = this._settings.get_string('autotheme');
-        const variation = this._settings.get_string('variation');
-        const autoRefresh = this._settings.get_boolean('autotheme-refresh')
-        if(autoRefresh && theme != 'Select Theme' && variation != 'Select Variation')
-            AutoThemes.autoApplyBGPalette(this);
+        return [palette12, count12];
+    }
+    backgroundPalette() { /////////////////////CHECK if BOTH uri and dark-uri are SAME
+        // Get the latest background image file (from picture-uri Or picture-uri-dark)
+        let pictureUriDark = this._settings.get_string('dark-bguri');
+        let pictureUriLight = this._settings.get_string('light-bguri');
+        const mode = this._intSettings.get_string('color-scheme');
+        let uriArr, sameUri = false, darklight, palette12, count12;
+        uriArr = [pictureUriDark, pictureUriLight];
+        if(pictureUriDark == pictureUriLight) {
+            sameUri = true;
+            // uriArr = [pictureUriDark];
+            // darklight = 'both';
+        } 
+        // else {
+        //     uriArr = [pictureUriDark, pictureUriLight];
+        //     // darklight = (mode == 'prefer-dark') ? 'dark' : 'light';
+        // }
+
+        for(let i = 0; i < uriArr.length; i++) {
+            // if(darklight != 'both')
+            darklight = (i==0) ? 'dark' : 'light';
+            let pictureUri = uriArr[i];            
+            
+            if(pictureUri.endsWith('.xml')) 
+                continue;
+
+            if(!sameUri || i == 0) {
+                [palette12, count12] = this.getPaletteFromImage(pictureUri);
+            }
+        
+            // Save palette and counts to settings
+            // let i = 1, modePrefix = (mode == 'prefer-dark') ? 'dark-' : 'light-';
+            let paletteIdx = 1, prefixArr = [];
+            // if(darklight == 'both')
+            //     prefixArr = ['dark-', 'light-'];
+            // else
+                // prefixArr = [darklight+'-'];
+            // if(sameUri || 
+            //   (darklight == 'dark' && mode == 'prefer-dark') || 
+            //   (darklight == 'light' && mode != 'prefer-dark'))
+            //     prefixArr.push('');
+            // prefixArr.forEach(modePrefix => {
+                palette12?.forEach(color => {
+                    this._settings.set_strv(darklight+'-'+'palette'+paletteIdx, [String(color[0]), String(color[1]), String(color[2])]);
+
+                    if( (sameUri && i == 0) || 
+                        (darklight == 'dark' && mode == 'prefer-dark') || 
+                        (darklight == 'light' && mode != 'prefer-dark'))
+                        this._settings.set_strv('palette'+paletteIdx, [String(color[0]), String(color[1]), String(color[2])]);
+
+                    paletteIdx++;
+                });
+            // });
+            let countIdx = 1;
+            count12?.forEach(count => {
+                this._settings.set_int('count'+countIdx, count12[countIdx-1]);
+                countIdx++;
+            });
+
+            // Toggle setting 'bg-change' to update palette in preferences window
+            if( (sameUri && i == 0) || 
+                (darklight == 'dark' && mode == 'prefer-dark') || 
+                (darklight == 'light' && mode != 'prefer-dark')) {
+                let bgchange = this._settings.get_boolean('bg-change');
+                if(bgchange)
+                    this._settings.set_boolean('bg-change', false);
+                else
+                    this._settings.set_boolean('bg-change', true);
+            }
+
+            // Apply auto theme for new background palette if auto-refresh enabled and theme set for current mode
+            const autoRefresh = this._settings.get_boolean('autotheme-refresh');
+            let theme;
+            if(darklight == 'dark')
+                theme = this._settings.get_string('autotheme-dark');
+            else
+                theme = this._settings.get_string('autotheme-light');
+            if(autoRefresh && theme != 'Select Theme') {
+                AutoThemes.autoApplyBGPalette(this, darklight);
+            }
+        }
     }
     
     _injectToFunction(parent, name, func) {
@@ -214,6 +266,31 @@ class Extension {
         }        
     }
 
+    unloadStylesheet() {
+        const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
+        const stylesheetFile = Me.dir.get_child('stylesheet.css');
+        try { 
+            theme.unload_stylesheet(stylesheetFile); 
+            delete Me.stylesheet;
+        } catch (e) {
+            console.log('Openbar: Error unloading stylesheet: ');
+            throw e;
+        }
+    }
+
+    loadStylesheet() {
+        const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
+        const stylesheetFile = Me.dir.get_child('stylesheet.css');
+        try {
+            theme.load_stylesheet(stylesheetFile);
+            Me.stylesheet = stylesheetFile;
+        } catch (e) {
+            console.log('Openbar: Error loading stylesheet: ');
+            throw e;
+        }
+        
+    }
+
     reloadStylesheet() {
         // Unload stylesheet
         this.unloadStylesheet();
@@ -222,7 +299,7 @@ class Extension {
         this.loadStylesheet();        
     }
 
-    // Add or renove 'openmenu' class
+    // Add or remove 'openmenu' class
     applyMenuClass(obj, add) {
         if(!obj)
             return;
@@ -375,32 +452,12 @@ class Extension {
     }
 
     applyCalendarGridStyle(item, add) { // calendar days grid with week numbers
-        // item = Main.panel.statusArea.dateMenu._calendar;
         for(let i=0; i<8; i++) {
             for(let j=0; j<8; j++) {
                 const child = item.layout_manager.get_child_at(i, j);
                 this.applyMenuClass(child, add);
              }
         }
-    }
-
-    setPanelBoxPosition(position, height, margin, borderWidth, bartype) {
-        let panelMonitor = this.getPanelMonitor()[0];
-        let panelBox = Main.layoutManager.panelBox; 
-        if(position == 'Top') {       
-            let topX = panelMonitor.x;
-            let topY = panelMonitor.y;
-            panelBox.set_position(topX, topY);
-            panelBox.set_size(panelMonitor.width, -1);        
-        }
-        else if(position == 'Bottom') {
-            margin = (bartype == 'Mainland')? 0: margin;
-            borderWidth = (bartype == 'Trilands' || bartype == 'Islands')? 0: borderWidth;  
-            let bottomX = panelMonitor.x;
-            let bottomY = panelMonitor.y + panelMonitor.height - height - 2*borderWidth - 2*margin;
-            panelBox.set_position(bottomX, bottomY);
-            panelBox.set_size(panelMonitor.width, height + 2*borderWidth + 2*margin);
-        }        
     }
 
     updatePanelStyle(obj, key, sig_param, callbk_param) { 
@@ -411,7 +468,8 @@ class Extension {
         if(!this._settings)
             return;
 
-        if(key.startsWith('palette') || key.startsWith('prominent'))
+        if(key.startsWith('palette') || key.startsWith('prominent') ||
+            key.startsWith('dark-') || key.startsWith('light-'))
             return;
 
         // Generate background color palette
@@ -420,7 +478,8 @@ class Extension {
             if(!importExport) {
                 if(key == 'bgpalette')
                     this.updateBguri();
-                this.backgroundPalette();
+                else
+                    this.backgroundPalette();
             }
             return;
         }
@@ -435,11 +494,23 @@ class Extension {
         }
 
         if(key == 'trigger-autotheme') {
-            AutoThemes.autoApplyBGPalette(this);
+            AutoThemes.autoApplyBGPalette(this, 'dark');
+            AutoThemes.autoApplyBGPalette(this, 'light');
+            return;
+        }
+
+        if(callbk_param == 'color-scheme') {
+            AutoThemes.onModeChange(this);
             return;
         }
 
         if(key == 'trigger-reload') {
+            StyleSheets.reloadStyle(this, Me);
+            return;
+        }
+
+        // Reload stylesheet on session-mode-updated (only needed for unlock-dialog)
+        if(callbk_param == 'session-mode-updated' || callbk_param == 'high-contrast') {
             StyleSheets.reloadStyle(this, Me);
             return;
         }
@@ -451,21 +522,16 @@ class Extension {
 
         let position = this._settings.get_string('position');
         let setOverview = this._settings.get_boolean('set-overview');
-        if(key == 'showing') {
-            if(!setOverview) { // Reset in overview, if 'overview' style disabled
-                    this.resetStyle(panel);
-                this.setPanelBoxPosition(position, panel.height, 0, 0, 'Mainland');
-            }
-            else {
+        if(key == 'showing' || panel.has_style_pseudo_class('overview')) {
+            if(setOverview) {
                 if(this.isObarReset) { // Overview style is enabled but obar was reset due to Fullscreen
                     this.loadStylesheet();
                     this.isObarReset = false;
                 }
-                this.setWindowMaxBar('showing');
             }
             return;           
         }
-        else if(key == 'hiding') {                 
+        else if(key == 'hiding') {   
             if(this.styleUnloaded) {
                 this.loadStylesheet();
                 this.styleUnloaded = false;
@@ -490,6 +556,17 @@ class Extension {
         if(key == 'reloadstyle') { // A toggle key to trigger update for reload stylesheet
             this.reloadStylesheet();
         }
+
+        if(key == 'apply-gtk' || key == 'headerbar-hint' || key == 'sidebar-hint' 
+        || key == 'sidebar-transparency' || key == 'mscolor' || key == 'msalpha') {
+            // console.log('Call saveGtkCss from extension for key: ', key);
+            this.gtkCSS = true;
+            if(key != 'mscolor' && key != 'msalpha')
+                StyleSheets.saveGtkCss(this, 'enable');
+        }
+        if(key == 'apply-flatpak') {
+            StyleSheets.saveFlatpakOverrides(this, 'enable');
+        }
         
         let menustyle = this._settings.get_boolean('menustyle');
         if(['reloadstyle', 'removestyle', 'menustyle'].includes(key) ||
@@ -502,12 +579,15 @@ class Extension {
             this.msSVG = true;
             this.smfgSVG = true;
         }
-        else if(key == 'mbgcolor' || key == 'smbgcolor' || key == 'smbgoverride') {
-            this.bgSVG = true;
+        else if(key == 'mfgcolor' || key == 'mbgcolor' || key == 'smbgcolor' || key == 'smbgoverride') {
             this.smfgSVG = true;
         }
-        else if(key == 'mfgcolor') {
-            this.smfgSVG = true;
+        else if(key == 'mhcolor') {
+            this.mhSVG = true;
+        }
+
+        if(key == 'font') {
+            this._settings.set_boolean('autotheme-font', false);
         }
 
         let menuKeys = ['trigger-reload', 'reloadstyle', 'removestyle', 'menustyle', 'mfgcolor', 'mfgalpha', 'mbgcolor', 'mbgaplha', 'mbcolor', 'mbaplha', 
@@ -515,7 +595,7 @@ class Extension {
         let barKeys = ['bgcolor', 'gradient', 'gradient-direction', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'bcolor', 'balpha', 'bradius', 
         'bordertype', 'shcolor', 'shalpha', 'iscolor', 'isalpha', 'neon', 'shadow', 'font', 'default-font', 'hcolor', 'halpha', 'heffect', 'bgcolor-wmax', 
         'bgalpha-wmax', 'neon-wmax', 'boxcolor', 'boxalpha', 'autofg-bar', 'autofg-menu', 'width-top', 'width-bottom', 'width-left', 'width-right',
-        'radius-topleft', 'radius-topright', 'radius-bottomleft', 'radius-bottomright', 'extend-menu-shell'];
+        'radius-topleft', 'radius-topright', 'radius-bottomleft', 'radius-bottomright', 'apply-menu-shell'];
         let keys = [...barKeys, ...menuKeys, 'autotheme', 'variation', 'autotheme-refresh', 'accent-override', 'accent-color'];
         if(keys.includes(key)) {
             return;
@@ -629,16 +709,16 @@ class Extension {
         });
     }
 
+    // Find the monitor which has the panel/panelBox
     getPanelMonitor() {
-        // Find out index of the monitor which has the panel/panelBox
         let panelMonIndex = 0;
         const LM = Main.layoutManager;
         const monitors = LM.monitors;
         const panelBox = LM.panelBox;
         for(let i=0; i<monitors.length; i++) {
             let monitor = monitors[i];  
-            if(panelBox.x >= monitor.x && panelBox.x <= (monitor.x + monitor.width) &&
-                panelBox.y >= monitor.y && panelBox.y <= (monitor.y + monitor.height)) {
+            if(panelBox.x >= monitor.x && panelBox.x < (monitor.x + monitor.width) &&
+                panelBox.y >= monitor.y && panelBox.y < (monitor.y + monitor.height)) {
                 panelMonIndex = i; 
                 break;
             }
@@ -646,8 +726,28 @@ class Extension {
         return [monitors[panelMonIndex], panelMonIndex];
     }
 
-    setPanelBoxPosWindowMax(wmax, signal) {
-        // Need to set panelBox position since bar margins/height can change with WMax
+    setPanelBoxPosition(position, height, margin, borderWidth, bartype) {
+        let panelMonitor = this.getPanelMonitor()[0];
+        let panelBox = Main.layoutManager.panelBox; 
+        if(position == 'Top') {       
+            let topX = panelMonitor.x;
+            let topY = panelMonitor.y;
+            panelBox.set_position(topX, topY);
+            panelBox.set_size(panelMonitor.width, -1);        
+        }
+        else if(position == 'Bottom') {
+            margin = (bartype == 'Mainland')? 0: margin;
+            borderWidth = (bartype == 'Trilands' || bartype == 'Islands')? 0: borderWidth;  
+            let bottomX = panelMonitor.x;
+            let bottomY = panelMonitor.y + panelMonitor.height - height - 2*borderWidth - 2*margin;
+            panelBox.set_position(bottomX, bottomY);
+            panelBox.set_size(panelMonitor.width, height + 2*borderWidth + 2*margin);
+        }        
+    }
+
+    // Set panelbox position for window max
+    // Need to set panelBox position since bar margins/height can change with WMax
+    setPanelBoxPosWindowMax(wmax, signal) {        
         const position = this._settings.get_string('position');
         if(position == 'Bottom') {
             if(this.position == position && this.wmax == wmax && signal != 'cust-margin-wmax')
@@ -673,11 +773,14 @@ class Extension {
         }
     }
 
-    setWindowMaxBar(signal) {
-        if(!this._settings)
+    // Check for maximized window on Panel monitor
+    setWindowMaxBar(obj, signal, sig2) {
+        // Retain wmax status as-is in Overview (do nothing here)
+        if(!this._settings || Main.panel.has_style_pseudo_class('overview'))
             return;
+
         const wmaxbar = this._settings.get_boolean('wmaxbar');
-        if(!wmaxbar || Main.panel.has_style_pseudo_class('overview')) {
+        if(!wmaxbar) {
             if(Main.panel.has_style_pseudo_class('windowmax')) {
                 Main.panel.remove_style_pseudo_class('windowmax');
                 this.setPanelBoxPosWindowMax(false, signal);
@@ -689,17 +792,18 @@ class Extension {
         let panelMonIndex = this.getPanelMonitor()[1];
 
         // Get valid windows maximized on the monitor with panel
-        const workspace = global.workspace_manager.get_active_workspace();
-        const windows = workspace.list_windows().filter(window =>
+        const workspace = global.workspace_manager.get_active_workspace(); 
+        const windows = workspace.list_windows().filter(window => 
             window.get_monitor() == panelMonIndex && 
             window.showing_on_its_workspace() && 
             !window.is_hidden() && 
-            window.get_window_type() !== Meta.WindowType.DESKTOP && 
-            // exclude Desktop Icons NG
-            window.get_gtk_application_id() !== "com.rastersoft.ding" && 
-            (window.maximized_horizontally 
-                || window.maximized_vertically) 
+            window.get_window_type() !== Meta.WindowType.DESKTOP && // exclude Desktop
+            window.get_gtk_application_id() !== "com.rastersoft.ding" && // exclude Desktop Icons NG
+            (window.maximized_horizontally || window.maximized_vertically) &&
+            !window.fullscreen
         );
+        // for(const window of windows)
+        //     console.log('window:', window.get_gtk_application_id());
 
         if(windows.length) {
             Main.panel.add_style_pseudo_class('windowmax');
@@ -744,6 +848,7 @@ class Extension {
         this.setWindowMaxBar(this.removedSignal);
     }
 
+    // Connect/disconnect window signals based on Window-Max bar On/Off
     onWindowMaxBar() {
         let wmaxbar = this._settings.get_boolean('wmaxbar');
         if(wmaxbar) {
@@ -774,36 +879,13 @@ class Extension {
         this._windowSignals = null;
     }
 
-    unloadStylesheet() {
-        const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        const stylesheetFile = Me.dir.get_child('stylesheet.css');
-        try { 
-            theme.unload_stylesheet(stylesheetFile); 
-            delete Me.stylesheet;
-        } catch (e) {
-            console.log('Openbar: Error unloading stylesheet: ');
-            throw e;
-        }
-    }
-
-    loadStylesheet() {
-        const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        const stylesheetFile = Me.dir.get_child('stylesheet.css');
-        try {
-            theme.load_stylesheet(stylesheetFile);
-            Me.stylesheet = stylesheetFile;
-        } catch (e) {
-            console.log('Openbar: Error loading stylesheet: ');
-            throw e;
-        }
-        
-    }
-
     onFullScreen(obj, signal, sig_param, timeout = 0) {
         if(this._settings.get_boolean('set-fullscreen'))
             return;
 
-        this.onFullScrTimeoutId = setTimeout(() => { // Timeout to allow other extensions to move panel to another monitor
+        this.onFullScrTimeoutId = 
+        // Timeout to allow other extensions to move panel to another monitor
+        setTimeout(() => { 
             // Check if panelBox is on the monitor which is in fullscreen
             const LM = Main.layoutManager;
             let panelBoxMonitor = this.getPanelMonitor()[0];
@@ -823,26 +905,46 @@ class Extension {
         }, timeout);
     }
 
-    updateBguri(obj, signal) {
-        const colorScheme = this._intSettings.get_string('color-scheme');
+    updateBguri(obj, signal) { 
+        // console.log('update bguri called for signal ', signal);
+        // If the function is triggered multiple times in succession, ignore till timeout 
+        if(this.updatingBguri)
+            return;
+        this.updatingBguri = true;
+        this.updatingBguriId = setTimeout(() => {this.updatingBguri = false;}, 300);
+
+        let colorScheme = this._intSettings.get_string('color-scheme');
+        if(colorScheme != this.colorScheme) {
+            this.colorScheme = colorScheme;
+            return;
+        }
+        // this._settings.set_string('color-scheme', this.colorScheme);
+        
         let bguriOld = this._settings.get_string('bguri');
         let bguriNew;
-        if(colorScheme == 'prefer-dark')
+        if(this.colorScheme == 'prefer-dark') {
             bguriNew = this._bgSettings.get_string('picture-uri-dark');
-        else
+        }
+        else {
             bguriNew = this._bgSettings.get_string('picture-uri');
+        }
         
+        this._settings.set_string('dark-bguri', this._bgSettings.get_string('picture-uri-dark'));
+        this._settings.set_string('light-bguri', this._bgSettings.get_string('picture-uri'));
+        this._settings.set_string('bguri', bguriNew);
         // Gnome45+: if bgnd changed with right click on image file, 
         // filepath (bguri) remains same, so manually call updatePanelStyle
         if(bguriOld == bguriNew)
             this.updatePanelStyle(this._settings, 'bguri');
-        else
-            this._settings.set_string('bguri', bguriNew);
     }
 
+    // Connect multiple signals to ensure detecting background-change in all Gnome versions
     connectPrimaryBGChanged() {
         const pMonitorIdx = Main.layoutManager.primaryIndex;
         this._connections.connect(Main.layoutManager._bgManagers[pMonitorIdx], 'changed', this.updateBguri.bind(this));
+        this._connections.connect(this._bgSettings, 'changed::picture-uri', this.updateBguri.bind(this));
+        this._connections.connect(this._bgSettings, 'changed::picture-uri-dark', this.updateBguri.bind(this));
+        this._connections.connect(this._intSettings, 'changed::color-scheme', this.updatePanelStyle.bind(this), 'color-scheme');
     }
 
     enable() {
@@ -853,41 +955,49 @@ class Extension {
         // Get the top panel
         let panel = Main.panel;
 
+        this.main = Main;
         this.msSVG = true;
-        this.bgSVG = true;
+        this.mhSVG = true;
         this.smfgSVG = true;
+        this.gtkCSS = true;
         this.position = null;
         this.wmax = null;
         this.isObarReset = false;
         this.addedSignal = this.gnomeVersion > 45? 'child-added': 'actor-added';
         this.removedSignal = this.gnomeVersion > 45? 'child-removed': 'actor-removed';
         this.calendarTimeoutId = null;
-        this.panelPosTimeoutId = null;
+        this.updatingBguriId = null;
         this.bgMgrTimeOutId = null;
         this.onFullScrTimeoutId = null;
         this.msgLists = [];
         this.msgListIds = [];
         this.styleUnloaded = false;
+        this.updatingBguri = false;
 
         // Settings for desktop background image (set bg-uri as per color scheme)
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
         this._intSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
+        this._hcSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.a11y.interface' });
+
+        this.colorScheme = this._intSettings.get_string('color-scheme');
         
         this._settings = ExtensionUtils.getSettings();  
         // Connect to the settings changes
         this._settings.connect('changed', (settings, key) => {
             this.updatePanelStyle(settings, key);
         });
-
+        
         let connections = [
             [ Main.overview, 'hiding', this.updatePanelStyle.bind(this) ],
             [ Main.overview, 'showing', this.updatePanelStyle.bind(this) ],
             [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this) ],
             [ Main.layoutManager, 'monitors-changed', this.updatePanelStyle.bind(this) ],
             [ Main.messageTray._bannerBin, this.addedSignal, this.updatePanelStyle.bind(this), 'message-banner' ],
-            [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this), 50 ],
+            [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this), 100 ],
             [ global.display, 'window-entered-monitor', this.setWindowMaxBar.bind(this), 'window-entered-monitor' ],
             [ global.display, 'window-left-monitor', this.setWindowMaxBar.bind(this), 'window-left-monitor' ],
+            [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this), 'session-mode-updated' ],
+            [ this._hcSettings, 'changed::high-contrast', this.updatePanelStyle.bind(this), 'high-contrast' ],
         ];
         // Connections for actor-added/removed OR child-added/removed as per Gnome version
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
@@ -944,8 +1054,10 @@ class Extension {
         let menustyle = this._settings.get_boolean('menustyle');
         this.applyMenuStyles(panel, menustyle);
 
-        // Cause stylesheet to save and reload on Enable
+        // Cause stylesheet to save and reload on Enable (also creates gtk css)
         StyleSheets.reloadStyle(this, Me);
+        // Add Open Bar Flatpak Overrides
+        StyleSheets.saveFlatpakOverrides(this, 'enable');
 
         // Set initial Window Max Bar
         this.onWindowMaxBar();
@@ -967,16 +1079,14 @@ class Extension {
             clearTimeout(this.calendarTimeoutId);
             this.calendarTimeoutId = null;
         }
-        if(this.panelPosTimeoutId) {
-            clearTimeout(this.panelPosTimeoutId);
-            this.panelPosTimeoutId = null;
-        }        
-
+        if(this.updatingBguriId) {
+            clearTimeout(this.updatingBguriId);
+            this.updatingBguriId = null;
+        }
         if(this.bgMgrTimeOutId) {
             clearTimeout(this.bgMgrTimeOutId);
             this.bgMgrTimeOutId = null;
         }
-
         if(this.onFullScrTimeoutId) {
             clearTimeout(this.onFullScrTimeoutId);
             this.onFullScrTimeoutId = null;
@@ -998,13 +1108,18 @@ class Extension {
         // Reset the style for Panel and Menus
         this.resetStyle(panel);
         this.applyMenuStyles(panel, false);
-        // Reset panel position to Top
+        // Reset panel and banner position to Top
         this.setPanelBoxPosition('Top');
         Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
+        // Clear Gtk css and Flatpak override
+        StyleSheets.saveGtkCss(this, 'disable');
+        StyleSheets.saveFlatpakOverrides(this, 'disable');
 
+        this.main = null;
         this._settings = null;
         this._bgSettings = null;
         this._intSettings = null;
+        this._hcSettings = null;
     }
     
 }
