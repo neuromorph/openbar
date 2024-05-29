@@ -758,7 +758,8 @@ class Extension {
             for(const [windowActor, ids] of this._windowSignals) {
                 for(const id of ids) {
                     console.log('OpenBar: DisconnectWindowSignals: ', id);
-                    windowActor.disconnect(id);
+                    if(windowActor && id > 0)
+                        windowActor.disconnect(id);
                 }
             }
         }
