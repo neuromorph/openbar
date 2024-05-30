@@ -313,29 +313,35 @@ function createGtkCss(obar) {
 
     window,
     decoration,
-    decoration-overlay  {
+    decoration-overlay {
         border: ${winBWidth}px solid rgba(${winBRed}, ${winBGreen}, ${winBBlue}, ${winBAlpha});
     }
     window:backdrop,
     decoration:backdrop,
-    decoration-overlay:backdrop   {
+    decoration-overlay:backdrop {
         border: ${winBWidth}px solid rgba(${winBRedBd}, ${winBGreenBd}, ${winBBlueBd}, ${winBAlpha});
     }
     window.maximized,
     window.maximized > decoration,
-    window.maximized > decoration-overlay   {    
+    window.maximized > decoration-overlay,
+    tooltip > decoration, tooltip > decoration-overlay {    
         border: none;
         /*border-radius: 0px;*/
     }
+    /*window, 
+    decoration,
+    decoration-overlay {
+        border-radius: 20px;
+    }*/
     `;
 
     if(sBarTransparency) {
         gtkstring += `
         window {
-            background-color: alpha(@window_bg_color, 0.85);
+            background-color: alpha(@window_bg_color, 0.95);
         }
         .content-pane, 
-        scrolledwindow>viewport, 
+        .view, .nautilus-window.view, 
         grid>box {
             background-color: alpha(@view_bg_color, 1.0);
         }
@@ -365,7 +371,7 @@ export function saveGtkCss(obar, caller) {
                 const file = Gio.File.new_for_path(dir.get_path());
                 file.make_directory_with_parents(null);
             } catch (e) {
-                console.error('Error creating gtk config: ' + e);
+                console.error('Error creating gtk config directory: ' + e);
             }
         }
         
@@ -390,10 +396,9 @@ export function saveGtkCss(obar, caller) {
             }            
         }        
 
-        // let source, destination;
         if(caller == 'disable' || !applyGtk) {
             if(isGtkOpenBar && isBackupOpenBar) {
-                try {
+                try { // Restore backup
                     backup.move(file, Gio.FileCopyFlags.OVERWRITE, null, null);
                 } 
                 catch (e) {
@@ -410,7 +415,7 @@ export function saveGtkCss(obar, caller) {
             }
         }
         else if(applyGtk) {
-            if(isGtk && !isGtkOpenBar) { log('backup gtk.css');
+            if(isGtk && !isGtkOpenBar) { // log('backup gtk.css');
                 try {
                     file.move(backup, Gio.FileCopyFlags.OVERWRITE, null, null);
                 }
@@ -941,10 +946,9 @@ function saveStylesheet(obar, Me) {
     if(widthBottom) borderStyle += ` border-bottom-width: ${borderWidth}px; `;
     if(widthLeft) borderStyle += ` border-left-width: ${borderWidth}px; `;
     
-    // radiusStyle = 
-    // ` border-radius: 0px; `;
     let rTopLeft, rTopRight, rBottomLeft, rBottomRight;
     // Limit on max border radius (border grows inwards for Islands. '-1' for sub-pixel rounding)
+    // Limit is needed for proper rendering of border and neon shadow
     let bWidthRound = Math.ceil(borderWidth);
     if(borderRadius > height/2 - bWidthRound - 1) 
         borderRadius = Math.floor(height/2 - bWidthRound - 1);
@@ -995,6 +999,7 @@ function saveStylesheet(obar, Me) {
     ` background-color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}) !important; `;
 
     // Add font style to panelstyle (works on all bar types)
+    let font_weight = 400;
     if (font != ""){
         let font_desc = Pango.font_description_from_string(font); 
         let font_family = font_desc.get_family();
@@ -1002,21 +1007,15 @@ function saveStylesheet(obar, Me) {
         let font_style = font_style_arr[font_desc.get_style()];
         let font_stretch_arr = ['ultra-condensed', 'extra-condensed', 'condensed', 'semi-condensed', 'normal', 'semi-expanded', 'expanded', 'extra-expanded', 'ultra-expanded'];
         let font_stretch = font_stretch_arr[font_desc.get_stretch()];
-        let font_size = font_desc.get_size() / Pango.SCALE;
-        let font_weight;
+        let font_size = font_desc.get_size() / Pango.SCALE;        
         try{
             font_weight = font_desc.get_weight();
         }catch(e){
             font_weight = Math.round(font_weight/100)*100;
         }
-        // Apply semi-bold if font weight is less than 500 when auto-theme is applied
-        let autothemeApplied = obar._settings.get_boolean('autotheme-font');
-        if(autothemeApplied && font_weight < 500)
-            font_weight = 500;
-
+        
         fontStyle = 
         `   font-size: ${font_size}pt; 
-            font-weight: ${font_weight};
             font-family: "${font_family}"; 
             font-style: ${font_style}; 
             font-stretch: ${font_stretch}; 
@@ -1024,7 +1023,13 @@ function saveStylesheet(obar, Me) {
     }
     else
         fontStyle = '';
-
+    // Apply semi-bold if font weight is less than 500 when auto-theme is applied
+    let autothemeApplied = obar._settings.get_boolean('autotheme-font');
+    if(autothemeApplied && font_weight < 500)
+        font_weight = 500;
+    fontStyle +=
+    `   font-weight: ${font_weight}; `;
+    
     panelLabelStyle = 
     ` ${fontStyle} `;
 
@@ -2342,7 +2347,7 @@ function saveStylesheet(obar, Me) {
             border: 2px solid ${mhbg} !important;
         } 
         StEntry .search-entry {
-            border-color: rgba(${smfgred},${smfggreen},${smfgblue},0.8) !important;
+            border-color: rgba(${smfgred},${smfggreen},${smfgblue},0.7) !important;
         }
         StEntry .search-entry:hover, StEntry .search-entry:focus {
             border-color: ${msc} !important;
@@ -2407,7 +2412,11 @@ function saveStylesheet(obar, Me) {
         dashFgColor = `rgba(${dfgred},${dfggreen},${dfgblue},1.0)`;
         dashBorderColor = `rgba(${mbred},${mbgreen},${mbblue},${mbAlpha})`;
         dashShadowColor = `rgba(${mshred},${mshgreen},${mshblue},${mshAlpha})`;
-        dashHighlightColor = `rgba(${mhred},${mhgreen},${mhblue},${mhAlpha})`;
+        let hgColor = getAutoHgColor([dbgred,dbggreen,dbgblue]);    
+        let chred = dbgred*(1-hAlpha) + hgColor[0]*hAlpha;
+        let chgreen = dbggreen*(1-hAlpha) + hgColor[1]*hAlpha;
+        let chblue = dbgblue*(1-hAlpha) + hgColor[2]*hAlpha;
+        dashHighlightColor = `rgba(${chred},${chgreen},${chblue},${dbgAlpha})`;
     }    
     
     if(dashDockStyle != 'Default') {
@@ -2432,16 +2441,22 @@ function saveStylesheet(obar, Me) {
         }
         .dash-item-container .app-well-app .overview-icon, .dash-item-container .overview-tile .overview-icon, .dash-item-container .show-apps .overview-icon {
             color: ${dashFgColor} !important;
-            background-color: transparent;
+            background-color: transparent !important;
+        }
+        .dash-item-container .overview-tile, .dash-item-container .overview-tile:hover, .dash-item-container .overview-tile.focused, .dash-item-container .overview-tile:active {
+            background-color: transparent !important;
+        }
+        .dash-item-container .app-well-app:active .overview-icon, 
+        .dash-item-container .overview-tile:active .overview-icon, 
+        .dash-item-container .show-apps:active .overview-icon {
+            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+            background-color: ${msc} !important;
         }
         .dash-item-container .app-well-app:hover .overview-icon, .dash-item-container .app-well-app.focused .overview-icon,
         .dash-item-container .overview-tile:hover .overview-icon, .dash-item-container .overview-tile.focused .overview-icon,
         .dash-item-container .show-apps:hover .overview-icon, .dash-item-container .show-apps.focused .overview-icon {
             background-color: ${dashHighlightColor} !important; 
-        }
-        .dash-item-container .overview-tile:hover, .dash-item-container .overview-tile.focused {
-            background-color: transparent;
-        }
+        }        
         .dash-label { /* app-icon tooltip */
             background-color: rgba(${tooltipBgRed},${tooltipBgGreen},${tooltipBgBlue}, 0.9) !important;
             color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
