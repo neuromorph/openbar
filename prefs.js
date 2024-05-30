@@ -152,19 +152,18 @@ class OpenbarPrefs {
                 rgba.green.toString(),
                 rgba.blue.toString(),
             ]);
-            if(gsetting != 'accent-color' && gsetting != 'winbcolor') {
-                let prefix, mode = this._settings.get_string('color-scheme');
-                if(mode == 'prefer-dark')
-                    prefix = 'dark-';
-                else
-                    prefix = 'light-';
-                log('saving from key: ' + gsetting + ' to key: ' + `${prefix}${gsetting}`);
-                this._settings.set_strv(`${prefix}${gsetting}`, [
-                    rgba.red.toString(),
-                    rgba.green.toString(),
-                    rgba.blue.toString(),
-                ]);
-            }
+            // In addition to main gsetting, also copy the color to dark/light setting
+            let prefix, mode = this._settings.get_string('color-scheme');
+            if(mode == 'prefer-dark')
+                prefix = 'dark-';
+            else
+                prefix = 'light-';
+            log('saving from key: ' + gsetting + ' to key: ' + `${prefix}${gsetting}`);
+            this._settings.set_strv(`${prefix}${gsetting}`, [
+                rgba.red.toString(),
+                rgba.green.toString(),
+                rgba.blue.toString(),
+            ]);
             this.triggerStyleReload();
         });
 
@@ -330,7 +329,7 @@ class OpenbarPrefs {
         window.set_title(_("Open Bar 🍹"));
         window.set_decorated(true);
         window.default_height = 950;
-        window.default_width = 820;
+        window.default_width = 830;
 
         window.paletteButtons = [];
         window.colorButtons = [];
@@ -607,7 +606,7 @@ class OpenbarPrefs {
         rowbar += 1;
 
         let autoThemeChgLabel = new Gtk.Label({
-            label: `<span>Auto-Refresh theme on Background or Mode change</span>`,
+            label: `<span>Auto-Refresh theme on change of Background</span>`,
             use_markup: true,
             halign: Gtk.Align.START,
         });
@@ -627,6 +626,30 @@ class OpenbarPrefs {
 
         let autoAlphaSetSwitch = this.createSwitchWidget('Turn Off to retain user-set values for BG alpha');
         palettegrid.attach(autoAlphaSetSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        let autoFgBarLabel = new Gtk.Label({
+            label: `<span>Auto-Set Bar foreground color</span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(autoFgBarLabel, 1, rowbar, 1, 1);
+
+        let autoFgBarSwitch = this.createSwitchWidget('Turn Off to retain user-set values for Bar FG color');
+        palettegrid.attach(autoFgBarSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        let autoFgMenuLabel = new Gtk.Label({
+            label: `<span>Auto-Set Menu foreground color</span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(autoFgMenuLabel, 1, rowbar, 1, 1);
+
+        let autoFgMenuSwitch = this.createSwitchWidget('Turn Off to retain user-set values for Menu FG color');
+        palettegrid.attach(autoFgMenuSwitch, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
@@ -708,6 +731,7 @@ class OpenbarPrefs {
             margin_bottom: 1,
             halign: Gtk.Align.CENTER,
             homogeneous: true,
+            css_classes: ['palette-box'],
         });
         const paletteBox2 = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
@@ -716,6 +740,7 @@ class OpenbarPrefs {
             margin_bottom: 1,
             halign: Gtk.Align.CENTER,
             homogeneous: true,
+            css_classes: ['palette-box'],
         });
         
         let clipboard = Gdk.Display.get_default().get_clipboard();
@@ -1196,6 +1221,7 @@ class OpenbarPrefs {
             margin_bottom: 1,
             halign: Gtk.Align.CENTER,
             homogeneous: true,
+            css_classes: ['palette-box'],
         });
         this.createCandyPalette(window, candyPaletteBox);
         bggrid.attach(candyPaletteBox, 1, rowbar, 2, 1);
@@ -1411,6 +1437,7 @@ class OpenbarPrefs {
             // margin_bottom: 5,
             halign: Gtk.Align.END,
             homogeneous: false,
+            css_classes: ['button-box'],
         });
         let widthTop = this.createToggleButton('Top', 'Top Side');
         widthBox.append(widthTop);
@@ -1431,7 +1458,7 @@ class OpenbarPrefs {
         });
         bgrid.attach(bRadiuslbl, 1, rowbar, 1, 1);
 
-        let bRadius = this.createScaleWidget(0, 50, 1, 0);
+        let bRadius = this.createScaleWidget(0, 50, 1, 0, 'There is an internal max limit on Border Radius based on the Bar Height and Border Width');
         bgrid.attach(bRadius, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1451,6 +1478,7 @@ class OpenbarPrefs {
             // margin_bottom: 5,
             halign: Gtk.Align.END,
             homogeneous: false,
+            css_classes: ['button-box'],
         });
         let radiusTopLeft = this.createToggleButton('Top-L', 'Top-Left Corner');
         radiusBox.append(radiusTopLeft);
@@ -1496,7 +1524,7 @@ class OpenbarPrefs {
         });
         bgrid.attach(neonLbl, 1, rowbar, 1, 1);
 
-        let neon = this.createSwitchWidget('Select bright/neon color for border and dark-opaque background');
+        let neon = this.createSwitchWidget('Select bright/neon color for border and dark-opaque background for Bar/Islands');
         bgrid.attach(neon, 2, rowbar, 1, 1);
 
         ////////////////////////////////////////////////////////////////////
@@ -2012,7 +2040,7 @@ class OpenbarPrefs {
             halign: Gtk.Align.START,
             wrap: true,
             margin_top: 10,
-            width_chars: 57,
+            width_chars: 65,
         });
         appgrid.attach(appInfoLabel, 1, rowbar, 2, 1);
 
@@ -2042,21 +2070,9 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a sidebar transparency switch
-        let sbTransLbl = new Gtk.Label({
-            label: `Sidebar Transparency`,
-            halign: Gtk.Align.START,
-        });
-        appgrid.attach(sbTransLbl, 1, rowbar, 1, 1);
-
-        let sbTransSwitch = this.createSwitchWidget('Apply Sidebar Transparency');
-        appgrid.attach(sbTransSwitch, 2, rowbar, 1, 1);
-
-        rowbar += 1;
-
         // Add a window border color button
         let winBColorLbl = new Gtk.Label({
-            label: `Window Border Color`,
+            label: `Border Color`,
             halign: Gtk.Align.START,
         });
         appgrid.attach(winBColorLbl, 1, rowbar, 1, 1);
@@ -2068,7 +2084,7 @@ class OpenbarPrefs {
 
         // Add a window border alpha scale
         let winBAlphaLbl = new Gtk.Label({
-            label: `Window Border Alpha`,
+            label: `Border Alpha`,
             halign: Gtk.Align.START,
         });
         appgrid.attach(winBAlphaLbl, 1, rowbar, 1, 1);
@@ -2080,13 +2096,25 @@ class OpenbarPrefs {
 
         // Add a window border width scale
         let winBWidthLbl = new Gtk.Label({
-            label: `Window Border Width`,
+            label: `Border Width`,
             halign: Gtk.Align.START,
         });
         appgrid.attach(winBWidthLbl, 1, rowbar, 1, 1);
 
         let winBWidthScale = this.createScaleWidget(0, 10, 0.1, 1, 'Window Border Width');
         appgrid.attach(winBWidthScale, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a sidebar transparency switch
+        let sbTransLbl = new Gtk.Label({
+            label: `Transparency`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(sbTransLbl, 1, rowbar, 1, 1);
+
+        let sbTransSwitch = this.createSwitchWidget('Apply Partial Transparency');
+        appgrid.attach(sbTransSwitch, 2, rowbar, 1, 1);
 
         rowbar += 2;
 
@@ -2240,7 +2268,7 @@ class OpenbarPrefs {
         stack.add_titled(dashgrid, 'dashdock',      '⏏   Dash / Dock');
         stack.add_titled(beyondgrid, 'shell',       'ଳ      Gnome Shell');
         stack.add_titled(appgrid, 'gtkflatpak',     '⌘  Gtk / Flatpak Apps');
-        stack.add_titled(iegrid, 'importexport',    '⧉   Import / Export Settings');
+        stack.add_titled(iegrid, 'importexport',    '⧉   Import / Export');
 
         scrollWindow.set_child(stack);
 
@@ -2504,6 +2532,18 @@ class OpenbarPrefs {
         this._settings.bind(
             'auto-bgalpha',
             autoAlphaSetSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'autofg-bar',
+            autoFgBarSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'autofg-menu',
+            autoFgMenuSwitch,
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );

@@ -41,6 +41,7 @@
 
 .openbar-stack-box {
     border-radius: 14px;
+    border-color: transparent;
     box-shadow: 0px 0px 2px rgba(125, 125, 125, 0.5);
     background-color: rgba(128, 128, 128, 0.1);
     padding: 0px;
@@ -80,6 +81,11 @@
 .openbar-message {
     text-shadow: 1px 1px rgba(0, 0, 0, 0.25);
 }
+
+.palette-box, .button-box {
+    background-color: transparent;
+}
+
 
 
 

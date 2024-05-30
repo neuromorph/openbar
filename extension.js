@@ -91,7 +91,8 @@ class Extension {
 
     // Generate a color palette from desktop background image
     getPaletteFromImage(pictureUri) {
-        let pictureFile = Gio.File.new_for_uri(pictureUri);        
+        let pictureFile = Gio.File.new_for_uri(pictureUri);  
+              
         // Load the image into a pixbuf
         let pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(pictureFile.get_path(), 1000, -1);
         let nChannels = pixbuf.n_channels;
@@ -139,68 +140,52 @@ class Extension {
 
         return [palette12, count12];
     }
-    backgroundPalette() { /////////////////////CHECK if BOTH uri and dark-uri are SAME
-        // Get the latest background image file (from picture-uri Or picture-uri-dark)
+
+    backgroundPalette() {
+        // Get the latest background image file (from picture-uri and picture-uri-dark)
         let pictureUriDark = this._settings.get_string('dark-bguri');
         let pictureUriLight = this._settings.get_string('light-bguri');
-        const mode = this._intSettings.get_string('color-scheme');
-        let uriArr, sameUri = false, darklight, palette12, count12;
-        uriArr = [pictureUriDark, pictureUriLight];
-        if(pictureUriDark == pictureUriLight) {
-            sameUri = true;
-            // uriArr = [pictureUriDark];
-            // darklight = 'both';
-        } 
-        // else {
-        //     uriArr = [pictureUriDark, pictureUriLight];
-        //     // darklight = (mode == 'prefer-dark') ? 'dark' : 'light';
-        // }
+        const currentMode = this._intSettings.get_string('color-scheme');
+        let darklight, palette12, count12, pictureUri;
+        let uriArr = [pictureUriDark, pictureUriLight];
+        let sameUri = pictureUriDark == pictureUriLight;
 
         for(let i = 0; i < uriArr.length; i++) {
-            // if(darklight != 'both')
             darklight = (i==0) ? 'dark' : 'light';
-            let pictureUri = uriArr[i];            
+            pictureUri = uriArr[i];            
             
             if(pictureUri.endsWith('.xml')) 
                 continue;
 
+            // Generate palette only once if both URI are same
             if(!sameUri || i == 0) {
                 [palette12, count12] = this.getPaletteFromImage(pictureUri);
             }
         
             // Save palette and counts to settings
-            // let i = 1, modePrefix = (mode == 'prefer-dark') ? 'dark-' : 'light-';
-            let paletteIdx = 1, prefixArr = [];
-            // if(darklight == 'both')
-            //     prefixArr = ['dark-', 'light-'];
-            // else
-                // prefixArr = [darklight+'-'];
-            // if(sameUri || 
-            //   (darklight == 'dark' && mode == 'prefer-dark') || 
-            //   (darklight == 'light' && mode != 'prefer-dark'))
-            //     prefixArr.push('');
-            // prefixArr.forEach(modePrefix => {
-                palette12?.forEach(color => {
-                    this._settings.set_strv(darklight+'-'+'palette'+paletteIdx, [String(color[0]), String(color[1]), String(color[2])]);
+            let paletteIdx = 1;
+            palette12?.forEach(color => {
+                // Save palette to dark/light settings
+                this._settings.set_strv(darklight+'-'+'palette'+paletteIdx, [String(color[0]), String(color[1]), String(color[2])]);
 
-                    if( (sameUri && i == 0) || 
-                        (darklight == 'dark' && mode == 'prefer-dark') || 
-                        (darklight == 'light' && mode != 'prefer-dark'))
-                        this._settings.set_strv('palette'+paletteIdx, [String(color[0]), String(color[1]), String(color[2])]);
+                // Copy the palette for current mode to main settings
+                if( (sameUri && i == 0) || 
+                    (darklight == 'dark' && currentMode == 'prefer-dark') || 
+                    (darklight == 'light' && currentMode != 'prefer-dark'))
+                    this._settings.set_strv('palette'+paletteIdx, [String(color[0]), String(color[1]), String(color[2])]);
 
-                    paletteIdx++;
-                });
-            // });
+                paletteIdx++;
+            });
             let countIdx = 1;
             count12?.forEach(count => {
                 this._settings.set_int('count'+countIdx, count12[countIdx-1]);
                 countIdx++;
             });
 
-            // Toggle setting 'bg-change' to update palette in preferences window
+            // Toggle setting 'bg-change' to update the current mode palette in preferences window
             if( (sameUri && i == 0) || 
-                (darklight == 'dark' && mode == 'prefer-dark') || 
-                (darklight == 'light' && mode != 'prefer-dark')) {
+                (darklight == 'dark' && currentMode == 'prefer-dark') || 
+                (darklight == 'light' && currentMode != 'prefer-dark')) {
                 let bgchange = this._settings.get_boolean('bg-change');
                 if(bgchange)
                     this._settings.set_boolean('bg-change', false);
@@ -208,7 +193,7 @@ class Extension {
                     this._settings.set_boolean('bg-change', true);
             }
 
-            // Apply auto theme for new background palette if auto-refresh enabled and theme set for current mode
+            // Apply auto theme for new background palette if auto-refresh enabled and theme set for this iteration (darklight)
             const autoRefresh = this._settings.get_boolean('autotheme-refresh');
             let theme;
             if(darklight == 'dark')
@@ -500,6 +485,7 @@ class Extension {
         }
 
         if(callbk_param == 'color-scheme') {
+            this.gtkCSS = true;
             AutoThemes.onModeChange(this);
             return;
         }
@@ -643,12 +629,13 @@ class Extension {
                         btn.add_style_class_name('openbar button-container');
 
                         // Add candybar classes if enabled else remove them
-                        //[ToDo: should do only for keys: candybar, actor-added, actor-removed]
-                        for(let j=1; j<=8; j++)
-                            btn.child.remove_style_class_name('candy'+j);
-                        i++; i = i%8; i = i==0? 8: i; // Cycle through candybar palette
-                        if(candybar) {
-                            btn.child.add_style_class_name('candy'+i);
+                        if(key == 'candybar' || key == this.addedSignal || key == this.removedSignal) {
+                            for(let j=1; j<=8; j++)
+                                btn.child.remove_style_class_name('candy'+j);
+                            i++; i = i%8; i = i==0? 8: i; // Cycle through candybar palette
+                            if(candybar) {
+                                btn.child.add_style_class_name('candy'+i);
+                            }
                         }
                     }
 
@@ -918,20 +905,21 @@ class Extension {
             this.colorScheme = colorScheme;
             return;
         }
-        // this._settings.set_string('color-scheme', this.colorScheme);
         
         let bguriOld = this._settings.get_string('bguri');
+        let bguriDark = this._bgSettings.get_string('picture-uri-dark');
+        let bguriLight = this._bgSettings.get_string('picture-uri');
+
+        this._settings.set_string('dark-bguri', bguriDark);
+        this._settings.set_string('light-bguri', bguriLight);
+
         let bguriNew;
-        if(this.colorScheme == 'prefer-dark') {
-            bguriNew = this._bgSettings.get_string('picture-uri-dark');
-        }
-        else {
-            bguriNew = this._bgSettings.get_string('picture-uri');
-        }
-        
-        this._settings.set_string('dark-bguri', this._bgSettings.get_string('picture-uri-dark'));
-        this._settings.set_string('light-bguri', this._bgSettings.get_string('picture-uri'));
+        if(colorScheme == 'prefer-dark')
+            bguriNew = bguriDark;
+        else
+            bguriNew = bguriLight;        
         this._settings.set_string('bguri', bguriNew);
+        
         // Gnome45+: if bgnd changed with right click on image file, 
         // filepath (bguri) remains same, so manually call updatePanelStyle
         if(bguriOld == bguriNew)
