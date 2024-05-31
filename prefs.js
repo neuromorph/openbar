@@ -2265,8 +2265,8 @@ class OpenbarPrefs {
         stack.add_titled(hgrid, 'highlights',       '✠   Bar Highlights');
         stack.add_titled(bgrid, 'barborder',        '▣   Bar Border');
         stack.add_titled(menugrid, 'menu',          '☰   Popup Menus');
-        stack.add_titled(dashgrid, 'dashdock',      '⏏   Dash / Dock');
-        stack.add_titled(beyondgrid, 'shell',       'ଳ      Gnome Shell');
+        stack.add_titled(dashgrid, 'dashdock',      '⏏  Dash / Dock');
+        stack.add_titled(beyondgrid, 'shell',       'ଳ     Gnome Shell');
         stack.add_titled(appgrid, 'gtkflatpak',     '⌘  Gtk / Flatpak Apps');
         stack.add_titled(iegrid, 'importexport',    '⧉   Import / Export');
 
