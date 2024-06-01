@@ -89,7 +89,7 @@
 .openbar-expander {
   padding: 8px;
   border-radius: 10px;
-  background-color: mix(@window_bg_color, rgb(128, 128, 128), 0.14);  
+  background-color: mix(@window_bg_color, rgb(128, 128, 128), 0.16);  
 }
 
 .openbar-quotebtn {

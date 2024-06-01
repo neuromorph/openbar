@@ -425,13 +425,29 @@ class OpenbarPrefs {
 
         // Open Bar Title Grid
         let titlegrid = this.createGridWidget();
-        titlegrid.halign = Gtk.Align.CENTER;
+        titlegrid.halign = Gtk.Align.START;
         titlegrid.valign = Gtk.Align.CENTER;
         titlegrid.margin_top = 0;
         titlegrid.margin_bottom = 10;
         titlegrid.css_classes = ['openbar-titlegrid'];
 
         let rowbar = 1;        
+        
+        // Add a logo image
+        const aboutImage = new Gtk.Image({
+            file: this.openbar.path + "/media/openbar.svg",
+            vexpand: false,
+            hexpand: false,
+            valign: Gtk.Align.CENTER,
+            pixel_size: 90,
+            margin_top: 0,
+            margin_bottom: 0,
+            margin_start: 35,
+            margin_end: 145,
+            halign: Gtk.Align.START,
+            css_classes: ['openbar-image'],
+        });
+        titlegrid.attach(aboutImage, 1, rowbar, 1, 1);
 
         // Add a title label
         let titleLabel = new Gtk.Label({
@@ -442,23 +458,9 @@ class OpenbarPrefs {
             use_markup: true,
             css_classes: ['openbar-title'],
         });
-        titlegrid.attach(titleLabel, 1, rowbar, 1, 1);
+        titlegrid.attach(titleLabel, 2, rowbar, 1, 1);
 
-        // Add a logo image
-        const aboutImage = new Gtk.Image({
-            file: this.openbar.path + "/media/openbar.png",
-            vexpand: false,
-            hexpand: false,
-            valign: Gtk.Align.CENTER,
-            pixel_size: 70,
-            margin_top: 0,
-            margin_bottom: 0,
-            halign: Gtk.Align.CENTER,
-            css_classes: ['openbar-image'],
-        });
-        titlegrid.attach(aboutImage, 2, rowbar, 1, 1);
-
-
+        
         // Quote Box
         this.quotePause = false;
         const quoteBox = new Gtk.Box({
@@ -478,8 +480,8 @@ class OpenbarPrefs {
             valign: Gtk.Align.CENTER,
             pixel_size: 30,
             halign: Gtk.Align.CENTER,
-            margin_top: 15,
-            margin_bottom: 35,
+            margin_top: 20,
+            margin_bottom: 25,
         });
         
         const quoteBtn = new Gtk.Button({
@@ -2320,7 +2322,7 @@ class OpenbarPrefs {
         stack.add_titled(palettegrid, 'autotheme',  '✨  Auto Theming');
         stack.add_titled(bargrid, 'barprops',       '⚌  Top Bar Properties');
         stack.add_titled(bargridwmax, 'wmaxbar',    '⊞   Window-Max Bar');
-        stack.add_titled(fggrid, 'barfg',           '❂   Bar Foreground');
+        stack.add_titled(fggrid, 'barfg',           '⩜   Bar Foreground');
         stack.add_titled(bggrid, 'barbg',           '●   Bar Background');
         stack.add_titled(hgrid, 'highlights',       '✠   Bar Highlights');
         stack.add_titled(bgrid, 'barborder',        '▣   Bar Border');
