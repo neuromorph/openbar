@@ -542,10 +542,10 @@ class OpenbarPrefs {
         let autoThemeNotesLabel = new Gtk.Label({
             label: `<span  allow_breaks="true">\n• Auto-themes will use the <b>colors</b> derived from the background image.\n• Other settings will be set as selected, by the user, in the other tabs.\n• Styles will apply to the Top Bar and Menus and optionally to the shell.\n• Select desired Type of bar before applying a theme.\n• If you change the bar type, apply the theme again.
         
-        <b>True Color     </b>    : Palette colors as-is (biased towards dark). 
-        <b>Pastel Theme   </b>: Colors are pastelified (biased towards light).
-        <b>Dark Theme     </b> : Colors are darkened as needed.
-        <b>Light Theme    </b>  : Colors are lightened as needed.
+        <b><tt>True Color  </tt></b>   :  Palette colors as-is (biased towards dark). 
+        <b><tt>Pastel Theme</tt></b>   :  Colors are pastelified (biased towards light).
+        <b><tt>Dark Theme  </tt></b>   :  Colors are darkened as needed.
+        <b><tt>Light Theme </tt></b>   :  Colors are lightened as needed.
         </span>`,
             wrap: true,
             use_markup: true,
