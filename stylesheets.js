@@ -413,7 +413,7 @@ function createGtkCss(obar) {
           background-color: #00ca4e;
         }
 
-        button .titlebutton.maximize:hover,
+        button.titlebutton.maximize:hover,
         windowcontrols > button.maximize:hover {
           background-color: shade(#00ca4e,0.95);
         }
