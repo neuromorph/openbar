@@ -195,6 +195,7 @@ function createGtkCss(obar) {
     let hBarHintBd = hBarHint/2;
     let sBarHintBd = sBarHint/2;
     let sBarTransparency = obar._settings.get_boolean('sidebar-transparency');
+    let trafficLightButtons = obar._settings.get_boolean('traffic-light');
     let winBAlpha = obar._settings.get_double('winbalpha');
     let winBWidth = obar._settings.get_double('winbwidth');
     let winBColor = obar._settings.get_strv('winbcolor');
@@ -209,9 +210,9 @@ function createGtkCss(obar) {
     let bgRed, bgGreen, bgBlue;
     const colorScheme = obar._intSettings.get_string('color-scheme');
     if(colorScheme == 'prefer-dark') 
-        bgRed = bgGreen = bgBlue = 25;
+        bgRed = bgGreen = bgBlue = 42;
     else
-        bgRed = bgGreen = bgBlue = 225;
+        bgRed = bgGreen = bgBlue = 242;
     
     const hbgRed = hBarHint * accRed + (1-hBarHint) * bgRed;
     const hbgGreen = hBarHint * accGreen + (1-hBarHint) * bgGreen;
@@ -227,7 +228,7 @@ function createGtkCss(obar) {
     const sbdGreen = sBarHintBd * accGreen + (1-sBarHintBd) * bgGreen;
     const sbdBlue = sBarHintBd * accBlue + (1-sBarHintBd) * bgBlue;
 
-    const sbAlpha = sBarTransparency? 0.75 : 1.0;
+    const sbAlpha = sBarTransparency? 0.65 : 1.0;
 
     const winBRedBd = 0.6 * winBRed + 0.4 * bgRed;
     const winBGreenBd = 0.6 * winBGreen + 0.4 * bgGreen;
@@ -244,6 +245,12 @@ function createGtkCss(obar) {
         sfgRed = sfgGreen = sfgBlue = 255;
     else
         sfgRed = sfgGreen = sfgBlue = 20;
+        
+    let afgRed, afgGreen, afgBlue;
+    if(getBgDark(accRed, accGreen, accBlue))
+        afgRed = afgGreen = afgBlue = 255;
+    else
+        afgRed = afgGreen = afgBlue = 20;
 
     
     let gtkstring = `
@@ -252,49 +259,12 @@ function createGtkCss(obar) {
 
     @define-color accent_color rgba(${accRed}, ${accGreen}, ${accBlue}, 1.0);
     @define-color accent_bg_color rgba(${accRed}, ${accGreen}, ${accBlue}, 0.85);
+    @define-color accent_fg_color rgba(${afgRed}, ${afgGreen}, ${afgBlue}, 0.9);
 
-    @define-color headerbar_bg_color rgb(${hbgRed}, ${hbgGreen}, ${hbgBlue});
-    @define-color headerbar_backdrop_color rgb(${hbdRed}, ${hbdGreen}, ${hbdBlue});
+    /*@define-color window_bg_color mix(@window_bg_color, rgb(75, 25, 75), 0.2);
+    @define-color view_bg_color mix(@view_bg_color, rgb(25, 75, 75), 0.2);*/
 
-    @define-color sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${sbAlpha});
-    @define-color sidebar_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${sbAlpha});
-
-    @define-color secondary_sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${1.1*sbAlpha});
-    @define-color secondary_sidebar_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${1.1*sbAlpha});    
-
-    @define-color headerbar_fg_color rgba(${hfgRed}, ${hfgGreen}, ${hfgBlue}, 0.85);
-    @define-color sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.85);
-    @define-color secondary_sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.85);
-
-    .sidebar,
-    .navigation-sidebar,
-    .sidebar-pane,
-    .content-pane .sidebar-pane,
-    .sidebar-pane .content-pane,
-    scrolledwindow>viewport>list /* Gnome Tweaks */{
-        background-color: @sidebar_bg_color;
-    }
-    .sidebar:backdrop,
-    .navigation-sidebar:backdrop,
-    .sidebar-pane:backdrop,
-    .content-pane .sidebar-pane:backdrop,
-    .sidebar-pane .content-pane:backdrop,
-    scrolledwindow>viewport>list:backdrop {
-        background-color: @sidebar_backdrop_color;
-    }
-    
-    headerbar, 
-    .top-bar, /* Files */
-    .titlebar { 
-        background-color: @headerbar_bg_color;
-        background-image:none;
-    } 
-    headerbar:backdrop,
-    .top-bar:backdrop,
-    .titlebar:backdrop { 
-        background-color: @headerbar_backdrop_color;
-    }
-
+    /* Toggle Switch */ 
     switch {
         margin: 2px 0;
         padding: 0 2px;
@@ -311,6 +281,7 @@ function createGtkCss(obar) {
         margin: -3px -2px -3px 0px;
     }
 
+    /* Window Border */
     window,
     decoration,
     decoration-overlay {
@@ -334,15 +305,146 @@ function createGtkCss(obar) {
         border-radius: 20px;
     }*/
     `;
+    
+    if(hBarHint) {
+        gtkstring += `
+        @define-color headerbar_bg_color rgb(${hbgRed}, ${hbgGreen}, ${hbgBlue});
+        @define-color headerbar_backdrop_color rgb(${hbdRed}, ${hbdGreen}, ${hbdBlue});
+        @define-color headerbar_fg_color rgba(${hfgRed}, ${hfgGreen}, ${hfgBlue}, 0.85);
+    
+        headerbar, 
+        .top-bar,
+        .titlebar { 
+            background-color: @headerbar_bg_color;
+            background-image:none;
+        } 
+        headerbar:backdrop,
+        .top-bar:backdrop,
+        .titlebar:backdrop { 
+            background-color: @headerbar_backdrop_color;
+        }
+        `;
+    }
+    
+    if(sBarHint) {
+        gtkstring += `
+        @define-color sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${sbAlpha});
+        /*@define-color sidebar_bg_color mix(@window_bg_color, rgb(${accRed}, ${accGreen}, ${accBlue}), 0.12);*/
+        @define-color sidebar_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${sbAlpha});
+        @define-color sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.85);
+
+        @define-color secondary_sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${sbAlpha});
+        @define-color secondary_sidebar_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${sbAlpha});    
+        @define-color secondary_sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.85);
+        
+        .sidebar,
+        /*.navigation-sidebar,*/
+        .sidebar-pane,
+        .content-pane .sidebar-pane,
+        .sidebar-pane .content-pane,
+        scrolledwindow>viewport>list /* Gnome Tweaks */{
+            background-color: @sidebar_bg_color;
+        }
+        .sidebar:backdrop,
+        /*.navigation-sidebar:backdrop,*/
+        .sidebar-pane:backdrop,
+        .content-pane .sidebar-pane:backdrop,
+        .sidebar-pane .content-pane:backdrop,
+        scrolledwindow>viewport>list:backdrop {
+            background-color: @sidebar_backdrop_color;
+        }
+        `;
+    }
+    
+    if(trafficLightButtons) {
+        gtkstring += `
+        button.titlebutton,
+        windowcontrols > button {
+          color: transparent;
+          box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+          min-width: 16px;
+          min-height: 16px;
+          border-radius: 100%;
+          padding: 0;
+          margin: 0 2px;
+        }
+
+        button.titlebutton:backdrop,
+        windowcontrols > button:backdrop {
+          opacity: 0.5;
+        }
+        
+        button.titlebutton > image,
+        windowcontrols > button > image {
+          padding: 0;
+        }
+
+        .titlebar .right,
+        windowcontrols.end {
+          margin-right: 8px;
+        }
+
+        .titlebar .left,
+        windowcontrols.start {
+          margin-left: 8px;
+        }
+
+        button.titlebutton:hover,
+        windowcontrols > button:hover {
+            color: #fffd;
+        }
+        
+        button.titlebutton.close, 
+        button.titlebutton.close:hover:backdrop,
+        windowcontrols > button.close,
+        windowcontrols > button.close:hover:backdrop {
+          background-color: #ff605c;
+        }
+
+        button.titlebutton.close:hover,
+        windowcontrols > button.close:hover {
+          background-color: shade(#ff605c,0.95);
+        }
+
+        button.titlebutton.maximize, 
+        button.titlebutton.maximize:hover:backdrop,
+        windowcontrols > button.maximize,
+        windowcontrols > button.maximize:hover:backdrop {
+          background-color: #00ca4e;
+        }
+
+        button .titlebutton.maximize:hover,
+        windowcontrols > button.maximize:hover {
+          background-color: shade(#00ca4e,0.95);
+        }
+
+        button.titlebutton.minimize, 
+        button.titlebutton.minimize:hover:backdrop,
+        windowcontrols > button.minimize,
+        windowcontrols > button.minimize:hover:backdrop {
+          background-color: #ffbd44;
+        }
+
+        button.titlebutton.minimize:hover,
+        windowcontrols > button.minimize:hover {
+          background-color: shade(#ffbd44,0.95);
+        }
+
+        button.titlebutton.close:backdrop, button.titlebutton.maximize:backdrop, button.titlebutton.minimize:backdrop,
+        windowcontrols > button.close:backdrop, windowcontrols > button.maximize:backdrop, windowcontrols > button.minimize:backdrop {
+          background-color: #c0bfc0;
+        }
+        `;
+    }
 
     if(sBarTransparency) {
         gtkstring += `
-        window {
-            background-color: alpha(@window_bg_color, 0.95);
+        window, window.background,
+        .nautilus-window {
+            background-color: alpha(@window_bg_color, 0.9);
         }
-        .content-pane, 
-        .view, .nautilus-window.view, 
-        grid>box {
+        .content-pane, .content-pane.view,
+        .boxed-list {
             background-color: alpha(@view_bg_color, 1.0);
         }
         `;
