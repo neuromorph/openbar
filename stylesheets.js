@@ -261,9 +261,6 @@ function createGtkCss(obar) {
     @define-color accent_bg_color rgba(${accRed}, ${accGreen}, ${accBlue}, 0.85);
     @define-color accent_fg_color rgba(${afgRed}, ${afgGreen}, ${afgBlue}, 0.9);
 
-    /*@define-color window_bg_color mix(@window_bg_color, rgb(75, 25, 75), 0.2);
-    @define-color view_bg_color mix(@view_bg_color, rgb(25, 75, 75), 0.2);*/
-
     /* Toggle Switch */ 
     switch {
         margin: 2px 0;
@@ -329,7 +326,6 @@ function createGtkCss(obar) {
     if(sBarHint) {
         gtkstring += `
         @define-color sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${sbAlpha});
-        /*@define-color sidebar_bg_color mix(@window_bg_color, rgb(${accRed}, ${accGreen}, ${accBlue}), 0.12);*/
         @define-color sidebar_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${sbAlpha});
         @define-color sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.85);
 
@@ -338,7 +334,7 @@ function createGtkCss(obar) {
         @define-color secondary_sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.85);
         
         .sidebar,
-        /*.navigation-sidebar,*/
+        .navigation-sidebar,
         .sidebar-pane,
         .content-pane .sidebar-pane,
         .sidebar-pane .content-pane,
@@ -346,7 +342,7 @@ function createGtkCss(obar) {
             background-color: @sidebar_bg_color;
         }
         .sidebar:backdrop,
-        /*.navigation-sidebar:backdrop,*/
+        .navigation-sidebar:backdrop,
         .sidebar-pane:backdrop,
         .content-pane .sidebar-pane:backdrop,
         .sidebar-pane .content-pane:backdrop,

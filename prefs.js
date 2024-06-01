@@ -328,7 +328,7 @@ class OpenbarPrefs {
 
     fillOpenbarPrefs(window, openbar) {
 
-        window.set_title(_("Open Bar 🍹"));
+        window.set_title(_("Open Bar"));
         window.set_decorated(true);
         window.default_height = 936;
         window.default_width = 826;
@@ -451,7 +451,7 @@ class OpenbarPrefs {
 
         // Add a title label
         let titleLabel = new Gtk.Label({
-            label: `<span size="x-large">Top Bar and Beyond</span>\n\n<span underline="none"><b>${_('Version:')} ${this.openbar.metadata.version}  |  <a href="${this.openbar.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${this.openbar.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕      </a></b></span>`,
+            label: `<span size="x-large">Top Bar and Beyond   </span>\n\n<span underline="none"><b>${_('Version:')} ${this.openbar.metadata.version}  |  <a href="${this.openbar.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${this.openbar.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕      </a></b></span>`,
             halign: Gtk.Align.CENTER,
             valign: Gtk.Align.CENTER,
             justify: Gtk.Justification.CENTER,
@@ -536,6 +536,8 @@ class OpenbarPrefs {
             label: `<b>Auto Themes Introduction</b>`,
             expanded: false,
             use_markup: true,
+            margin_top: 5,
+            margin_bottom: 10,
             css_classes: ['openbar-expander'],
         });
 
@@ -648,7 +650,7 @@ class OpenbarPrefs {
             label: `<b>Auto Themes for Dark/Light Modes</b>`,
             expanded: false,
             use_markup: true,
-            margin_top: 10,
+            margin_top: 15,
             css_classes: ['openbar-expander'],
         });
         
