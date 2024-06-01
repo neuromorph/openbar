@@ -330,7 +330,7 @@ class OpenbarPrefs {
 
         window.set_title(_("Open Bar 🍹"));
         window.set_decorated(true);
-        window.default_height = 950;
+        window.default_height = 936;
         window.default_width = 826;
 
         window.paletteButtons = [];
@@ -460,12 +460,13 @@ class OpenbarPrefs {
 
 
         // Quote Box
+        this.quotePause = false;
         const quoteBox = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
             spacing: 10,
             halign: Gtk.Align.CENTER,
             homogeneous: false,
-            // margin_top: 15,
+            margin_top: 10,
             css_classes: ['openbar-quotebox'],
         });
 
@@ -475,12 +476,23 @@ class OpenbarPrefs {
             vexpand: false,
             hexpand: false,
             valign: Gtk.Align.CENTER,
-            pixel_size: 45,
+            pixel_size: 30,
             halign: Gtk.Align.CENTER,
-            margin_top: 25,
-            margin_bottom: 20,
+            margin_top: 15,
+            margin_bottom: 35,
         });
-        quoteBox.append(quoteImage);
+        
+        const quoteBtn = new Gtk.Button({
+            child: quoteImage,
+            tooltip_text: 'Play/Pause quotes',
+            css_classes: ['openbar-quotebtn'],
+        });
+        quoteBox.append(quoteBtn);
+        
+        quoteBtn.connect('clicked', () => {
+            this.quotePause = !this.quotePause;
+            this.setQuoteLabel(quoteLabel);
+        });
 
         // Add a quote label
         let quoteLabel = new Gtk.Label({
@@ -490,7 +502,7 @@ class OpenbarPrefs {
             use_markup: true,
             justify: Gtk.Justification.CENTER,
             wrap: true,
-            width_chars: 72,
+            width_chars: 78, //72
             vexpand: false,
             margin_top: 0,
             margin_bottom: 0,
@@ -516,9 +528,17 @@ class OpenbarPrefs {
         palettegrid.attach(autoThemeLabel, 1, rowbar, 2, 1);
 
         rowbar += 1;
+        
+        // Auto Themes Info Expander
+        const themesExpander = new Gtk.Expander({
+            label: `<b>Auto Themes Introduction</b>`,
+            expanded: false,
+            use_markup: true,
+            css_classes: ['openbar-expander'],
+        });
 
         let autoThemeNotesLabel = new Gtk.Label({
-            label: `<span  allow_breaks="true">• Auto-themes will use the <b>colors</b> derived from the background image.\n• Other settings will be set as selected by user in the tabs below.\n• Styles will apply to the Top Bar and Menus and optionally to the shell.\n• Select desired Type of bar before applying a theme.\n• If you change the bar type, apply the theme again.
+            label: `<span  allow_breaks="true">\n• Auto-themes will use the <b>colors</b> derived from the background image.\n• Other settings will be set as selected, by the user, in the other tabs.\n• Styles will apply to the Top Bar and Menus and optionally to the shell.\n• Select desired Type of bar before applying a theme.\n• If you change the bar type, apply the theme again.
         
         <b>True Color     </b>    : Palette colors as-is (biased towards dark). 
         <b>Pastel Theme   </b>: Colors are pastelified (biased towards light).
@@ -530,7 +550,116 @@ class OpenbarPrefs {
             halign: Gtk.Align.START,
             width_chars: 55,
         });
-        palettegrid.attach(autoThemeNotesLabel, 1, rowbar, 2, 1);
+        
+        themesExpander.set_child(autoThemeNotesLabel);
+        palettegrid.attach(themesExpander, 1, rowbar, 2, 1);
+        
+        rowbar += 1;
+
+        let autoThemeChgLabel = new Gtk.Label({
+            label: `<span>Auto-Refresh theme on change of Background</span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(autoThemeChgLabel, 1, rowbar, 1, 1);
+
+        let autoThemeChgSwitch = this.createSwitchWidget('If enabled, current theme will be overridden with new auto-theme when desktop background is changed');
+        palettegrid.attach(autoThemeChgSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        let autoAlphaSetLabel = new Gtk.Label({
+            label: `<span>Auto-Set Bar, Margins and Islands BG Alpha</span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(autoAlphaSetLabel, 1, rowbar, 1, 1);
+
+        let autoAlphaSetSwitch = this.createSwitchWidget('Turn Off to retain user-set values for BG alpha (background opacity)');
+        palettegrid.attach(autoAlphaSetSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+        
+        let autoFgBarLabel = new Gtk.Label({
+            label: `<span>Auto-Set Bar foreground color</span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(autoFgBarLabel, 1, rowbar, 1, 1);
+
+        let autoFgBarSwitch = this.createSwitchWidget('Turn Off to retain user-set values for Bar FG (foreground) color');
+        palettegrid.attach(autoFgBarSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        let autoFgMenuLabel = new Gtk.Label({
+            label: `<span>Auto-Set Menu foreground color</span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(autoFgMenuLabel, 1, rowbar, 1, 1);
+
+        let autoFgMenuSwitch = this.createSwitchWidget('Turn Off to retain user-set values for Menu FG (foreground) color');
+        palettegrid.attach(autoFgMenuSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Secondary menu color Override
+        // Add a secondary color override switch
+        let autosmbgOLbl = new Gtk.Label({
+            label: `Alternate Secondary Menu BG Color (auto)`,
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(autosmbgOLbl, 1, rowbar, 1, 1);
+
+        let autosmbgOSwitch = this.createSwitchWidget('Auto-Theme will choose alternate secondary/sub-menu color instead of deriving from BG color');
+        palettegrid.attach(autosmbgOSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add an accent color override switch
+        let accentOLbl = new Gtk.Label({
+            label: `Override auto-theme Accent Color (as selected below)`,
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(accentOLbl, 1, rowbar, 1, 1);
+
+        let accentOSwitch = this.createSwitchWidget('Use accent color selected below instead of auto-generated one');
+        palettegrid.attach(accentOSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a accent override color chooser
+        let accentOColorLabel = new Gtk.Label({
+            label: 'Accent Color (override)',
+            halign: Gtk.Align.START,
+        });
+        palettegrid.attach(accentOColorLabel, 1, rowbar, 1, 1);
+
+        let accentOColorChooser = this.createColorWidget(window, 'Auto Theme Accent Color', 'Select preferred accent color', 'accent-color');
+        palettegrid.attach(accentOColorChooser, 2, rowbar, 1, 1);
+        
+        rowbar += 1;
+
+        // Auto Themes Modes Expander
+        const modesExpander = new Gtk.Expander({
+            label: `<b>Auto Themes for Dark/Light Modes</b>`,
+            expanded: false,
+            use_markup: true,
+            margin_top: 10,
+            css_classes: ['openbar-expander'],
+        });
+        
+        let autoThemeModesLabel = new Gtk.Label({
+            label: `<span  allow_breaks="true">\n• Select themes for Dark/Light modes and click Apply.\n• You may further tweak styles after applying auto-theme.\n• Color changes made in current mode will be saved for that mode.\n• Themes can be regenerated by clicking Apply or on background change.</span>`,
+            wrap: true,
+            use_markup: true,
+            halign: Gtk.Align.START,
+            width_chars: 55,
+        });
+        
+        modesExpander.set_child(autoThemeModesLabel);
+        palettegrid.attach(modesExpander, 1, rowbar, 2, 1);
 
         rowbar += 1; 
 
@@ -609,96 +738,10 @@ class OpenbarPrefs {
         
         rowbar += 1;
 
-        let autoThemeChgLabel = new Gtk.Label({
-            label: `<span>Auto-Refresh theme on change of Background</span>`,
-            use_markup: true,
-            halign: Gtk.Align.START,
-        });
-        palettegrid.attach(autoThemeChgLabel, 1, rowbar, 1, 1);
-
-        let autoThemeChgSwitch = this.createSwitchWidget();
-        palettegrid.attach(autoThemeChgSwitch, 2, rowbar, 1, 1);
-
-        rowbar += 1;
-
-        let autoAlphaSetLabel = new Gtk.Label({
-            label: `<span>Auto-Set Bar, Margins and Islands BG Alpha</span>`,
-            use_markup: true,
-            halign: Gtk.Align.START,
-        });
-        palettegrid.attach(autoAlphaSetLabel, 1, rowbar, 1, 1);
-
-        let autoAlphaSetSwitch = this.createSwitchWidget('Turn Off to retain user-set values for BG alpha');
-        palettegrid.attach(autoAlphaSetSwitch, 2, rowbar, 1, 1);
-
-        rowbar += 1;
-        
-        let autoFgBarLabel = new Gtk.Label({
-            label: `<span>Auto-Set Bar foreground color</span>`,
-            use_markup: true,
-            halign: Gtk.Align.START,
-        });
-        palettegrid.attach(autoFgBarLabel, 1, rowbar, 1, 1);
-
-        let autoFgBarSwitch = this.createSwitchWidget('Turn Off to retain user-set values for Bar FG color');
-        palettegrid.attach(autoFgBarSwitch, 2, rowbar, 1, 1);
-
-        rowbar += 1;
-
-        let autoFgMenuLabel = new Gtk.Label({
-            label: `<span>Auto-Set Menu foreground color</span>`,
-            use_markup: true,
-            halign: Gtk.Align.START,
-        });
-        palettegrid.attach(autoFgMenuLabel, 1, rowbar, 1, 1);
-
-        let autoFgMenuSwitch = this.createSwitchWidget('Turn Off to retain user-set values for Menu FG color');
-        palettegrid.attach(autoFgMenuSwitch, 2, rowbar, 1, 1);
-
-        rowbar += 1;
-
-        // Secondary menu color Override
-        // Add a secondary color override switch
-        let autosmbgOLbl = new Gtk.Label({
-            label: `Alternate Secondary Menu BG Color (auto)`,
-            halign: Gtk.Align.START,
-        });
-        palettegrid.attach(autosmbgOLbl, 1, rowbar, 1, 1);
-
-        let autosmbgOSwitch = this.createSwitchWidget('Auto-Theme will choose alternate secondary/sub-menu color instead of deriving from BG color');
-        palettegrid.attach(autosmbgOSwitch, 2, rowbar, 1, 1);
-
-        rowbar += 1;
-
-        // Add an accent color override switch
-        let accentOLbl = new Gtk.Label({
-            label: `Override auto-theme Accent Color (as selected below)`,
-            halign: Gtk.Align.START,
-        });
-        palettegrid.attach(accentOLbl, 1, rowbar, 1, 1);
-
-        let accentOSwitch = this.createSwitchWidget();
-        palettegrid.attach(accentOSwitch, 2, rowbar, 1, 1);
-
-        rowbar += 1;
-
-        // Add a accent override color chooser
-        let accentOColorLabel = new Gtk.Label({
-            label: 'Accent Color (override)',
-            halign: Gtk.Align.START,
-        });
-        palettegrid.attach(accentOColorLabel, 1, rowbar, 1, 1);
-
-        let accentOColorChooser = this.createColorWidget(window, 'Auto Theme Accent Color', 'Select preferred accent color', 'accent-color');
-        palettegrid.attach(accentOColorChooser, 2, rowbar, 1, 1);
-
-        rowbar += 1;
-
-
         let paletteLabel = new Gtk.Label({
             label: `<span>\n<b>Desktop Background Color Palette</b></span>\n\n<span allow_breaks="true">• The palette will auto-refresh when the background changes.\n• Unless the extension is disabled during the change.\n• Click on 'Get' button to manually refresh the palette.\n• This palette is available in each color button popup (under default one).</span>`,
             use_markup: true,
-            margin_top: 15,
+            margin_top: 0,
             wrap: true,
             halign: Gtk.Align.START,
         });
@@ -828,7 +871,7 @@ class OpenbarPrefs {
         });
         bargrid.attach(overviewLabel, 1, rowbar, 1, 1);
 
-        let overviewSwitch = this.createSwitchWidget();
+        let overviewSwitch = this.createSwitchWidget('Turn off to get transparent bar in Overview');
         bargrid.attach(overviewSwitch, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1847,7 +1890,7 @@ class OpenbarPrefs {
 
         // Add a dash to dock info label
         let dashInfoLabel = new Gtk.Label({
-            label: `<span allow_breaks="true">Dash-to-Dock:\n• Enable 'Use built-in theme' in its settings under 'Appearance' tab.\n• Set 'Icon size limit' as needed in its 'Position and Size' tab.\n </span>`,
+            label: `<span allow_breaks="true">Note for Dash-to-Dock:\n• Enable 'Use built-in theme' in its settings under 'Appearance' tab.\n• Set 'Icon size limit' as needed in its 'Position and Size' tab.\n </span>`,
             use_markup: true,
             halign: Gtk.Align.CENTER,
             wrap: true,
@@ -2039,7 +2082,7 @@ class OpenbarPrefs {
 
         // Add a Gtk/Flatpak info label
         let appInfoLabel = new Gtk.Label({
-            label: `<span>This applies theme Accent Color to Gtk / Flatpak apps:\n• Set accent hint(%) for headerbar/sidebar and turn On Gtk/Flatpak below.\n• Reload the apps (or Gnome) for changes to take effect.\n• You may need to set 'theme' in apps (e.g. Terminal) to 'System' or 'Default'.</span>\n\n`,
+            label: `<span>This applies theme Accent Color and below styles to Gtk / Flatpak apps:\n• Set desired styles and Turn-On 'Apply to Gtk/Flatpak' below.\n• Reload the apps (or Gnome) for changes to take effect.\n• You may need to set 'theme' in apps (e.g. Terminal) to 'System' or 'Default'.</span>\n\n`,
             use_markup: true,
             halign: Gtk.Align.START,
             wrap: true,
@@ -2112,14 +2155,26 @@ class OpenbarPrefs {
         
         // Add a transparency switch
         let sbTransLbl = new Gtk.Label({
-            label: `Transparency`,
+            label: `⚠ Transparency`,
             halign: Gtk.Align.START,
         });
         appgrid.attach(sbTransLbl, 1, rowbar, 1, 1);
 
-        let sbTransSwitch = this.createSwitchWidget('Apply Partial Transparency');
+        let sbTransSwitch = this.createSwitchWidget('⚠ Unstable: Some widgets may get unexpected transparency');
         appgrid.attach(sbTransSwitch, 2, rowbar, 1, 1);
 
+        rowbar += 1;
+        
+        // Add a traffic light switch
+        let trfLightLbl = new Gtk.Label({
+            label: `Traffic Light Controls`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(trfLightLbl, 1, rowbar, 1, 1);
+
+        let trfLightSwitch = this.createSwitchWidget('Apply Traffic Light Window Control Buttons');
+        appgrid.attach(trfLightSwitch, 2, rowbar, 1, 1);
+        
 
         rowbar += 2;
 
@@ -2775,6 +2830,12 @@ class OpenbarPrefs {
             Gio.SettingsBindFlags.DEFAULT
         );
         this._settings.bind(
+            'traffic-light',
+            trfLightSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
             'apply-flatpak',
             flatpakSwitch,
             'active',
@@ -2803,6 +2864,8 @@ class OpenbarPrefs {
     }
 
     setQuoteLabel(quoteLabel) {
+        if(this.quotePause)
+            return;
         this.animateQuote(quoteLabel, this.quoteBlank);
         const timeout = this.quoteBlank? 500 : 10500;
         if(this.quoteTimeoutId)

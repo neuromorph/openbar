@@ -86,5 +86,18 @@
     background-color: mix(@window_bg_color, rgb(128, 128, 128), 0.1);
 }
 
+.openbar-expander {
+  padding: 8px;
+  border-radius: 10px;
+  background-color: mix(@window_bg_color, rgb(128, 128, 128), 0.14);  
+}
+
+.openbar-quotebtn {
+  background-color: transparent;
+}
+.openbar-quotebtn:hover {
+  background-color: mix(@window_bg_color, rgb(128, 128, 128), 0.1);
+}
+
 
 
