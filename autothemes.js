@@ -1139,8 +1139,7 @@ export function autoApplyBGPalette(obar, requestMode) {
     // BORDER = NEON = SHADOW COLOR SELECTION (for BAR)
     let neon = obar._settings.get_boolean('neon');
     let barBorderPalette, barLightTarget;
-    let scheme = obar.colorScheme;
-    if(scheme == 'prefer-dark') {
+    if(requestMode == 'dark') {
         barBorderPalette = paletteArr.slice(0).map(x => x[0]).sort(compareLightness).reverse(); // Sort for Light colors
         barLightTarget = BORDER_LIGHT_HIGH;
     }
@@ -1199,21 +1198,21 @@ export function autoApplyBGPalette(obar, requestMode) {
     // SET WMAX BAR BG COLOR
     let wmaxBarBgColor;
     let hBarHint = obar._settings.get_int('headerbar-hint')/100;
-    if(scheme != 'prefer-dark') {
-        wmaxBarBgColor = [hBarHint*accentColor[0] + (1-hBarHint)*225, 
-                          hBarHint*accentColor[1] + (1-hBarHint)*225, 
-                          hBarHint*accentColor[2] + (1-hBarHint)*225];
+    if(requestMode == 'light') {
+        wmaxBarBgColor = [hBarHint*accentColor[0] + (1-hBarHint)*242, 
+                          hBarHint*accentColor[1] + (1-hBarHint)*242, 
+                          hBarHint*accentColor[2] + (1-hBarHint)*242];
     }
     else {
-        wmaxBarBgColor = [hBarHint*accentColor[0] + (1-hBarHint)*25,
-                          hBarHint*accentColor[1] + (1-hBarHint)*25,
-                          hBarHint*accentColor[2] + (1-hBarHint)*25];
+        wmaxBarBgColor = [hBarHint*accentColor[0] + (1-hBarHint)*42,
+                          hBarHint*accentColor[1] + (1-hBarHint)*42,
+                          hBarHint*accentColor[2] + (1-hBarHint)*42];
     }
 
 
     // MENU BORDER = SHADOW COLOR SELECTION (for MENU)
     let menuBorderPalette;
-    if(scheme != 'prefer-dark')
+    if(requestMode == 'light')
         menuBorderPalette = paletteArr.slice(0).map(x => x[0]).sort(compareLightness); // Sort for Dark colors
     else
         menuBorderPalette = paletteArr.slice(0).map(x => x[0]).sort(compareLightness).reverse(); // Sort for Light colors
