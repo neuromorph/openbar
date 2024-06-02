@@ -1050,12 +1050,17 @@
     <key type="i" name="headerbar-hint">
       <default>0</default>
       <summary>Add hint of accent color to headerbars</summary>
-      <description>Add hint of accent color to headerbarss.</description>
+      <description>Add hint of accent color to headerbars.</description>
     </key>
     <key type="i" name="sidebar-hint">
       <default>10</default>
       <summary>Add hint of accent color to sidebars</summary>
       <description>Add hint of accent color to sidebars.</description>
+    </key>
+    <key type="i" name="card-hint">
+      <default>10</default>
+      <summary>Add hint of accent color to cards and dialogs</summary>
+      <description>Add hint of accent color to cards and dialogs.</description>
     </key>
     <key type="b" name="sidebar-transparency">
       <default>false</default>
@@ -1066,6 +1071,16 @@
       <default>false</default>
       <summary>Traffic light window controls for Gtk apps</summary>
       <description>Traffic light window controls for Gtk apps.</description>
+    </key>
+    <key type="b" name="gtk-popover">
+      <default>false</default>
+      <summary>Apply menu styles to Gtk popovers</summary>
+      <description>Apply menu styles to Gtk popovers.</description>
+    </key>
+    <key type="b" name="set-yarutheme">
+      <default>false</default>
+      <summary>Whether to set Yaru theme closest to OpenBar accent</summary>
+      <description>Whether to set Yaru theme closest to OpenBar accent (Ubuntu).</description>
     </key>
     <key type="as" name="winbcolor">
       <default>['0.125', '0.125', '0.125']</default>
@@ -1088,7 +1103,7 @@
       <description>Transparency of gtk window border.</description>
     </key>
     <key type="d" name="winbwidth">
-      <default>1</default>
+      <default>0</default>
       <summary>Border width of gtk window</summary>
       <description>Border width of gtk window.</description>
     </key>
