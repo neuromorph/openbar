@@ -363,19 +363,19 @@ class OpenbarPrefs {
         });
 
         // Refresh auto-theme on accent-override switch change, if auto-theme set
-        this._settings.connect('changed::accent-override', () => {
-            const mode = this._settings.get_string('color-scheme');
-            let theme;
-            if(mode == 'prefer-dark')
-                theme = this._settings.get_string('autotheme-dark');
-            else
-                theme = this._settings.get_string('autotheme-light');
-            if(theme == 'Select Theme')
-                return;
-            setTimeout(() => {                
-                this.triggerAutoTheme();
-            }, 200);
-        });
+        // this._settings.connect('changed::accent-override', () => {
+        //     const mode = this._settings.get_string('color-scheme');
+        //     let theme;
+        //     if(mode == 'prefer-dark')
+        //         theme = this._settings.get_string('autotheme-dark');
+        //     else
+        //         theme = this._settings.get_string('autotheme-light');
+        //     if(theme == 'Select Theme')
+        //         return;
+        //     setTimeout(() => {                
+        //         this.triggerAutoTheme();
+        //     }, 200);
+        // });
 
         this.timeoutId = null;
 
@@ -451,7 +451,7 @@ class OpenbarPrefs {
 
         // Add a title label
         let titleLabel = new Gtk.Label({
-            label: `<span size="x-large">Top Bar and Beyond   </span>\n\n<span underline="none"><b>${_('Version:')} ${this.openbar.metadata.version}  |  <a href="${this.openbar.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${this.openbar.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕      </a></b></span>`,
+            label: `<span size="x-large">Top Bar and Beyond      </span>\n\n<span underline="none"><b>${_('Version:')} ${this.openbar.metadata.version}  |  <a href="${this.openbar.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${this.openbar.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕ 🍺     </a></b></span>`,
             halign: Gtk.Align.CENTER,
             valign: Gtk.Align.CENTER,
             justify: Gtk.Justification.CENTER,
@@ -889,6 +889,18 @@ class OpenbarPrefs {
 
         let fullscreenSwitch = this.createSwitchWidget("Turn Off only if you face any 'crash' issue (Mutter fullscreen lock issue)");
         bargrid.attach(fullscreenSwitch, 2, rowbar, 1, 1);
+        
+        rowbar += 1;
+
+        // Add a Bar Props Note label
+        let barNoteLabel = new Gtk.Label({
+            use_markup: true,
+            label: `<span allow_breaks="true">\n\nNote:\nHorizontal and Vertical paddings are available under 'Bar Highlights' tab.</span>`,
+            halign: Gtk.Align.START,
+            wrap: true,
+            width_chars: 55,
+        });
+        bargrid.attach(barNoteLabel, 1, rowbar, 2, 1);
 
         //////////////////////////////////////////////////////////////////////////////////
 
@@ -2097,6 +2109,18 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
+        // Add a Gtk Popover style switch
+        let popoverLbl = new Gtk.Label({
+            label: `Popover Styles`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(popoverLbl, 1, rowbar, 1, 1);
+
+        let popoverSwitch = this.createSwitchWidget('Apply menu styles to app popovers');
+        appgrid.attach(popoverSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 2;
+
         // Add a headerbar tint scale
         let hbHintLbl = new Gtk.Label({
             label: `Headerbar Hint`,
@@ -2121,6 +2145,30 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
+        // Add a Card / Dialog tint scale
+        let cdHintLbl = new Gtk.Label({
+            label: `Card/Dialog Hint`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(cdHintLbl, 1, rowbar, 1, 1);
+
+        let cdHintScale = this.createScaleWidget(0, 100, 1, 0, 'Adds hint of Accent color to Cards and Dialogs');
+        appgrid.attach(cdHintScale, 2, rowbar, 1, 1);
+
+        rowbar += 3;
+
+        // Add a traffic light switch
+        let trfLightLbl = new Gtk.Label({
+            label: `Traffic Light Controls`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(trfLightLbl, 1, rowbar, 1, 1);
+
+        let trfLightSwitch = this.createSwitchWidget('Apply Traffic Light Window Control Buttons');
+        appgrid.attach(trfLightSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 3;
+
         // Add a window border color button
         let winBColorLbl = new Gtk.Label({
             label: `Border Color`,
@@ -2128,7 +2176,7 @@ class OpenbarPrefs {
         });
         appgrid.attach(winBColorLbl, 1, rowbar, 1, 1);
 
-        let winBColorBtn = this.createColorWidget(window, 'Window Border Color', '', 'winbcolor');
+        let winBColorBtn = this.createColorWidget(window, 'Window Border Color', 'Window Border Color', 'winbcolor');
         appgrid.attach(winBColorBtn, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -2155,7 +2203,7 @@ class OpenbarPrefs {
         let winBWidthScale = this.createScaleWidget(0, 10, 0.1, 1, 'Window Border Width');
         appgrid.attach(winBWidthScale, 2, rowbar, 1, 1);
 
-        rowbar += 1;
+        rowbar += 2;
         
         // Add a transparency switch
         let sbTransLbl = new Gtk.Label({
@@ -2168,16 +2216,28 @@ class OpenbarPrefs {
         appgrid.attach(sbTransSwitch, 2, rowbar, 1, 1);
 
         rowbar += 1;
+
+        // Add a Yaru Theme Note label
+        let yaruNoteLabel = new Gtk.Label({
+            use_markup: true,
+            label: `<span allow_breaks="true">Auto-Set Gtk/Icons Yaru theme that is closest to Open Bar Accent.\nYaru themes need to be installed (default in Ubuntu).</span>`,
+            halign: Gtk.Align.START,
+            margin_top: 10,
+            wrap: true,
+        });
+        appgrid.attach(yaruNoteLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
         
-        // Add a traffic light switch
-        let trfLightLbl = new Gtk.Label({
-            label: `Traffic Light Controls`,
+        // Add a Yaru theme switch
+        let yaruThemeLbl = new Gtk.Label({
+            label: `Set Yaru Theme`,
             halign: Gtk.Align.START,
         });
-        appgrid.attach(trfLightLbl, 1, rowbar, 1, 1);
+        appgrid.attach(yaruThemeLbl, 1, rowbar, 1, 1);
 
-        let trfLightSwitch = this.createSwitchWidget('Apply Traffic Light Window Control Buttons');
-        appgrid.attach(trfLightSwitch, 2, rowbar, 1, 1);
+        let yaruThemeSwitch = this.createSwitchWidget('Auto-set Yaru theme closest to the accent color');
+        appgrid.attach(yaruThemeSwitch, 2, rowbar, 1, 1);
         
 
         rowbar += 2;
@@ -2828,14 +2888,32 @@ class OpenbarPrefs {
             Gio.SettingsBindFlags.DEFAULT
         );
         this._settings.bind(
+            'card-hint',
+            cdHintScale.adjustment,
+            'value',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
             'sidebar-transparency',
             sbTransSwitch,
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
         this._settings.bind(
+            'gtk-popover',
+            popoverSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
             'traffic-light',
             trfLightSwitch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'set-yarutheme',
+            yaruThemeSwitch,
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
