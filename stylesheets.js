@@ -192,10 +192,12 @@ function createGtkCss(obar) {
     // Add hint of Accent color to Headerbar and Sidebar
     let hBarHint = obar._settings.get_int('headerbar-hint')/100;
     let sBarHint = obar._settings.get_int('sidebar-hint')/100;
+    let cdHint = obar._settings.get_int('card-hint')/100;
     let hBarHintBd = hBarHint/2;
     let sBarHintBd = sBarHint/2;
     let sBarTransparency = obar._settings.get_boolean('sidebar-transparency');
     let trafficLightButtons = obar._settings.get_boolean('traffic-light');
+    let popoverMenu = obar._settings.get_boolean('gtk-popover');
     let winBAlpha = obar._settings.get_double('winbalpha');
     let winBWidth = obar._settings.get_double('winbwidth');
     let winBColor = obar._settings.get_strv('winbcolor');
@@ -206,6 +208,11 @@ function createGtkCss(obar) {
     const accRed = parseInt(parseFloat(accent[0]) * 255);
     const accGreen = parseInt(parseFloat(accent[1]) * 255);
     const accBlue = parseInt(parseFloat(accent[2]) * 255);
+    let mbgAlpha = obar._settings.get_double('mbgalpha');
+    let mbgColor = obar._settings.get_strv('mbgcolor');
+    const mbgRed = parseInt(parseFloat(mbgColor[0]) * 255);
+    const mbgGreen = parseInt(parseFloat(mbgColor[1]) * 255);
+    const mbgBlue = parseInt(parseFloat(mbgColor[2]) * 255);
     
     let bgRed, bgGreen, bgBlue;
     const colorScheme = obar._intSettings.get_string('color-scheme');
@@ -251,6 +258,12 @@ function createGtkCss(obar) {
         afgRed = afgGreen = afgBlue = 255;
     else
         afgRed = afgGreen = afgBlue = 20;
+        
+    let mfgRed, mfgGreen, mfgBlue;
+    if(getBgDark(mbgRed, mbgGreen, mbgBlue))
+        mfgRed = mfgGreen = mfgBlue = 255;
+    else
+        mfgRed = mfgGreen = mfgBlue = 20;
 
     
     let gtkstring = `
@@ -260,6 +273,13 @@ function createGtkCss(obar) {
     @define-color accent_color rgba(${accRed}, ${accGreen}, ${accBlue}, 1.0);
     @define-color accent_bg_color rgba(${accRed}, ${accGreen}, ${accBlue}, 0.85);
     @define-color accent_fg_color rgba(${afgRed}, ${afgGreen}, ${afgBlue}, 0.9);
+    
+    link {
+        color: @accent_bg_color;
+    }
+    link:hover {
+        color: @accent_color;
+    }
 
     /* Toggle Switch */ 
     switch {
@@ -327,11 +347,11 @@ function createGtkCss(obar) {
         gtkstring += `
         @define-color sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${sbAlpha});
         @define-color sidebar_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${sbAlpha});
-        @define-color sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.85);
+        @define-color sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.9);
 
         @define-color secondary_sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${sbAlpha});
         @define-color secondary_sidebar_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${sbAlpha});    
-        @define-color secondary_sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.85);
+        @define-color secondary_sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.9);
         
         .sidebar,
         .navigation-sidebar,
@@ -348,6 +368,28 @@ function createGtkCss(obar) {
         .sidebar-pane .content-pane:backdrop,
         scrolledwindow>viewport>list:backdrop {
             background-color: @sidebar_backdrop_color;
+        }
+        `;
+    }
+    
+    if(cdHint) {
+        gtkstring += `
+        @define-color card_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${sbAlpha});
+        @define-color card_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${sbAlpha});
+        @define-color card_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.9);
+        
+        @define-color dialog_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${sbAlpha});
+        @define-color dialog_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${sbAlpha});
+        @define-color dialog_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.9);
+        `;
+    }
+    
+    if(popoverMenu) {
+        gtkstring += `
+        @define-color popover_bg_color rgba(${mbgRed}, ${mbgGreen}, ${mbgBlue}, ${mbgAlpha});
+        @define-color popover_fg_color rgba(${mfgRed}, ${mfgGreen}, ${mfgBlue}, 0.9);
+        popover > contents {
+            ${obar.menuContentStyle} 
         }
         `;
     }
@@ -387,7 +429,7 @@ function createGtkCss(obar) {
 
         button.titlebutton:hover,
         windowcontrols > button:hover {
-            color: #fffd;
+            color: #fff;
         }
         
         button.titlebutton.close, 
@@ -1298,13 +1340,20 @@ function saveStylesheet(obar, Me) {
         background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}); /* menu bg */
         color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}); /* menu fg */ 
         border-radius: ${menuRadius}px; `;
-    
+    obar.menuContentStyle =
+    `   box-shadow: 0 0px 2px 0 rgba(${mshred},${mshgreen},${mshblue},${0.5*mshAlpha});
+        border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${mbAlpha});
+        background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha});
+        color: rgba(${mfgred},${mfggreen},${mfgblue},${0.9*mfgAlpha});
+        border-radius: ${menuRadius}px; `;
     if(mbgGradient) {
-        menuContentStyle +=
+        let mGradientStyle = 
         `   box-shadow: none !important;
             background-image: url(media/menu.svg);
             background-repeat: no-repeat;
             background-size: cover; `;
+        menuContentStyle += mGradientStyle;
+        obar.menuContentStyle += mGradientStyle;
     }
 
     // Slider
@@ -1797,7 +1846,7 @@ function saveStylesheet(obar, Me) {
             border-radius: 50px;
         }
         ${openmenuClass}.dnd-button:hover {
-            border-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            border-color: ${mhbg} !important;
         }
         ${openmenuClass}.dnd-button:focus {
             border-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
@@ -2924,7 +2973,7 @@ function saveStylesheet(obar, Me) {
             background-color: ${smhbg} !important;
         }        
         .screenshot-ui-capture-button:hover, .screenshot-ui-capture-button:focus {
-            border-color: rgba(${mhred},${mhgreen},${mhblue},1) !important;
+            border-color: ${msc} !important;
         }
         .screenshot-ui-capture-button:cast .screenshot-ui-capture-button-circle {
             background-color: rgba(${destructRed},${destructGreen},${destructBlue},1.0) !important;
