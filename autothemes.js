@@ -1313,6 +1313,39 @@ export function onModeChange(obar) {
     triggerStyleReload(obar);
 }
 
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? [
+      parseInt(result[1], 16),
+      parseInt(result[2], 16),
+      parseInt(result[3], 16)
+    ] : null;
+}
+  
+// Find Yaru theme with Accent color closest to theme accent color
+export function getClosestYaruTheme(obar) {
+    let yaruThemes = ['default', 'bark', 'sage', 'olive', 'viridian', 'prussiangreen', 'blue', 'purple', 'magenta', 'red'];
+    let yaruAccentsHex = ['#E95420', '#787859', '#657B69', '#4B8501', '#03875B', '#308280', '#0073E5', '#7764D8', '#B34CB3', '#DA3450'];
+    let yaruAccents = yaruAccentsHex.map(x => hexToRgb(x));
+
+    let themeAccent = obar._settings.get_strv('mscolor');
+    themeAccent = [parseInt(parseFloat(themeAccent[0])*255), 
+                    parseInt(parseFloat(themeAccent[1])*255), 
+                    parseInt(parseFloat(themeAccent[2])*255)];
+
+    let closest = 1000;
+    let closestTheme = 'default';
+    for(let i = 0; i < yaruAccents.length; i++) {
+        let dist = colorDistance2000(themeAccent, yaruAccents[i]);
+        if(dist < closest) {
+            closest = dist;
+            closestTheme = yaruThemes[i];
+        }
+    }
+
+    return closestTheme;
+}
+
 function triggerStyleReload(obar) {
     // Cause stylesheet to save and reload on Enable by toggling 'trigger-reload'
     let triggerReload = obar._settings.get_boolean('trigger-reload');

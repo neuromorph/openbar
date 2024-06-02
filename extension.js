@@ -546,9 +546,9 @@ export default class Openbar extends Extension {
             this.reloadStylesheet();
         }
 
-        if(key == 'apply-gtk' || key == 'headerbar-hint' || key == 'sidebar-hint'
+        if(key == 'apply-gtk' || key == 'headerbar-hint' || key == 'sidebar-hint' || key == 'card-hint'
         || key == 'winbcolor' || key == 'winbalpha' || key == 'winbwidth' || key == 'traffic-light'
-        || key == 'sidebar-transparency' || key == 'mscolor' || key == 'msalpha') {
+        || key == 'sidebar-transparency' || key == 'gtk-popover' || key == 'mscolor' || key == 'msalpha') {
             // console.log('Call saveGtkCss from extension for key: ', key);
             this.gtkCSS = true;
             if(key != 'mscolor' && key != 'msalpha')
@@ -568,6 +568,30 @@ export default class Openbar extends Extension {
         if(key == 'mscolor') {
             this.msSVG = true;
             this.smfgSVG = true;
+        }
+        if(key == 'mscolor' || key == 'set-yarutheme') {
+            let setYaruTheme = this._settings.get_boolean('set-yarutheme');
+            if(key == 'set-yarutheme') {
+                if(setYaruTheme) {
+                    this.yaruBackup = this._intSettings.get_string('gtk-theme');
+                    this.iconBackup = this._intSettings.get_string('icon-theme');
+                }
+                else {
+                    if(this.yaruBackup)
+                        this._intSettings.set_string('gtk-theme', this.yaruBackup);
+                    if(this.iconBackup)
+                        this._intSettings.set_string('icon-theme', this.iconBackup);
+                }
+            }
+            if(setYaruTheme) {
+                let colorScheme = this._intSettings.get_string('color-scheme');
+                let modeSuffix = colorScheme == 'prefer-dark' ? '-dark' : '';
+                let yaruColor = AutoThemes.getClosestYaruTheme(this);
+                yaruColor = (yaruColor == 'default') ? '' : '-'+yaruColor;
+                let yaruTheme = 'Yaru' + yaruColor + modeSuffix; log('YARUTHEME ', yaruTheme);
+                this._intSettings.set_string('gtk-theme', yaruTheme);
+                this._intSettings.set_string('icon-theme', yaruTheme);
+            }               
         }
         else if(key == 'mfgcolor' || key == 'mbgcolor' || key == 'smbgcolor' || key == 'smbgoverride') {
             this.smfgSVG = true;
