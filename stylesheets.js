@@ -1341,8 +1341,8 @@ function saveStylesheet(obar, Me) {
         color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}); /* menu fg */ 
         border-radius: ${menuRadius}px; `;
     obar.menuContentStyle =
-    `   box-shadow: 0 0px 2px 0 rgba(${mshred},${mshgreen},${mshblue},${0.5*mshAlpha});
-        border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${mbAlpha});
+    `   box-shadow: 0 0px 3px -1px rgba(${mshred},${mshgreen},${mshblue},${0.5*mshAlpha});
+        border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${0.5*mbAlpha});
         background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha});
         color: rgba(${mfgred},${mfggreen},${mfgblue},${0.9*mfgAlpha});
         border-radius: ${menuRadius}px; `;
