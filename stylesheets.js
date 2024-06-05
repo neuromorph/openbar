@@ -195,6 +195,7 @@ function createGtkCss(obar) {
     let cdHint = obar._settings.get_int('card-hint')/100;
     let hBarHintBd = hBarHint/2;
     let sBarHintBd = sBarHint/2;
+    let cdHintBd = cdHint/2;
     let sBarTransparency = obar._settings.get_boolean('sidebar-transparency');
     let trafficLightButtons = obar._settings.get_boolean('traffic-light');
     let popoverMenu = obar._settings.get_boolean('gtk-popover');
@@ -234,6 +235,13 @@ function createGtkCss(obar) {
     const sbdRed = sBarHintBd * accRed + (1-sBarHintBd) * bgRed;
     const sbdGreen = sBarHintBd * accGreen + (1-sBarHintBd) * bgGreen;
     const sbdBlue = sBarHintBd * accBlue + (1-sBarHintBd) * bgBlue;
+    
+    const cbgRed = cdHint * accRed + (1-cdHint) * bgRed;
+    const cbgGreen = cdHint * accGreen + (1-cdHint) * bgGreen;
+    const cbgBlue = cdHint * accBlue + (1-cdHint) * bgBlue;
+    const cbdRed = cdHintBd * accRed + (1-cdHintBd) * bgRed;
+    const cbdGreen = cdHintBd * accGreen + (1-cdHintBd) * bgGreen;
+    const cbdBlue = cdHintBd * accBlue + (1-cdHintBd) * bgBlue;
 
     const sbAlpha = sBarTransparency? 0.65 : 1.0;
 
@@ -264,6 +272,12 @@ function createGtkCss(obar) {
         mfgRed = mfgGreen = mfgBlue = 255;
     else
         mfgRed = mfgGreen = mfgBlue = 20;
+    
+    let cfgRed, cfgGreen, cfgBlue;
+    if(getBgDark(cbgRed, cbgGreen, cbgBlue))
+        cfgRed = cfgGreen = cfgBlue = 255;
+    else
+        cfgRed = cfgGreen = cfgBlue = 20;
 
     
     let gtkstring = `
@@ -374,13 +388,13 @@ function createGtkCss(obar) {
     
     if(cdHint) {
         gtkstring += `
-        @define-color card_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${sbAlpha});
-        @define-color card_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${sbAlpha});
-        @define-color card_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.9);
+        @define-color card_bg_color rgb(${cbgRed}, ${cbgGreen}, ${cbgBlue});
+        @define-color card_backdrop_color rgb(${cbdRed}, ${cbdGreen}, ${cbdBlue});
+        @define-color card_fg_color rgba(${cfgRed}, ${cfgGreen}, ${cfgBlue}, 0.9);
         
-        @define-color dialog_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${sbAlpha});
-        @define-color dialog_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${sbAlpha});
-        @define-color dialog_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.9);
+        @define-color dialog_bg_color rgb(${cbgRed}, ${cbgGreen}, ${cbgBlue});
+        @define-color dialog_backdrop_color rgb(${cbdRed}, ${cbdGreen}, ${cbdBlue});
+        @define-color dialog_fg_color rgba(${cfgRed}, ${cfgGreen}, ${cfgBlue}, 0.9);
         `;
     }
     
@@ -783,8 +797,6 @@ function saveStylesheet(obar, Me) {
     // success     Dark: 26a269 (38,162,105)   Light: 2ec27e (46,194,126)
     // warning     Dark: f6d32d (246,211,45)   Light: f5c211 (245,194,17)
 
-    const darkMode = obar.colorScheme == 'prefer-dark';
-
     let warningRed = parseInt(parseFloat(warningColor[0]) * 255);
     let warningGreen = parseInt(parseFloat(warningColor[1]) * 255);
     let warningBlue = parseInt(parseFloat(warningColor[2]) * 255);
@@ -874,16 +886,10 @@ function saveStylesheet(obar, Me) {
 
 
     const mbg = `rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha})`; // menu bg
-    const mfg = `rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha})`; // menu fg
-    const mhg = `rgba(${mhred},${mhgreen},${mhblue},${mhAlpha})`; // menu highlight
+    // const mfg = `rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha})`; // menu fg
+    // const mhg = `rgba(${mhred},${mhgreen},${mhblue},${mhAlpha})`; // menu highlight
     const msc = `rgba(${msred},${msgreen},${msblue},${msAlpha})`; // menu selection/accent
-
-    // Two ways to mix colors, currently both in use
-    // Menu highlight fg color
-    let mhfgred = colorMix(mfgred, mhred, -0.12);
-    let mhfggreen = colorMix(mfggreen, mhgreen, -0.12);
-    let mhfgblue = colorMix(mfgblue, mhblue, -0.12);
-    let mhfg = colorBlend(mfg, mhg, -0.18);
+    
 
     // Sub/Secondary menu color -
     let smbg, smbgred, smbggreen, smbgblue;
@@ -908,19 +914,106 @@ function saveStylesheet(obar, Me) {
     }
 
     // Save smbg hex for use in toggle off svg
-    obar.smbgHex = rgbToHex(smbgred, smbggreen, smbgblue);
-    obar.smbgHex = obar.smbgHex + parseInt(parseFloat(mbgAlpha)*255).toString(16);
+    // obar.smbgHex = rgbToHex(smbgred, smbggreen, smbgblue);
+    // obar.smbgHex = obar.smbgHex + parseInt(parseFloat(mbgAlpha)*255).toString(16);
     
     // Submenu highlight bg color (notifications pane)
-    const mhg1 = `rgba(${mhred},${mhgreen},${mhblue},1)`; // menu highlight with 1 alpha
-    let mhbg = colorBlend(mbg, mhg1, mhAlpha); // menu blended highlight bg
-    let smhbg = colorBlend(smbg, mhg1, mhAlpha); // sub menu blended highlight bg 
+    // const mhg1 = `rgba(${mhred},${mhgreen},${mhblue},1)`; // menu highlight with 1 alpha
+    // let mhbg = colorBlend(mbg, mhg1, mhAlpha); // menu blended highlight bg
+    // let smhbg = colorBlend(smbg, mhg1, mhAlpha); // sub menu blended highlight bg 
 
     // Menu selection highlight color
-    let mshg = colorBlend(msc, mhg, mhAlpha);
+    // let mshg = colorBlend(msc, mhg, mhAlpha);
+
+    
+    // Auto Highlight BG colors
+    let hspThresh = 155, hgColor, bgColor, bgDarkThresh = 135, bgLightThresh = 190;
+    
+    function getAutoHgColor(bgColor) { 
+        let bgHsp = getHSP(bgColor[0], bgColor[1], bgColor[2]);
+        if(bgHsp <= bgLightThresh) {
+            let rgb = bgHsp + 50;
+            hgColor = [rgb, rgb, rgb];
+        }
+        else {
+            let rgb = bgHsp - 80;
+            hgColor = [rgb, rgb, rgb];
+        }
+        // log('getAutoHgColor: hgColor, bgColor, bgHsp ', hgColor, bgColor, bgHsp);
+        return hgColor;
+    }
+
+    // Bar Auto Highlight
+    let autohgBar = obar._settings.get_boolean('autohg-bar');
+    hgColor = [hred, hgreen, hblue];
+    bgColor = [bgred, bggreen, bgblue];
+    if(autohgBar)
+        hgColor = getAutoHgColor(bgColor);
+    
+    let hbgred = bgred*(1-hAlpha) + hgColor[0]*hAlpha;
+    let hbggreen = bggreen*(1-hAlpha) + hgColor[1]*hAlpha;
+    let hbgblue = bgblue*(1-hAlpha) + hgColor[2]*hAlpha;
+    let phbg = `rgba(${hbgred},${hbggreen},${hbgblue},${bgalpha})`;
+
+    // Island Auto Highlight
+    hgColor = [hred, hgreen, hblue];
+    bgColor = [isred, isgreen, isblue];
+    if(autohgBar)
+        hgColor = getAutoHgColor(bgColor);
+
+    let ishbgred = isred*(1-hAlpha) + hgColor[0]*hAlpha;
+    let ishbggreen = isgreen*(1-hAlpha) + hgColor[1]*hAlpha;
+    let ishbgblue = isblue*(1-hAlpha) + hgColor[2]*hAlpha;
+    let ihbg = `rgba(${ishbgred},${ishbggreen},${ishbgblue},${isalpha})`;
+
+    // Menu Auto Highlight
+    let autohgMenu = obar._settings.get_boolean('autohg-menu');
+    hgColor = [mhred, mhgreen, mhblue];
+    bgColor = [mbgred, mbggreen, mbgblue];
+    if(autohgMenu)
+        hgColor = getAutoHgColor(bgColor);
+
+    let mhbgred = mbgred*(1-mhAlpha) + hgColor[0]*mhAlpha;
+    let mhbggreen = mbggreen*(1-mhAlpha) + hgColor[1]*mhAlpha;
+    let mhbgblue = mbgblue*(1-mhAlpha) + hgColor[2]*mhAlpha;
+    let mhbg = `rgba(${mhbgred},${mhbggreen},${mhbgblue},${mbgAlpha})`;
+    
+    // Sub Menu Auto Highlight
+    hgColor = [mhred, mhgreen, mhblue];
+    bgColor = [smbgred, smbggreen, smbgblue];
+    if(autohgMenu)
+        hgColor = getAutoHgColor(bgColor);   
+
+    let smhbgred = smbgred*(1-mhAlpha) + hgColor[0]*mhAlpha;
+    let smhbggreen = smbggreen*(1-mhAlpha) + hgColor[1]*mhAlpha;
+    let smhbgblue = smbgblue*(1-mhAlpha) + hgColor[2]*mhAlpha;
+    let smhbg = `rgba(${smhbgred},${smhbggreen},${smhbgblue},${mbgAlpha})`;
+
+    // Active/Accent Auto Highlight
+    hgColor = [mhred, mhgreen, mhblue];
+    bgColor = [msred, msgreen, msblue];
+    if(autohgMenu)
+        hgColor = getAutoHgColor(bgColor);
+
+    let mshbgred = msred*(1-mhAlpha) + hgColor[0]*mhAlpha;
+    let mshbggreen = msgreen*(1-mhAlpha) + hgColor[1]*mhAlpha;
+    let mshbgblue = msblue*(1-mhAlpha) + hgColor[2]*mhAlpha;
+    let mshg = `rgba(${mshbgred},${mshbggreen},${mshbgblue},${msAlpha})`; //msalpha
+
 
     ///// FG COLORS for BAR and MENU
+    // Bar highlight fg color
     let hfgred, hfggreen, hfgblue;
+    if(bartype == 'Mainland' || bartype == 'Floating') {
+        hfgred = colorMix(fgred, hbgred, -0.12);
+        hfggreen = colorMix(fggreen, hbggreen, -0.12);
+        hfgblue = colorMix(fgblue, hbgblue, -0.12);
+    }
+    else {
+        hfgred = colorMix(fgred, ishbgred, -0.12);
+        hfggreen = colorMix(fggreen, ishbggreen, -0.12);
+        hfgblue = colorMix(fgblue, ishbgblue, -0.12);
+    }
     if(autofgBar) {
         // Bar auto fg color
         let dark;
@@ -937,14 +1030,14 @@ function saveStylesheet(obar, Me) {
             hfgred = hfggreen = hfgblue = 0;
         }
     }
-    else { // Manual overrides
-        hfgred = fgred;
-        hfggreen = fggreen;
-        hfgblue = fgblue;
-    }
 
     // Set menu auto FG colors as per background OR else set as per user override
     let smfgred, smfggreen, smfgblue, smhfgred, smhfggreen, smhfgblue, amfgred, amfggreen, amfgblue, amhfgred, amhfggreen, amhfgblue;
+    // Menu highlight fg color
+    let mhfgred = colorMix(mfgred, mhred, -0.12);
+    let mhfggreen = colorMix(mfggreen, mhgreen, -0.12);
+    let mhfgblue = colorMix(mfgblue, mhblue, -0.12);
+
     if(autofgMenu) {
         // Menu auto fg color
         if(getBgDark(mbgred, mbggreen, mbgblue)) {
@@ -992,84 +1085,6 @@ function saveStylesheet(obar, Me) {
     }
     // Save submenu fg hex for use in calendar-today svg
     obar.smfgHex = rgbToHex(smfgred, smfggreen, smfgblue);
-
-
-    // Auto Highlight BG colors
-    let hspThresh = 155, hgColor, bgColor, bgDarkThresh = 135, bgLightThresh = 190;
-    function getAutoHgColor(bgColor) { 
-        let bgHsp = getHSP(bgColor[0], bgColor[1], bgColor[2]);
-
-        if(bgHsp <= bgLightThresh) {
-            let rgb = bgHsp + 50;
-            // if(bgHsp < hspThresh)
-            //     rgb = bgHsp + 50;
-            hgColor = [rgb, rgb, rgb];
-        }
-        else {
-            let rgb = bgHsp - 80;
-            hgColor = [rgb, rgb, rgb];
-        }
-        // log('getAutoHgColor: hgColor, bgColor, bgHsp ', hgColor, bgColor, bgHsp);
-
-        return hgColor;
-    }
-
-    // Bar Auto Highlight
-    let autohgBar = obar._settings.get_boolean('autohg-bar');
-    hgColor = [hred, hgreen, hblue];
-    bgColor = [bgred, bggreen, bgblue];
-    if(autohgBar)
-        hgColor = getAutoHgColor(bgColor);
-    
-    let hbgred = bgred*(1-hAlpha) + hgColor[0]*hAlpha;
-    let hbggreen = bggreen*(1-hAlpha) + hgColor[1]*hAlpha;
-    let hbgblue = bgblue*(1-hAlpha) + hgColor[2]*hAlpha;
-    let phbg = `rgba(${hbgred},${hbggreen},${hbgblue},${bgalpha})`;
-
-    // Island Auto Highlight
-    hgColor = [hred, hgreen, hblue];
-    bgColor = [isred, isgreen, isblue];
-    if(autohgBar)
-        hgColor = getAutoHgColor(bgColor);
-
-    let ishbgred = isred*(1-hAlpha) + hgColor[0]*hAlpha;
-    let ishbggreen = isgreen*(1-hAlpha) + hgColor[1]*hAlpha;
-    let ishbgblue = isblue*(1-hAlpha) + hgColor[2]*hAlpha;
-    let ihbg = `rgba(${ishbgred},${ishbggreen},${ishbgblue},${isalpha})`;
-
-    // Menu Auto Highlight
-    let autohgMenu = obar._settings.get_boolean('autohg-menu');
-    hgColor = [mhred, mhgreen, mhblue];
-    bgColor = [mbgred, mbggreen, mbgblue];
-    if(autohgMenu)
-        hgColor = getAutoHgColor(bgColor);
-
-    let mhbgred = mbgred*(1-mhAlpha) + hgColor[0]*mhAlpha;
-    let mhbggreen = mbggreen*(1-mhAlpha) + hgColor[1]*mhAlpha;
-    let mhbgblue = mbgblue*(1-mhAlpha) + hgColor[2]*mhAlpha;
-    mhbg = `rgba(${mhbgred},${mhbggreen},${mhbgblue},${mbgAlpha})`;
-    
-    // Sub Menu Auto Highlight
-    hgColor = [mhred, mhgreen, mhblue];
-    bgColor = [smbgred, smbggreen, smbgblue];
-    if(autohgMenu)
-        hgColor = getAutoHgColor(bgColor);   
-
-    let smhbgred = smbgred*(1-mhAlpha) + hgColor[0]*mhAlpha;
-    let smhbggreen = smbggreen*(1-mhAlpha) + hgColor[1]*mhAlpha;
-    let smhbgblue = smbgblue*(1-mhAlpha) + hgColor[2]*mhAlpha;
-    smhbg = `rgba(${smhbgred},${smhbggreen},${smhbgblue},${mbgAlpha})`;
-
-    // Active/Accent Auto Highlight
-    hgColor = [mhred, mhgreen, mhblue];
-    bgColor = [msred, msgreen, msblue];
-    if(autohgMenu)
-        hgColor = getAutoHgColor(bgColor);
-
-    let mshbgred = msred*(1-mhAlpha) + hgColor[0]*mhAlpha;
-    let mshbggreen = msgreen*(1-mhAlpha) + hgColor[1]*mhAlpha;
-    let mshbgblue = msblue*(1-mhAlpha) + hgColor[2]*mhAlpha;
-    mshg = `rgba(${mshbgred},${mshbggreen},${mshbgblue},${msAlpha})`; //msalpha
 
 
     //== Define Styles for Bar components ==//
@@ -1923,7 +1938,7 @@ function saveStylesheet(obar, Me) {
         }
         ${openmenuClass}.calendar-day-heading:focus  {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-            background-color: rgba(${mhred},${mhgreen},${mhblue},${mhAlpha}) !important;
+            background-color: rgba(${smhbgred},${smhbggreen},${smhbgblue},${mhAlpha}) !important;
             box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
         }
         ${openmenuClass}.calendar-day {
@@ -2233,6 +2248,7 @@ function saveStylesheet(obar, Me) {
     function shadeSMbg(transparentize, shade) {
         return colorShade(`rgba(${smbgred},${smbggreen},${smbgblue},${transparentize*mbgAlpha})`, shade);
     }
+    const darkMode = obar.colorScheme == 'prefer-dark';
     let baseBgColor = darkMode? 'rgba(75, 75, 75, 0.8)' : 'rgba(200, 200, 200, 0.8)';
     let baseFgColor = darkMode? 'rgb(255, 255, 255)' : 'rgb(25, 25, 25)';
     let baseHintFgColor = darkMode? 'rgba(255, 255, 255, 0.7)' : 'rgba(25, 25, 25, 0.7)';
