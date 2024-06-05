@@ -19,9 +19,9 @@
 
 .openbar-prefs-box {
     padding: 0px;
-    margin: 0px;
+    margin-top: -10px;
     /* background: transparent; */
-    /* background-color: alpha(@window_bg_color, 1); */
+    /* background-color: alpha(@window_bg_color, 1); */  
 }
 
 .openbar-prefs-box:backdrop {
@@ -29,13 +29,14 @@
 }
 
 .openbar-titlegrid {
-
+    padding-top: 0px;
 }
 .openbar-title {
-    text-shadow: 1px 1px rgba(125, 125, 125, 0.25);
+    text-shadow: 1px 1px rgba(25, 25, 25, 0.1);
 }
 .openbar-image {
     border-radius: 14px;
+    margin-top: 0px;
 }
 
 .openbar-stack-box {
@@ -74,7 +75,7 @@
 }
 
 .openbar-quotebox {
-    
+
 }
 
 .openbar-message {

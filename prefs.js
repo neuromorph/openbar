@@ -355,10 +355,9 @@ class OpenbarPrefs {
 
     fillOpenbarPrefs(window, openbar) {
 
-        window.set_title(_("Open Bar"));
-        window.set_decorated(true);
-        window.default_height = 936;
-        window.default_width = 826;
+        window.default_width = 825;
+        window.default_height = 910;        
+        window.set_size_request(815, 880);
 
         window.paletteButtons = [];
         window.colorButtons = [];
@@ -443,10 +442,15 @@ class OpenbarPrefs {
             name: 'settings',
             title: _('Settings'),
             icon_name: 'emblem-system-symbolic',
+            vexpand: true,
+            hexpand: true,
         });
         window.add(settingsPage);
 
-        const settingsGroup = new Adw.PreferencesGroup();
+        const settingsGroup = new Adw.PreferencesGroup({
+            vexpand: true,
+            hexpand: true,
+        });
         settingsPage.add(settingsGroup);
 
 
@@ -2130,7 +2134,7 @@ class OpenbarPrefs {
             halign: Gtk.Align.START,
             wrap: true,
             margin_top: 10,
-            width_chars: 65,
+            width_chars: 55,
         });
         appgrid.attach(appInfoLabel, 1, rowbar, 2, 1);
 
