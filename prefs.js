@@ -356,8 +356,8 @@ class OpenbarPrefs {
     fillOpenbarPrefs(window, openbar) {
 
         window.default_width = 825;
-        window.default_height = 910;        
-        window.set_size_request(815, 880);
+        window.default_height = 915;        
+        window.set_size_request(815, 885);
 
         window.paletteButtons = [];
         window.colorButtons = [];
