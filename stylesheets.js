@@ -1032,11 +1032,21 @@ function saveStylesheet(obar, Me) {
     }
 
     // Set menu auto FG colors as per background OR else set as per user override
-    let smfgred, smfggreen, smfgblue, smhfgred, smhfggreen, smhfgblue, amfgred, amfggreen, amfgblue, amhfgred, amhfggreen, amhfgblue;
+    let smfgred, smfggreen, smfgblue, amfgred, amfggreen, amfgblue;
     // Menu highlight fg color
-    let mhfgred = colorMix(mfgred, mhred, -0.12);
-    let mhfggreen = colorMix(mfggreen, mhgreen, -0.12);
-    let mhfgblue = colorMix(mfgblue, mhblue, -0.12);
+    let mhfgred = colorMix(mfgred, mhbgred, -0.12);
+    let mhfggreen = colorMix(mfggreen, mhbggreen, -0.12);
+    let mhfgblue = colorMix(mfgblue, mhbgblue, -0.12);
+
+    // Sub Menu highlight fg color
+    let smhfgred = colorMix(mfgred, smhbgred, -0.12);
+    let smhfggreen = colorMix(mfggreen, smhbggreen, -0.12);
+    let smhfgblue = colorMix(mfgblue, smhbgblue, -0.12);
+
+    // Accent highlight fg color
+    let amhfgred = colorMix(mfgred, mshbgred, -0.12);
+    let amhfggreen = colorMix(mfggreen, mshbggreen, -0.12);
+    let amhfgblue = colorMix(mfgblue, mshbgblue, -0.12);
 
     if(autofgMenu) {
         // Menu auto fg color
@@ -1073,15 +1083,9 @@ function saveStylesheet(obar, Me) {
         smfgred = mfgred;
         smfggreen = mfggreen;
         smfgblue = mfgblue;
-        smhfgred = mhfgred;
-        smhfggreen = mhfggreen;
-        smhfgblue = mhfgblue;
         amfgred = mfgred;
         amfggreen = mfggreen;
         amfgblue = mfgblue;
-        amhfgred = mhfgred;
-        amhfggreen = mhfggreen;
-        amhfgblue = mhfgblue;
     }
     // Save submenu fg hex for use in calendar-today svg
     obar.smfgHex = rgbToHex(smfgred, smfggreen, smfgblue);
