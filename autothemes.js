@@ -498,8 +498,8 @@ export function autoApplyBGPalette(obar, requestMode) {
         MBG_LIGHT_TARGET = 6;
         MBG_SAT_HIGH = 80;
 
-        MBG_LIGHT_MIN = 15;
-        MBG_LIGHT_MAX = 25;
+        MBG_LIGHT_MIN = 12; //15
+        MBG_LIGHT_MAX = 20; //25
         MBG_SAT_MIN = 15;
         MBG_SAT_MAX = 25;
         MBG_SAT_DND_MIN = 10;
@@ -507,8 +507,8 @@ export function autoApplyBGPalette(obar, requestMode) {
         SMBG_LIGHT_HIGH = 60;
         SMBG_SAT_HIGH = 80;
 
-        SMBG_LIGHT_MIN = 25;
-        SMBG_LIGHT_MAX = 35;
+        SMBG_LIGHT_MIN = 17; //25
+        SMBG_LIGHT_MAX = 25; //35
         SMBG_SAT_MIN = 20;
         SMBG_SAT_MAX = 30;
         SMBG_SAT_DND_MIN = 10;
@@ -516,8 +516,8 @@ export function autoApplyBGPalette(obar, requestMode) {
         ACCENT_LIGHT_MAX = 70;
         ACCENT_LIGHT_MIN = 35; //40
         ACCENT_LIGHT_TARGET = 70;
-        ACCENT_SAT_MAX = 80; //75
-        ACCENT_SAT_MIN = 60; //65
+        ACCENT_SAT_MAX = 75; //75
+        ACCENT_SAT_MIN = 50; //65 60
         ACCENT_SAT_TARGET = 70;
         ACCENT_SAT_DND_MIN = 10;
 
@@ -532,7 +532,7 @@ export function autoApplyBGPalette(obar, requestMode) {
         ACCENT_LIGHT_LOW_CLOSE = 30;
         ACCENT_LIGHT_HIGH = 95; //90
         ACCENT_LIGHT_TARGET = 80;
-        ACCENT_LIGHT_MAX = 80;
+        ACCENT_LIGHT_MAX = 85; //80
         ACCENT_LIGHT_MIN = 50; //????
         ACCENT_SAT_MAX = 85;
         ACCENT_SAT_MIN = 65;
@@ -542,32 +542,34 @@ export function autoApplyBGPalette(obar, requestMode) {
         MBG_PROM_LOW_CLOSE = 0.35;
         MBG_LIGHT_LOW = 30;
         MBG_LIGHT_LOW_CLOSE = 12;
-        MBG_LIGHT_TARGET = 65;
+        MBG_LIGHT_TARGET = 65; //65
         MBG_LIGHT_HIGH = 95;
         MBG_LIGHT_HIGH_CLOSE = 100;
         MBG_SAT_HIGH = 80;
         // MBG_PROM_LOW = 1;
-        MBG_LIGHT_MIN = 85; // 80
-        MBG_LIGHT_MAX = 95;
+        MBG_LIGHT_MIN = 90; // 80
+        MBG_LIGHT_MAX = 100;
         MBG_SAT_MIN = 10;
         MBG_SAT_MAX = 15;
         MBG_SAT_DND_MIN = 0;
         MBG_ACC_CONTRAST_MULT = 0.5;
 
         SMBG_PROM_LOW_CLOSE = 0.35;
-        SMBG_LIGHT_LOW = 30;
+        SMBG_LIGHT_LOW = 30; // 30
         SMBG_LIGHT_LOW_CLOSE = 10;
-        SMBG_LIGHT_HIGH = 85;
-        SMBG_LIGHT_HIGH_CLOSE = 90;
+        SMBG_LIGHT_HIGH = 95; // 85
+        SMBG_LIGHT_HIGH_CLOSE = 95; //90
         SMBG_SAT_HIGH = 90;
 
-        SMBG_LIGHT_MIN = 75; // 70
-        SMBG_LIGHT_MAX = 85; // 80
-        SMBG_SAT_MIN = 15; // 20
-        SMBG_SAT_MAX = 20; // 25
+        SMBG_LIGHT_MIN = 80; // 75
+        SMBG_LIGHT_MAX = 95; // 85
+        SMBG_SAT_MIN = 10; // 15
+        SMBG_SAT_MAX = 25; // 20
         SMBG_SAT_DND_MIN = 0;
         SMBG_ACC_CONTRAST_MULT = 0.5;
         SMBG_MBG_CONTRAST_MULT = 0.5;
+
+        SMBG_MBG_DIST_TARGET = 40;
 
         BAR_LIGHT_LOW = MBG_LIGHT_LOW;
         BAR_LIGHT_HIGH = MBG_LIGHT_HIGH;
@@ -583,7 +585,7 @@ export function autoApplyBGPalette(obar, requestMode) {
         ACCENT_LIGHT_TARGET = 70;
         ACCENT_LIGHT_MAX = 75;
         ACCENT_LIGHT_MIN = 55;
-        ACCENT_SAT_MAX = 75; // 85
+        ACCENT_SAT_MAX = 70; // 85
         ACCENT_SAT_MIN = 50; // 65
         ACCENT_SAT_TARGET = 75;
         ACCENT_SAT_DND_MIN = -1;
@@ -616,8 +618,8 @@ export function autoApplyBGPalette(obar, requestMode) {
 
         SMBG_LIGHT_MIN = 80; //50
         SMBG_LIGHT_MAX = 90;
-        SMBG_SAT_MIN = 20; //25
-        SMBG_SAT_MAX = 30; //35
+        SMBG_SAT_MIN = 22; //25
+        SMBG_SAT_MAX = 34; //35
         SMBG_SAT_DND_MIN = 0;
         SMBG_ACC_CONTRAST_MULT = 4;
         SMBG_MBG_CONTRAST_MULT = 4;
@@ -673,13 +675,15 @@ export function autoApplyBGPalette(obar, requestMode) {
             }
         }
         if(best) {
-            accentColor = paletteArr[bestAccentIdx][0]; // dlog('Best Accent Color', accentColor, bestAccentIdx);
+            accentColor = paletteArr[bestAccentIdx][0]; 
+            // dlog('Best Accent Color', accentColor, bestAccentIdx);
             paletteArr.splice(bestAccentIdx, 1);
             if(bestAccentIdx < promLen)
                 prominentArr.splice(bestAccentIdx, 1);
         }
         else {
-            accentColor = paletteArr[closestAccentIdx][0]; // dlog('Closest Accent Color', accentColor, closestAccentIdx);
+            accentColor = paletteArr[closestAccentIdx][0]; 
+            // dlog('Closest Accent Color', accentColor, closestAccentIdx);
             paletteArr.splice(closestAccentIdx, 1);
             if(closestAccentIdx < promLen)
                 prominentArr.splice(closestAccentIdx, 1);
@@ -697,14 +701,16 @@ export function autoApplyBGPalette(obar, requestMode) {
         let accentSatMin = false;
 
         if(sat > ACCENT_SAT_DND_MIN && sat < ACCENT_SAT_MIN) {
-            sat = Math.min(ACCENT_SAT_MIN, 3*sat); // dlog(`\nsat < ${ACCENT_SAT_MIN}, Setting sat to ${sat}`);
+            sat = Math.min(ACCENT_SAT_MIN, 3*sat); 
+            // dlog(`\nsat < ${ACCENT_SAT_MIN}, Setting sat to ${sat}`);
             accentSatMin = true;
         }
         else if(sat > ACCENT_SAT_MAX) {
-            sat = ACCENT_SAT_MAX; // dlog(`\nsat > ${ACCENT_SAT_MAX}, Setting sat to ${ACCENT_SAT_MAX}`);
+            sat = ACCENT_SAT_MAX; 
+            // dlog(`\nsat > ${ACCENT_SAT_MAX}, Setting sat to ${ACCENT_SAT_MAX}`);
         }
         else if(sat >= ACCENT_SAT_MIN && sat <= ACCENT_SAT_MAX) {
-            sat = (ACCENT_SAT_MIN + ACCENT_SAT_MAX)/2;
+            sat = sat - 0.35*(sat - (ACCENT_SAT_MIN + ACCENT_SAT_MAX)/2);
         }
         
         if(light < ACCENT_LIGHT_MIN) { 
@@ -715,16 +721,18 @@ export function autoApplyBGPalette(obar, requestMode) {
             // dlog(`\nlight < ${ACCENT_LIGHT_MIN}, Setting light to ${light}`);
         }
         else if(light > ACCENT_LIGHT_MAX) { 
-            light = ACCENT_LIGHT_MAX; // dlog(`\nlight > ${ACCENT_LIGHT_MAX}, Setting light to ${ACCENT_LIGHT_MAX}`);
+            light = ACCENT_LIGHT_MAX; 
+            // dlog(`\nlight > ${ACCENT_LIGHT_MAX}, Setting light to ${ACCENT_LIGHT_MAX}`);
 
         }
         else if(light >= ACCENT_LIGHT_MIN && light <= ACCENT_LIGHT_MAX) {
-            light = (ACCENT_LIGHT_MIN + ACCENT_LIGHT_MAX)/2;
+            light = light - 0.35*(light - (ACCENT_LIGHT_MIN + ACCENT_LIGHT_MAX)/2);
         }
 
         // Some colors (Hues) can be too bright so reduce their sat if needed
         if(hue >= 50*100/360 && hue <= 160*100/360) { // bright Green
-            let hueSat = 45 + 2.5*Math.abs(hue - 90*100/360)/10; // dlog('Sat', sat, 'HueSat', hueSat);
+            let hueSat = 45 + 2.5*Math.abs(hue - 90*100/360)/10; 
+            // dlog('Sat', sat, 'HueSat', hueSat);
             if(sat > hueSat) 
                 sat = hueSat;
         }
@@ -761,7 +769,8 @@ export function autoApplyBGPalette(obar, requestMode) {
     
     for(let i=0, promColor; i<promLen; i++) {
         promColor = prominentArr[i][0];
-        let [hue, sat, light] = rgbToHsl(promColor).map((x) => x*100); // dlog('\nMenuBG Color', promColor, 'HSL', hue, sat, light);
+        let [hue, sat, light] = rgbToHsl(promColor).map((x) => x*100); 
+        // dlog('\nMenuBG Color', promColor, 'HSL', hue, sat, light);
         let mbgProm = prominentArr[i][1];
         let mbgAccentDist = colorDistance2000(promColor, accentColor);
         let mbgAccentContrast = contrastRatio(promColor, accentColor);
@@ -790,12 +799,14 @@ export function autoApplyBGPalette(obar, requestMode) {
         }
     }
     if(best) {
-        mbgColor = prominentArr[bestMbgIdx][0];  // dlog('Best MenuBG Color', mbgColor, bestMbgIdx);        
+        mbgColor = prominentArr[bestMbgIdx][0];  
+        // dlog('Best MenuBG Color', mbgColor, bestMbgIdx);        
         prominentArr.splice(bestMbgIdx, 1);
         paletteArr.splice(bestMbgIdx, 1);
     }
     else {
-        mbgColor = prominentArr[closestMbgIdx][0]; // dlog('Closest MenuBG Color', mbgColor, closestMbgIdx);
+        mbgColor = prominentArr[closestMbgIdx][0]; 
+        // dlog('Closest MenuBG Color', mbgColor, closestMbgIdx);
         prominentArr.splice(closestMbgIdx, 1);
         paletteArr.splice(closestMbgIdx, 1);
     }
@@ -808,7 +819,8 @@ export function autoApplyBGPalette(obar, requestMode) {
 
     for(let i=0, promColor; i<promLen; i++) {
         promColor = prominentArr[i][0];
-        let [hue, sat, light] = rgbToHsl(promColor).map((x) => x*100); // dlog('\nSMBG Color', promColor, 'HSL', hue, sat, light);
+        let [hue, sat, light] = rgbToHsl(promColor).map((x) => x*100); 
+        // dlog('\nSMBG Color', promColor, 'HSL', hue, sat, light);
 
         let smbgMbgDist = colorDistance2000(promColor, mbgColor);
         let smbgMbgContrast = contrastRatio(promColor, mbgColor);
@@ -824,7 +836,7 @@ export function autoApplyBGPalette(obar, requestMode) {
             smbgMbgDist > SMBG_MBG_DIST_LOW && smbgMbgDist < SMBG_MBG_DIST_HIGH &&
             smbgMbgContrast > SMBG_MBG_CONTRAST_LOW && smbgMbgContrast < SMBG_MBG_CONTRAST_HIGH &&
             smbgAccentDist > ACCENT_SMBG_DIST_LOW && smbgAccentDist < ACCENT_SMBG_DIST_HIGH &&
-            smbgAccentContrast > ACCENT_SMBG_CONTRAST_LOW && smbgAccentContrast < ACCENT_SMBG_CONTRAST_HIGH) { // Light 35 HueSat 15-80
+            smbgAccentContrast > ACCENT_SMBG_CONTRAST_LOW && smbgAccentContrast < ACCENT_SMBG_CONTRAST_HIGH) {
             best = minTotal;
             // dlog('best', best);
             if(bestSmbg > best) {
@@ -842,12 +854,14 @@ export function autoApplyBGPalette(obar, requestMode) {
         }
     }
     if(best) {
-        smbgColor = prominentArr[bestSmbgIdx][0]; // dlog('Best SMBG Color', smbgColor, bestSmbgIdx);
+        smbgColor = prominentArr[bestSmbgIdx][0]; 
+        // dlog('Best SMBG Color', smbgColor, bestSmbgIdx);
         prominentArr.splice(bestSmbgIdx, 1);
         paletteArr.splice(bestSmbgIdx, 1);
     }
     else {
-        smbgColor = prominentArr[closestSmbgIdx][0]; // dlog('Closest SMBG Color', smbgColor, closestSmbgIdx);
+        smbgColor = prominentArr[closestSmbgIdx][0]; 
+        // dlog('Closest SMBG Color', smbgColor, closestSmbgIdx);
         prominentArr.splice(closestSmbgIdx, 1);
         paletteArr.splice(closestSmbgIdx, 1);
     }
@@ -991,8 +1005,9 @@ export function autoApplyBGPalette(obar, requestMode) {
         if(mbgSmbgColorDist < 30) {
             let [mh, ms, ml] = rgbToHsl(mbgColor);
             let [sh, ss, sl] = rgbToHsl(smbgColor);
+            // dlog('SMBG Color (before moderated)', smbgColor);
             if(sl < ml)
-                smbgColor = addShade(smbgColor, (30 - mbgSmbgColorDist)/150);
+                smbgColor = addShade(smbgColor, (30 - mbgSmbgColorDist)/250); //150
             else
                 smbgColor = addTint(smbgColor, (30 - mbgSmbgColorDist)/150);
             // dlog('SMBG Color (dist moderated)', smbgColor);
@@ -1002,11 +1017,21 @@ export function autoApplyBGPalette(obar, requestMode) {
     // All themes
     // Adjust saturation and lightness of Accent color if Accent is too close OR too far from to MBG or SMBG
     if(theme != 'None') {
-        let accentMbgColDist = colorDistance2000(accentColor, mbgColor); // dlog('Accent-MBG Color Distance', accentMbgColDist);
-        let accentSmbgColDist = colorDistance2000(accentColor, smbgColor); // dlog('Accent-SMBG Color Distance', accentSmbgColDist);
+        let accentMbgColDist = colorDistance2000(accentColor, mbgColor); 
+        // dlog('Accent-MBG Color Distance', accentMbgColDist);
+        let accentSmbgColDist = colorDistance2000(accentColor, smbgColor); 
+        // dlog('Accent-SMBG Color Distance', accentSmbgColDist);
         if(accentMbgColDist < 25 || accentSmbgColDist < 25) {
             // dlog('Accent color too close to MBG or SMBG ', accentColor);
-            let lThresh = 0.15, sThresh = 0.15, lThreshMax = 0.3, sThreshMin = 0.25;
+            let lThresh, sThresh, lThreshMax = 0.3, sThreshMin = 0.25, sThreshMax = 0.25;
+            if(theme == 'Color') {
+                lThresh = 0.1;
+                sThresh = 0.05;
+            }
+            else {
+                lThresh = 0.15;
+                sThresh = 0.1;
+            }
             let [mh, ms, ml] = rgbToHsl(mbgColor);
             let [sh, ss, sl] = rgbToHsl(smbgColor);
             let [ah, as, al] = rgbToHsl(accentColor);
@@ -1043,13 +1068,18 @@ export function autoApplyBGPalette(obar, requestMode) {
             }
             else if(as < minS && minS - as > sThreshMin) {
                 // dlog('as<minS+sThreshMin: ' + as + '  ' + minS + '  ' + sThreshMin);
-                as = as + 0.5*(minS - as);
+                as = as + 0.5*(minS - as - sThreshMin);
                 // dlog('as<minS+sThreshMin new: ' + as);
             }
             else if(as > maxS && as - maxS < sThresh) {
                 // dlog('as>maxS: ' + as + '  ' + maxS + '  ' + sThresh);
                 as = maxS + sThresh;
                 // dlog('as>maxS new: ' + as);
+            }
+            else if(as > maxS && as - maxS > sThreshMax) {
+                // dlog('as>maxS+sThreshMax: ' + as + '  ' + maxS + '  ' + sThreshMax);
+                as = as - 0.5*(as - maxS - sThreshMax);
+                // dlog('as>maxS+sThreshMax new: ' + as);
             }
             else if(as >= minS && as <= maxS) {
                 // dlog('as min+max / 2: ' + as + '  ' + minS + '  ' + maxS);
@@ -1072,8 +1102,10 @@ export function autoApplyBGPalette(obar, requestMode) {
     for(let i=0, paletteColor; i<paletteLen; i++) {
         paletteColor = paletteArr[i][0];
         let barProm = paletteArr[i][1];
-        let [hue, sat, light] = rgbToHsl(paletteColor).map((x) => x*100); // dlog('Bar Color', paletteColor, 'HSL', hue, sat, light);
-        let barMbgDist = colorDistance2000(paletteColor, mbgColor); // dlog('barMbgDist', barMbgDist);
+        let [hue, sat, light] = rgbToHsl(paletteColor).map((x) => x*100); 
+        // dlog('Bar Color', paletteColor, 'HSL', hue, sat, light);
+        let barMbgDist = colorDistance2000(paletteColor, mbgColor); 
+        // dlog('barMbgDist', barMbgDist);
 
         minTotal = -2.5*Math.abs(light-BAR_LIGHT_EVADE) + 1.35*barMbgDist + 0.25*sat - 1.5*barProm;
         // -1.5 +1 + 0.25 -2
@@ -1096,16 +1128,19 @@ export function autoApplyBGPalette(obar, requestMode) {
         }
     }
     if(best) {
-        barBgColor = paletteArr[bestBarIdx][0]; // dlog('Best Bar BG Color', barBgColor, bestBarIdx);
+        barBgColor = paletteArr[bestBarIdx][0]; 
+        // dlog('Best Bar BG Color', barBgColor, bestBarIdx);
         paletteArr.splice(bestBarIdx, 1);
     }
     else {
-        barBgColor = paletteArr[closestBarBgIdx][0]; // dlog('Closest Bar BG Color', barBgColor, closestBarBgIdx);
+        barBgColor = paletteArr[closestBarBgIdx][0]; 
+        // dlog('Closest Bar BG Color', barBgColor, closestBarBgIdx);
         paletteArr.splice(closestBarBgIdx, 1);
     }
 
     // Push Bar BG towards lighter or darker end to get enough contrast with FG text
-    let barHSP = getHSP(barBgColor); // dlog('barHSP', barHSP);
+    let barHSP = getHSP(barBgColor); 
+    // dlog('barHSP', barHSP);
     if(barHSP > 155 && barHSP < 200) {
         barBgColor = addTint(barBgColor, 0.22);
         // dlog('Tint Bar BG Color', barBgColor);
@@ -1152,7 +1187,8 @@ export function autoApplyBGPalette(obar, requestMode) {
     if(neon) {
         for(let i=0, paletteColor; i<barBorderPalette.length; i++) {
             paletteColor = barBorderPalette[i];
-            let [hue, sat, light] = rgbToHsl(paletteColor).map((x) => x*100); // dlog('Bar Border Color', paletteColor, 'HSL', hue, sat, light);
+            let [hue, sat, light] = rgbToHsl(paletteColor).map((x) => x*100); 
+            // dlog('Bar Border Color', paletteColor, 'HSL', hue, sat, light);
             let barBorderIdx = paletteArr.map(x => x[0]).indexOf(paletteColor);
 
             if(sat > BORDER_NEON_SAT_LOW && light > BORDER_LIGHT_LOW && light < BORDER_LIGHT_HIGH) {
