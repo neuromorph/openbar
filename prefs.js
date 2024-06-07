@@ -573,7 +573,7 @@ class OpenbarPrefs {
         });
 
         let autoThemeNotesLabel = new Gtk.Label({
-            label: `<span  allow_breaks="true">\n•  Auto-themes will use the <b>colors</b> derived from the background image.\n•  Other settings will be set as selected, by the user, in the other tabs.\n•  Styles will apply to the Top Bar and Menus and optionally to the shell.\n•  Select desired Type of bar before applying a theme.\n•  If you change the bar type, apply the theme again.
+            label: `<span  allow_breaks="true">\n•  Auto-themes will use the <b>colors</b> derived from the background image.\n•  Other settings will be set as selected, by the user, in the other tabs.\n•  Styles will apply to the Top Bar, Menus and optionally to the shell.\n•  Select desired Type of bar before applying a theme.\n•  If you change the bar type, apply the theme again.
         
         <b><tt>True Color  </tt></b>   :  Palette colors as-is (biased towards dark). 
         <b><tt>Pastel Theme</tt></b>   :  Colors are pastelified (biased towards light).
@@ -926,7 +926,7 @@ class OpenbarPrefs {
         // Add a Bar Props Note label
         let barNoteLabel = new Gtk.Label({
             use_markup: true,
-            label: `<span allow_breaks="true">\n\nNote:\n•  Horizontal and Vertical paddings can be set in <b>Bar Highlights</b> tab.\n•  Accent color can be set in <b>Popup Menus</b> tab.</span>`,
+            label: `<span allow_breaks="true">\n\nNote:\n•  Horizontal and Vertical paddings can be set in <b>Bar Highlights</b> tab.\n•  Accent color can be set in <b>Popup Menus</b> tab.\n•  Bar rounding radius can be set in <b>Bar Border</b> tab.</span>`,
             halign: Gtk.Align.START,
             wrap: true,
             width_chars: 55,
@@ -1169,6 +1169,18 @@ class OpenbarPrefs {
             css_classes: ['openbar-title'],
         });
         bggrid.attach(bgLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add a Bar Props Note label
+        let barBGNoteLabel = new Gtk.Label({
+            use_markup: true,
+            label: `<span allow_breaks="true">Transparent Bar:\n•  Set Box/Margins Alpha to '0' and also BG Alpha to '0'.\n•  Turn Off Panel Blur in 'Blur My Shell', if applied.\n</span>`,
+            halign: Gtk.Align.START,
+            wrap: true,
+            width_chars: 55,
+        });
+        bggrid.attach(barBGNoteLabel, 1, rowbar, 2, 1);
 
         rowbar += 1;
 
