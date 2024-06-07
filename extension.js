@@ -547,7 +547,7 @@ export default class Openbar extends Extension {
         }
 
         if(key == 'apply-gtk' || key == 'headerbar-hint' || key == 'sidebar-hint' || key == 'card-hint'
-        || key == 'winbcolor' || key == 'winbalpha' || key == 'winbwidth' || key == 'traffic-light'
+        || key == 'winbcolor' || key == 'winbalpha' || key == 'winbwidth' || key == 'traffic-light' || key == 'menu-radius'
         || key == 'sidebar-transparency' || key == 'gtk-popover' || key == 'mscolor' || key == 'msalpha') {
             // console.log('Call saveGtkCss from extension for key: ', key);
             this.gtkCSS = true;
