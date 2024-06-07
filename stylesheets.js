@@ -403,7 +403,7 @@ function createGtkCss(obar) {
         @define-color popover_bg_color rgba(${mbgRed}, ${mbgGreen}, ${mbgBlue}, ${mbgAlpha});
         @define-color popover_fg_color rgba(${mfgRed}, ${mfgGreen}, ${mfgBlue}, 0.9);
         popover > contents {
-            ${obar.menuContentStyle} 
+            ${obar.popoverContentStyle} 
         }
         `;
     }
@@ -1106,11 +1106,13 @@ function saveStylesheet(obar, Me) {
     if(widthLeft) borderStyle += ` border-left-width: ${borderWidth}px; `;
     
     let rTopLeft, rTopRight, rBottomLeft, rBottomRight;
-    // Limit on max border radius (border grows inwards for Islands. '-1' for sub-pixel rounding)
-    // Limit is needed for proper rendering of border and neon shadow
-    let bWidthRound = Math.ceil(borderWidth);
-    if(borderRadius > height/2 - bWidthRound - 1) 
-        borderRadius = Math.floor(height/2 - bWidthRound - 1);
+    if(bartype == 'Islands' || bartype == 'Trilands') {
+        // Limit on max border radius (border grows inwards for Islands. '-1' for sub-pixel rounding)
+        // Limit is needed for proper rendering of border and neon shadow
+        let bWidthRound = Math.ceil(borderWidth);
+        if(borderRadius > height/2 - bWidthRound - 1) 
+            borderRadius = Math.floor(height/2 - bWidthRound - 1);
+    }
     rTopLeft = radiusTopLeft? borderRadius: 0;
     rTopRight = radiusTopRight? borderRadius: 0;
     rBottomLeft = radiusBottomLeft? borderRadius: 0;
@@ -1226,7 +1228,7 @@ function saveStylesheet(obar, Me) {
 
     // Panel hover/focus style
     let triMidNeonHoverStyle = ``;
-    if(hovereffect) {
+    if(hovereffect) { // Hover with border
         btnHoverStyle = 
         ` border: ${height/10.0}px solid rgba(${hred},${hgreen},${hblue},${hAlpha}) !important; `;
         if(neon && (bartype == 'Islands' || bartype == 'Trilands')) {
@@ -1352,27 +1354,30 @@ function saveStylesheet(obar, Me) {
         marginWMax = margin;
     }
 
+    // Top Bar Menu Style
     let menuContentStyle =
     `   box-shadow: 0 2px 6px 0 rgba(${mshred},${mshgreen},${mshblue},${mshAlpha}) !important; /* menu shadow */
         border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${mbAlpha}) !important; /* menu border */
         /* add menu font */
         background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}); /* menu bg */
         color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}); /* menu fg */ 
-        border-radius: ${menuRadius}px; `;
-    obar.menuContentStyle =
-    `   box-shadow: 0 0px 3px -1px rgba(${mshred},${mshgreen},${mshblue},${0.5*mshAlpha});
+        border-radius: ${menuRadius > 20? 20: menuRadius}px !important; `;
+    // GTK Popover style
+    let popoverMenuRadius = menuRadius > 15? 15: menuRadius;
+    obar.popoverContentStyle =
+    `   box-shadow: 0 0px 3px 0px rgba(${mshred},${mshgreen},${mshblue},${0.5*mshAlpha});
         border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${0.5*mbAlpha});
         background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha});
         color: rgba(${mfgred},${mfggreen},${mfgblue},${0.9*mfgAlpha});
-        border-radius: ${menuRadius}px; `;
-    if(mbgGradient) {
+        border-radius: ${popoverMenuRadius}px; `;
+    if(mbgGradient) { // Light Gradient
         let mGradientStyle = 
         `   box-shadow: none !important;
             background-image: url(media/menu.svg);
             background-repeat: no-repeat;
             background-size: cover; `;
         menuContentStyle += mGradientStyle;
-        obar.menuContentStyle += mGradientStyle;
+        // obar.popoverContentStyle += mGradientStyle;
     }
 
     // Slider
@@ -1801,6 +1806,11 @@ function saveStylesheet(obar, Me) {
 
     // rgba(${mhred},${mhgreen},${mhblue},${mhAlpha})
     stylesheet += `
+        ${openmenuClass}.datemenu-popover {
+            border-radius: ${menuRadius}px !important;
+            padding-bottom: ${5 + 0.08*menuRadius}px !important;
+        }
+
         ${openmenuClass}.message-list-placeholder {
             color: rgba(${mfgred},${mfggreen},${mfgblue},0.5) !important;
         }
@@ -1905,7 +1915,6 @@ function saveStylesheet(obar, Me) {
         ${openmenuClass}.message-list-clear-button:focus {
             box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},0.5) !important;
         }
-
 
         ${openmenuClass}.datemenu-today-button .date-label, ${openmenuClass}.datemenu-today-button .day-label {
             color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.25}) !important;
@@ -2084,6 +2093,10 @@ function saveStylesheet(obar, Me) {
     `;
 
     stylesheet += `
+        ${openmenuClass}.quick-settings {
+            border-radius: ${menuRadius}px !important;
+        }
+
         ${openmenuClass}.quick-slider .slider{                
             ${sliderStyle}
         }
