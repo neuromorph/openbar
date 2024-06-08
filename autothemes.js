@@ -1235,14 +1235,14 @@ export function autoApplyBGPalette(obar, requestMode) {
     let wmaxBarBgColor;
     let hBarHint = obar._settings.get_int('headerbar-hint')/100;
     if(requestMode == 'light') {
-        wmaxBarBgColor = [hBarHint*accentColor[0] + (1-hBarHint)*242, 
-                          hBarHint*accentColor[1] + (1-hBarHint)*242, 
-                          hBarHint*accentColor[2] + (1-hBarHint)*242];
+        wmaxBarBgColor = [hBarHint*accentColor[0] + (1-hBarHint)*235, 
+                          hBarHint*accentColor[1] + (1-hBarHint)*235, 
+                          hBarHint*accentColor[2] + (1-hBarHint)*235];
     }
     else {
-        wmaxBarBgColor = [hBarHint*accentColor[0] + (1-hBarHint)*42,
-                          hBarHint*accentColor[1] + (1-hBarHint)*42,
-                          hBarHint*accentColor[2] + (1-hBarHint)*42];
+        wmaxBarBgColor = [hBarHint*accentColor[0] + (1-hBarHint)*30,
+                          hBarHint*accentColor[1] + (1-hBarHint)*30,
+                          hBarHint*accentColor[2] + (1-hBarHint)*30];
     }
 
 
