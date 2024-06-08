@@ -853,7 +853,7 @@
       <description>Accent color (manual override) in auto theme.</description>
     </key>
     <key type="d" name="menu-radius">
-      <default>15</default>
+      <default>21</default>
       <summary>Radius of Menu panels</summary>
       <description>Radius of all Menu panels.</description>
     </key>
