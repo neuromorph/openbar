@@ -1481,9 +1481,9 @@ function saveStylesheet(obar, Me) {
         toggleOffSVG = 'toggle-off-hc.svg';
     }
 
-    let applyToShell = obar._settings.get_boolean('apply-all-shell');
+    let applyAllShell = obar._settings.get_boolean('apply-all-shell');
     // Add/Remove .openmenu class to Restrict/Extend menu styles to the shell
-    let openmenuClass = (applyMenuShell || applyToShell) ? '' : '.openmenu';
+    let openmenuClass = (applyMenuShell || applyAllShell) ? '' : '.openmenu';
     // Placeholder for .openbar class
     let openbarClass = '.openbar';
 
@@ -2280,30 +2280,32 @@ function saveStylesheet(obar, Me) {
     function shadeSMbg(transparentize, shade) {
         return colorShade(`rgba(${smbgred},${smbggreen},${smbgblue},${transparentize*mbgAlpha})`, shade);
     }
-    const darkMode = obar.colorScheme == 'prefer-dark';
+
+    const darkMode = obar._intSettings.get_string('color-scheme') == 'prefer-dark';
+    // Shell St Entry Base colors
     let baseBgColor = darkMode? 'rgba(75, 75, 75, 0.8)' : 'rgba(200, 200, 200, 0.8)';
     let baseFgColor = darkMode? 'rgb(255, 255, 255)' : 'rgb(25, 25, 25)';
     let baseHintFgColor = darkMode? 'rgba(255, 255, 255, 0.7)' : 'rgba(25, 25, 25, 0.7)';
+
     // let accentColor = `rgba(${msred},${msgreen},${msblue},${msAlpha})`;
-    let applyAccent, applyToNotif, dashDockStyle;
-    applyAccent = obar._settings.get_boolean('apply-accent-shell');
-    // applyToShell = obar._settings.get_boolean('apply-all-shell');
-    applyToNotif = obar._settings.get_boolean('apply-menu-notif');
+    let applyAccentShell, applyMenuNotif, dashDockStyle;
+    applyAccentShell = obar._settings.get_boolean('apply-accent-shell');
+    applyMenuNotif = obar._settings.get_boolean('apply-menu-notif');
     dashDockStyle = obar._settings.get_string('dashdock-style');
 
     let tooltipBgRed = 0.8*mbgred + 0.2*(255 - mfgred);
     let tooltipBgGreen = 0.8*mbggreen + 0.2*(255 - mfggreen);
     let tooltipBgBlue = 0.8*mbgblue + 0.2*(255 - mfgblue);
 
-    if(applyToShell) {
-        applyAccent = true;
-        applyToNotif = true;
-        // applyToDashDock = true;
+    if(applyAllShell) {
+        applyMenuNotif = true;
+        applyMenuShell = true;
+        applyAccentShell = true;        
     }
 
 
     /* Common Stylings */
-    if(applyAccent) {
+    if(applyAccentShell) {
         stylesheet += `    
         .slider{                
             ${sliderStyle}
@@ -2330,19 +2332,19 @@ function saveStylesheet(obar, Me) {
         } `;
     }
 
-    if(applyToShell) {
+    if(applyAllShell) {
         stylesheet += `
         .workspace-switcher, .resize-popup, .osd-monitor-label {
             box-shadow: 0 5px 10px 0 rgba(${mshred},${mshgreen},${mshblue},${mshAlpha}) !important; /* menu shadow */
-            background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}); /* menu bg */
-            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}); /* menu fg */ 
+            background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important; /* menu bg */
+            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important; /* menu fg */ 
             border-color: rgba(${mbred},${mbgreen},${mbblue},${mbAlpha}) !important;
         } `;
     }
         
 
     /* a11y */
-    if(applyAccent) {
+    if(applyAccentShell) {
         stylesheet += `
         /* Location and Activities Ripple */
         .ripple-pointer-location, .ripple-box {
@@ -2361,7 +2363,7 @@ function saveStylesheet(obar, Me) {
     }
 
     /* app-grid */
-    if(applyAccent) {
+    if(applyAccentShell) {
         stylesheet += `
         .overview-tile {
             background-color: transparent;
@@ -2379,7 +2381,7 @@ function saveStylesheet(obar, Me) {
         } `;
     }
 
-    if(applyToShell) {
+    if(applyAllShell) {
         stylesheet += `
         .overview-tile, .app-well-app .overview-icon, .show-apps .overview-icon, .grid-search-result .overview-icon {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) ;
@@ -2451,7 +2453,7 @@ function saveStylesheet(obar, Me) {
     }
 
     /* App Switcher */
-    if(applyAccent) {
+    if(applyAccentShell) {
         stylesheet += `
         .switcher-list .item-box:active {
             background-color: rgba(${msred},${msgreen},${msblue}, 0.9) !important;
@@ -2461,7 +2463,7 @@ function saveStylesheet(obar, Me) {
         } `;
     }
 
-    if(applyToShell) {
+    if(applyAllShell) {
         stylesheet += `
         .switcher-list {
             ${menuContentStyle}
@@ -2481,7 +2483,7 @@ function saveStylesheet(obar, Me) {
     }
 
     /* Search */
-    if(applyToShell) {
+    if(applyAllShell) {
         stylesheet += `
         .search-section-content {
             background-color: ${mbg} !important;
@@ -2530,23 +2532,23 @@ function saveStylesheet(obar, Me) {
     }
 
     /* Workspace Overview and Workspace Switcher */
-    if(applyAccent) {
+    if(applyAccentShell) {
         stylesheet += `
         .workspace-thumbnail-indicator {
             border: 3px solid ${msc} !important;
+        } 
+        StEntry .search-entry:hover, StEntry .search-entry:focus {
+            border-color: ${msc} !important;
         } `;
     }
-    if(applyToShell) {
+    if(applyAllShell) {
         stylesheet += `
         .workspace-thumbnails .workspace-thumbnail:hover, .workspace-thumbnails .workspace-thumbnail:focus {
             border: 2px solid ${mhbg} !important;
         } 
         StEntry .search-entry {
             border-color: rgba(${smfgred},${smfggreen},${smfgblue},0.7) !important;
-        }
-        StEntry .search-entry:hover, StEntry .search-entry:focus {
-            border-color: ${msc} !important;
-        }
+        }        
         .system-action-icon {
             background-color: rgba(0, 0, 0, 0.8);
             color: #fff;
@@ -2572,7 +2574,7 @@ function saveStylesheet(obar, Me) {
         } `;
     }
 
-    /* Dash => Provide options in settings?  */
+    /* Dash / Dock => Options in settings  */
     let dashBgColor, dashFgColor, dashBorderColor, dashShadowColor, dashHighlightColor;
     if(dashDockStyle == 'Menu') {
         dashBgColor = `rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha})`;
@@ -2607,7 +2609,8 @@ function saveStylesheet(obar, Me) {
         dashFgColor = `rgba(${dfgred},${dfggreen},${dfgblue},1.0)`;
         dashBorderColor = `rgba(${mbred},${mbgreen},${mbblue},${mbAlpha})`;
         dashShadowColor = `rgba(${mshred},${mshgreen},${mshblue},${mshAlpha})`;
-        let hgColor = getAutoHgColor([dbgred,dbggreen,dbgblue]);    
+        let hgColor = getAutoHgColor([dbgred,dbggreen,dbgblue]);
+        // Custom Highlight RGB  
         let chred = dbgred*(1-hAlpha) + hgColor[0]*hAlpha;
         let chgreen = dbggreen*(1-hAlpha) + hgColor[1]*hAlpha;
         let chblue = dbgblue*(1-hAlpha) + hgColor[2]*hAlpha;
@@ -2685,7 +2688,7 @@ function saveStylesheet(obar, Me) {
 
 
     /* Modal Dialogs  .end-session-dialog, .message-dialog-content, .run-dialog, .prompt-dialog, */
-    if(applyAccent) {
+    if(applyAccentShell) {
         stylesheet += `
         .modal-dialog-linked-button:focus, .modal-dialog-linked-button:selected {
             border-color: ${msc} !important;
@@ -2701,7 +2704,7 @@ function saveStylesheet(obar, Me) {
         } `;
     }
     
-    if(applyToShell) {
+    if(applyAllShell) {
         stylesheet += `
         .modal-dialog  {
             ${menuContentStyle}
@@ -2780,7 +2783,7 @@ function saveStylesheet(obar, Me) {
     }
           
     /* Login Dialog */
-    if(applyAccent) {
+    if(applyAccentShell) {
         stylesheet += `
         .login-dialog .modal-dialog-button, .unlock-dialog .modal-dialog-button {
             border-color: ${msc} !important;
@@ -2806,8 +2809,8 @@ function saveStylesheet(obar, Me) {
         } `;
     }
 
-    /* Entries */ // Placeholder text color???
-    if(applyAccent) {
+    /* Entries */
+    if(applyAccentShell) {
         stylesheet += `
         StEntry {
             selection-background-color: ${msc} !important;
@@ -2823,7 +2826,7 @@ function saveStylesheet(obar, Me) {
             box-shadow: none;
         } `;
     }
-    if(applyToShell) {
+    if(applyAllShell) {
         stylesheet += `
         StEntry {
             color: ${baseFgColor} !important;
@@ -2837,7 +2840,7 @@ function saveStylesheet(obar, Me) {
     let mbgShade = getBgDark(mbgred, mbggreen, mbgblue)? -1: 1;
 
     /* On-screen Keyboard */
-    if(applyAccent) {
+    if(applyAccentShell) {
         stylesheet += `
         .keyboard-key.enter-key {
             color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important; 
@@ -2850,7 +2853,7 @@ function saveStylesheet(obar, Me) {
             background-color: ${shadeAccent(0.9, 0.3)} !important;
         } `;
     }
-    if(applyToShell) {
+    if(applyAllShell) {
         stylesheet += `    
         #keyboard {
             background-color: ${shadeMbg(0.9, 0.2*mbgShade)} !important;            
@@ -2901,7 +2904,7 @@ function saveStylesheet(obar, Me) {
             color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
             background-color: ${mbg} !important;            
         }*/
-    if(applyToShell) {
+    if(applyAllShell) {
         stylesheet += `
         #Toolbar .lg-toolbar-button {
             color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
@@ -2920,7 +2923,7 @@ function saveStylesheet(obar, Me) {
     /* Overview */
     /* Workspace animation */
     /* Tiled window previews */
-    if(applyToShell) {
+    if(applyAllShell) {
         stylesheet += `
         #overviewGroup {
             background-color: rgba(${smbgred},${smbggreen},${smbgblue},1.0) !important; 
@@ -2935,7 +2938,7 @@ function saveStylesheet(obar, Me) {
     }        
 
     /* Notifications & Message Tray - chat bubbles?? */
-    if(applyToNotif) {
+    if(applyMenuNotif) {
         stylesheet += `
         .notification-banner {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
@@ -2958,7 +2961,7 @@ function saveStylesheet(obar, Me) {
     }
 
     /* OSD Window */
-    if(applyToShell) {
+    if(applyAllShell) {
         stylesheet += `
         .osd-window, .pad-osd-window {
             color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
@@ -2967,7 +2970,7 @@ function saveStylesheet(obar, Me) {
     }
 
     /* Screenshot UI */
-    if(applyAccent) {
+    if(applyAccentShell) {
         stylesheet += `
         .screenshot-ui-type-button:active, .screenshot-ui-type-button:checked {
             color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
@@ -2977,11 +2980,7 @@ function saveStylesheet(obar, Me) {
         .screenshot-ui-type-button:active:focus, .screenshot-ui-type-button:checked:focus {
             color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1.0) !important;
             background-color: ${mshg} !important;
-        }
-        .screenshot-ui-show-pointer-button {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
-            background-color: transparent;
-        }
+        }        
         .screenshot-ui-show-pointer-button:active, .screenshot-ui-show-pointer-button:checked,
         .screenshot-ui-shot-cast-button:active, .screenshot-ui-shot-cast-button:checked {
             color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
@@ -3006,7 +3005,7 @@ function saveStylesheet(obar, Me) {
             background-color: ${msc} !important;
         } `;
     }
-    if(applyToShell) {
+    if(applyAllShell) {
         stylesheet += `
         .screenshot-ui-panel {
             ${menuContentStyle}
@@ -3019,7 +3018,11 @@ function saveStylesheet(obar, Me) {
         .screenshot-ui-close-button:hover, .screenshot-ui-close-button:focus {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
             background-color: ${smhbg} !important;
-        }        
+        }
+        .screenshot-ui-show-pointer-button {
+            color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+            background-color: transparent;
+        }   
         .screenshot-ui-capture-button:hover, .screenshot-ui-capture-button:focus {
             border-color: ${msc} !important;
         }
@@ -3029,7 +3032,7 @@ function saveStylesheet(obar, Me) {
         .screenshot-ui-show-pointer-button:hover, .screenshot-ui-show-pointer-button:focus,
         .screenshot-ui-shot-cast-button:hover, .screenshot-ui-shot-cast-button:focus {
             color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
-            background-color: ${msc} !important;
+            background-color: ${mhbg} !important;
         }        
         .screenshot-ui-tooltip {
             box-shadow: 0 2px 0 0 rgba(${mshred},${mshgreen},${mshblue}, 0.25) !important; /* menu shadow */
@@ -3087,7 +3090,7 @@ function saveStylesheet(obar, Me) {
         obar.smfgSVG = false;
     }
 
-    if(obar.gtkCSS) { // accent or Gtk/Flatpak options changed
+    if(obar.gtkCSS) { // accent or Gtk/Flatpak settings changed
         saveGtkCss(obar, 'enable');
         obar.gtkCSS = false;
     }
