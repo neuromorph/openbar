@@ -218,11 +218,11 @@ function createGtkCss(obar) {
     let bgRed, bgGreen, bgBlue, cdRed, cdGreen, cdBlue;
     const colorScheme = obar._intSettings.get_string('color-scheme');
     if(colorScheme == 'prefer-dark') {
-        bgRed = bgGreen = bgBlue = 42;
+        bgRed = bgGreen = bgBlue = 30;
         cdRed = cdGreen = cdBlue = 61;
     }
     else {
-        bgRed = bgGreen = bgBlue = 242;
+        bgRed = bgGreen = bgBlue = 235;
         cdRed = cdGreen = cdBlue = 255;
     }
     
@@ -2211,15 +2211,11 @@ function saveStylesheet(obar, Me) {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
             background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
         }
-        ${openmenuClass}.quick-settings .icon-button {
+        ${openmenuClass}.quick-settings .icon-button, ${openmenuClass}.quick-settings .button {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
             background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
-        }
-        ${openmenuClass}.quick-settings .button {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
-            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
-        }
-        ${openmenuClass}.quick-settings .button:checked {
+        }        
+        ${openmenuClass}.quick-settings .icon-button:checked, ${openmenuClass}.quick-settings .button:checked {
             color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha*1.2}) !important;
             background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
         }        
