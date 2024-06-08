@@ -558,7 +558,7 @@ export function autoApplyBGPalette(obar, requestMode) {
         SMBG_LIGHT_LOW = 30; // 30
         SMBG_LIGHT_LOW_CLOSE = 10;
         SMBG_LIGHT_HIGH = 95; // 85
-        SMBG_LIGHT_HIGH_CLOSE = 95; //90
+        SMBG_LIGHT_HIGH_CLOSE = 97; //90
         SMBG_SAT_HIGH = 90;
 
         SMBG_LIGHT_MIN = 80; // 75
