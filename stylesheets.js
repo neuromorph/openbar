@@ -2205,7 +2205,22 @@ function saveStylesheet(obar, Me) {
             color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha}) !important;
             background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
         }
-
+        ${openmenuClass}.quick-toggle-menu .icon-button {
+            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.2}) !important;
+            background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
+        }
+        ${openmenuClass}.quick-toggle-menu .icon-button:hover, ${openmenuClass}.quick-toggle-menu .icon-button:focus {
+            color: rgba(${mhfgred},${mhfggreen},${mhfgblue},${mfgAlpha*1.2}) !important;
+            background-color: rgba(${mhbgred},${mhbggreen},${mhbgblue},${mbgAlpha}) !important;
+        }
+        ${openmenuClass}.quick-toggle-menu .icon-button:checked {
+            color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha*1.2}) !important;
+            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+        }
+        ${openmenuClass}.quick-toggle-menu .icon-button:checked:hover, ${openmenuClass}.quick-toggle-menu .icon-button:checked:focus {
+            color: rgba(${amhfgred},${amhfggreen},${amhfgblue},${mfgAlpha*1.2}) !important;
+            background-color: ${mshg} !important;
+        }
 
         ${openmenuClass}.quick-settings-system-item .icon-button {
             color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
