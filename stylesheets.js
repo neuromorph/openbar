@@ -215,12 +215,16 @@ function createGtkCss(obar) {
     const mbgGreen = parseInt(parseFloat(mbgColor[1]) * 255);
     const mbgBlue = parseInt(parseFloat(mbgColor[2]) * 255);
     
-    let bgRed, bgGreen, bgBlue;
+    let bgRed, bgGreen, bgBlue, cdRed, cdGreen, cdBlue;
     const colorScheme = obar._intSettings.get_string('color-scheme');
-    if(colorScheme == 'prefer-dark') 
+    if(colorScheme == 'prefer-dark') {
         bgRed = bgGreen = bgBlue = 42;
-    else
+        cdRed = cdGreen = cdBlue = 61;
+    }
+    else {
         bgRed = bgGreen = bgBlue = 242;
+        cdRed = cdGreen = cdBlue = 255;
+    }
     
     const hbgRed = hBarHint * accRed + (1-hBarHint) * bgRed;
     const hbgGreen = hBarHint * accGreen + (1-hBarHint) * bgGreen;
@@ -236,12 +240,12 @@ function createGtkCss(obar) {
     const sbdGreen = sBarHintBd * accGreen + (1-sBarHintBd) * bgGreen;
     const sbdBlue = sBarHintBd * accBlue + (1-sBarHintBd) * bgBlue;
     
-    const cbgRed = cdHint * accRed + (1-cdHint) * bgRed;
-    const cbgGreen = cdHint * accGreen + (1-cdHint) * bgGreen;
-    const cbgBlue = cdHint * accBlue + (1-cdHint) * bgBlue;
-    const cbdRed = cdHintBd * accRed + (1-cdHintBd) * bgRed;
-    const cbdGreen = cdHintBd * accGreen + (1-cdHintBd) * bgGreen;
-    const cbdBlue = cdHintBd * accBlue + (1-cdHintBd) * bgBlue;
+    const cbgRed = cdHint * accRed + (1-cdHint) * cdRed;
+    const cbgGreen = cdHint * accGreen + (1-cdHint) * cdGreen;
+    const cbgBlue = cdHint * accBlue + (1-cdHint) * cdBlue;
+    const cbdRed = cdHintBd * accRed + (1-cdHintBd) * cdRed;
+    const cbdGreen = cdHintBd * accGreen + (1-cdHintBd) * cdGreen;
+    const cbdBlue = cdHintBd * accBlue + (1-cdHintBd) * cdBlue;
 
     const sbAlpha = sBarTransparency? 0.65 : 1.0;
 
