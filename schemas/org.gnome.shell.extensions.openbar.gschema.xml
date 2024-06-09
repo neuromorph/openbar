@@ -218,7 +218,7 @@
       <description>Highlight of Top Bar widgets.</description>
     </key>
     <key type="d" name="halpha">
-      <default>0.55</default>
+      <default>0.5</default>
       <summary>Transparency (alpha) Highlight</summary>
       <description>Transparency of highlight.</description>
     </key>
@@ -338,7 +338,7 @@
       <description>Highlight of Top Bar menus.</description>
     </key>
     <key type="d" name="mhalpha">
-      <default>0.45</default>
+      <default>0.35</default>
       <summary>Transparency (alpha) Menu Highlight</summary>
       <description>Transparency of menu highlight.</description>
     </key>
