@@ -2434,13 +2434,14 @@ function saveStylesheet(obar, Me) {
         .search-statustext {
             color: rgba(${smfgred},${smfggreen},${smfgblue},1) !important;
         }
-        .list-search-result-title {
+        .list-search-result .list-search-result-title, .list-search-result .list-search-result-content {
             color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
         }
-        .list-search-result-description {
+        .list-search-result .list-search-result-description {
             color: rgba(${mfgred},${mfggreen},${mfgblue},0.65) !important;
         }
-        .list-search-result:hover .list-search-result-title, .list-search-result:focus .list-search-result-title {
+        .list-search-result:hover .list-search-result-title, .list-search-result:focus .list-search-result-title,
+        .list-search-result:hover .list-search-result-content, .list-search-result:focus .list-search-result-content {
             color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
         }
         .list-search-result:hover .list-search-result-description, .list-search-result:focus .list-search-result-description {
