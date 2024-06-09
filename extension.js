@@ -88,6 +88,7 @@ export default class Openbar extends Extension {
         this._settings = null;
         this._bgSettings = null;
         this._intSettings = null;
+        this._hcSettings = null;
         this._connections = null;
         this._injections = [];
     }
@@ -157,7 +158,7 @@ export default class Openbar extends Extension {
             darklight = (i==0) ? 'dark' : 'light';
             pictureUri = uriArr[i];            
             
-            if(pictureUri.endsWith('.xml')) 
+            if(pictureUri.endsWith('.xml') || pictureUri.endsWith('.XML')) 
                 continue;
 
             // Generate palette only once if both URI are same
@@ -546,14 +547,18 @@ export default class Openbar extends Extension {
             this.reloadStylesheet();
         }
 
+        // GTK Apps styles
         if(key == 'apply-gtk' || key == 'headerbar-hint' || key == 'sidebar-hint' || key == 'card-hint'
         || key == 'winbcolor' || key == 'winbalpha' || key == 'winbwidth' || key == 'traffic-light' || key == 'menu-radius'
         || key == 'sidebar-transparency' || key == 'gtk-popover' || key == 'mscolor' || key == 'msalpha') {
             // console.log('Call saveGtkCss from extension for key: ', key);
             this.gtkCSS = true;
-            if(key != 'mscolor' && key != 'msalpha')
+            if(key != 'mscolor' && key != 'msalpha') {
                 StyleSheets.saveGtkCss(this, 'enable');
+                return;
+            }
         }
+        // Flatpak overrides
         if(key == 'apply-flatpak') {
             StyleSheets.saveFlatpakOverrides(this, 'enable');
         }
@@ -565,10 +570,7 @@ export default class Openbar extends Extension {
             this.applyMenuStyles(panel, menustyle);
         }
         
-        if(key == 'mscolor') {
-            this.msSVG = true;
-            this.smfgSVG = true;
-        }
+        // Auto set closest Yaru theme
         if(key == 'mscolor' || key == 'set-yarutheme') {
             let setYaruTheme = this._settings.get_boolean('set-yarutheme');
             if(key == 'set-yarutheme') {
@@ -588,10 +590,15 @@ export default class Openbar extends Extension {
                 let modeSuffix = colorScheme == 'prefer-dark' ? '-dark' : '';
                 let yaruColor = AutoThemes.getClosestYaruTheme(this);
                 yaruColor = (yaruColor == 'default') ? '' : '-'+yaruColor;
-                let yaruTheme = 'Yaru' + yaruColor + modeSuffix; log('YARUTHEME ', yaruTheme);
+                let yaruTheme = 'Yaru' + yaruColor + modeSuffix;
                 this._intSettings.set_string('gtk-theme', yaruTheme);
                 this._intSettings.set_string('icon-theme', yaruTheme);
             }               
+        }
+
+        if(key == 'mscolor') {
+            this.msSVG = true;
+            this.smfgSVG = true;
         }
         else if(key == 'mfgcolor' || key == 'mbgcolor' || key == 'smbgcolor' || key == 'smbgoverride') {
             this.smfgSVG = true;
@@ -609,8 +616,9 @@ export default class Openbar extends Extension {
         let barKeys = ['bgcolor', 'gradient', 'gradient-direction', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'bcolor', 'balpha', 'bradius', 
         'bordertype', 'shcolor', 'shalpha', 'iscolor', 'isalpha', 'neon', 'shadow', 'font', 'default-font', 'hcolor', 'halpha', 'heffect', 'bgcolor-wmax', 
         'bgalpha-wmax', 'neon-wmax', 'boxcolor', 'boxalpha', 'autofg-bar', 'autofg-menu', 'width-top', 'width-bottom', 'width-left', 'width-right',
-        'radius-topleft', 'radius-topright', 'radius-bottomleft', 'radius-bottomright', 'apply-menu-shell'];
-        let keys = [...barKeys, ...menuKeys, 'autotheme', 'variation', 'autotheme-refresh', 'accent-override', 'accent-color'];
+        'radius-topleft', 'radius-topright', 'radius-bottomleft', 'radius-bottomright'];
+        let keys = [...barKeys, ...menuKeys, 'autotheme-dark', 'autotheme-light', 'autotheme-refresh', 'accent-override', 'accent-color', 'apply-menu-shell', 
+        'dashdock-style', 'dbgcolor', 'dbgalpha', 'dborder', 'dshadow'];
         if(keys.includes(key)) {
             return;
         }    
@@ -935,9 +943,9 @@ export default class Openbar extends Extension {
         }
         
         let bguriOld = this._settings.get_string('bguri');
+
         let bguriDark = this._bgSettings.get_string('picture-uri-dark');
         let bguriLight = this._bgSettings.get_string('picture-uri');
-
         this._settings.set_string('dark-bguri', bguriDark);
         this._settings.set_string('light-bguri', bguriLight);
 
@@ -1127,7 +1135,7 @@ export default class Openbar extends Extension {
         // Reset panel and banner position to Top
         this.setPanelBoxPosition('Top');
         Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
-        // Clear Gtk css and Flatpak override
+        // Clear/Restore Gtk css and Flatpak override
         StyleSheets.saveGtkCss(this, 'disable');
         StyleSheets.saveFlatpakOverrides(this, 'disable');
 

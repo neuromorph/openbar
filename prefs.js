@@ -66,8 +66,8 @@ class OpenbarPrefs {
         if(this.timeoutId)
             clearTimeout(this.timeoutId);
         this.timeoutId = setTimeout(() => {
-            this.timeoutId = null;
             this.triggerStyleReload();
+            this.timeoutId = null;
         }, 300);
     }
 
@@ -169,7 +169,7 @@ class OpenbarPrefs {
                 prefix = 'dark-';
             else
                 prefix = 'light-';
-            log('saving from key: ' + gsetting + ' to key: ' + `${prefix}${gsetting}`);
+            // console.log('saving from key: ' + gsetting + ' to key: ' + `${prefix}${gsetting}`);
             this._settings.set_strv(`${prefix}${gsetting}`, [
                 rgba.red.toString(),
                 rgba.green.toString(),
@@ -196,7 +196,6 @@ class OpenbarPrefs {
         color.add_palette(Gtk.Orientation.HORIZONTAL, 6, bgPaletteArray);
 
         window.colorButtons.push(color);
-
         return color;
     }
 
@@ -1172,7 +1171,7 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a Bar Props Note label
+        // Add a Bar BG Note label
         let barBGNoteLabel = new Gtk.Label({
             use_markup: true,
             label: `<span allow_breaks="true">Transparent Bar:\n•  Set Box/Margins Alpha to '0' and also BG Alpha to '0'.\n•  Turn Off Panel Blur in 'Blur My Shell', if applied.\n</span>`,
@@ -1448,7 +1447,7 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a hover with border effect switch
+        // Add a 'hover with border' effect switch
         let hEffectLabel = new Gtk.Label({
             label: `Highlight with Border`,
             halign: Gtk.Align.START,
@@ -2061,7 +2060,7 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a info label
+        // Add a Gnome Shell info label
         let beyondLabel = new Gtk.Label({
             label: `<span allow_breaks="true">Styles primarily derived from panel menus will be applied to shell components as selected:</span>\n`,
             use_markup: true,
@@ -2263,9 +2262,8 @@ class OpenbarPrefs {
         // Add a Yaru Theme Note label
         let yaruNoteLabel = new Gtk.Label({
             use_markup: true,
-            label: `<span allow_breaks="true">Auto-Set Gtk/Icons Yaru theme that is closest to Open Bar Accent.\nYaru themes need to be installed (default in Ubuntu).</span>`,
+            label: `<span allow_breaks="true">\nAuto-Set Gtk/Icons Yaru theme that is closest to Open Bar Accent.\nYaru themes need to be installed (default in Ubuntu).</span>`,
             halign: Gtk.Align.START,
-            margin_top: 10,
             wrap: true,
         });
         appgrid.attach(yaruNoteLabel, 1, rowbar, 2, 1);
@@ -2287,7 +2285,7 @@ class OpenbarPrefs {
 
         // Add a Gtk info label
         let appLabel = new Gtk.Label({
-            label: `<span><b>GTK3 / GTK4</b></span>\n\n<span size="small" allow_breaks="true">⚠ Warning: This will write to 'gtk.css' under '$XDG_CONFIG_HOME/gtk-3.0/' and 'gtk-4.0'.\n    If existing gtk.css is detected, Open Bar will create a backup and restore it on disable.\n    You are advised to also take a manual backup as a failsafe.</span>`,
+            label: `<span><b>GTK3 / GTK4</b></span>\n\n<span size="small" allow_breaks="true">⚠ Warning: It will write to 'gtk.css' under '$XDG_CONFIG_HOME/gtk-3.0/' and 'gtk-4.0'.\n    If existing gtk.css is detected, Open Bar will create a backup and restore it on disable.\n    You are advised to also take a manual backup as a failsafe.</span>`,
             use_markup: true,
             halign: Gtk.Align.START,
             wrap: true,
@@ -2524,18 +2522,10 @@ class OpenbarPrefs {
         fileChooser.connect('response', (self, response) => {   
           if (response == Gtk.ResponseType.ACCEPT) {
             this._settings.set_boolean('import-export', true);
-            // Save current BG uri since the one in imported file maybe old/invalid
+            // Save current BG URIs since the one in imported file maybe invalid
             let bguri = this._settings.get_string('bguri');
-            // Save prominent and palette colors from the current/valid background
-            let currentPaletteArr = [];
-            for(let i=1; i<=12; i++) {
-                // if(i<=6) {
-                //     currentPaletteArr.push(this._settings.get_strv('prominent'+i));
-                // }
-                // else {
-                    currentPaletteArr.push(this._settings.get_strv('palette'+i));
-                // }
-            }
+            let darkBguri =  this._settings.get_string('dark-bguri');
+            let lightBguri = this._settings.get_string('light-bguri');
             
             // Load settings from file
             let filePath = fileChooser.get_file().get_path();
@@ -2559,24 +2549,16 @@ class OpenbarPrefs {
                     Gio.OutputStreamSpliceFlags.CLOSE_SOURCE | Gio.OutputStreamSpliceFlags.CLOSE_TARGET, null);
 
                 setTimeout(() => {
-                    // Replace BG uri with saved uri and update background palette
+                    // Replace BG URIs with saved URIs
                     this._settings.set_string('bguri', bguri);
-
-                    // Restore background palette
-                    for(let i=1; i<=12; i++) {
-                        // if(i<=6) {
-                        //     this._settings.set_strv('prominent'+i, currentPaletteArr[i-1]);
-                        // }
-                        // else {
-                            this._settings.set_strv('palette'+i, currentPaletteArr[i-1]);
-                        // }
-                    }
+                    this._settings.set_string('dark-bguri', darkBguri);
+                    this._settings.set_string('light-bguri', lightBguri);
 
                     // Disable import/export pause to enable style reload
                     this._settings.set_boolean('import-export', false);                    
                    
                     // Trigger stylesheet reload to apply new settings
-                    this.triggerStyleReload();                  
+                    this.triggerStyleReload();                   
                 }, 2000);
                 
             }

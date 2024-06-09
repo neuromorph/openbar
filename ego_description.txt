@@ -1,33 +1,38 @@
-Top Bar ( Top Panel ) customization / styling. Open the Top Bar and let the colors 🍹 flow.
+Top Bar / Top Panel , Gnome Shell , Gtk Apps theming. Open the bar and let the colors 🍹 flow.
 
-**Please report on GitHub if something is broken due to an update or if you have any suggestions/feedback.
+**Please report on GitHub if something is broken due to an update or if you have any suggestions.
 
-Update (v29/v30): Bug Fix for extension disable, introduced by v27/v28
-Update ( v27/v28 ): 
-- Compatibility with more extensions: Fullscreen Avoider,  Lunar Calendar, Dash-to-Panel* and others**.
-- New option to apply the panel menu styles to all the shell pop-ups
-- Calendar day with event - dot indicator fix and toggle switch update fix
-* You may have to turn on 'Apply menu styles to shell' under 'Beyond Bar' in settings
-** Some extensions do not use standard widget and API (e.g. PanelMenu Button and main.addToStatusArea) when adding indicator to Panel and fixing that makes them work correctly with Open Bar or user themes.
+Open Bar 2.0: 
+- Auto-theming completely renewed. Theme Options: Dark, Light, Pastel, True-Color
+- Apply styles to Bar, Menu, Dash / Dock and rest of the shell
+- Apply accent color and style Gtk/Flatpak apps
+- New UI for preferences/settings
 
-Features from recent updates:
-- Auto FG option to automatically switch (black/white) FG color based on widget background
-- Option to set Panel Box / Margins BG color
-- Light-Gradient option for Menu background
-- More tweaks for Border width and radius to change the way the Bar/Buttons look
--  Auto-theming options 
--  Import, export theme settings to file.
--  Window-Max Bar: Change Bar props when a window is maximized
--  More settings in Menus: Menu panel and buttons radius, slider tweaks
+
+Compatibility with Extensions:
+- It should be (mostly) compatible with user themes and other extensions that affect the Top Panel 
+- Some extensions do not use standard widget and API (e.g. 'PanelMenu.Button' and 'main.addToStatusArea') when adding indicator to Panel and fixing that makes them work correctly with Open Bar (or user themes for that matter).
+
 
 Auto Theming:
 - Note: If you want to save your current settings, please use Export Settings option before applying Auto-theme. You can import it back whenever needed.
-- Please select Bar properties esp. type of bar before applying a theme. If you change Bar type later, apply theme again.
-- There are three theme options: 'Color', 'Dark', 'Light' and two variations for each: 'Default', 'Alt'.  Try all combinations to see what you prefer for your desktop background. (Default and Alt maybe very similar or distinct depending on the background palette).
-- There are more settings in Auto-Theme. You can select if you want the secondary menu BG color to be derived from BG or auto-selected from palette. Also, you can specify any preferred accent color or let the theme choose from the background. 
-- Since it is one size fit all solution, 'No Free Lunch' theorem applies. Not all options will work for all backgrounds, so the additional knobs above will help you select the desired one. One of the combinations should work for you at least with little bit tweaking if needed.
+- Auto-themes will use the color palette generated from the background image.
+- Other settings will be set as selected, by the user, in the preferences tabs.
+- Styles will apply to the Top Bar, Menus and optionally to the shell.
+- Select desired Type of bar before applying a theme. If you change the bar type, apply the theme again.
+        
+        True Color     :  Palette colors as-is (biased towards dark). 
+        Pastel Theme   :  Colors are pastelified (biased towards light).
+        Dark Theme     :  Colors are darkened as needed.
+        Light Theme    :  Colors are lightened as needed.
+
+- You can select themes separately for both Gnome Dark and Light modes. 
 - Once theme is applied, you can further tweak any of the manual settings, as usual, to finetune the theme. 
-- There is an option for Auto-refreshing theme when background changes. This will overwrite current theme with newly generated one when background is changed.  
+- Color changes made in current mode will be saved for that mode alone. Other settings will apply to both modes.
+- There is an option for Auto-refreshing theme when background changes. This will overwrite current themes with newly generated ones when background is changed.
+- There are more settings in Auto-Theme. You can select if you want the secondary menu BG color to be derived from BG or auto-selected from palette. You can specify any preferred accent color or let the theme choose from the background. You can also select if foreground color should be auto-generated or use manual selection etc.
+- Since it is one size fit all solution, 'No Free Lunch' theorem applies. Not all options will work best for all backgrounds, so the additional knobs above will help you select the desired one. One of the theme combinations should work for you at least with little bit tweaking if needed.
+  
 
 Customize:
 - Bar Type: Fixed, Floating or Islands / Trilands
@@ -37,10 +42,11 @@ Customize:
 - Shape rectangular to pill, border width, color, neon glow
 - Menu customizations: foreground, background colors, transparency, border, shadow,  active/selection, hover colors
 etc.
-- Apply to notification popups
 - Includes a custom color palette, under the default palette, in each color button popup. The palette is auto-generated from the desktop background.
+- Add accent hint to GTK/Flatpak apps' Headerbar, Sidebar or Card/Dialogs. Add Traffic Light controls, window border, popover styles etc.
 
 
+SETTINGS NOTES:
 If the panel/menu isn't looking right, you need to tweak some settings. There are a lot of knobs to allow for different setups/tastes. It can also make it a bit overwhelming if you are not familiar with css styles but with some experimentation it will become a lot easier. Here are brief notes:
 - BG/FG color: Background or Foreground colors. Foreground is typically text and icons.
 - Alpha: Transparency for the color. 0 is transparent while 1 is opaque.
@@ -57,6 +63,4 @@ If the panel/menu isn't looking right, you need to tweak some settings. There ar
     = FG/BG, border, highlight are similar to above but for menus.
     = Selected/active color is for menu items that are active e.g. Today's day in Calendar or WiFi in Quick Settings or even an active menu item with opened submenu. 
     = Shadow applies to the panel menu. Use white/bright color in dark theme and black/dark color in light theme for the effect to show and help with contrast. Using same color as menu border is also a good idea. Use the Alphas for both border and shadow to increase or reduce their effect.
-    = Once enabled, menu settings now also apply as soon as changed. You need to press 'Apply Menu Styles' button to enable the menu style. 'Reset Menu Styles' button will remove all menu styles and revert to your default theme.
-
-Lastly, be a tiny bit gentler with the sliders in the settings as they modify the stylesheet behind the scene for every update.
+- Lastly, be a tiny bit gentler with the sliders in the settings as they modify the stylesheet behind the scene for every update.

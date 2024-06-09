@@ -367,8 +367,8 @@ function createGtkCss(obar) {
         @define-color sidebar_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${sbAlpha});
         @define-color sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.9);
 
-        @define-color secondary_sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${sbAlpha});
-        @define-color secondary_sidebar_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${sbAlpha});    
+        @define-color secondary_sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${0.9*sbAlpha});
+        @define-color secondary_sidebar_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${0.9*sbAlpha});    
         @define-color secondary_sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.9);
         
         .sidebar,
@@ -524,6 +524,7 @@ export function saveGtkCss(obar, caller) {
     [gtk3Dir, gtk4Dir].forEach(dir => {
         // console.log(dir.get_path() +'\n' + gtkstring);
 
+        // Create dir if missing
         if (!dir.query_exists(null)) {
             try {
                 const file = Gio.File.new_for_path(dir.get_path());
@@ -554,6 +555,7 @@ export function saveGtkCss(obar, caller) {
             }            
         }        
 
+        // Disable extension or turn off Gtk app style
         if(caller == 'disable' || !applyGtk) {
             if(isGtkOpenBar && isBackupOpenBar) {
                 try { // Restore backup
@@ -572,8 +574,9 @@ export function saveGtkCss(obar, caller) {
                 }
             }
         }
+        // Turn On Gtk: Backup if existing (non-openbar) gtk.css and create new OpenBar gtk.css
         else if(applyGtk) {
-            if(isGtk && !isGtkOpenBar) { // log('backup gtk.css');
+            if(isGtk && !isGtkOpenBar) {
                 try {
                     file.move(backup, Gio.FileCopyFlags.OVERWRITE, null, null);
                 }
@@ -602,7 +605,7 @@ export function saveGtkCss(obar, caller) {
 // Apply override to provide flatpak apps access to Gtk config css files
 export function saveFlatpakOverrides(obar, caller) {
     const applyFlatpak = obar._settings.get_boolean('apply-flatpak');
-    const dataDir = GLib.get_user_data_dir(); //log('Data DIR: ', dataDir);
+    const dataDir = GLib.get_user_data_dir();
     const overrideDir = Gio.File.new_for_path(`${dataDir}/flatpak/overrides`);
     if (!overrideDir.query_exists(null)) {
         try {
@@ -634,7 +637,9 @@ export function saveFlatpakOverrides(obar, caller) {
     }
 
     try {
-        if(caller == 'disable' || !applyFlatpak) { //log('Restoring global file with ', obar.fsystemBackup);
+        if(caller == 'disable' || !applyFlatpak) {
+            if(!obar.fsystemBackup) 
+                obar.fsystemBackup = '';
             keyfile.set_string('Context', 'filesystems', obar.fsystemBackup);
             keyfile.save_to_file(global.get_path());
         }
@@ -644,7 +649,7 @@ export function saveFlatpakOverrides(obar, caller) {
                 obar.fsystemBackup = '';
             let fsystem = obar.fsystemBackup + ';xdg-config/gtk-3.0:ro;xdg-config/gtk-4.0:ro;';
             keyfile.set_string('Context', 'filesystems', fsystem);
-            keyfile.save_to_file(global.get_path()); //log('Saving global file with ', fsystem);
+            keyfile.save_to_file(global.get_path());
         }
     }
     catch (e) {
@@ -656,65 +661,65 @@ function rgbToHex(r, g, b) {
     return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1);
 }
 
-// Add tint to RGB color
-function addTint(rgbColor, amount) {
-    const [r, g, b] = rgbColor.map(val => val + (255 - val) * amount);
-    return [r, g, b];
-}
+// // Add tint to RGB color
+// function addTint(rgbColor, amount) {
+//     const [r, g, b] = rgbColor.map(val => val + (255 - val) * amount);
+//     return [r, g, b];
+// }
 
-// Add shade to RGB color - modified (grey)
-function addShade(rgbColor, amount, target=0) {
-    const [r, g, b] = rgbColor.map(val => val + (target - val) * amount);
-    return [r, g, b];
-}
+// // Add shade to RGB color - modified (grey)
+// function addShade(rgbColor, amount, target=0) {
+//     const [r, g, b] = rgbColor.map(val => val + (target - val) * amount);
+//     return [r, g, b];
+// }
 
-// Converts RGB to HSL
-function rgbToHsl(rgb) {
-    let [r, g, b] = [rgb[0]/255, rgb[1]/255, rgb[2]/255];
-    let max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let h, s, l = (max + min) / 2;
-    if(max == min) {
-        h = s = 0; // achromatic
-    } else {
-        let d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        switch(max) {
-            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-            case g: h = (b - r) / d + 2; break;
-            case b: h = (r - g) / d + 4; break;
-        }
-        h /= 6;
-    }
-    return [h, s, l]; // h, s, l in range 0 - 1
-}
+// // Converts RGB to HSL
+// function rgbToHsl(rgb) {
+//     let [r, g, b] = [rgb[0]/255, rgb[1]/255, rgb[2]/255];
+//     let max = Math.max(r, g, b), min = Math.min(r, g, b);
+//     let h, s, l = (max + min) / 2;
+//     if(max == min) {
+//         h = s = 0; // achromatic
+//     } else {
+//         let d = max - min;
+//         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+//         switch(max) {
+//             case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+//             case g: h = (b - r) / d + 2; break;
+//             case b: h = (r - g) / d + 4; break;
+//         }
+//         h /= 6;
+//     }
+//     return [h, s, l]; // h, s, l in range 0 - 1
+// }
 
-// Converts HSL to RGB
-function hslToRgb(hsl) {
-    let [h, s, l] = hsl;
-    let r, g, b;
+// // Converts HSL to RGB
+// function hslToRgb(hsl) {
+//     let [h, s, l] = hsl;
+//     let r, g, b;
   
-    if (s === 0) {
-        r = g = b = l; // achromatic
-    } else {
-        const hue2rgb = (p, q, t) => {
-            if (t < 0) t += 1;
-            if (t > 1) t -= 1;
-            if (t < 1 / 6) return p + (q - p) * 6 * t;
-            if (t < 1 / 2) return q;
-            if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-            return p;
-        };
+//     if (s === 0) {
+//         r = g = b = l; // achromatic
+//     } else {
+//         const hue2rgb = (p, q, t) => {
+//             if (t < 0) t += 1;
+//             if (t > 1) t -= 1;
+//             if (t < 1 / 6) return p + (q - p) * 6 * t;
+//             if (t < 1 / 2) return q;
+//             if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+//             return p;
+//         };
   
-        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-        const p = 2 * l - q;
+//         const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+//         const p = 2 * l - q;
   
-        r = hue2rgb(p, q, h + 1 / 3);
-        g = hue2rgb(p, q, h);
-        b = hue2rgb(p, q, h - 1 / 3);
-    }
+//         r = hue2rgb(p, q, h + 1 / 3);
+//         g = hue2rgb(p, q, h);
+//         b = hue2rgb(p, q, h - 1 / 3);
+//     }
   
-    return [r * 255, g * 255, b * 255];
-}
+//     return [r * 255, g * 255, b * 255];
+// }
 
 // Generate stylesheet string and save stylesheet file
 function saveStylesheet(obar, Me) {
@@ -1489,7 +1494,7 @@ function saveStylesheet(obar, Me) {
 
     // Create Stylesheet string to write to file
     let stylesheet = `
-    /* stylesheet.css
+    /* OpenBar stylesheet.css
     * This file is autogenerated. Do Not Edit.
     *
     * SPDX-License-Identifier: GPL-2.0-or-later
