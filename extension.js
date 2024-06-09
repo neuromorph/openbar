@@ -75,7 +75,9 @@ class ConnectManager{
 
     disconnectAll(){
         this.connections.forEach(c => {
-            c.obj.disconnect(c.id);
+            console.log('Disconnect All - c.id: ', c.id);
+            if(c.obj && c.id > 0)
+                c.obj.disconnect(c.id);
         })
     }
 }
@@ -233,13 +235,15 @@ export default class Openbar extends Extension {
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
             for(const btn of box) {
-                    btn.set_style(null);
+                    // btn.set_style(null);
                     btn.remove_style_class_name('openbar');
-                    btn.child?.set_style(null);
+                    // btn.child?.set_style(null);
                     btn.child?.remove_style_class_name('openbar'); 
 
-                    for(let j=1; j<=8; j++)
+                    for(let j=1; j<=8; j++) {
+                        console.log('Remove candy class: ', 'candy'+j);
                         btn.child?.remove_style_class_name('candy'+j);
+                    }
 
                     btn.child?.remove_style_class_name('trilands');
 
@@ -895,7 +899,9 @@ export default class Openbar extends Extension {
         if(this._windowSignals) {
             for(const [windowActor, ids] of this._windowSignals) {
                 for(const id of ids) {
-                    windowActor.disconnect(id);
+                    console.log('disconnectWindowSignals - id: ', id);
+                    if(windowActor && id > 0)
+                        windowActor.disconnect(id);
                 }
             }
         }
@@ -1091,6 +1097,7 @@ export default class Openbar extends Extension {
     }
 
     disable() {
+        console.log('======= IN DISABLE =======');
         // Get the top panel
         let panel = Main.panel;
 
@@ -1118,7 +1125,9 @@ export default class Openbar extends Extension {
 
         for(let i=0; i<this.msgLists.length; i++) {
             if(this.msgListIds[i]) {
-                this.msgLists[i]?.disconnect(this.msgListIds[i]);
+                console.log('Disable - msgListIds: ', this.msgListIds[i]);
+                if(this.msgLists[i] && this.msgListIds[i] > 0)
+                    this.msgLists[i]?.disconnect(this.msgListIds[i]);
                 this.msgListIds[i] = null;
                 this.msgLists[i] = null;
             }
