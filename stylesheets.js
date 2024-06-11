@@ -215,40 +215,71 @@ function createGtkCss(obar) {
     const mbgGreen = parseInt(parseFloat(mbgColor[1]) * 255);
     const mbgBlue = parseInt(parseFloat(mbgColor[2]) * 255);
     
-    let bgRed, bgGreen, bgBlue, cdRed, cdGreen, cdBlue;
+    let bgRed, bgGreen, bgBlue, cdRed, cdGreen, cdBlue, hbRed, hbGreen, hbBlue;
     const colorScheme = obar._intSettings.get_string('color-scheme');
     if(colorScheme == 'prefer-dark') {
-        bgRed = bgGreen = bgBlue = 30;
-        cdRed = cdGreen = cdBlue = 61;
+        bgRed = bgGreen = bgBlue = 30; // Headerbar/Sidebar BG
+        cdRed = cdGreen = cdBlue = 61; // Card/Dialog BG
+        hbRed = hbGreen = hbBlue = 55; // Headerbar button BG
     }
     else {
         bgRed = bgGreen = bgBlue = 235;
         cdRed = cdGreen = cdBlue = 255;
+        hbRed = hbGreen = hbBlue = 255;
     }
     
+    // Headerbar BG and Backdrop
     const hbgRed = hBarHint * accRed + (1-hBarHint) * bgRed;
     const hbgGreen = hBarHint * accGreen + (1-hBarHint) * bgGreen;
     const hbgBlue = hBarHint * accBlue + (1-hBarHint) * bgBlue;
     const hbdRed = hBarHintBd * accRed + (1-hBarHintBd) * bgRed;
     const hbdGreen = hBarHintBd * accGreen + (1-hBarHintBd) * bgGreen;
     const hbdBlue = hBarHintBd * accBlue + (1-hBarHintBd) * bgBlue;
-
+    // Sidebar BG and Backdrop
     const sbgRed = sBarHint * accRed + (1-sBarHint) * bgRed;
     const sbgGreen = sBarHint * accGreen + (1-sBarHint) * bgGreen;
     const sbgBlue = sBarHint * accBlue + (1-sBarHint) * bgBlue;
     const sbdRed = sBarHintBd * accRed + (1-sBarHintBd) * bgRed;
     const sbdGreen = sBarHintBd * accGreen + (1-sBarHintBd) * bgGreen;
     const sbdBlue = sBarHintBd * accBlue + (1-sBarHintBd) * bgBlue;
-    
+    // Sidebar Alpha
+    const sbAlpha = sBarTransparency? 0.65 : 1.0;
+    // Card/Dialog BG and Backdrop
     const cbgRed = cdHint * accRed + (1-cdHint) * cdRed;
     const cbgGreen = cdHint * accGreen + (1-cdHint) * cdGreen;
     const cbgBlue = cdHint * accBlue + (1-cdHint) * cdBlue;
     const cbdRed = cdHintBd * accRed + (1-cdHintBd) * cdRed;
     const cbdGreen = cdHintBd * accGreen + (1-cdHintBd) * cdGreen;
     const cbdBlue = cdHintBd * accBlue + (1-cdHintBd) * cdBlue;
+    // Headerbar Buttons BG and Backdrop
+    const hbbgRed = hBarHint * accRed + (1-hBarHint) * hbRed;
+    const hbbgGreen = hBarHint * accGreen + (1-hBarHint) * hbGreen;
+    const hbbgBlue = hBarHint * accBlue + (1-hBarHint) * hbBlue;
+    const hbbdRed = hBarHintBd * accRed + (1-hBarHintBd) * hbRed;
+    const hbbdGreen = hBarHintBd * accGreen + (1-hBarHintBd) * hbGreen;
+    const hbbdBlue = hBarHintBd * accBlue + (1-hBarHintBd) * hbBlue;
+    // Headerbar Buttons BG:Hover
+    let hbhRed, hbhGreen, hbhBlue, acchRed, acchGreen, acchBlue, hbBordRed, hbBordGreen, hbBordBlue;
+    if(getBgDark(hbgRed, hbgGreen, hbgBlue)) {
+        hbhRed = hbbgRed + (255 - hbbgRed) * 0.07;
+        hbhGreen = hbbgGreen + (255 - hbbgGreen) * 0.07;
+        hbhBlue = hbbgBlue + (255 - hbbgBlue) * 0.07;
 
-    const sbAlpha = sBarTransparency? 0.65 : 1.0;
+        acchRed = accRed + (255 - accRed) * 0.07;
+        acchGreen = accGreen + (255 - accGreen) * 0.07;
+        acchBlue = accBlue + (255 - accBlue) * 0.07;
+    }
+    else {
+        hbhRed = hbbgRed - hbbgRed * 0.07;
+        hbhGreen = hbbgGreen - hbbgGreen * 0.07;
+        hbhBlue = hbbgBlue - hbbgBlue * 0.07;
 
+        acchRed = accRed - accRed * 0.07;
+        acchGreen = accGreen - accGreen * 0.07;
+        acchBlue = accBlue - accBlue * 0.07;
+    }
+    
+    // Window Border
     const winBRedBd = 0.6 * winBRed + 0.4 * bgRed;
     const winBGreenBd = 0.6 * winBGreen + 0.4 * bgGreen;
     const winBBlueBd = 0.6 * winBBlue + 0.4 * bgBlue;
@@ -358,6 +389,49 @@ function createGtkCss(obar) {
         .titlebar:backdrop { 
             background-color: @headerbar_backdrop_color;
         }
+
+        headerbar > label, headerbar > box > label {
+            color: @headerbar_fg_color;
+        }        
+        headerbar > button.image-button, headerbar > button.text-button,
+        headerbar > box > button.image-button, headerbar > box > button.text-button,
+        headerbar > entry,
+        headerbar > box > entry {
+            background-image: image(rgb(${hbbgRed}, ${hbbgGreen}, ${hbbgBlue}));
+            color: @headerbar_fg_color;
+            border-color: alpha(@headerbar_fg_color, 0.2);
+        }
+        headerbar:backdrop > button,
+        headerbar:backdrop > box > button,
+        headerbar:backdrop > entry,
+        headerbar:backdrop > box > entry {
+            background-image: image(rgb(${hbbdRed}, ${hbbdGreen}, ${hbbdBlue}));
+        }
+        headerbar > button:disabled,
+        headerbar > box > button:disabled,
+        headerbar > entry:disabled,
+        headerbar > box > entry:disabled {
+            background-image: image(rgba(0,0,0,0));
+            color: alpha(@headerbar_fg_color, 0.5);
+        }
+        headerbar > button.image-button:hover, headerbar > button.text-button:hover,
+        headerbar > box > button.image-button:hover, headerbar > box > button.text-button:hover,
+        headerbar > entry:hover,
+        headerbar > box > entry:hover {
+            background-image: image(rgb(${hbhRed}, ${hbhGreen}, ${hbhBlue}));
+            border-color: alpha(@headerbar_fg_color, 0.3);
+        }
+        headerbar > button.image-button.suggested-action, headerbar > button.text-button.suggested-action,
+        headerbar > box > button.image-button.suggested-action, headerbar > box > button.text-button.suggested-action {
+            background-image: image(@accent_bg_color);
+            color: @accent_fg_color;
+        }
+        headerbar > button.image-button.suggested-action:hover, headerbar > button.text-button.suggested-action:hover,
+        headerbar > box > button.image-button.suggested-action:hover, headerbar > box > button.text-button.suggested-action:hover {
+            background-image: image(rgba(${acchRed}, ${acchGreen}, ${acchBlue}, 0.85));
+            color: rgba(${afgRed}, ${afgGreen}, ${afgBlue}, 0.95);
+        }
+        
         `;
     }
     
@@ -427,7 +501,7 @@ function createGtkCss(obar) {
 
         button.titlebutton:backdrop,
         windowcontrols > button:backdrop {
-          opacity: 0.5;
+          opacity: 0.65;
         }
         
         button.titlebutton > image,
@@ -447,7 +521,7 @@ function createGtkCss(obar) {
 
         button.titlebutton:hover,
         windowcontrols > button:hover {
-            color: #fff;
+            color: rgba(25, 25, 25, 0.9);
         }
         
         button.titlebutton.close, 
@@ -455,11 +529,12 @@ function createGtkCss(obar) {
         windowcontrols > button.close,
         windowcontrols > button.close:hover:backdrop {
           background-color: #ff605c;
+          background-image: none;
         }
 
         button.titlebutton.close:hover,
         windowcontrols > button.close:hover {
-          background-color: shade(#ff605c,0.95);
+          background-color: shade(#ff605c,1.1);
         }
 
         button.titlebutton.maximize, 
@@ -467,11 +542,12 @@ function createGtkCss(obar) {
         windowcontrols > button.maximize,
         windowcontrols > button.maximize:hover:backdrop {
           background-color: #00ca4e;
+          background-image: none;
         }
 
         button.titlebutton.maximize:hover,
         windowcontrols > button.maximize:hover {
-          background-color: shade(#00ca4e,0.95);
+          background-color: shade(#00ca4e,1.1);
         }
 
         button.titlebutton.minimize, 
@@ -479,11 +555,12 @@ function createGtkCss(obar) {
         windowcontrols > button.minimize,
         windowcontrols > button.minimize:hover:backdrop {
           background-color: #ffbd44;
+          background-image: none;
         }
 
         button.titlebutton.minimize:hover,
         windowcontrols > button.minimize:hover {
-          background-color: shade(#ffbd44,0.95);
+          background-color: shade(#ffbd44,1.1);
         }
 
         button.titlebutton.close:backdrop, button.titlebutton.maximize:backdrop, button.titlebutton.minimize:backdrop,
