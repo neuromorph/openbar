@@ -207,6 +207,7 @@ export default class Openbar extends Extension {
             else
                 theme = this._settings.get_string('autotheme-light');
             if(autoRefresh && theme != 'Select Theme') {
+                // console.log('Auto theme refresh for ', darklight);
                 AutoThemes.autoApplyBGPalette(this, darklight);
             }
         }
@@ -470,7 +471,7 @@ export default class Openbar extends Extension {
             const importExport = this._settings.get_boolean('import-export');
             if(!importExport) {
                 if(key == 'bgpalette')
-                    this.updateBguri();
+                    this.updateBguri(this, 'updatePanelStyle');
                 else
                     this.backgroundPalette();
             }
@@ -937,11 +938,13 @@ export default class Openbar extends Extension {
     updateBguri(obj, signal) {
         // console.log('update bguri called for signal ', signal);
         // If the function is triggered multiple times in succession, ignore till timeout 
-        if(this.updatingBguri)
+        if(this.updatingBguri) {
+            // console.log('update bguri already in progress');
             return;
+        }
         this.updatingBguri = true;
-        this.updatingBguriId = setTimeout(() => {this.updatingBguri = false;}, 300);
-
+        this.updatingBguriId = setTimeout(() => {this.updatingBguri = false;}, 5000);
+        // console.log('Going ahead with bguri======');
         let colorScheme = this._intSettings.get_string('color-scheme');
         if(colorScheme != this.colorScheme) {
             this.colorScheme = colorScheme;
@@ -964,8 +967,10 @@ export default class Openbar extends Extension {
         
         // Gnome45+: if bgnd changed with right click on image file, 
         // filepath (bguri) remains same, so manually call updatePanelStyle
-        if(bguriOld == bguriNew)
+        if(bguriOld == bguriNew) {
+            // console.log('bguriOld == bguriNew - calling updatePanelStyle for bguri');
             this.updatePanelStyle(this._settings, 'bguri');
+        }
     }
 
     // Connect multiple signals to ensure detecting background-change in all Gnome versions
