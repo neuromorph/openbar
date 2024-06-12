@@ -5,8 +5,8 @@
       <stop id="SvgjsStop5644" stop-color="#ff00d4" offset="1"></stop>
     </linearGradient>
     <linearGradient id="SvgjsLinearGradient5645">
-      <stop id="SvgjsStop5646" stop-color="#ff00d4" offset="0"></stop>
-      <stop id="SvgjsStop5647" stop-color="#00ddff" offset="1"></stop>
+      <stop id="SvgjsStop5646" stop-color="#00ddff" offset="0"></stop>
+      <stop id="SvgjsStop5647" stop-color="#ff00d4" offset="1"></stop>
     </linearGradient>
   </defs>
   <g id="SvgjsG5638" featurekey="symbolFeature-0" transform="matrix(2.03562331199646,0,0,2.03562331199646,57.201019970375434,-22.391855767569446)" fill="url(#SvgjsLinearGradient5642)">
