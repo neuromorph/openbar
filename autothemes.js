@@ -1276,7 +1276,7 @@ export function autoApplyBGPalette(obar, requestMode) {
     bgcolor2 = getStrv(smbgColor);
     bcolor = getStrv(barBorderColor);
     // hcolor = getStrv(barHighlight);
-    shcolor = getStrv(barBorderColor);
+    shcolor = getStrv([0,0,0]); //barBorderColor
     bgcolorWmax = getStrv(wmaxBarBgColor);
 
     // MENU
@@ -1284,7 +1284,7 @@ export function autoApplyBGPalette(obar, requestMode) {
     smbgcolor = getStrv(smbgColor); 
     mbcolor = getStrv(menuBorderColor);
     // mhcolor = getStrv(menuHighlight);
-    mshcolor = getStrv(menuBorderColor);
+    mshcolor = getStrv([0,0,0]); //menuBorderColor
     mscolor = getStrv(accentColor);
 
     // Update settings for bar and menu

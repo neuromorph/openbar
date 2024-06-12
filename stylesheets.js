@@ -905,6 +905,9 @@ function saveStylesheet(obar, Me) {
     obar.msHex = rgbToHex(msred, msgreen, msblue);
     obar.msHex = obar.msHex + parseInt(parseFloat(msAlpha)*255).toString(16);
 
+    const darkMode = obar._intSettings.get_string('color-scheme') == 'prefer-dark';
+
+
     const mbg = `rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha})`; // menu bg
     const msc = `rgba(${msred},${msgreen},${msblue},${msAlpha})`; // menu selection/accent    
 
@@ -1256,11 +1259,11 @@ function saveStylesheet(obar, Me) {
     if (shadow) {
         if (borderRadius < radThreshold) {
             panelStyle += 
-            ` box-shadow: 0px ${shalpha*20}px ${2+shalpha*30}px ${2+shalpha*20}px rgba(${shred},${shgreen},${shblue}, ${shalpha}); `;
+            ` box-shadow: 0px ${shalpha*10}px ${1.5+shalpha*15}px ${shalpha*10}px rgba(${shred},${shgreen},${shblue}, ${0.85*shalpha}); `;
         }
         else {
             panelStyle += 
-            ` box-shadow: 0px ${shalpha*20}px ${2+shalpha*30}px ${2+shalpha*40}px rgba(${shred},${shgreen},${shblue}, ${shalpha}); `;
+            ` box-shadow: 0px ${shalpha*10}px ${1.5+shalpha*15}px ${shalpha*20}px rgba(${shred},${shgreen},${shblue}, ${0.85*shalpha}); `;
         }
     }
     else {
@@ -1358,22 +1361,23 @@ function saveStylesheet(obar, Me) {
         marginWMax = margin;
     }
 
-    // Top Bar Menu Style
+    // Panel Menu Style
+    let shadowAlpha = darkMode? mshAlpha : 0.5*mshAlpha;
+    let borderAlpha = darkMode? mbAlpha : 0.6*mbAlpha;
     let menuContentStyle =
-    `   box-shadow: 0 2px 6px 0 rgba(${mshred},${mshgreen},${mshblue},${mshAlpha}) !important; /* menu shadow */
-        border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${mbAlpha}) !important; /* menu border */
+    `   box-shadow: 0 2px 4px 0px rgba(${mshred},${mshgreen},${mshblue},${shadowAlpha}) !important; /* menu shadow */
+        border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${borderAlpha}) !important; /* menu border */
         /* add menu font */
         background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}); /* menu bg */
         color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}); /* menu fg */ 
         border-radius: ${menuRadius > 20? 20: menuRadius}px !important; `;
     // GTK Popover style
-    let popoverMenuRadius = menuRadius > 15? 15: menuRadius;
     obar.popoverContentStyle =
-    `   box-shadow: 0 0px 3px 0px rgba(${mshred},${mshgreen},${mshblue},${0.5*mshAlpha});
+    `   box-shadow: 0 2px 4px 0px rgba(${mshred},${mshgreen},${mshblue},${0.5*mshAlpha});
         border: 1px solid rgba(${mbred},${mbgreen},${mbblue},${0.5*mbAlpha});
         background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha});
         color: rgba(${mfgred},${mfggreen},${mfgblue},${0.9*mfgAlpha});
-        border-radius: ${popoverMenuRadius}px; `;
+        border-radius: ${menuRadius > 15? 15: menuRadius}px; `;
     if(mbgGradient) { // Light Gradient
         let mGradientStyle = 
         `   box-shadow: none !important;
@@ -2281,7 +2285,6 @@ function saveStylesheet(obar, Me) {
         return colorShade(`rgba(${smbgred},${smbggreen},${smbgblue},${transparentize*mbgAlpha})`, shade);
     }
 
-    const darkMode = obar._intSettings.get_string('color-scheme') == 'prefer-dark';
     // Shell St Entry Base colors
     let baseBgColor = darkMode? 'rgba(75, 75, 75, 0.8)' : 'rgba(200, 200, 200, 0.8)';
     let baseFgColor = darkMode? 'rgb(255, 255, 255)' : 'rgb(25, 25, 25)';
