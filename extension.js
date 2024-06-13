@@ -229,7 +229,7 @@ export default class Openbar extends Extension {
         else object[name] = injection[name];
     }
 
-    resetStyle(panel) {
+    resetPanelStyle(panel) {
         Main.layoutManager.panelBox.remove_style_class_name('openbar');
         panel.remove_style_class_name('openbar');
 
@@ -244,6 +244,15 @@ export default class Openbar extends Extension {
                     for(let j=1; j<=8; j++) {
                         console.log('Remove candy class: ', 'candy'+j);
                         btn.child?.remove_style_class_name('candy'+j);
+
+                        for(const child of btn.child.get_children()) {
+                            if(child.remove_style_class_name)
+                                child.remove_style_class_name('candy'+j);
+                            for(const gChild of child.get_children()) {
+                                if(gChild.remove_style_class_name)
+                                    gChild.remove_style_class_name('candy'+j);
+                            }
+                        }
                     }
 
                     btn.child?.remove_style_class_name('trilands');
@@ -252,7 +261,7 @@ export default class Openbar extends Extension {
                         let list = btn.child.get_child_at_index(0);
                         for(const indicator of list) { 
                             let dot = indicator.get_child_at_index(0);
-                            dot?.set_style(null);
+                            // dot?.set_style(null);
                             dot?.remove_style_class_name('openbar');
                         }
                     }     
@@ -454,6 +463,91 @@ export default class Openbar extends Extension {
         }
     }
 
+    setPanelStyle(panel, key, bartype) {
+        const candybar = this._settings.get_boolean('candybar');
+        const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
+        let i = 0;
+        for(const box of panelBoxes) {
+            for(const btn of box) {
+                // Screen recording/share indicators use ButtonBox instead of Button
+                if(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) {
+                    btn.child.add_style_class_name('openbar');
+
+                    if(btn.child.visible) { 
+                        // console.log('Visible Child: ', String(btn.child));
+                        btn.add_style_class_name('openbar button-container');
+
+                        // Add candybar classes if enabled else remove them
+                        // if(key == 'enabled' || key == 'candybar' || key == this.addedSignal || key == this.removedSignal) {
+                            // log('Candybar for key: ', key);
+                            for(let j=1; j<=8; j++) {
+                                btn.child.remove_style_class_name('candy'+j);
+                                for(const child of btn.child.get_children()) {
+                                    if(child.remove_style_class_name)
+                                        child.remove_style_class_name('candy'+j);
+                                    for(const gChild of child.get_children()) {
+                                        if(gChild.remove_style_class_name)
+                                            gChild.remove_style_class_name('candy'+j);
+                                    }
+                                }
+                            }
+                            i++; i = i%8; i = i==0? 8: i; // Cycle through candybar palette
+                            if(candybar) {
+                                btn.child.add_style_class_name('candy'+i);
+                                for(const child of btn.child.get_children()) {
+                                    if(child.add_style_class_name)
+                                        child.add_style_class_name('candy'+i);
+                                    for(const gChild of child.get_children()) {
+                                        if(gChild.add_style_class_name)
+                                            gChild.add_style_class_name('candy'+i);
+                                    }
+                                }
+                            }
+                        // }
+                    }
+
+                    // Workspace dots
+                    if(btn.child.constructor.name === 'ActivitiesButton') {
+                        let list = btn.child.get_child_at_index(0);
+                        for(const indicator of list) { 
+                            let dot = indicator.get_child_at_index(0);
+                            dot?.add_style_class_name('openbar');
+                        }                        
+                    }
+                    
+                    // Add trilands pseudo/classes if enabled else remove them
+                    // if(btn.child.has_style_class_name('trilands'))
+                    //     btn.child.remove_style_class_name('trilands');
+                    if(bartype == 'Trilands') {
+                        btn.child.add_style_class_name('trilands');
+
+                        if(btn == box.first_child && btn == box.last_child)
+                            btn.child.add_style_pseudo_class('one-child');
+                        else
+                            btn.child.remove_style_pseudo_class('one-child');
+                        
+                        if(btn == box.first_child && btn != box.last_child)
+                            btn.child.add_style_pseudo_class('left-child');
+                        else
+                            btn.child.remove_style_pseudo_class('left-child');
+                            
+                        if(btn != box.first_child && btn == box.last_child)
+                            btn.child.add_style_pseudo_class('right-child');
+                        else
+                            btn.child.remove_style_pseudo_class('right-child');
+                        
+                        if(btn != box.first_child && btn != box.last_child)
+                            btn.child.add_style_pseudo_class('mid-child');
+                        else
+                            btn.child.remove_style_pseudo_class('mid-child');
+                    }
+                    else
+                        btn.child.remove_style_class_name('trilands'); 
+                }                
+            }
+        }
+    }
+
     updatePanelStyle(obj, key, sig_param, callbk_param) { 
         // console.log('update called with ', key, sig_param, callbk_param);
 
@@ -634,7 +728,7 @@ export default class Openbar extends Extension {
         let height = this._settings.get_double('height');
         let margin = this._settings.get_double('margin'); 
     
-        // this.resetStyle(panel);
+        // this.resetPanelStyle(panel);
         Main.layoutManager.panelBox.add_style_class_name('openbar');
         panel.add_style_class_name('openbar');
 
@@ -657,70 +751,7 @@ export default class Openbar extends Extension {
             Main.messageTray._banner?.add_style_class_name('openmenu');
         }
 
-        const candybar = this._settings.get_boolean('candybar');
-        const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
-        let i = 0;
-        for(const box of panelBoxes) {
-            for(const btn of box) {
-                // Screen recording/share indicators use ButtonBox instead of Button
-                if(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) {
-                    btn.child.add_style_class_name('openbar');
-
-                    if(btn.child.visible) {
-                        btn.add_style_class_name('openbar button-container');
-
-                        // Add candybar classes if enabled else remove them
-                        if(key == 'candybar' || key == this.addedSignal || key == this.removedSignal) {
-                            for(let j=1; j<=8; j++)
-                                btn.child.remove_style_class_name('candy'+j);
-                            i++; i = i%8; i = i==0? 8: i; // Cycle through candybar palette
-                            if(candybar) {
-                                btn.child.add_style_class_name('candy'+i);
-                            }
-                        }
-                    }
-
-                    // Workspace dots
-                    if(btn.child.constructor.name === 'ActivitiesButton') {
-                        let list = btn.child.get_child_at_index(0);
-                        for(const indicator of list) { 
-                            let dot = indicator.get_child_at_index(0);
-                            dot?.add_style_class_name('openbar');
-                        }                        
-                    }
-                    
-                    // Add trilands pseudo/classes if enabled else remove them
-                    // if(btn.child.has_style_class_name('trilands'))
-                    //     btn.child.remove_style_class_name('trilands');
-                    if(bartype == 'Trilands') {
-                        btn.child.add_style_class_name('trilands');
-
-                        if(btn == box.first_child && btn == box.last_child)
-                            btn.child.add_style_pseudo_class('one-child');
-                        else
-                            btn.child.remove_style_pseudo_class('one-child');
-                        
-                        if(btn == box.first_child && btn != box.last_child)
-                            btn.child.add_style_pseudo_class('left-child');
-                        else
-                            btn.child.remove_style_pseudo_class('left-child');
-                            
-                        if(btn != box.first_child && btn == box.last_child)
-                            btn.child.add_style_pseudo_class('right-child');
-                        else
-                            btn.child.remove_style_pseudo_class('right-child');
-                        
-                        if(btn != box.first_child && btn != box.last_child)
-                            btn.child.add_style_pseudo_class('mid-child');
-                        else
-                            btn.child.remove_style_pseudo_class('mid-child');
-                    }
-                    else
-                        btn.child.remove_style_class_name('trilands'); 
-                }                
-            }
-        }
-
+        this.setPanelStyle(panel, key, bartype);
     }
 
     // QSAP: listen for addition of new panels
@@ -1144,7 +1175,7 @@ export default class Openbar extends Extension {
         this._injections = [];
 
         // Reset the style for Panel and Menus
-        this.resetStyle(panel);
+        this.resetPanelStyle(panel);
         this.applyMenuStyles(panel, false);
         // Reset panel and banner position to Top
         this.setPanelBoxPosition('Top');

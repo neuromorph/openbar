@@ -1293,15 +1293,27 @@ function saveStylesheet(obar, Me) {
 
     // Candybar style 
     let candyalpha = obar._settings.get_double('candyalpha');
-    let candyStyleArr = [];
+    let candyStyleArr = [], candyHighlightArr = [];
+    let hgCandy = [hred, hgreen, hblue];
     for(let i=1; i<=8; i++) {
         let candyColor = obar._settings.get_strv('candy'+i);
         let cred = parseInt(parseFloat(candyColor[0]) * 255);
         let cgreen = parseInt(parseFloat(candyColor[1]) * 255);
         let cblue = parseInt(parseFloat(candyColor[2]) * 255);
         let calpha = candyalpha;
-        let candyStyle = `background-color: rgba(${cred},${cgreen},${cblue},${calpha});`;
+        let candyStyle = `background-color: rgba(${cred},${cgreen},${cblue},${calpha}) !important;`;
         candyStyleArr.push(candyStyle);
+
+        // Candybar highlights
+        let bgCandy = [cred, cgreen, cblue];
+        if(autohgBar)
+            hgCandy = getAutoHgColor(bgCandy);
+        // Candy Highlight BG  
+        let chred = cred*(1-hAlpha) + hgCandy[0]*hAlpha;
+        let chgreen = cgreen*(1-hAlpha) + hgCandy[1]*hAlpha;
+        let chblue = cblue*(1-hAlpha) + hgCandy[2]*hAlpha;
+        let candyHgStyle = `background-color: rgba(${chred},${chgreen},${chblue},${calpha}) !important;`;
+        candyHighlightArr.push(candyHgStyle);
     }
 
     
@@ -1557,26 +1569,50 @@ function saveStylesheet(obar, Me) {
         #panel${openbarClass} .panel-button.candy1 {
             ${candyStyleArr[0]}
         }
+        #panel${openbarClass} .panel-button.candy1:hover, #panel${openbarClass} .panel-button.candy1:focus {
+            ${candyHighlightArr[0]}
+        }
         #panel${openbarClass} .panel-button.candy2 {
             ${candyStyleArr[1]}
+        }
+        #panel${openbarClass} .panel-button.candy2:hover, #panel${openbarClass} .panel-button.candy2:focus {
+            ${candyHighlightArr[1]}
         }
         #panel${openbarClass} .panel-button.candy3 {
             ${candyStyleArr[2]}
         }
+        #panel${openbarClass} .panel-button.candy3:hover, #panel${openbarClass} .panel-button.candy3:focus {
+            ${candyHighlightArr[2]}
+        }
         #panel${openbarClass} .panel-button.candy4 {
             ${candyStyleArr[3]}
+        }
+        #panel${openbarClass} .panel-button.candy4:hover, #panel${openbarClass} .panel-button.candy4:focus {
+            ${candyHighlightArr[3]}
         }
         #panel${openbarClass} .panel-button.candy5 {
             ${candyStyleArr[4]}
         }
+        #panel${openbarClass} .panel-button.candy5:hover, #panel${openbarClass} .panel-button.candy5:focus {
+            ${candyHighlightArr[4]}
+        }
         #panel${openbarClass} .panel-button.candy6 {
             ${candyStyleArr[5]}
+        }
+        #panel${openbarClass} .panel-button.candy6:hover, #panel${openbarClass} .panel-button.candy6:focus {
+            ${candyHighlightArr[5]}
         }
         #panel${openbarClass} .panel-button.candy7 {
             ${candyStyleArr[6]}
         }
+        #panel${openbarClass} .panel-button.candy7:hover, #panel${openbarClass} .panel-button.candy7:focus {
+            ${candyHighlightArr[6]}
+        }
         #panel${openbarClass} .panel-button.candy8 {
             ${candyStyleArr[7]}
+        }
+        #panel${openbarClass} .panel-button.candy8:hover, #panel${openbarClass} .panel-button.candy8:focus {
+            ${candyHighlightArr[7]}
         }
 
         #panel${openbarClass} .panel-button:hover, #panel${openbarClass} .panel-button:focus, 
