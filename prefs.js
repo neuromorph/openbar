@@ -501,6 +501,7 @@ class OpenbarPrefs {
             margin_top: 10,
             css_classes: ['openbar-quotebox'],
         });
+        quoteBox.set_size_request(-1, 75);
 
         // Add a quote image
         const quoteImage = new Gtk.Image({
@@ -510,8 +511,6 @@ class OpenbarPrefs {
             valign: Gtk.Align.CENTER,
             pixel_size: 30,
             halign: Gtk.Align.CENTER,
-            margin_top: 20,
-            margin_bottom: 25,
         });
         
         const quoteBtn = new Gtk.Button({
@@ -536,8 +535,6 @@ class OpenbarPrefs {
             wrap: true,
             width_chars: 78, //72
             vexpand: false,
-            margin_top: 0,
-            margin_bottom: 0,
             css_classes: ['openbar-quote'],
         });
         quoteBox.append(quoteLabel);
