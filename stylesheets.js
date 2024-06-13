@@ -376,7 +376,7 @@ function createGtkCss(obar) {
         gtkstring += `
         @define-color headerbar_bg_color rgb(${hbgRed}, ${hbgGreen}, ${hbgBlue});
         @define-color headerbar_backdrop_color rgb(${hbdRed}, ${hbdGreen}, ${hbdBlue});
-        @define-color headerbar_fg_color rgba(${hfgRed}, ${hfgGreen}, ${hfgBlue}, 0.85);
+        @define-color headerbar_fg_color rgba(${hfgRed}, ${hfgGreen}, ${hfgBlue}, 0.9);
     
         headerbar, 
         .top-bar,
@@ -393,8 +393,8 @@ function createGtkCss(obar) {
         headerbar > label, headerbar > box > label {
             color: @headerbar_fg_color;
         }        
-        headerbar > button.image-button, headerbar > button.text-button,
-        headerbar > box > button.image-button, headerbar > box > button.text-button,
+        headerbar > button,
+        headerbar > box > button, headerbar > box > box > button,
         headerbar > entry,
         headerbar > box > entry {
             background-image: image(rgb(${hbbgRed}, ${hbbgGreen}, ${hbbgBlue}));
@@ -402,32 +402,33 @@ function createGtkCss(obar) {
             border-color: alpha(@headerbar_fg_color, 0.2);
         }
         headerbar:backdrop > button,
-        headerbar:backdrop > box > button,
+        headerbar:backdrop > box > button, headerbar:backdrop > box > box > button,
         headerbar:backdrop > entry,
         headerbar:backdrop > box > entry {
             background-image: image(rgb(${hbbdRed}, ${hbbdGreen}, ${hbbdBlue}));
+            color: rgba(${hfgRed}, ${hfgGreen}, ${hfgBlue}, 0.65);
         }
         headerbar > button:disabled,
-        headerbar > box > button:disabled,
+        headerbar > box > button:disabled, headerbar > box > box > button:disabled,
         headerbar > entry:disabled,
         headerbar > box > entry:disabled {
             background-image: image(rgba(0,0,0,0));
             color: alpha(@headerbar_fg_color, 0.5);
         }
-        headerbar > button.image-button:hover, headerbar > button.text-button:hover,
-        headerbar > box > button.image-button:hover, headerbar > box > button.text-button:hover,
+        headerbar > button:hover,
+        headerbar > box > button:hover, headerbar > box > box > button:hover,
         headerbar > entry:hover,
         headerbar > box > entry:hover {
             background-image: image(rgb(${hbhRed}, ${hbhGreen}, ${hbhBlue}));
             border-color: alpha(@headerbar_fg_color, 0.3);
         }
-        headerbar > button.image-button.suggested-action, headerbar > button.text-button.suggested-action,
-        headerbar > box > button.image-button.suggested-action, headerbar > box > button.text-button.suggested-action {
+        headerbar > button.suggested-action,
+        headerbar > box > button.suggested-action, headerbar > box > box > button.suggested-action {
             background-image: image(@accent_bg_color);
             color: @accent_fg_color;
         }
-        headerbar > button.image-button.suggested-action:hover, headerbar > button.text-button.suggested-action:hover,
-        headerbar > box > button.image-button.suggested-action:hover, headerbar > box > button.text-button.suggested-action:hover {
+        headerbar > button.suggested-action:hover,
+        headerbar > box > button.suggested-action:hover, headerbar > box > box > button.suggested-action:hover {
             background-image: image(rgba(${acchRed}, ${acchGreen}, ${acchBlue}, 0.85));
             color: rgba(${afgRed}, ${afgGreen}, ${afgBlue}, 0.95);
         }
