@@ -75,7 +75,7 @@ class ConnectManager{
 
     disconnectAll(){
         this.connections.forEach(c => {
-            console.log('Disconnect All - c.id: ', c.id);
+            // console.log('Disconnect All - c.id: ', c.id);
             if(c.obj && c.id > 0)
                 c.obj.disconnect(c.id);
         })
@@ -230,19 +230,11 @@ export default class Openbar extends Extension {
     }
 
     resetPanelStyle(panel) {
-        Main.layoutManager.panelBox.remove_style_class_name('openbar');
-        panel.remove_style_class_name('openbar');
-
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
             for(const btn of box) {
-                    // btn.set_style(null);
-                    btn.remove_style_class_name('openbar');
-                    // btn.child?.set_style(null);
-                    btn.child?.remove_style_class_name('openbar'); 
-
+                    // Remove candy classes
                     for(let j=1; j<=8; j++) {
-                        console.log('Remove candy class: ', 'candy'+j);
                         btn.child?.remove_style_class_name('candy'+j);
 
                         for(const child of btn.child.get_children()) {
@@ -254,9 +246,9 @@ export default class Openbar extends Extension {
                             }
                         }
                     }
-
+                    // Remove trilands class
                     btn.child?.remove_style_class_name('trilands');
-
+                    // Remove style class from Workspace Dots
                     if(btn.child?.constructor.name === 'ActivitiesButton') {
                         let list = btn.child.get_child_at_index(0);
                         for(const indicator of list) { 
@@ -264,9 +256,16 @@ export default class Openbar extends Extension {
                             // dot?.set_style(null);
                             dot?.remove_style_class_name('openbar');
                         }
-                    }     
+                    }   
+                    
+                    // Remove style class from Button and Container
+                    btn.remove_style_class_name('openbar');
+                    btn.child?.remove_style_class_name('openbar');
             }
-        }        
+        }
+        // Remove style class from Panel and PanelBox
+        Main.layoutManager.panelBox.remove_style_class_name('openbar');
+        panel.remove_style_class_name('openbar');      
     }
 
     unloadStylesheet() {
@@ -463,7 +462,16 @@ export default class Openbar extends Extension {
         }
     }
 
-    setPanelStyle(panel, key, bartype) {
+    setPanelStyle(obj, key, sig_param, callbk_param) {
+        if(key == 'notify::visible' && this.notifyVisible) {
+            // console.log('notify::visible already in progress');
+            return;
+        }
+        this.notifyVisible = true;
+        this.notifyVisibleId = setTimeout(() => {this.notifyVisible = false;}, 500);
+
+        const panel = Main.panel;
+        const bartype = this._settings.get_string('bartype');
         const candybar = this._settings.get_boolean('candybar');
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         let i = 0;
@@ -478,8 +486,8 @@ export default class Openbar extends Extension {
                         btn.add_style_class_name('openbar button-container');
 
                         // Add candybar classes if enabled else remove them
-                        // if(key == 'enabled' || key == 'candybar' || key == this.addedSignal || key == this.removedSignal) {
-                            // log('Candybar for key: ', key);
+                        if(key == 'notify::visible' || key == 'enabled' || key == 'candybar' 
+                            || key == this.addedSignal || key == this.removedSignal) {
                             for(let j=1; j<=8; j++) {
                                 btn.child.remove_style_class_name('candy'+j);
                                 for(const child of btn.child.get_children()) {
@@ -503,7 +511,12 @@ export default class Openbar extends Extension {
                                     }
                                 }
                             }
-                        // }
+                        }
+                    }
+                    if(btn.child.constructor.name === 'ATIndicator' || btn.child.constructor.name === 'InputSourceIndicator'
+                        || btn.child.constructor.name === 'DwellClickIndicator' || btn.child.constructor.name === 'ScreenRecordingIndicator'
+                        || btn.child.constructor.name === 'ScreenSharingIndicator') {
+                        this._connections.connect(btn.child, 'notify::visible', this.setPanelStyle.bind(this));
                     }
 
                     // Workspace dots
@@ -751,7 +764,7 @@ export default class Openbar extends Extension {
             Main.messageTray._banner?.add_style_class_name('openmenu');
         }
 
-        this.setPanelStyle(panel, key, bartype);
+        this.setPanelStyle(null, key);
     }
 
     // QSAP: listen for addition of new panels
@@ -931,7 +944,7 @@ export default class Openbar extends Extension {
         if(this._windowSignals) {
             for(const [windowActor, ids] of this._windowSignals) {
                 for(const id of ids) {
-                    console.log('disconnectWindowSignals - id: ', id);
+                    // console.log('disconnectWindowSignals - id: ', id);
                     if(windowActor && id > 0)
                         windowActor.disconnect(id);
                 }
@@ -1032,13 +1045,15 @@ export default class Openbar extends Extension {
         this.addedSignal = this.gnomeVersion > 45? 'child-added': 'actor-added';
         this.removedSignal = this.gnomeVersion > 45? 'child-removed': 'actor-removed';
         this.calendarTimeoutId = null;
-        this.updatingBguriId = null;
         this.bgMgrTimeOutId = null;
         this.onFullScrTimeoutId = null;
         this.msgLists = [];
         this.msgListIds = [];
         this.styleUnloaded = false;
         this.updatingBguri = false;
+        this.updatingBguriId = null;
+        this.notifyVisible = false;
+        this.notifyVisibleId = null;
 
         // Settings for desktop background image (set bg-uri as per color scheme)
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
@@ -1133,7 +1148,7 @@ export default class Openbar extends Extension {
     }
 
     disable() {
-        console.log('======= IN DISABLE =======');
+        // console.log('======= IN DISABLE =======');
         // Get the top panel
         let panel = Main.panel;
 
@@ -1150,6 +1165,10 @@ export default class Openbar extends Extension {
             clearTimeout(this.updatingBguriId);
             this.updatingBguriId = null;
         }
+        if(this.notifyVisibleId) {
+            clearTimeout(this.notifyVisibleId);
+            this.notifyVisibleId = null;
+        }
         if(this.bgMgrTimeOutId) {
             clearTimeout(this.bgMgrTimeOutId);
             this.bgMgrTimeOutId = null;
@@ -1161,7 +1180,7 @@ export default class Openbar extends Extension {
 
         for(let i=0; i<this.msgLists.length; i++) {
             if(this.msgListIds[i]) {
-                console.log('Disable - msgListIds: ', this.msgListIds[i]);
+                // console.log('Disable - msgListIds: ', this.msgListIds[i]);
                 if(this.msgLists[i] && this.msgListIds[i] > 0)
                     this.msgLists[i]?.disconnect(this.msgListIds[i]);
                 this.msgListIds[i] = null;
