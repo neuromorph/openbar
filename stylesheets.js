@@ -1310,9 +1310,10 @@ function saveStylesheet(obar, Me) {
         if(autohgBar)
             hgCandy = getAutoHgColor(bgCandy);
         // Candy Highlight BG  
-        let chred = cred*(1-hAlpha) + hgCandy[0]*hAlpha;
-        let chgreen = cgreen*(1-hAlpha) + hgCandy[1]*hAlpha;
-        let chblue = cblue*(1-hAlpha) + hgCandy[2]*hAlpha;
+        let hgalpha = 0.9*hAlpha;
+        let chred = cred*(1-hgalpha) + hgCandy[0]*hgalpha;
+        let chgreen = cgreen*(1-hgalpha) + hgCandy[1]*hgalpha;
+        let chblue = cblue*(1-hgalpha) + hgCandy[2]*hgalpha;
         let candyHgStyle = `background-color: rgba(${chred},${chgreen},${chblue},${calpha}) !important;`;
         candyHighlightArr.push(candyHgStyle);
     }
@@ -1573,7 +1574,7 @@ function saveStylesheet(obar, Me) {
         #panel${openbarClass}:overview:windowmax {
             ${overviewStyle}
         }
-
+        
         #panel${openbarClass} .panel-button.candy1 {
             ${candyStyleArr[0]}
         }
