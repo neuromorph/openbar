@@ -1143,7 +1143,7 @@ function saveStylesheet(obar, Me) {
 
     // foreground style needed for both panel and buttons (all bar types)
     fgStyle =
-    ` color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}); `;
+    ` color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}) !important; `;
     
     // panel style for panel only (all bar types)
     panelStyle = 
@@ -1159,20 +1159,20 @@ function saveStylesheet(obar, Me) {
 
     // island style for buttons (only island bar type)
     islandStyle = 
-    ` background-color: rgba(${isred},${isgreen},${isblue},${isalpha}); `;
+    ` background-color: rgba(${isred},${isgreen},${isblue},${isalpha}) !important; `;
     
     // Triland style for left end btn of box (only triland bar type)
     triLeftStyle = 
-    ` border-radius: ${borderRadius}px 0px 0px ${borderRadius}px; `;
+    ` border-radius: ${borderRadius}px 0px 0px ${borderRadius}px !important; `;
     // Triland style for single btn box (only triland bar type)
     triBothStyle = 
     ` ${radiusStyle} `;
     // Triland style for right end btn of box (only triland bar type)
     triRightStyle = 
-    ` border-radius: 0px ${borderRadius}px ${borderRadius}px 0px; `;
+    ` border-radius: 0px ${borderRadius}px ${borderRadius}px 0px !important; `;
     // Triland style for middle btns of box (only triland bar type)
     triMidStyle = 
-    ` border-radius: 0px; `;
+    ` border-radius: 0px !important; `;
 
     // Workspace dots style
     dotStyle = 
@@ -1313,9 +1313,8 @@ function saveStylesheet(obar, Me) {
         let cgreen = parseInt(parseFloat(candyColor[1]) * 255);
         let cblue = parseInt(parseFloat(candyColor[2]) * 255);
         let calpha = candyalpha;
-        let candyStyle = `background-color: rgba(${cred},${cgreen},${cblue},${calpha}) !important;`;
-        candyStyleArr.push(candyStyle);
-
+        let candyStyle = `background-color: rgba(${cred},${cgreen},${cblue},${calpha}) !important; `;
+        
         // Candybar highlights
         let bgCandy = [cred, cgreen, cblue];
         if(autohgBar)
@@ -1325,7 +1324,24 @@ function saveStylesheet(obar, Me) {
         let chred = cred*(1-hgalpha) + hgCandy[0]*hgalpha;
         let chgreen = cgreen*(1-hgalpha) + hgCandy[1]*hgalpha;
         let chblue = cblue*(1-hgalpha) + hgCandy[2]*hgalpha;
-        let candyHgStyle = `background-color: rgba(${chred},${chgreen},${chblue},${calpha}) !important;`;
+        let candyHgStyle = `background-color: rgba(${chred},${chgreen},${chblue},${calpha}) !important; `;
+
+        // Candybar Auto FG Color
+        let cfgred, cfggreen, cfgblue, chfgred, chfggreen, chfgblue;
+        if(autofgBar) {
+            if(getHSP(cred, cgreen, cblue) <= 175) {
+                cfgred = cfggreen = cfgblue = 250;
+                chfgred = chfggreen = chfgblue = 255;
+            }
+            else {
+                cfgred = cfggreen = cfgblue = 5;
+                chfgred = chfggreen = chfgblue = 0;
+            }
+            candyStyle += `color: rgba(${cfgred},${cfggreen},${cfgblue},${fgalpha}) !important;`;
+            candyHgStyle += `color: rgba(${chfgred},${chfggreen},${chfgblue},${fgalpha}) !important;`;
+        }
+
+        candyStyleArr.push(candyStyle);
         candyHighlightArr.push(candyHgStyle);
     }
 
