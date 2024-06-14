@@ -215,17 +215,19 @@ function createGtkCss(obar) {
     const mbgGreen = parseInt(parseFloat(mbgColor[1]) * 255);
     const mbgBlue = parseInt(parseFloat(mbgColor[2]) * 255);
     
-    let bgRed, bgGreen, bgBlue, cdRed, cdGreen, cdBlue, hbRed, hbGreen, hbBlue;
+    let bgRed, bgGreen, bgBlue, cdRed, cdGreen, cdBlue, hbRed, hbGreen, hbBlue, hbcRed, hbcGreen, hbcBlue;
     const colorScheme = obar._intSettings.get_string('color-scheme');
     if(colorScheme == 'prefer-dark') {
         bgRed = bgGreen = bgBlue = 30; // Headerbar/Sidebar BG
         cdRed = cdGreen = cdBlue = 61; // Card/Dialog BG
         hbRed = hbGreen = hbBlue = 55; // Headerbar button BG
+        hbcRed = hbcGreen = hbcBlue = 15; // Headerbar Checked toggle button BG
     }
     else {
         bgRed = bgGreen = bgBlue = 235;
         cdRed = cdGreen = cdBlue = 255;
         hbRed = hbGreen = hbBlue = 255;
+        hbcRed = hbcGreen = hbcBlue = 215;
     }
     
     // Headerbar BG and Backdrop
@@ -258,6 +260,10 @@ function createGtkCss(obar) {
     const hbbdRed = hBarHintBd * accRed + (1-hBarHintBd) * hbRed;
     const hbbdGreen = hBarHintBd * accGreen + (1-hBarHintBd) * hbGreen;
     const hbbdBlue = hBarHintBd * accBlue + (1-hBarHintBd) * hbBlue;
+    // Headerbar Checked Toggle Buttons BG
+    const hbcbgRed = hBarHint * accRed + (1-hBarHint) * hbcRed;
+    const hbcbgGreen = hBarHint * accGreen + (1-hBarHint) * hbcGreen;
+    const hbcbgBlue = hBarHint * accBlue + (1-hBarHint) * hbcBlue;
     // Headerbar Buttons BG:Hover
     let hbhRed, hbhGreen, hbhBlue, acchRed, acchGreen, acchBlue, hbBordRed, hbBordGreen, hbBordBlue;
     if(getBgDark(hbgRed, hbgGreen, hbgBlue)) {
@@ -420,6 +426,11 @@ function createGtkCss(obar) {
         headerbar > entry:hover,
         headerbar > box > entry:hover {
             background-image: image(rgb(${hbhRed}, ${hbhGreen}, ${hbhBlue}));
+            border-color: alpha(@headerbar_fg_color, 0.3);
+        }
+        headerbar > button:checked,
+        headerbar > box > button:checked, headerbar > box > box > button:checked {
+            background-image: image(rgb(${hbcbgRed}, ${hbcbgGreen}, ${hbcbgBlue}));
             border-color: alpha(@headerbar_fg_color, 0.3);
         }
         headerbar > button.suggested-action,
