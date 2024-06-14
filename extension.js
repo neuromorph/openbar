@@ -1044,6 +1044,7 @@ export default class Openbar extends Extension {
         this.isObarReset = false;
         this.addedSignal = this.gnomeVersion > 45? 'child-added': 'actor-added';
         this.removedSignal = this.gnomeVersion > 45? 'child-removed': 'actor-removed';
+        // this.switchShapeSetting = this.gnomeVersion > 45? 'show-status-shapes': 'high-contrast';
         this.calendarTimeoutId = null;
         this.bgMgrTimeOutId = null;
         this.onFullScrTimeoutId = null;
@@ -1078,7 +1079,7 @@ export default class Openbar extends Extension {
             [ global.display, 'window-entered-monitor', this.setWindowMaxBar.bind(this), 'window-entered-monitor' ],
             [ global.display, 'window-left-monitor', this.setWindowMaxBar.bind(this), 'window-left-monitor' ],
             [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this), 'session-mode-updated' ],
-            [ this._hcSettings, 'changed::high-contrast', this.updatePanelStyle.bind(this), 'high-contrast' ],
+            // [ this._hcSettings, 'changed::high-contrast', this.updatePanelStyle.bind(this), 'high-contrast' ],
         ];
         // Connections for actor-added/removed OR child-added/removed as per Gnome version
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
@@ -1086,6 +1087,10 @@ export default class Openbar extends Extension {
             connections.push([panelBox, this.addedSignal, this.updatePanelStyle.bind(this)]);
             connections.push([panelBox, this.removedSignal, this.updatePanelStyle.bind(this)]);
         } 
+        // Connection for Toggle Switch status shapes in High Contrast
+        if(this.gnomeVersion <= 45) {
+            connections.push( [ this._hcSettings, 'changed::high-contrast', this.updatePanelStyle.bind(this), 'high-contrast' ] );
+        }
         // Connection specific to QSAP extension (Quick Settings)
         if(this.gnomeVersion > 42) {
             let qSettings = Main.panel.statusArea.quickSettings;
@@ -1208,8 +1213,7 @@ export default class Openbar extends Extension {
         this._bgSettings = null;
         this._intSettings = null;
         this._hcSettings = null;
-    }
-    
+    }    
 }
 
  

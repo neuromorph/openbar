@@ -1501,7 +1501,7 @@ function saveStylesheet(obar, Me) {
     // Toggle switch SVG
     let toggleOnSVG = 'toggle-on.svg', toggleOffSVG = 'toggle-off.svg';
     let hcMode = obar._hcSettings.get_boolean('high-contrast');
-    if(hcMode) {
+    if(hcMode && obar.gnomeVersion <= 45) {
         toggleOnSVG = 'toggle-on-hc.svg';
         toggleOffSVG = 'toggle-off-hc.svg';
     }
