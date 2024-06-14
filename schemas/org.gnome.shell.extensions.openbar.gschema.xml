@@ -732,6 +732,86 @@
       <summary>Candy Palette Color 8 (RGB)</summary>
       <description>Candy color 8 of candybar.</description>
     </key>
+    <key type="as" name="dark-candy1">
+      <default>['0.15', '0.62', '0.79']</default>
+      <summary>Candy Palette Color 1 (RGB)</summary>
+      <description>Candy color 1 of candybar.</description>
+    </key>
+    <key type="as" name="dark-candy2">
+      <default>['0.313', '0.176', '0.945']</default>
+      <summary>Candy Palette Color 2 (RGB)</summary>
+      <description>Candy color 2 of candybar.</description>
+    </key>
+    <key type="as" name="dark-candy3">
+      <default>['0.93', '0.30', '0.54']</default>
+      <summary>Candy Palette Color 3 (RGB)</summary>
+      <description>Candy color 3 of candybar.</description>
+    </key>
+    <key type="as" name="dark-candy4">
+      <default>['0.11', '0.44', '0.85']</default>
+      <summary>Candy Palette Color 4 (RGB)</summary>
+      <description>Candy color 4 of candybar.</description>
+    </key>
+    <key type="as" name="dark-candy5">
+      <default>['0.18', '0.76', '0.49']</default>
+      <summary>Candy Palette Color 5 (RGB)</summary>
+      <description>Candy color 5 of candybar.</description>
+    </key>
+    <key type="as" name="dark-candy6">
+      <default>['0.51', '0.24', '0.61']</default>
+      <summary>Candy Palette Color 6 (RGB)</summary>
+      <description>Candy color 6 of candybar.</description>
+    </key>
+    <key type="as" name="dark-candy7">
+      <default>['1', '0.47', '0']</default>
+      <summary>Candy Palette Color 7 (RGB)</summary>
+      <description>Candy color 7 of candybar.</description>
+    </key>
+    <key type="as" name="dark-candy8">
+      <default>['0.9', '0.65', '0.04']</default>
+      <summary>Candy Palette Color 8 (RGB)</summary>
+      <description>Candy color 8 of candybar.</description>
+    </key>
+    <key type="as" name="light-candy1">
+      <default>['0.15', '0.62', '0.79']</default>
+      <summary>Candy Palette Color 1 (RGB)</summary>
+      <description>Candy color 1 of candybar.</description>
+    </key>
+    <key type="as" name="light-candy2">
+      <default>['0.313', '0.176', '0.945']</default>
+      <summary>Candy Palette Color 2 (RGB)</summary>
+      <description>Candy color 2 of candybar.</description>
+    </key>
+    <key type="as" name="light-candy3">
+      <default>['0.93', '0.30', '0.54']</default>
+      <summary>Candy Palette Color 3 (RGB)</summary>
+      <description>Candy color 3 of candybar.</description>
+    </key>
+    <key type="as" name="light-candy4">
+      <default>['0.11', '0.44', '0.85']</default>
+      <summary>Candy Palette Color 4 (RGB)</summary>
+      <description>Candy color 4 of candybar.</description>
+    </key>
+    <key type="as" name="light-candy5">
+      <default>['0.18', '0.76', '0.49']</default>
+      <summary>Candy Palette Color 5 (RGB)</summary>
+      <description>Candy color 5 of candybar.</description>
+    </key>
+    <key type="as" name="light-candy6">
+      <default>['0.51', '0.24', '0.61']</default>
+      <summary>Candy Palette Color 6 (RGB)</summary>
+      <description>Candy color 6 of candybar.</description>
+    </key>
+    <key type="as" name="light-candy7">
+      <default>['1', '0.47', '0']</default>
+      <summary>Candy Palette Color 7 (RGB)</summary>
+      <description>Candy color 7 of candybar.</description>
+    </key>
+    <key type="as" name="light-candy8">
+      <default>['0.9', '0.65', '0.04']</default>
+      <summary>Candy Palette Color 8 (RGB)</summary>
+      <description>Candy color 8 of candybar.</description>
+    </key>
     <key type="d" name="candyalpha">
       <default>0.9</default>
       <summary>Transparency (alpha) of candy colors</summary>
