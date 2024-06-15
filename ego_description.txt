@@ -1,4 +1,4 @@
-Top Bar / Top Panel , Gnome Shell , Gtk Apps theming. Open the bar and let the colors 🍹 flow.
+Top Bar / Top Panel , Menus , Dash / Dock , Gnome Shell , Gtk Apps theming. Open the bar and let the colors 🍹 flow.
 
 **Please report on GitHub if something is broken due to an update or if you have any suggestions.
 
