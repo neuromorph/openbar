@@ -22,45 +22,13 @@
 import Gio from 'gi://Gio';
 import Pango from 'gi://Pango';
 import GLib from 'gi://GLib';
+import * as Utils from './utils.js';
 
-// Called separately for R,G and B. Moves startColor towards or away from endColor
-function colorMix(startColor, endColor, factor) {
-    let color = startColor + factor*(endColor - startColor);
-    color = (color < 0)? 0: (color>255)? 255: parseInt(color);
-    return color;
-}
-
-// Blend 2 colors: similar to 'Shade' comment below
-function colorBlend(c0, c1, p) {
-    var i=parseInt,r=Math.round,P=1-p,[a,b,c,d]=c0.split(","),[e,f,g,h]=c1.split(","),x=d||h,j=x?","+(!d?h:!h?d:r((parseFloat(d)*P+parseFloat(h)*p)*1000)/1000+")"):")";
-    return"rgb"+(x?"a(":"(")+r(i(a[3]=="a"?a.slice(5):a.slice(4))*P+i(e[3]=="a"?e.slice(5):e.slice(4))*p)+","+r(i(b)*P+i(f)*p)+","+r(i(c)*P+i(g)*p)+j;
-}
-
-// Shade darken/lighten (e.g. p=0.2): rgb(Math.round(parseInt(r)*0.8 + 255*0.2)),...(Lighten: take 0.8 of C and add 0.2 of white, Darken: just take 0.8 of C)
-function colorShade(c, p) {
-    var i=parseInt,r=Math.round,[a,b,c,d]=c.split(","),P=p<0,t=P?0:255*p,P=P?1+p:1-p;
-    return"rgb"+(d?"a(":"(")+r(i(a[3]=="a"?a.slice(5):a.slice(4))*P+t)+","+r(i(b)*P+t)+","+r(i(c)*P+t)+(d?","+d:")");
-}
-
-// Brightness of color in terms of HSP value
-function getHSP(r, g, b) {
-    // HSP equation for perceived brightness from http://alienryderflex.com/hsp.html
-    let hsp = Math.sqrt(
-        0.299 * (r * r) +
-        0.587 * (g * g) +
-        0.114 * (b * b)
-    );
-    return hsp;
-}
-
-// Check if Dark or Light color as per HSP threshold
-function getBgDark(r, g, b) {
-    let hsp = getHSP(r, g, b);
-    if(hsp > 155)
-        return false;
-    else
-        return true;
-}
+const colorMix = Utils.colorMix;
+const colorBlend = Utils.colorBlend;
+const colorShade = Utils.colorShade;
+const getHSP = Utils.getHSP;
+const getBgDark = Utils.getBgDark;
 
 // SVG for calendar event dot icon (use fg color)
 function saveCalEventSVG(obar, Me) {
@@ -949,7 +917,7 @@ function saveStylesheet(obar, Me) {
     let hspThresh = 155, hgColor, bgColor, bgDarkThresh = 135, bgLightThresh = 180;
     
     function getAutoHgColor(bgColor) { 
-        let bgHsp = getHSP(bgColor[0], bgColor[1], bgColor[2]);
+        let bgHsp = getHSP(bgColor);
         if(bgHsp <= bgLightThresh) {
             let rgb = bgHsp + 75;
             hgColor = [rgb, rgb, rgb];
@@ -1329,7 +1297,7 @@ function saveStylesheet(obar, Me) {
         // Candybar Auto FG Color
         let cfgred, cfggreen, cfgblue, chfgred, chfggreen, chfgblue;
         if(autofgBar) {
-            if(getHSP(cred, cgreen, cblue) <= 175) {
+            if(getHSP(bgCandy) <= 175) {
                 cfgred = cfggreen = cfgblue = 250;
                 chfgred = chfggreen = chfgblue = 255;
             }
