@@ -73,7 +73,9 @@ class ConnectManager{
 
     disconnectAll(){
         this.connections.forEach(c => {
-            c.obj.disconnect(c.id);
+            // console.log('Disconnect All - c.id: ', c.id);
+            if(c.obj && c.id > 0)
+                c.obj.disconnect(c.id);
         })
     }
 }
@@ -85,6 +87,7 @@ class Extension {
         this._settings = null;
         this._bgSettings = null;
         this._intSettings = null;
+        this._hcSettings = null;
         this._connections = null;
         this._injections = [];
     }
@@ -154,7 +157,7 @@ class Extension {
             darklight = (i==0) ? 'dark' : 'light';
             pictureUri = uriArr[i];            
             
-            if(pictureUri.endsWith('.xml')) 
+            if(pictureUri.endsWith('.xml') || pictureUri.endsWith('.XML')) 
                 continue;
 
             // Generate palette only once if both URI are same
@@ -201,6 +204,7 @@ class Extension {
             else
                 theme = this._settings.get_string('autotheme-light');
             if(autoRefresh && theme != 'Select Theme') {
+            // console.log('Auto theme refresh for ', darklight);
                 AutoThemes.autoApplyBGPalette(this, darklight);
             }
         }
@@ -222,33 +226,44 @@ class Extension {
         else object[name] = injection[name];
     }
 
-    resetStyle(panel) {
-        Main.layoutManager.panelBox.remove_style_class_name('openbar');
-        panel.remove_style_class_name('openbar');
-
+    resetPanelStyle(panel) {
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         for(const box of panelBoxes) {
             for(const btn of box) {
-                btn.set_style(null);
-                btn.remove_style_class_name('openbar');
-                btn.child?.set_style(null);
-                btn.child?.remove_style_class_name('openbar');   
+                    // Remove candy classes
+                    for(let j=1; j<=8; j++) {
+                        btn.child?.remove_style_class_name('candy'+j);
 
-                for(let j=1; j<=8; j++)
-                    btn.child?.remove_style_class_name('candy'+j);
-
-                btn.child?.remove_style_class_name('trilands');
-                    
-                if(btn.child?.constructor.name === 'ActivitiesButton') {
-                    let list = btn.child.get_child_at_index(0);
-                    for(const indicator of list) { 
-                        let dot = indicator.get_child_at_index(0);
-                        dot?.set_style(null);
-                        dot?.remove_style_class_name('openbar');
+                        for(const child of btn.child.get_children()) {
+                            if(child.remove_style_class_name)
+                                child.remove_style_class_name('candy'+j);
+                            for(const gChild of child.get_children()) {
+                                if(gChild.remove_style_class_name)
+                                    gChild.remove_style_class_name('candy'+j);
+                            }
+                        }
                     }
-                }
+                    // Remove trilands class
+                    btn.child?.remove_style_class_name('trilands');
+                    // Remove style class from Workspace Dots
+                    if(btn.child?.constructor.name === 'ActivitiesButton') {
+                        let list = btn.child.get_child_at_index(0);
+                        for(const indicator of list) { 
+                            let dot = indicator.get_child_at_index(0);
+                            // dot?.set_style(null);
+                            if(dot?.remove_style_class_name)
+                                dot.remove_style_class_name('openbar');
+                        }
+                    }   
+                    
+                    // Remove style class from Button and Container
+                    btn.remove_style_class_name('openbar');
+                    btn.child?.remove_style_class_name('openbar');
             }
-        }        
+        }
+        // Remove style class from Panel and PanelBox
+        Main.layoutManager.panelBox.remove_style_class_name('openbar');
+        panel.remove_style_class_name('openbar');      
     }
 
     unloadStylesheet() {
@@ -445,6 +460,107 @@ class Extension {
         }
     }
 
+    setPanelStyle(obj, key, sig_param, callbk_param) {
+        if(key == 'notify::visible' && this.notifyVisible) {
+            // console.log('notify::visible already in progress');
+            return;
+        }
+        this.notifyVisible = true;
+        this.notifyVisibleId = setTimeout(() => {this.notifyVisible = false;}, 500);
+
+        const panel = Main.panel;
+        const bartype = this._settings.get_string('bartype');
+        const candybar = this._settings.get_boolean('candybar');
+        const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
+        let i = 0;
+        for(const box of panelBoxes) {
+            for(const btn of box) {
+                // Screen recording/share indicators use ButtonBox instead of Button
+                if(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) {
+                    btn.child.add_style_class_name('openbar');
+
+                    if(btn.child.visible) { 
+                        // console.log('Visible Child: ', String(btn.child));
+                        btn.add_style_class_name('openbar button-container');
+
+                        // Add candybar classes if enabled else remove them
+                        if(key == 'notify::visible' || key == 'enabled' || key == 'candybar' 
+                            || key == this.addedSignal || key == this.removedSignal) {
+                            for(let j=1; j<=8; j++) {
+                                btn.child.remove_style_class_name('candy'+j);
+                                for(const child of btn.child.get_children()) {
+                                    if(child.remove_style_class_name)
+                                        child.remove_style_class_name('candy'+j);
+                                    for(const gChild of child.get_children()) {
+                                        if(gChild.remove_style_class_name)
+                                            gChild.remove_style_class_name('candy'+j);
+                                    }
+                                }
+                            }
+                            i++; i = i%8; i = i==0? 8: i; // Cycle through candybar palette
+                            if(candybar) {
+                                btn.child.add_style_class_name('candy'+i);
+                                for(const child of btn.child.get_children()) {
+                                    if(child.add_style_class_name)
+                                        child.add_style_class_name('candy'+i);
+                                    for(const gChild of child.get_children()) {
+                                        if(gChild.add_style_class_name)
+                                            gChild.add_style_class_name('candy'+i);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if((btn.child.constructor.name === 'ATIndicator' || btn.child.constructor.name === 'InputSourceIndicator'
+                        || btn.child.constructor.name === 'DwellClickIndicator' || btn.child.constructor.name === 'ScreenRecordingIndicator'
+                        || btn.child.constructor.name === 'ScreenSharingIndicator') && candybar) {
+                        this._connections.connect(btn.child, 'notify::visible', this.setPanelStyle.bind(this));
+                    }
+
+                    // Workspace dots
+                    if(btn.child.constructor.name === 'ActivitiesButton') {
+                        let list = btn.child.get_child_at_index(0);
+                        for(const indicator of list) { 
+                            let dot = indicator.get_child_at_index(0);
+                            // Some extensions can replace dot with text so add a check
+                            if(dot?.add_style_class_name)
+                                dot.add_style_class_name('openbar');
+                        }                        
+                    }
+                    
+                    // Add trilands pseudo/classes if enabled else remove them
+                    // if(btn.child.has_style_class_name('trilands'))
+                    //     btn.child.remove_style_class_name('trilands');
+                    if(bartype == 'Trilands') {
+                        btn.child.add_style_class_name('trilands');
+
+                        if(btn == box.first_child && btn == box.last_child)
+                            btn.child.add_style_pseudo_class('one-child');
+                        else
+                            btn.child.remove_style_pseudo_class('one-child');
+                        
+                        if(btn == box.first_child && btn != box.last_child)
+                            btn.child.add_style_pseudo_class('left-child');
+                        else
+                            btn.child.remove_style_pseudo_class('left-child');
+                            
+                        if(btn != box.first_child && btn == box.last_child)
+                            btn.child.add_style_pseudo_class('right-child');
+                        else
+                            btn.child.remove_style_pseudo_class('right-child');
+                        
+                        if(btn != box.first_child && btn != box.last_child)
+                            btn.child.add_style_pseudo_class('mid-child');
+                        else
+                            btn.child.remove_style_pseudo_class('mid-child');
+                    }
+                    else
+                        btn.child.remove_style_class_name('trilands'); 
+                }                
+            }
+        }
+    }
+
     updatePanelStyle(obj, key, sig_param, callbk_param) { 
         // console.log('update called with ', key, sig_param, callbk_param);
 
@@ -462,7 +578,7 @@ class Extension {
             const importExport = this._settings.get_boolean('import-export');
             if(!importExport) {
                 if(key == 'bgpalette')
-                    this.updateBguri();
+                    this.updateBguri(this, 'updatePanelStyle');
                 else
                     this.backgroundPalette();
             }
@@ -543,22 +659,53 @@ class Extension {
             this.reloadStylesheet();
         }
 
-        if(key == 'apply-gtk' || key == 'headerbar-hint' || key == 'sidebar-hint' 
-        || key == 'sidebar-transparency' || key == 'mscolor' || key == 'msalpha') {
-            // console.log('Call saveGtkCss from extension for key: ', key);
-            this.gtkCSS = true;
-            if(key != 'mscolor' && key != 'msalpha')
-                StyleSheets.saveGtkCss(this, 'enable');
-        }
-        if(key == 'apply-flatpak') {
-            StyleSheets.saveFlatpakOverrides(this, 'enable');
-        }
+        // GTK Apps styles
+        if(key == 'apply-gtk' || key == 'headerbar-hint' || key == 'sidebar-hint' || key == 'card-hint'
+            || key == 'winbcolor' || key == 'winbalpha' || key == 'winbwidth' || key == 'traffic-light' || key == 'menu-radius'
+            || key == 'sidebar-transparency' || key == 'gtk-popover' || key == 'mscolor' || key == 'msalpha') {
+                // console.log('Call saveGtkCss from extension for key: ', key);
+                this.gtkCSS = true;
+                if(key != 'mscolor' && key != 'msalpha') {
+                    StyleSheets.saveGtkCss(this, 'enable');
+                    return;
+                }
+            }
+            // Flatpak overrides
+            if(key == 'apply-flatpak') {
+                StyleSheets.saveFlatpakOverrides(this, 'enable');
+            }
         
         let menustyle = this._settings.get_boolean('menustyle');
         if(['reloadstyle', 'removestyle', 'menustyle'].includes(key) ||
             key == this.addedSignal && callbk_param != 'message-banner' ||
             key == 'hiding' && !setOverview) {
             this.applyMenuStyles(panel, menustyle);
+        }
+
+        // Auto set closest Yaru theme
+        if(key == 'mscolor' || key == 'set-yarutheme') {
+            let setYaruTheme = this._settings.get_boolean('set-yarutheme');
+            if(key == 'set-yarutheme') {
+                if(setYaruTheme) {
+                    this.yaruBackup = this._intSettings.get_string('gtk-theme');
+                    this.iconBackup = this._intSettings.get_string('icon-theme');
+                }
+                else {
+                    if(this.yaruBackup)
+                        this._intSettings.set_string('gtk-theme', this.yaruBackup);
+                    if(this.iconBackup)
+                        this._intSettings.set_string('icon-theme', this.iconBackup);
+                }
+            }
+            if(setYaruTheme) {
+                let colorScheme = this._intSettings.get_string('color-scheme');
+                let modeSuffix = colorScheme == 'prefer-dark' ? '-dark' : '';
+                let yaruColor = AutoThemes.getClosestYaruTheme(this);
+                yaruColor = (yaruColor == 'default') ? '' : '-'+yaruColor;
+                let yaruTheme = 'Yaru' + yaruColor + modeSuffix;
+                this._intSettings.set_string('gtk-theme', yaruTheme);
+                this._intSettings.set_string('icon-theme', yaruTheme);
+            }               
         }
         
         if(key == 'mscolor') {
@@ -581,8 +728,9 @@ class Extension {
         let barKeys = ['bgcolor', 'gradient', 'gradient-direction', 'bgcolor2', 'bgalpha', 'bgalpha2', 'fgcolor', 'fgalpha', 'bcolor', 'balpha', 'bradius', 
         'bordertype', 'shcolor', 'shalpha', 'iscolor', 'isalpha', 'neon', 'shadow', 'font', 'default-font', 'hcolor', 'halpha', 'heffect', 'bgcolor-wmax', 
         'bgalpha-wmax', 'neon-wmax', 'boxcolor', 'boxalpha', 'autofg-bar', 'autofg-menu', 'width-top', 'width-bottom', 'width-left', 'width-right',
-        'radius-topleft', 'radius-topright', 'radius-bottomleft', 'radius-bottomright', 'apply-menu-shell'];
-        let keys = [...barKeys, ...menuKeys, 'autotheme', 'variation', 'autotheme-refresh', 'accent-override', 'accent-color'];
+        'radius-topleft', 'radius-topright', 'radius-bottomleft', 'radius-bottomright'];
+        let keys = [...barKeys, ...menuKeys, 'autotheme-dark', 'autotheme-light', 'autotheme-refresh', 'accent-override', 'accent-color', 'apply-menu-shell', 
+        'dashdock-style', 'dbgcolor', 'dbgalpha', 'dborder', 'dshadow'];
         if(keys.includes(key)) {
             return;
         }    
@@ -593,7 +741,7 @@ class Extension {
         let height = this._settings.get_double('height');
         let margin = this._settings.get_double('margin'); 
     
-        // this.resetStyle(panel);
+        // this.resetPanelStyle(panel);
         Main.layoutManager.panelBox.add_style_class_name('openbar');
         panel.add_style_class_name('openbar');
 
@@ -616,70 +764,7 @@ class Extension {
             Main.messageTray._banner?.add_style_class_name('openmenu');
         }
 
-        const candybar = this._settings.get_boolean('candybar');
-        const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
-        let i = 0;
-        for(const box of panelBoxes) {
-            for(const btn of box) {
-                // Screen recording/share indicators use ButtonBox instead of Button
-                if(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) {
-                    btn.child.add_style_class_name('openbar');                    
-
-                    if(btn.child.visible) {
-                        btn.add_style_class_name('openbar button-container');
-
-                        // Add candybar classes if enabled else remove them
-                        if(key == 'candybar' || key == this.addedSignal || key == this.removedSignal) {
-                            for(let j=1; j<=8; j++)
-                                btn.child.remove_style_class_name('candy'+j);
-                            i++; i = i%8; i = i==0? 8: i; // Cycle through candybar palette
-                            if(candybar) {
-                                btn.child.add_style_class_name('candy'+i);
-                            }
-                        }
-                    }
-
-                    // Workspace dots
-                    if(btn.child.constructor.name === 'ActivitiesButton') {
-                        let list = btn.child.get_child_at_index(0);
-                        for(const indicator of list) { 
-                            let dot = indicator.get_child_at_index(0);
-                            dot?.add_style_class_name('openbar');
-                        }                        
-                    }
-                    
-                    // Add trilands pseudo/classes if enabled else remove them
-                    // if(btn.child.has_style_class_name('trilands'))
-                    //     btn.child.remove_style_class_name('trilands');
-                    if(bartype == 'Trilands') {
-                        btn.child.add_style_class_name('trilands');
-
-                        if(btn == box.first_child && btn == box.last_child)
-                            btn.child.add_style_pseudo_class('one-child');
-                        else
-                            btn.child.remove_style_pseudo_class('one-child');
-                        
-                        if(btn == box.first_child && btn != box.last_child)
-                            btn.child.add_style_pseudo_class('left-child');
-                        else
-                            btn.child.remove_style_pseudo_class('left-child');
-                            
-                        if(btn != box.first_child && btn == box.last_child)
-                            btn.child.add_style_pseudo_class('right-child');
-                        else
-                            btn.child.remove_style_pseudo_class('right-child');
-                        
-                        if(btn != box.first_child && btn != box.last_child)
-                            btn.child.add_style_pseudo_class('mid-child');
-                        else
-                            btn.child.remove_style_pseudo_class('mid-child');
-                    }
-                    else
-                        btn.child.remove_style_class_name('trilands');                    
-                }                
-            }
-        }
-
+        this.setPanelStyle(null, key);
     }
 
     // QSAP: listen for addition of new panels
@@ -859,7 +944,9 @@ class Extension {
         if(this._windowSignals) {
             for(const [windowActor, ids] of this._windowSignals) {
                 for(const id of ids) {
-                    windowActor.disconnect(id);
+                    // console.log('disconnectWindowSignals - id: ', id);
+                    if(windowActor && id > 0)
+                        windowActor.disconnect(id);
                 }
             }
         }
@@ -895,24 +982,25 @@ class Extension {
     updateBguri(obj, signal) { 
         // console.log('update bguri called for signal ', signal);
         // If the function is triggered multiple times in succession, ignore till timeout 
-        if(this.updatingBguri)
+        if(this.updatingBguri) {
+            // console.log('update bguri already in progress');
             return;
+        }
         this.updatingBguri = true;
-        this.updatingBguriId = setTimeout(() => {this.updatingBguri = false;}, 300);
-
+        this.updatingBguriId = setTimeout(() => {this.updatingBguri = false;}, 5000);
+        // console.log('Going ahead with bguri======');
         let colorScheme = this._intSettings.get_string('color-scheme');
         if(colorScheme != this.colorScheme) {
             this.colorScheme = colorScheme;
             return;
         }
         
-        let bguriOld = this._settings.get_string('bguri');
         let bguriDark = this._bgSettings.get_string('picture-uri-dark');
         let bguriLight = this._bgSettings.get_string('picture-uri');
-
         this._settings.set_string('dark-bguri', bguriDark);
         this._settings.set_string('light-bguri', bguriLight);
 
+        let bguriOld = this._settings.get_string('bguri');
         let bguriNew;
         if(colorScheme == 'prefer-dark')
             bguriNew = bguriDark;
@@ -922,8 +1010,10 @@ class Extension {
         
         // Gnome45+: if bgnd changed with right click on image file, 
         // filepath (bguri) remains same, so manually call updatePanelStyle
-        if(bguriOld == bguriNew)
+        if(bguriOld == bguriNew) {
+            // console.log('bguriOld == bguriNew - calling updatePanelStyle for bguri');
             this.updatePanelStyle(this._settings, 'bguri');
+        }
     }
 
     // Connect multiple signals to ensure detecting background-change in all Gnome versions
@@ -954,13 +1044,15 @@ class Extension {
         this.addedSignal = this.gnomeVersion > 45? 'child-added': 'actor-added';
         this.removedSignal = this.gnomeVersion > 45? 'child-removed': 'actor-removed';
         this.calendarTimeoutId = null;
-        this.updatingBguriId = null;
         this.bgMgrTimeOutId = null;
         this.onFullScrTimeoutId = null;
         this.msgLists = [];
         this.msgListIds = [];
         this.styleUnloaded = false;
         this.updatingBguri = false;
+        this.updatingBguriId = null;
+        this.notifyVisible = false;
+        this.notifyVisibleId = null;
 
         // Settings for desktop background image (set bg-uri as per color scheme)
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
@@ -985,7 +1077,7 @@ class Extension {
             [ global.display, 'window-entered-monitor', this.setWindowMaxBar.bind(this), 'window-entered-monitor' ],
             [ global.display, 'window-left-monitor', this.setWindowMaxBar.bind(this), 'window-left-monitor' ],
             [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this), 'session-mode-updated' ],
-            [ this._hcSettings, 'changed::high-contrast', this.updatePanelStyle.bind(this), 'high-contrast' ],
+            // [ this._hcSettings, 'changed::high-contrast', this.updatePanelStyle.bind(this), 'high-contrast' ],
         ];
         // Connections for actor-added/removed OR child-added/removed as per Gnome version
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
@@ -993,6 +1085,10 @@ class Extension {
             connections.push([panelBox, this.addedSignal, this.updatePanelStyle.bind(this)]);
             connections.push([panelBox, this.removedSignal, this.updatePanelStyle.bind(this)]);
         } 
+        // Connection for Toggle Switch status shapes in High Contrast
+        if(this.gnomeVersion <= 45) {
+            connections.push( [ this._hcSettings, 'changed::high-contrast', this.updatePanelStyle.bind(this), 'high-contrast' ] );
+        }
         // Connection specific to QSAP extension (Quick Settings)
         if(this.gnomeVersion > 42) {
             let qSettings = Main.panel.statusArea.quickSettings;
@@ -1071,6 +1167,10 @@ class Extension {
             clearTimeout(this.updatingBguriId);
             this.updatingBguriId = null;
         }
+        if(this.notifyVisibleId) {
+            clearTimeout(this.notifyVisibleId);
+            this.notifyVisibleId = null;
+        }
         if(this.bgMgrTimeOutId) {
             clearTimeout(this.bgMgrTimeOutId);
             this.bgMgrTimeOutId = null;
@@ -1082,7 +1182,9 @@ class Extension {
 
         for(let i=0; i<this.msgLists.length; i++) {
             if(this.msgListIds[i]) {
-                this.msgLists[i]?.disconnect(this.msgListIds[i]);
+                // console.log('Disable - msgListIds: ', this.msgListIds[i]);
+                if(this.msgLists[i] && this.msgListIds[i] > 0)
+                    this.msgLists[i]?.disconnect(this.msgListIds[i]);
                 this.msgListIds[i] = null;
                 this.msgLists[i] = null;
             }
@@ -1094,12 +1196,12 @@ class Extension {
         this._injections = [];
 
         // Reset the style for Panel and Menus
-        this.resetStyle(panel);
+        this.resetPanelStyle(panel);
         this.applyMenuStyles(panel, false);
         // Reset panel and banner position to Top
         this.setPanelBoxPosition('Top');
         Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
-        // Clear Gtk css and Flatpak override
+        // Clear/Restore Gtk css and Flatpak override
         StyleSheets.saveGtkCss(this, 'disable');
         StyleSheets.saveFlatpakOverrides(this, 'disable');
 

@@ -17,7 +17,21 @@
  * author: neuromorph
  */
 
-/* exported autoApplyBGPalette() */
+/* exported autoApplyBGPalette() onModeChange() */
+
+const Utils = Me.imports.utils;
+
+const getHSP = Utils.getHSP;
+const compareSaturation = Utils.compareSaturation;
+const compareLightness = Utils.compareLightness;
+const getStrv = Utils.getStrv;
+const rgbToHsl = Utils.rgbToHsl;
+const hslToRgb = Utils.hslToRgb;
+const colorDistance2000 = Utils.colorDistance2000;
+const addTint = Utils.addTint;
+const addShade = Utils.addShade;
+const contrastRatio = Utils.contrastRatio;
+const hexToRgb = Utils.hexToRgb;
 
 const DEBUG = false;
 
@@ -27,309 +41,7 @@ function dlog(...args) {
     }
 }
 
-// Brightness of color in terms of HSP value
-function getHSP(color, g, b) {
-    let r;
-    if(g)
-        r = color;
-    else
-        [r, g, b] = [color[0], color[1], color[2]];
-    // HSP equation for perceived brightness from http://alienryderflex.com/hsp.html
-    let hsp = Math.sqrt(
-        0.299 * (r * r) +
-        0.587 * (g * g) +
-        0.114 * (b * b)
-    );
-    return hsp;
-}
-
-function compareHSP(A, B) {
-    let hspA = getHSP(parseInt(A[0]), parseInt(A[1]), parseInt(A[2]));
-    let hspB = getHSP(parseInt(B[0]), parseInt(B[1]), parseInt(B[2]));
-
-    return (hspA < hspB)? -1 : (hspA > hspB)? 1 : 0;
-}
-
-// Move color A towards or away from B by factor. Based on simplified formula from getColorDist() below
-function colorMove(A, B, factor) {
-    let [r1, g1, b1] = [parseInt(A[0]), parseInt(A[1]), parseInt(A[2])];
-    let [r2, g2, b2] = [parseInt(B[0]), parseInt(B[1]), parseInt(B[2])];
-    
-    let r = (r2 - r1); 
-    let g = (g2 - g1); 
-    let b = (b2 - b1);
-    if(r==0 && factor < 0)
-        r = factor*255;
-    if(g==0 && factor < 0)
-        g = factor*255;
-    if(b==0 && factor < 0)
-        b = factor*255;
-
-    let rmean = (r1 + r2)/2;
-    let rFactor = Math.sqrt((512 + rmean)/ 256);
-    let gFactor = 2;
-    let bFactor = Math.sqrt((767 - rmean)/ 256);
-    let sumFactor = rFactor + gFactor + bFactor;
-
-    let rMove = r * factor * rFactor / sumFactor;
-    let gMove = g * factor * gFactor / sumFactor;
-    let bMove = b * factor * bFactor / sumFactor;
-
-    let newR = (r1 + rMove);
-    let newG = (g1 + gMove);
-    let newB = (b1 + bMove);
-    newR = newR>255? 255 : newR<0? 0 : parseInt(newR);
-    newG = newG>255? 255 : newG<0? 0 : parseInt(newG);
-    newB = newB>255? 255 : newB<0? 0 : parseInt(newB);
-
-    // dlog('COLOR MOVE - ' + A + ' - ' + B + ' - ' + newR + ' ' + newG + ' ' + newB);
-    return [String(newR), String(newG), String(newB)];
-}
-
-function getColorDist(A, B) {
-    let [r1, g1, b1] = [parseInt(A[0]), parseInt(A[1]), parseInt(A[2])];
-    let [r2, g2, b2] = [parseInt(B[0]), parseInt(B[1]), parseInt(B[2])];
-
-    let rmean = (r1 + r2)/2;
-    let r = r1 - r2;
-    let g = g1 - g2;
-    let b = b1 - b2;
-    // Approx color distance based on http://www.compuphase.com/cmetric.htm, range: 0-765
-    let dist =  Math.sqrt((((512 + rmean) * r * r) >> 8) + 4 * g * g + (((767 - rmean) * b * b) >> 8));
-    // dlog('COLOR DIST - ' + A + ' , ' + B + ' - ' + dist);
-    return dist/3; // range: 0-255
-}
-
-function getColorfulness(color) {
-    // We consider greater difference between the R, G, B values to indicate colorfulness
-    // while similar values for R,G,B to indicate greyscale
-    let [r, g, b] = [parseInt(color[0]), parseInt(color[1]), parseInt(color[2])];
-    let colorfulness = Math.max(r, g, b) - Math.min(r, g, b);
-    return colorfulness;
-}
-function compareColorfulness(A, B) {    
-    let colorDistA = getColorfulness(A);
-    let colorDistB = getColorfulness(B);
-    return (colorDistA < colorDistB)? -1 : (colorDistA > colorDistB)? 1 : 0;
-}
-
-// Compare colorfulness using saturation
-function compareSaturation(A, B) {
-    // Convert the colors into HSL to sort by Saturation
-    let hslA = rgbToHsl(A);
-    let hslB = rgbToHsl(B);
-    return (hslA[1] < hslB[1])? -1 : (hslA[1] > hslB[1])? 1 : 0;
-}
-
-function compareLightness(A, B) {
-    // Convert the colors into HSL to sort by Lightness
-    let hslA = rgbToHsl(A);
-    let hslB = rgbToHsl(B);
-    return (hslA[2] < hslB[2])? -1 : (hslA[2] > hslB[2])? 1 : 0;
-}
-
-function getStrv(strInt) {
-    // Color settings are stored as RGB in range 0-1 so we convert from 0-255
-    let [r, g, b] = [parseInt(strInt[0]), parseInt(strInt[1]), parseInt(strInt[2])];
-    return [String(r/255), String(g/255), String(b/255)];
-}
-
-function getRGBStr(str255) {
-    let rgb = `rgb(${str255[0]}, ${str255[1]}, ${str255[2]})`;
-    return rgb;
-}
-
-// Converts RGB to HSL
-function rgbToHsl(rgb) {
-    let [r, g, b] = [rgb[0]/255, rgb[1]/255, rgb[2]/255];
-    let max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let h, s, l = (max + min) / 2;
-    if(max == min) {
-        h = s = 0; // achromatic
-    } else {
-        let d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        switch(max) {
-            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-            case g: h = (b - r) / d + 2; break;
-            case b: h = (r - g) / d + 4; break;
-        }
-        h /= 6;
-    }
-    return [h, s, l]; // h, s, l in range 0 - 1
-}
-
-// Converts HSL to RGB
-function hslToRgb(hsl) {
-    let [h, s, l] = hsl;
-    let r, g, b;
-  
-    if (s === 0) {
-        r = g = b = l; // achromatic
-    } else {
-        const hue2rgb = (p, q, t) => {
-            if (t < 0) t += 1;
-            if (t > 1) t -= 1;
-            if (t < 1 / 6) return p + (q - p) * 6 * t;
-            if (t < 1 / 2) return q;
-            if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-            return p;
-        };
-  
-        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-        const p = 2 * l - q;
-  
-        r = hue2rgb(p, q, h + 1 / 3);
-        g = hue2rgb(p, q, h);
-        b = hue2rgb(p, q, h - 1 / 3);
-    }
-  
-    return [r * 255, g * 255, b * 255];
-}
-
-// Convert RGB to CIELAB
-function rgbToLab(rgbColor) {
-    const [r, g, b] = rgbColor.map(val => {
-        val /= 255;
-        return val <= 0.04045 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);
-    });
-
-    const x = 0.4124564 * r + 0.3575761 * g + 0.1804375 * b;
-    const y = 0.2126729 * r + 0.7151522 * g + 0.0721750 * b;
-    const z = 0.0193339 * r + 0.1191920 * g + 0.9503041 * b;
-
-    const epsilon = 0.008856; // 6/29
-    const kappa = 903.3; // 24389/27
-
-    const fx = x > epsilon ? Math.pow(x, 1 / 3) : (kappa * x + 16) / 116;
-    const fy = y > epsilon ? Math.pow(y, 1 / 3) : (kappa * y + 16) / 116;
-    const fz = z > epsilon ? Math.pow(z, 1 / 3) : (kappa * z + 16) / 116;
-
-    const L = 116 * fy - 16;
-    const a = 500 * (fx - fy);
-    const bb = 200 * (fy - fz);
-
-    return [L, a, bb];
-}
-
-// Compute distance between two colors in CIELAB space (OLD, check ΔE00 below)
-function colorDistance(color1, color2) {
-    const lab1 = rgbToLab(color1);
-    const lab2 = rgbToLab(color2);
-
-    const deltaL = lab1[0] - lab2[0];
-    const deltaA = lab1[1] - lab2[1];
-    const deltaB = lab1[2] - lab2[2];
-
-    return Math.sqrt(deltaL * deltaL + deltaA * deltaA + deltaB * deltaB);
-}
-
-// Calculate CIELAB color difference 2000 (ΔE00)
-function colorDistance2000(color1, color2) {
-    const lab1 = rgbToLab(color1);
-    const lab2 = rgbToLab(color2);
-
-    const deltaL = lab2[0] - lab1[0];
-    const meanL = (lab1[0] + lab2[0]) / 2;
-
-    const C1 = Math.sqrt(lab1[1] * lab1[1] + lab1[2] * lab1[2]);
-    const C2 = Math.sqrt(lab2[1] * lab2[1] + lab2[2] * lab2[2]);
-    const meanC = (C1 + C2) / 2;
-
-    const G = 0.5 * (1 - Math.sqrt(Math.pow(meanC, 7) / (Math.pow(meanC, 7) + Math.pow(25, 7))));
-
-    const a1Prime = (1 + G) * lab1[1];
-    const a2Prime = (1 + G) * lab2[1];
-
-    const C1Prime = Math.sqrt(a1Prime * a1Prime + lab1[2] * lab1[2]);
-    const C2Prime = Math.sqrt(a2Prime * a2Prime + lab2[2] * lab2[2]);
-    const meanCPrime = (C1Prime + C2Prime) / 2;
-
-    const h1Prime = (Math.atan2(lab1[2], a1Prime) * 180) / Math.PI + (lab1[2] < 0 ? 360 : 0);
-    const h2Prime = (Math.atan2(lab2[2], a2Prime) * 180) / Math.PI + (lab2[2] < 0 ? 360 : 0);
-    
-    let deltaHPrime;
-    if (Math.abs(h1Prime - h2Prime) <= 180) {
-        deltaHPrime = h2Prime - h1Prime;
-    } else if (h2Prime <= h1Prime) {
-        deltaHPrime = h2Prime - h1Prime + 360;
-    } else {
-        deltaHPrime = h2Prime - h1Prime - 360;
-    }
-
-    const deltaHPrimeMean = (Math.abs(h1Prime - h2Prime) <= 180) ? h1Prime + h2Prime / 2 : (h1Prime + h2Prime + 360) / 2;
-
-    const T = 1 - 0.17 * Math.cos((deltaHPrimeMean - 30) * (Math.PI / 180)) + 0.24 * Math.cos(2 * deltaHPrimeMean * (Math.PI / 180)) + 0.32 * Math.cos((3 * deltaHPrimeMean + 6) * (Math.PI / 180)) - 0.20 * Math.cos((4 * deltaHPrimeMean - 63) * (Math.PI / 180));
-    const deltaTheta = 30 * Math.exp(-((deltaHPrimeMean - 275) / 25) * ((deltaHPrimeMean - 275) / 25));
-    const R_C = 2 * Math.sqrt(Math.pow(meanCPrime, 7) / (Math.pow(meanCPrime, 7) + Math.pow(25, 7)));
-    const S_L = 1 + (0.015 * Math.pow(meanL - 50, 2)) / Math.sqrt(20 + Math.pow(meanL - 50, 2));
-    const S_C = 1 + 0.045 * meanCPrime;
-    const S_H = 1 + 0.015 * meanCPrime * T;
-
-    const R_Term = -Math.sin((2 * deltaTheta) * (Math.PI / 180)) * R_C;
-
-    const L_Diff = deltaL / (S_L);
-    const C_Diff = (C1Prime - C2Prime) / (S_C);
-    const H_Diff = (deltaHPrime - R_Term) / (S_H);
-
-    return Math.sqrt(L_Diff * L_Diff + C_Diff * C_Diff + H_Diff * H_Diff);
-}
-
-
-// Add tint to RGB color
-function addTint(rgbColor, amount) {
-    const [r, g, b] = rgbColor.map(val => val + (255 - val) * amount);
-    return [r, g, b];
-}
-
-// Add shade to RGB color - modified (grey)
-function addShade(rgbColor, amount, target=0) {
-    const [r, g, b] = rgbColor.map(val => val + (target - val) * amount);
-    return [r, g, b];
-}
-
-// Add tone to RGB color
-function addTone(rgbColor, amount) {
-    const [r, g, b] = rgbColor.map(val => val + (128 - val) * amount);
-    return [r, g, b];
-}
-
-// Convert RGB color to pastel color
-function addPastel(rgbColor, amount) {
-    const hslColor = rgbToHsl(rgbColor);
-
-    // Decrease saturation and increase lightness
-    const pastelHslColor = [hslColor[0], hslColor[1] * amount, hslColor[2] * (1 + (1 - amount) / 2)];
-
-    // Convert pastel HSL color back to RGB
-    const pastelRgbColor = hslToRgb(pastelHslColor);
-
-    return pastelRgbColor;
-}
-
-// Calculate relative luminance
-function relativeLuminance(color) {
-    const [r, g, b] = color.map(val => {
-        val /= 255;
-        return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);
-    });
-
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-
-// Calculate contrast ratio between two colors
-function contrastRatio(color1, color2) {
-    const luminance1 = relativeLuminance(color1);
-    const luminance2 = relativeLuminance(color2);
-
-    const lighter = Math.max(luminance1, luminance2);
-    const darker = Math.min(luminance1, luminance2);
-
-    return (lighter + 0.05) / (darker + 0.05); // Adding 0.05 to prevent division by zero
-}
-
-
-// Auto-Theming: Select colors from color palette as per theme & dark/light mode
+// Auto-Theming: Select colors from color palette as per theme & dark/light mode (Gets called separately for dark/light)
 // Manipulate colors, as needed, for better contrast and readability (except for 'True Color')
 function autoApplyBGPalette(obar, requestMode) {
     const importExport = obar._settings.get_boolean('import-export');
@@ -498,8 +210,8 @@ function autoApplyBGPalette(obar, requestMode) {
         MBG_LIGHT_TARGET = 6;
         MBG_SAT_HIGH = 80;
 
-        MBG_LIGHT_MIN = 15;
-        MBG_LIGHT_MAX = 25;
+        MBG_LIGHT_MIN = 12; //15
+        MBG_LIGHT_MAX = 20; //25
         MBG_SAT_MIN = 15;
         MBG_SAT_MAX = 25;
         MBG_SAT_DND_MIN = 10;
@@ -507,8 +219,8 @@ function autoApplyBGPalette(obar, requestMode) {
         SMBG_LIGHT_HIGH = 60;
         SMBG_SAT_HIGH = 80;
 
-        SMBG_LIGHT_MIN = 25;
-        SMBG_LIGHT_MAX = 35;
+        SMBG_LIGHT_MIN = 17; //25
+        SMBG_LIGHT_MAX = 25; //35
         SMBG_SAT_MIN = 20;
         SMBG_SAT_MAX = 30;
         SMBG_SAT_DND_MIN = 10;
@@ -516,8 +228,8 @@ function autoApplyBGPalette(obar, requestMode) {
         ACCENT_LIGHT_MAX = 70;
         ACCENT_LIGHT_MIN = 35; //40
         ACCENT_LIGHT_TARGET = 70;
-        ACCENT_SAT_MAX = 80; //75
-        ACCENT_SAT_MIN = 60; //65
+        ACCENT_SAT_MAX = 75; //75 80
+        ACCENT_SAT_MIN = 50; //65 60
         ACCENT_SAT_TARGET = 70;
         ACCENT_SAT_DND_MIN = 10;
 
@@ -532,7 +244,7 @@ function autoApplyBGPalette(obar, requestMode) {
         ACCENT_LIGHT_LOW_CLOSE = 30;
         ACCENT_LIGHT_HIGH = 95; //90
         ACCENT_LIGHT_TARGET = 80;
-        ACCENT_LIGHT_MAX = 80;
+        ACCENT_LIGHT_MAX = 85; //80
         ACCENT_LIGHT_MIN = 50; //????
         ACCENT_SAT_MAX = 85;
         ACCENT_SAT_MIN = 65;
@@ -547,8 +259,8 @@ function autoApplyBGPalette(obar, requestMode) {
         MBG_LIGHT_HIGH_CLOSE = 100;
         MBG_SAT_HIGH = 80;
         // MBG_PROM_LOW = 1;
-        MBG_LIGHT_MIN = 85; // 80
-        MBG_LIGHT_MAX = 95;
+        MBG_LIGHT_MIN = 90; // 85
+        MBG_LIGHT_MAX = 100; // 95
         MBG_SAT_MIN = 10;
         MBG_SAT_MAX = 15;
         MBG_SAT_DND_MIN = 0;
@@ -557,17 +269,19 @@ function autoApplyBGPalette(obar, requestMode) {
         SMBG_PROM_LOW_CLOSE = 0.35;
         SMBG_LIGHT_LOW = 30;
         SMBG_LIGHT_LOW_CLOSE = 10;
-        SMBG_LIGHT_HIGH = 85;
-        SMBG_LIGHT_HIGH_CLOSE = 90;
+        SMBG_LIGHT_HIGH = 95; // 85
+        SMBG_LIGHT_HIGH_CLOSE = 97; //90
         SMBG_SAT_HIGH = 90;
 
-        SMBG_LIGHT_MIN = 75; // 70
-        SMBG_LIGHT_MAX = 85; // 80
-        SMBG_SAT_MIN = 15; // 20
-        SMBG_SAT_MAX = 20; // 25
+        SMBG_LIGHT_MIN = 80; // 75
+        SMBG_LIGHT_MAX = 95; // 85
+        SMBG_SAT_MIN = 10; // 15
+        SMBG_SAT_MAX = 25; // 20
         SMBG_SAT_DND_MIN = 0;
         SMBG_ACC_CONTRAST_MULT = 0.5;
         SMBG_MBG_CONTRAST_MULT = 0.5;
+
+        SMBG_MBG_DIST_TARGET = 40;
 
         BAR_LIGHT_LOW = MBG_LIGHT_LOW;
         BAR_LIGHT_HIGH = MBG_LIGHT_HIGH;
@@ -583,7 +297,7 @@ function autoApplyBGPalette(obar, requestMode) {
         ACCENT_LIGHT_TARGET = 70;
         ACCENT_LIGHT_MAX = 75;
         ACCENT_LIGHT_MIN = 55;
-        ACCENT_SAT_MAX = 75; // 85
+        ACCENT_SAT_MAX = 70; // 75
         ACCENT_SAT_MIN = 50; // 65
         ACCENT_SAT_TARGET = 75;
         ACCENT_SAT_DND_MIN = -1;
@@ -616,8 +330,8 @@ function autoApplyBGPalette(obar, requestMode) {
 
         SMBG_LIGHT_MIN = 80; //50
         SMBG_LIGHT_MAX = 90;
-        SMBG_SAT_MIN = 20; //25
-        SMBG_SAT_MAX = 30; //35
+        SMBG_SAT_MIN = 22; //20
+        SMBG_SAT_MAX = 34; //30
         SMBG_SAT_DND_MIN = 0;
         SMBG_ACC_CONTRAST_MULT = 4;
         SMBG_MBG_CONTRAST_MULT = 4;
@@ -673,13 +387,15 @@ function autoApplyBGPalette(obar, requestMode) {
             }
         }
         if(best) {
-            accentColor = paletteArr[bestAccentIdx][0]; // dlog('Best Accent Color', accentColor, bestAccentIdx);
+            accentColor = paletteArr[bestAccentIdx][0]; 
+            // dlog('Best Accent Color', accentColor, bestAccentIdx);
             paletteArr.splice(bestAccentIdx, 1);
             if(bestAccentIdx < promLen)
                 prominentArr.splice(bestAccentIdx, 1);
         }
         else {
-            accentColor = paletteArr[closestAccentIdx][0]; // dlog('Closest Accent Color', accentColor, closestAccentIdx);
+            accentColor = paletteArr[closestAccentIdx][0]; 
+            // dlog('Closest Accent Color', accentColor, closestAccentIdx);
             paletteArr.splice(closestAccentIdx, 1);
             if(closestAccentIdx < promLen)
                 prominentArr.splice(closestAccentIdx, 1);
@@ -697,14 +413,16 @@ function autoApplyBGPalette(obar, requestMode) {
         let accentSatMin = false;
 
         if(sat > ACCENT_SAT_DND_MIN && sat < ACCENT_SAT_MIN) {
-            sat = Math.min(ACCENT_SAT_MIN, 3*sat); // dlog(`\nsat < ${ACCENT_SAT_MIN}, Setting sat to ${sat}`);
+            sat = Math.min(ACCENT_SAT_MIN, 3*sat); 
+            // dlog(`\nsat < ${ACCENT_SAT_MIN}, Setting sat to ${sat}`);
             accentSatMin = true;
         }
         else if(sat > ACCENT_SAT_MAX) {
-            sat = ACCENT_SAT_MAX; // dlog(`\nsat > ${ACCENT_SAT_MAX}, Setting sat to ${ACCENT_SAT_MAX}`);
+            sat = ACCENT_SAT_MAX; 
+            // dlog(`\nsat > ${ACCENT_SAT_MAX}, Setting sat to ${ACCENT_SAT_MAX}`);
         }
         else if(sat >= ACCENT_SAT_MIN && sat <= ACCENT_SAT_MAX) {
-            sat = (ACCENT_SAT_MIN + ACCENT_SAT_MAX)/2;
+            sat = sat - 0.35*(sat - (ACCENT_SAT_MIN + ACCENT_SAT_MAX)/2);
         }
         
         if(light < ACCENT_LIGHT_MIN) { 
@@ -715,16 +433,18 @@ function autoApplyBGPalette(obar, requestMode) {
             // dlog(`\nlight < ${ACCENT_LIGHT_MIN}, Setting light to ${light}`);
         }
         else if(light > ACCENT_LIGHT_MAX) { 
-            light = ACCENT_LIGHT_MAX; // dlog(`\nlight > ${ACCENT_LIGHT_MAX}, Setting light to ${ACCENT_LIGHT_MAX}`);
+            light = ACCENT_LIGHT_MAX; 
+            // dlog(`\nlight > ${ACCENT_LIGHT_MAX}, Setting light to ${ACCENT_LIGHT_MAX}`);
 
         }
         else if(light >= ACCENT_LIGHT_MIN && light <= ACCENT_LIGHT_MAX) {
-            light = (ACCENT_LIGHT_MIN + ACCENT_LIGHT_MAX)/2;
+            light = light - 0.35*(light - (ACCENT_LIGHT_MIN + ACCENT_LIGHT_MAX)/2);
         }
 
         // Some colors (Hues) can be too bright so reduce their sat if needed
         if(hue >= 50*100/360 && hue <= 160*100/360) { // bright Green
-            let hueSat = 45 + 2.5*Math.abs(hue - 90*100/360)/10; // dlog('Sat', sat, 'HueSat', hueSat);
+            let hueSat = 45 + 2.5*Math.abs(hue - 90*100/360)/10; 
+            // dlog('Sat', sat, 'HueSat', hueSat);
             if(sat > hueSat) 
                 sat = hueSat;
         }
@@ -749,7 +469,6 @@ function autoApplyBGPalette(obar, requestMode) {
             }
         }
         // accentColor = addTint(accentColor, 0.10);
-
         // dlog('Accent color (light/sat): ', accentColor, sat, light);
     }
 
@@ -761,7 +480,8 @@ function autoApplyBGPalette(obar, requestMode) {
     
     for(let i=0, promColor; i<promLen; i++) {
         promColor = prominentArr[i][0];
-        let [hue, sat, light] = rgbToHsl(promColor).map((x) => x*100); // dlog('\nMenuBG Color', promColor, 'HSL', hue, sat, light);
+        let [hue, sat, light] = rgbToHsl(promColor).map((x) => x*100); 
+        // dlog('\nMenuBG Color', promColor, 'HSL', hue, sat, light);
         let mbgProm = prominentArr[i][1];
         let mbgAccentDist = colorDistance2000(promColor, accentColor);
         let mbgAccentContrast = contrastRatio(promColor, accentColor);
@@ -790,12 +510,14 @@ function autoApplyBGPalette(obar, requestMode) {
         }
     }
     if(best) {
-        mbgColor = prominentArr[bestMbgIdx][0];  // dlog('Best MenuBG Color', mbgColor, bestMbgIdx);        
+        mbgColor = prominentArr[bestMbgIdx][0];  
+        // dlog('Best MenuBG Color', mbgColor, bestMbgIdx);        
         prominentArr.splice(bestMbgIdx, 1);
         paletteArr.splice(bestMbgIdx, 1);
     }
     else {
-        mbgColor = prominentArr[closestMbgIdx][0]; // dlog('Closest MenuBG Color', mbgColor, closestMbgIdx);
+        mbgColor = prominentArr[closestMbgIdx][0]; 
+        // dlog('Closest MenuBG Color', mbgColor, closestMbgIdx);
         prominentArr.splice(closestMbgIdx, 1);
         paletteArr.splice(closestMbgIdx, 1);
     }
@@ -808,7 +530,8 @@ function autoApplyBGPalette(obar, requestMode) {
 
     for(let i=0, promColor; i<promLen; i++) {
         promColor = prominentArr[i][0];
-        let [hue, sat, light] = rgbToHsl(promColor).map((x) => x*100); // dlog('\nSMBG Color', promColor, 'HSL', hue, sat, light);
+        let [hue, sat, light] = rgbToHsl(promColor).map((x) => x*100); 
+        // dlog('\nSMBG Color', promColor, 'HSL', hue, sat, light);
 
         let smbgMbgDist = colorDistance2000(promColor, mbgColor);
         let smbgMbgContrast = contrastRatio(promColor, mbgColor);
@@ -824,7 +547,7 @@ function autoApplyBGPalette(obar, requestMode) {
             smbgMbgDist > SMBG_MBG_DIST_LOW && smbgMbgDist < SMBG_MBG_DIST_HIGH &&
             smbgMbgContrast > SMBG_MBG_CONTRAST_LOW && smbgMbgContrast < SMBG_MBG_CONTRAST_HIGH &&
             smbgAccentDist > ACCENT_SMBG_DIST_LOW && smbgAccentDist < ACCENT_SMBG_DIST_HIGH &&
-            smbgAccentContrast > ACCENT_SMBG_CONTRAST_LOW && smbgAccentContrast < ACCENT_SMBG_CONTRAST_HIGH) { // Light 35 HueSat 15-80
+            smbgAccentContrast > ACCENT_SMBG_CONTRAST_LOW && smbgAccentContrast < ACCENT_SMBG_CONTRAST_HIGH) {
             best = minTotal;
             // dlog('best', best);
             if(bestSmbg > best) {
@@ -842,12 +565,14 @@ function autoApplyBGPalette(obar, requestMode) {
         }
     }
     if(best) {
-        smbgColor = prominentArr[bestSmbgIdx][0]; // dlog('Best SMBG Color', smbgColor, bestSmbgIdx);
+        smbgColor = prominentArr[bestSmbgIdx][0]; 
+        // dlog('Best SMBG Color', smbgColor, bestSmbgIdx);
         prominentArr.splice(bestSmbgIdx, 1);
         paletteArr.splice(bestSmbgIdx, 1);
     }
     else {
-        smbgColor = prominentArr[closestSmbgIdx][0]; // dlog('Closest SMBG Color', smbgColor, closestSmbgIdx);
+        smbgColor = prominentArr[closestSmbgIdx][0]; 
+        // dlog('Closest SMBG Color', smbgColor, closestSmbgIdx);
         prominentArr.splice(closestSmbgIdx, 1);
         paletteArr.splice(closestSmbgIdx, 1);
     }
@@ -991,8 +716,9 @@ function autoApplyBGPalette(obar, requestMode) {
         if(mbgSmbgColorDist < 30) {
             let [mh, ms, ml] = rgbToHsl(mbgColor);
             let [sh, ss, sl] = rgbToHsl(smbgColor);
+            // dlog('SMBG Color (before moderated)', smbgColor);            
             if(sl < ml)
-                smbgColor = addShade(smbgColor, (30 - mbgSmbgColorDist)/150);
+                smbgColor = addShade(smbgColor, (30 - mbgSmbgColorDist)/250); //150
             else
                 smbgColor = addTint(smbgColor, (30 - mbgSmbgColorDist)/150);
             // dlog('SMBG Color (dist moderated)', smbgColor);
@@ -1002,11 +728,21 @@ function autoApplyBGPalette(obar, requestMode) {
     // All themes
     // Adjust saturation and lightness of Accent color if Accent is too close OR too far from to MBG or SMBG
     if(theme != 'None') {
-        let accentMbgColDist = colorDistance2000(accentColor, mbgColor); // dlog('Accent-MBG Color Distance', accentMbgColDist);
-        let accentSmbgColDist = colorDistance2000(accentColor, smbgColor); // dlog('Accent-SMBG Color Distance', accentSmbgColDist);
+        let accentMbgColDist = colorDistance2000(accentColor, mbgColor); 
+        // dlog('Accent-MBG Color Distance', accentMbgColDist);
+        let accentSmbgColDist = colorDistance2000(accentColor, smbgColor); 
+        // dlog('Accent-SMBG Color Distance', accentSmbgColDist);
         if(accentMbgColDist < 25 || accentSmbgColDist < 25) {
             // dlog('Accent color too close to MBG or SMBG ', accentColor);
-            let lThresh = 0.15, sThresh = 0.15, lThreshMax = 0.3, sThreshMin = 0.25;
+            let lThresh, sThresh, lThreshMax = 0.3, sThreshMin = 0.25, sThreshMax = 0.25;
+            if(theme == 'Color') {
+                lThresh = 0.1;
+                sThresh = 0.05;
+            }
+            else {
+                lThresh = 0.15;
+                sThresh = 0.1;
+            }
             let [mh, ms, ml] = rgbToHsl(mbgColor);
             let [sh, ss, sl] = rgbToHsl(smbgColor);
             let [ah, as, al] = rgbToHsl(accentColor);
@@ -1043,13 +779,18 @@ function autoApplyBGPalette(obar, requestMode) {
             }
             else if(as < minS && minS - as > sThreshMin) {
                 // dlog('as<minS+sThreshMin: ' + as + '  ' + minS + '  ' + sThreshMin);
-                as = as + 0.5*(minS - as);
+                as = as + 0.5*(minS - as - sThreshMin);
                 // dlog('as<minS+sThreshMin new: ' + as);
             }
             else if(as > maxS && as - maxS < sThresh) {
                 // dlog('as>maxS: ' + as + '  ' + maxS + '  ' + sThresh);
                 as = maxS + sThresh;
                 // dlog('as>maxS new: ' + as);
+            }
+            else if(as > maxS && as - maxS > sThreshMax) {
+                // dlog('as>maxS+sThreshMax: ' + as + '  ' + maxS + '  ' + sThreshMax);
+                as = as - 0.5*(as - maxS - sThreshMax);
+                // dlog('as>maxS+sThreshMax new: ' + as);
             }
             else if(as >= minS && as <= maxS) {
                 // dlog('as min+max / 2: ' + as + '  ' + minS + '  ' + maxS);
@@ -1072,8 +813,10 @@ function autoApplyBGPalette(obar, requestMode) {
     for(let i=0, paletteColor; i<paletteLen; i++) {
         paletteColor = paletteArr[i][0];
         let barProm = paletteArr[i][1];
-        let [hue, sat, light] = rgbToHsl(paletteColor).map((x) => x*100); // dlog('Bar Color', paletteColor, 'HSL', hue, sat, light);
-        let barMbgDist = colorDistance2000(paletteColor, mbgColor); // dlog('barMbgDist', barMbgDist);
+        let [hue, sat, light] = rgbToHsl(paletteColor).map((x) => x*100); 
+        // dlog('Bar Color', paletteColor, 'HSL', hue, sat, light);
+        let barMbgDist = colorDistance2000(paletteColor, mbgColor); 
+        // dlog('barMbgDist', barMbgDist);
 
         minTotal = -2.5*Math.abs(light-BAR_LIGHT_EVADE) + 1.35*barMbgDist + 0.25*sat - 1.5*barProm;
         // -1.5 +1 + 0.25 -2
@@ -1096,16 +839,19 @@ function autoApplyBGPalette(obar, requestMode) {
         }
     }
     if(best) {
-        barBgColor = paletteArr[bestBarIdx][0]; // dlog('Best Bar BG Color', barBgColor, bestBarIdx);
+        barBgColor = paletteArr[bestBarIdx][0]; 
+        // dlog('Best Bar BG Color', barBgColor, bestBarIdx);
         paletteArr.splice(bestBarIdx, 1);
     }
     else {
-        barBgColor = paletteArr[closestBarBgIdx][0]; // dlog('Closest Bar BG Color', barBgColor, closestBarBgIdx);
+        barBgColor = paletteArr[closestBarBgIdx][0]; 
+        // dlog('Closest Bar BG Color', barBgColor, closestBarBgIdx);
         paletteArr.splice(closestBarBgIdx, 1);
     }
 
     // Push Bar BG towards lighter or darker end to get enough contrast with FG text
-    let barHSP = getHSP(barBgColor); // dlog('barHSP', barHSP);
+    let barHSP = getHSP(barBgColor); 
+    // dlog('barHSP', barHSP);
     if(barHSP > 155 && barHSP < 200) {
         barBgColor = addTint(barBgColor, 0.22);
         // dlog('Tint Bar BG Color', barBgColor);
@@ -1139,8 +885,7 @@ function autoApplyBGPalette(obar, requestMode) {
     // BORDER = NEON = SHADOW COLOR SELECTION (for BAR)
     let neon = obar._settings.get_boolean('neon');
     let barBorderPalette, barLightTarget;
-    let scheme = obar.colorScheme;
-    if(scheme == 'prefer-dark') {
+    if(requestMode == 'dark') {
         barBorderPalette = paletteArr.slice(0).map(x => x[0]).sort(compareLightness).reverse(); // Sort for Light colors
         barLightTarget = BORDER_LIGHT_HIGH;
     }
@@ -1153,7 +898,8 @@ function autoApplyBGPalette(obar, requestMode) {
     if(neon) {
         for(let i=0, paletteColor; i<barBorderPalette.length; i++) {
             paletteColor = barBorderPalette[i];
-            let [hue, sat, light] = rgbToHsl(paletteColor).map((x) => x*100); // dlog('Bar Border Color', paletteColor, 'HSL', hue, sat, light);
+            let [hue, sat, light] = rgbToHsl(paletteColor).map((x) => x*100); 
+            // dlog('Bar Border Color', paletteColor, 'HSL', hue, sat, light);
             let barBorderIdx = paletteArr.map(x => x[0]).indexOf(paletteColor);
 
             if(sat > BORDER_NEON_SAT_LOW && light > BORDER_LIGHT_LOW && light < BORDER_LIGHT_HIGH) {
@@ -1199,21 +945,21 @@ function autoApplyBGPalette(obar, requestMode) {
     // SET WMAX BAR BG COLOR
     let wmaxBarBgColor;
     let hBarHint = obar._settings.get_int('headerbar-hint')/100;
-    if(scheme != 'prefer-dark') {
-        wmaxBarBgColor = [hBarHint*accentColor[0] + (1-hBarHint)*225, 
-                          hBarHint*accentColor[1] + (1-hBarHint)*225, 
-                          hBarHint*accentColor[2] + (1-hBarHint)*225];
+    if(requestMode == 'light') {
+        wmaxBarBgColor = [hBarHint*accentColor[0] + (1-hBarHint)*235, 
+                          hBarHint*accentColor[1] + (1-hBarHint)*235, 
+                          hBarHint*accentColor[2] + (1-hBarHint)*235];
     }
     else {
-        wmaxBarBgColor = [hBarHint*accentColor[0] + (1-hBarHint)*25,
-                          hBarHint*accentColor[1] + (1-hBarHint)*25,
-                          hBarHint*accentColor[2] + (1-hBarHint)*25];
+        wmaxBarBgColor = [hBarHint*accentColor[0] + (1-hBarHint)*30,
+                          hBarHint*accentColor[1] + (1-hBarHint)*30,
+                          hBarHint*accentColor[2] + (1-hBarHint)*30];
     }
 
 
     // MENU BORDER = SHADOW COLOR SELECTION (for MENU)
     let menuBorderPalette;
-    if(scheme != 'prefer-dark')
+    if(requestMode == 'light')
         menuBorderPalette = paletteArr.slice(0).map(x => x[0]).sort(compareLightness); // Sort for Dark colors
     else
         menuBorderPalette = paletteArr.slice(0).map(x => x[0]).sort(compareLightness).reverse(); // Sort for Light colors
@@ -1241,7 +987,7 @@ function autoApplyBGPalette(obar, requestMode) {
     bgcolor2 = getStrv(smbgColor);
     bcolor = getStrv(barBorderColor);
     // hcolor = getStrv(barHighlight);
-    shcolor = getStrv(barBorderColor);
+    shcolor = getStrv([0,0,0]); //barBorderColor
     bgcolorWmax = getStrv(wmaxBarBgColor);
 
     // MENU
@@ -1249,7 +995,7 @@ function autoApplyBGPalette(obar, requestMode) {
     smbgcolor = getStrv(smbgColor); 
     mbcolor = getStrv(menuBorderColor);
     // mhcolor = getStrv(menuHighlight);
-    mshcolor = getStrv(menuBorderColor);
+    mshcolor = getStrv([0,0,0]); //menuBorderColor
     mscolor = getStrv(accentColor);
 
     // Update settings for bar and menu
@@ -1271,11 +1017,6 @@ function autoApplyBGPalette(obar, requestMode) {
     // obar._settings.set_boolean('autofg-menu', true);
     obar._settings.set_boolean('autohg-menu', true);
 
-    // let prefixArr = [requestMode+'-'];
-    // if((requestMode == 'dark' && currentMode == 'prefer-dark') || 
-    //    (requestMode == 'light' && currentMode != 'prefer-dark'))
-    //     prefixArr.push(null);
-    // dlog('prefis array: ', prefixArr);
     let colorKeys = ['boxcolor', 'bgcolor', 'bgcolor2', 'iscolor', 'shcolor', 'bcolor', 'bgcolor-wmax', 
                     'mbgcolor', 'smbgcolor', 'mbcolor', 'mshcolor', 'mscolor', 'winbcolor'];
     let colors = [bgcolor, bgcolor, bgcolor2, iscolor, shcolor, bcolor, bgcolorWmax, 
@@ -1287,23 +1028,6 @@ function autoApplyBGPalette(obar, requestMode) {
             (requestMode == 'light' && currentMode != 'prefer-dark'))
             obar._settings.set_strv(colorKeys[i], colors[i]);
     }
-
-    // for(const prefix in prefixArr) {
-    //     obar._settings.set_strv(prefix? prefix+'bgcolor': 'bgcolor', bgcolor);
-    //     obar._settings.set_strv(prefix? prefix+'bgcolor2': 'bgcolor2', bgcolor2);
-    //     obar._settings.set_strv(prefix? prefix+'iscolor': 'iscolor', iscolor);
-    //     obar._settings.set_strv(prefix? prefix+'shcolor': 'shcolor', shcolor);
-    //     obar._settings.set_strv(prefix? prefix+'bcolor': 'bcolor', bcolor);
-    //     // obar._settings.set_strv(prefix+'hcolor', hcolor);
-    //     obar._settings.set_strv(prefix? prefix+'bgcolor-wmax': 'bgcolor-wmax', bgcolorWmax);
-        
-    //     obar._settings.set_strv(prefix? prefix+'mbgcolor': 'mbgcolor', mbgcolor);
-    //     obar._settings.set_strv(prefix? prefix+'smbgcolor': 'smbgcolor', smbgcolor);
-    //     obar._settings.set_strv(prefix? prefix+'mbcolor': 'mbcolor', mbcolor);
-    //     // obar._settings.set_strv(prefix+'mhcolor', mhcolor);
-    //     obar._settings.set_strv(prefix? prefix+'mshcolor': 'mshcolor', mshcolor);
-    //     obar._settings.set_strv(prefix? prefix+'mscolor': 'mscolor', mscolor);
-    // }
 
     // GTK Window
     // obar._settings.set_strv('winbcolor', mscolor);
@@ -1334,6 +1058,30 @@ function onModeChange(obar) {
 
     obar._settings.set_boolean('pause-reload', false);
     triggerStyleReload(obar);
+}
+
+// Find Yaru theme with Accent color closest to theme accent color
+export function getClosestYaruTheme(obar) {
+    let yaruThemes = ['default', 'bark', 'sage', 'olive', 'viridian', 'prussiangreen', 'blue', 'purple', 'magenta', 'red'];
+    let yaruAccentsHex = ['#E95420', '#787859', '#657B69', '#4B8501', '#03875B', '#308280', '#0073E5', '#7764D8', '#B34CB3', '#DA3450'];
+    let yaruAccents = yaruAccentsHex.map(x => hexToRgb(x));
+
+    let themeAccent = obar._settings.get_strv('mscolor');
+    themeAccent = [parseInt(parseFloat(themeAccent[0])*255), 
+                    parseInt(parseFloat(themeAccent[1])*255), 
+                    parseInt(parseFloat(themeAccent[2])*255)];
+
+    let closest = 1000;
+    let closestTheme = 'default';
+    for(let i = 0; i < yaruAccents.length; i++) {
+        let dist = colorDistance2000(themeAccent, yaruAccents[i]);
+        if(dist < closest) {
+            closest = dist;
+            closestTheme = yaruThemes[i];
+        }
+    }
+
+    return closestTheme;
 }
 
 function triggerStyleReload(obar) {

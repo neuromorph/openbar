@@ -1,30 +1,60 @@
-Top Bar ( Top Panel ) customization / styling. Open the Top Bar and let the colors 🍹 flow.
+Top Bar / Top Panel , Menus , Dash / Dock , Gnome Shell , Gtk Apps theming. Open the bar and let the colors 🍹 flow.
 
-Update : 
-- Addition of auto-generated Desktop Background color palette in every color palette pop up. Note: you may have to change the background once so that the extension can capture the signal to identify the image for background.
-- Enhancements in fonts, highlights, backgrounds etc and new padding controls
-- Many fixes and compatibility with other extensions like QSAP, Arc Menu etc
-- Some users had reported extension crashes/error due to the Panel being modified by other extensions. Known cases are already fixed. If you find anything new, please report in Github.
+**Please report on GitHub if something is broken due to an update or if you have any suggestions.
 
-Feedback / suggestions are welcome.
+Open Bar 2.0: 
+- Auto-theming completely renewed. Theme Options: Dark, Light, Pastel, True-Color
+- Apply styles to Bar, Menu, Dash / Dock and rest of the shell
+- Apply accent color and style Gtk/Flatpak apps
+- New UI for preferences/settings
+
+
+Compatibility with Extensions:
+- It should be (mostly) compatible with user themes and other extensions that affect the Top Panel 
+- Some extensions do not use standard widget and API (e.g. 'PanelMenu.Button' and 'main.addToStatusArea') when adding indicator to Panel and fixing that makes them work correctly with Open Bar (or user themes for that matter).
+
+
+Auto Theming:
+- Note: If you want to save your current settings, please use Export Settings option before applying Auto-theme. You can import it back whenever needed.
+- Auto-themes will use the color palette generated from the background image.
+- Other settings will be set as selected, by the user, in the preferences tabs.
+- Styles will apply to the Top Bar, Menus and optionally to the shell.
+- Select desired Type of bar before applying a theme. If you change the bar type, apply the theme again.
+        
+        True Color     :  Palette colors as-is (biased towards dark). 
+        Pastel Theme   :  Colors are pastelified (biased towards light).
+        Dark Theme     :  Colors are darkened as needed.
+        Light Theme    :  Colors are lightened as needed.
+
+- You can select themes separately for both Gnome Dark and Light modes. 
+- Once theme is applied, you can further tweak any of the manual settings, as usual, to finetune the theme. 
+- Color changes made in current mode will be saved for that mode alone. Other settings will apply to both modes.
+- There is an option for Auto-refreshing theme when background changes. This will overwrite current themes with newly generated ones when background is changed.
+- There are more settings in Auto-Theme. You can select if you want the secondary menu BG color to be derived from BG or auto-selected from palette. You can specify any preferred accent color or let the theme choose from the background. You can also select if foreground color should be auto-generated or use manual selection etc.
+- Since it is one size fit all solution, 'No Free Lunch' theorem applies. Not all options will work best for all backgrounds, so the additional knobs above will help you select the desired one. One of the theme combinations should work for you at least with little bit tweaking if needed.
+  
 
 Customize:
 - Bar Type: Fixed, Floating or Islands / Trilands
 - Bar position, height, margin, paddings
 - Bar foreground color, font
-- Bar background color, transparency, gradient, shadow, highlights
+- Bar background color, transparency, gradient, shadow, highlights, candybar 
 - Shape rectangular to pill, border width, color, neon glow
 - Menu customizations: foreground, background colors, transparency, border, shadow,  active/selection, hover colors
 etc.
+- Includes a custom color palette, under the default palette, in each color button popup. The palette is auto-generated from the desktop background.
+- Add accent hint to GTK/Flatpak apps' Headerbar, Sidebar or Card/Dialogs. Add Traffic Light controls, window border, popover styles etc.
 
-If the panel/menu isn't looking right, you need to tweak some settings. There are a lot of knobs to allow for differnt setups/tastes. It can also make it a bit overwhelming if you are not familiar with css styles but with some experimentation it will become a lot easier. Here are brief notes:
+
+SETTINGS NOTES:
+If the panel/menu isn't looking right, you need to tweak some settings. There are a lot of knobs to allow for different setups/tastes. It can also make it a bit overwhelming if you are not familiar with css styles but with some experimentation it will become a lot easier. Here are brief notes:
 - BG/FG color: Background or Foreground colors. Foreground is typically text and icons.
 - Alpha: Transparency for the color. 0 is transparent while 1 is opaque.
-- Panel BG will affect the bar while Islands BG will affect the individual indicator buttons/combos (in Islands mode).
-- Gradient goes from Start color to End color. If you want a single color fading, select same color for both with differnt Alphas. e.g. Setting end color alpha to 0 will form a gradient from Start color to transparent.
-- Highlight color: It is the background color upon hover or focus. 
+- Panel BG will affect the bar while Tri/Islands BG will affect the individual indicator buttons/combos (in Trilands/Islands mode).
+- Gradient goes from Start color to End color. If you want a single color fading, select same color for both with different Alphas. e.g. Setting end color alpha to 0 will form a gradient from Start color to transparent.
+- Highlight color: It is the background color upon hover or focus. You can choose to highlight with border instead.
 - Vertical padding: Controls size of highlights in Mainland/Floating. Also controls size of Islands/Trilands. Increase height if padding squeezes the text.
-- Panel Shadow: a downward shadow for the panel bar. Shadow Spread controls both shadow trasparency and spread together.
+- Panel Shadow: a downward shadow for the panel bar. Shadow Spread controls both shadow transparency and spread together.
 - Border: 
     = Width controls thickness (grows inwards for Islands). Adjust bar height accordingly, after setting border width.  
     = Radius will control the shape from rectangle at radius 0 to Pill at radius close to bar height. 
@@ -33,6 +63,4 @@ If the panel/menu isn't looking right, you need to tweak some settings. There ar
     = FG/BG, border, highlight are similar to above but for menus.
     = Selected/active color is for menu items that are active e.g. Today's day in Calendar or WiFi in Quick Settings or even an active menu item with opened submenu. 
     = Shadow applies to the panel menu. Use white/bright color in dark theme and black/dark color in light theme for the effect to show and help with contrast. Using same color as menu border is also a good idea. Use the Alphas for both border and shadow to increase or reduce their effect.
-    = Once enabled, menu settings now also apply as soon as changed. You need to press 'Apply Menu Styles' button to enable the menu style. 'Reset Menu Styles' button will remove all menu styles and revert to your default theme.
-
-Lastly, be a tiny bit gentler with the sliders in the settings as they modify the stylesheet behind the scene for every update.
+- Lastly, be a tiny bit gentler with the sliders in the settings as they modify the stylesheet behind the scene for every update.
