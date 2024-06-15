@@ -20,6 +20,8 @@
 /* exported reloadStyle() saveGtkCss() saveFlatpakOverrides() */
 
 const {Gio, Pango, GLib} = imports.gi;
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 const Utils = Me.imports.utils;
 
 const colorMix = Utils.colorMix;

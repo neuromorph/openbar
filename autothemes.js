@@ -19,6 +19,8 @@
 
 /* exported autoApplyBGPalette() onModeChange() */
 
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 const Utils = Me.imports.utils;
 
 const getHSP = Utils.getHSP;
@@ -1061,7 +1063,7 @@ function onModeChange(obar) {
 }
 
 // Find Yaru theme with Accent color closest to theme accent color
-export function getClosestYaruTheme(obar) {
+function getClosestYaruTheme(obar) {
     let yaruThemes = ['default', 'bark', 'sage', 'olive', 'viridian', 'prussiangreen', 'blue', 'purple', 'magenta', 'red'];
     let yaruAccentsHex = ['#E95420', '#787859', '#657B69', '#4B8501', '#03875B', '#308280', '#0073E5', '#7764D8', '#B34CB3', '#DA3450'];
     let yaruAccents = yaruAccentsHex.map(x => hexToRgb(x));
