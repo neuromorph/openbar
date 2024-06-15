@@ -254,7 +254,8 @@ export default class Openbar extends Extension {
                         for(const indicator of list) { 
                             let dot = indicator.get_child_at_index(0);
                             // dot?.set_style(null);
-                            dot?.remove_style_class_name('openbar');
+                            if(dot?.remove_style_class_name)
+                                dot.remove_style_class_name('openbar');
                         }
                     }   
                     
@@ -524,7 +525,9 @@ export default class Openbar extends Extension {
                         let list = btn.child.get_child_at_index(0);
                         for(const indicator of list) { 
                             let dot = indicator.get_child_at_index(0);
-                            dot?.add_style_class_name('openbar');
+                            // Some extensions can replace dot with text so add a check
+                            if(dot?.add_style_class_name)
+                                dot.add_style_class_name('openbar');
                         }                        
                     }
                     
