@@ -68,9 +68,9 @@ function saveToggleSVG(type, obar, Me) {
     let svg, svgpath, svgFill = '', svgStroke = '', hc = '';    
     svg =
     `<svg viewBox="0 0 44 26" xmlns="http://www.w3.org/2000/svg">
-        <g transform="translate(0 -291.18)">
-            <rect y="295.18" width="44" height="18" rx="9" ry="9" style="fill:#SVGFILL;stroke:none;stroke-width:1;marker:none"/>
-            <rect x="22" y="293.18" width="22" height="22" rx="11" ry="11" fill="#f8f7f7"/>
+        <g>
+            <rect y="4" width="44" height="18" rx="9" ry="9" style="fill:#SVGFILL;stroke:none;stroke-width:1;marker:none"/>
+            <rect x="22" y="2" width="22" height="22" rx="11" ry="11" fill="#f8f7f7"/>
         </g>
         #HIGHCONTRAST
     </svg>`;
@@ -80,7 +80,7 @@ function saveToggleSVG(type, obar, Me) {
     svgpath = Me.path + '/media/toggle-on.svg';
     if(type == 'on-hc') {
         svgpath = Me.path + '/media/toggle-on-hc.svg';
-        hc = `<path style="fill:#f8f7f7;fill-opacity:1;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-dashoffset:2" d="M14 8v10h-2V8Z"/>`;
+        hc = `<path style="fill:#f8f7f7;fill-opacity:1;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-dashoffset:2" d="M16 8v10h-2V8Z"/>`;
     }
     svg = svg.replace(`#HIGHCONTRAST`, hc);
    
@@ -94,7 +94,7 @@ function saveToggleSVG(type, obar, Me) {
         outputStream.close(null);
     }
     else {
-      console.log("Failed to write toggle-on/off.svg file: " + svgpath);
+      console.log("Failed to write toggle-on.svg file: " + svgpath);
     }
 
 }
@@ -307,19 +307,15 @@ function createGtkCss(obar) {
 
     /* Toggle Switch */ 
     switch {
-        margin: 2px 0;
-        padding: 0 2px;
-    }
-    switch image {
-        margin: -8px;
-    }
+        padding: 0px 3px;
+    }    
     switch > slider {
         min-width: 20px;
         min-height: 20px;
-        margin: -3px 0px -3px -2px;
+        margin: -2px 0px -2px -2px;
     }
     switch:checked > slider {
-        margin: -3px -2px -3px 0px;
+        margin: -2px -2px -2px 0px;
     }
 
     /* Window Border */
