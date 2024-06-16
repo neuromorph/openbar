@@ -2,7 +2,7 @@ Top Bar / Top Panel , Menus , Dash / Dock , Gnome Shell , Gtk Apps theming. Open
 
 **Please report on GitHub if something is broken due to an update or if you have any suggestions.
 
-Open Bar 2.0: 
+Open Bar 2.0  (Under Review): 
 - Auto-theming completely renewed. Theme Options: Dark, Light, Pastel, True-Color
 - Apply styles to Bar, Menu, Dash / Dock and rest of the shell
 - Apply accent color and style Gtk/Flatpak apps
@@ -21,10 +21,10 @@ Auto Theming:
 - Styles will apply to the Top Bar, Menus and optionally to the shell.
 - Select desired Type of bar before applying a theme. If you change the bar type, apply the theme again.
         
-        True Color     :  Palette colors as-is (biased towards dark). 
-        Pastel Theme   :  Colors are pastelified (biased towards light).
-        Dark Theme     :  Colors are darkened as needed.
-        Light Theme    :  Colors are lightened as needed.
+        --- True Color     :  Palette colors as-is (biased towards dark). 
+        --- Pastel Theme   :  Colors are pastelified (biased towards light).
+        --- Dark Theme     :  Colors are darkened as needed.
+        --- Light Theme    :  Colors are lightened as needed.
 
 - You can select themes separately for both Gnome Dark and Light modes. 
 - Once theme is applied, you can further tweak any of the manual settings, as usual, to finetune the theme. 
