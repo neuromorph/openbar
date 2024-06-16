@@ -312,10 +312,10 @@ function createGtkCss(obar) {
     switch > slider {
         min-width: 20px;
         min-height: 20px;
-        margin: -2px 0px -2px -2px;
+        margin: -2px 0px -2px -4px;
     }
     switch:checked > slider {
-        margin: -2px -2px -2px 0px;
+        margin: -2px -4px -2px 0px;
     }
 
     /* Window Border */
