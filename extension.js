@@ -1184,7 +1184,7 @@ class Extension {
             if(this.msgListIds[i]) {
                 // console.log('Disable - msgListIds: ', this.msgListIds[i]);
                 if(this.msgLists[i] && this.msgListIds[i] > 0)
-                    this.msgLists[i]?.disconnect(this.msgListIds[i]);
+                    this.msgLists[i].disconnect(this.msgListIds[i]);
                 this.msgListIds[i] = null;
                 this.msgLists[i] = null;
             }
