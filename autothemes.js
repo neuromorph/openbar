@@ -31,6 +31,7 @@ const colorDistance2000 = Utils.colorDistance2000;
 const addTint = Utils.addTint;
 const addShade = Utils.addShade;
 const contrastRatio = Utils.contrastRatio;
+const hexToRgb = Utils.hexToRgb;
 
 const DEBUG = false;
 
@@ -40,7 +41,7 @@ function dlog(...args) {
     }
 }
 
-// Auto-Theming: Select colors from color palette as per theme & dark/light mode
+// Auto-Theming: Select colors from color palette as per theme & dark/light mode (Gets called separately for dark/light)
 // Manipulate colors, as needed, for better contrast and readability (except for 'True Color')
 export function autoApplyBGPalette(obar, requestMode) {
     const importExport = obar._settings.get_boolean('import-export');
@@ -227,7 +228,7 @@ export function autoApplyBGPalette(obar, requestMode) {
         ACCENT_LIGHT_MAX = 70;
         ACCENT_LIGHT_MIN = 35; //40
         ACCENT_LIGHT_TARGET = 70;
-        ACCENT_SAT_MAX = 75; //75
+        ACCENT_SAT_MAX = 75; //75 80
         ACCENT_SAT_MIN = 50; //65 60
         ACCENT_SAT_TARGET = 70;
         ACCENT_SAT_DND_MIN = 10;
@@ -253,20 +254,20 @@ export function autoApplyBGPalette(obar, requestMode) {
         MBG_PROM_LOW_CLOSE = 0.35;
         MBG_LIGHT_LOW = 30;
         MBG_LIGHT_LOW_CLOSE = 12;
-        MBG_LIGHT_TARGET = 65; //65
+        MBG_LIGHT_TARGET = 65;
         MBG_LIGHT_HIGH = 95;
         MBG_LIGHT_HIGH_CLOSE = 100;
         MBG_SAT_HIGH = 80;
         // MBG_PROM_LOW = 1;
-        MBG_LIGHT_MIN = 90; // 80
-        MBG_LIGHT_MAX = 100;
+        MBG_LIGHT_MIN = 90; // 85
+        MBG_LIGHT_MAX = 100; // 95
         MBG_SAT_MIN = 10;
         MBG_SAT_MAX = 15;
         MBG_SAT_DND_MIN = 0;
         MBG_ACC_CONTRAST_MULT = 0.5;
 
         SMBG_PROM_LOW_CLOSE = 0.35;
-        SMBG_LIGHT_LOW = 30; // 30
+        SMBG_LIGHT_LOW = 30;
         SMBG_LIGHT_LOW_CLOSE = 10;
         SMBG_LIGHT_HIGH = 95; // 85
         SMBG_LIGHT_HIGH_CLOSE = 97; //90
@@ -296,7 +297,7 @@ export function autoApplyBGPalette(obar, requestMode) {
         ACCENT_LIGHT_TARGET = 70;
         ACCENT_LIGHT_MAX = 75;
         ACCENT_LIGHT_MIN = 55;
-        ACCENT_SAT_MAX = 70; // 85
+        ACCENT_SAT_MAX = 70; // 75
         ACCENT_SAT_MIN = 50; // 65
         ACCENT_SAT_TARGET = 75;
         ACCENT_SAT_DND_MIN = -1;
@@ -329,8 +330,8 @@ export function autoApplyBGPalette(obar, requestMode) {
 
         SMBG_LIGHT_MIN = 80; //50
         SMBG_LIGHT_MAX = 90;
-        SMBG_SAT_MIN = 22; //25
-        SMBG_SAT_MAX = 34; //35
+        SMBG_SAT_MIN = 22; //20
+        SMBG_SAT_MAX = 34; //30
         SMBG_SAT_DND_MIN = 0;
         SMBG_ACC_CONTRAST_MULT = 4;
         SMBG_MBG_CONTRAST_MULT = 4;
@@ -468,7 +469,6 @@ export function autoApplyBGPalette(obar, requestMode) {
             }
         }
         // accentColor = addTint(accentColor, 0.10);
-
         // dlog('Accent color (light/sat): ', accentColor, sat, light);
     }
 
@@ -1058,15 +1058,6 @@ export function onModeChange(obar) {
 
     obar._settings.set_boolean('pause-reload', false);
     triggerStyleReload(obar);
-}
-
-function hexToRgb(hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? [
-      parseInt(result[1], 16),
-      parseInt(result[2], 16),
-      parseInt(result[3], 16)
-    ] : null;
 }
   
 // Find Yaru theme with Accent color closest to theme accent color

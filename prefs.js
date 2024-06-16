@@ -17,7 +17,7 @@
  * author: neuromorph
  */
 
-/* exported init fillPreferencesWindow*/
+/* exported fillPreferencesWindow*/
 
 import Adw from 'gi://Adw'; 
 import Gtk from 'gi://Gtk';
@@ -441,15 +441,10 @@ class OpenbarPrefs {
             name: 'settings',
             title: _('Settings'),
             icon_name: 'emblem-system-symbolic',
-            vexpand: true,
-            hexpand: true,
         });
         window.add(settingsPage);
 
-        const settingsGroup = new Adw.PreferencesGroup({
-            vexpand: true,
-            hexpand: true,
-        });
+        const settingsGroup = new Adw.PreferencesGroup();
         settingsPage.add(settingsGroup);
 
 

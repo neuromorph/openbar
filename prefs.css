@@ -98,6 +98,3 @@
 .openbar-quotebtn:hover {
   background-color: mix(@window_bg_color, rgb(128, 128, 128), 0.1);
 }
-
-
-

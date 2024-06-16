@@ -17,7 +17,7 @@
  * author: neuromorph
  */
 
-/* exported Openbar init */
+/* exported Openbar */
 
 import St from 'gi://St';
 import Gio from 'gi://Gio';
@@ -514,9 +514,9 @@ export default class Openbar extends Extension {
                             }
                         }
                     }
-                    if(btn.child.constructor.name === 'ATIndicator' || btn.child.constructor.name === 'InputSourceIndicator'
+                    if((btn.child.constructor.name === 'ATIndicator' || btn.child.constructor.name === 'InputSourceIndicator'
                         || btn.child.constructor.name === 'DwellClickIndicator' || btn.child.constructor.name === 'ScreenRecordingIndicator'
-                        || btn.child.constructor.name === 'ScreenSharingIndicator') {
+                        || btn.child.constructor.name === 'ScreenSharingIndicator') && candybar) {
                         this._connections.connect(btn.child, 'notify::visible', this.setPanelStyle.bind(this));
                     }
 
@@ -998,13 +998,12 @@ export default class Openbar extends Extension {
             return;
         }
         
-        let bguriOld = this._settings.get_string('bguri');
-
         let bguriDark = this._bgSettings.get_string('picture-uri-dark');
         let bguriLight = this._bgSettings.get_string('picture-uri');
         this._settings.set_string('dark-bguri', bguriDark);
         this._settings.set_string('light-bguri', bguriLight);
 
+        let bguriOld = this._settings.get_string('bguri');
         let bguriNew;
         if(colorScheme == 'prefer-dark')
             bguriNew = bguriDark;
@@ -1047,7 +1046,6 @@ export default class Openbar extends Extension {
         this.isObarReset = false;
         this.addedSignal = this.gnomeVersion > 45? 'child-added': 'actor-added';
         this.removedSignal = this.gnomeVersion > 45? 'child-removed': 'actor-removed';
-        // this.switchShapeSetting = this.gnomeVersion > 45? 'show-status-shapes': 'high-contrast';
         this.calendarTimeoutId = null;
         this.bgMgrTimeOutId = null;
         this.onFullScrTimeoutId = null;
