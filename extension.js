@@ -1154,7 +1154,6 @@ export default class Openbar extends Extension {
     }
 
     disable() {
-        // console.log('======= IN DISABLE =======');
         // Get the top panel
         let panel = Main.panel;
 
@@ -1188,7 +1187,7 @@ export default class Openbar extends Extension {
             if(this.msgListIds[i]) {
                 // console.log('Disable - msgListIds: ', this.msgListIds[i]);
                 if(this.msgLists[i] && this.msgListIds[i] > 0)
-                    this.msgLists[i]?.disconnect(this.msgListIds[i]);
+                    this.msgLists[i].disconnect(this.msgListIds[i]);
                 this.msgListIds[i] = null;
                 this.msgLists[i] = null;
             }
