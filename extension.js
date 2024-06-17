@@ -237,7 +237,7 @@ export default class Openbar extends Extension {
                     for(let j=1; j<=8; j++) {
                         btn.child?.remove_style_class_name('candy'+j);
 
-                        for(const child of btn.child.get_children()) {
+                        for(const child of btn.child?.get_children()) {
                             if(child.remove_style_class_name)
                                 child.remove_style_class_name('candy'+j);
                             for(const gChild of child.get_children()) {
