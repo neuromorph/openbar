@@ -234,15 +234,16 @@ export default class Openbar extends Extension {
         for(const box of panelBoxes) {
             for(const btn of box) {
                     // Remove candy classes
-                    for(let j=1; j<=8; j++) {
-                        btn.child?.remove_style_class_name('candy'+j);
-
-                        for(const child of btn.child?.get_children()) {
-                            if(child.remove_style_class_name)
-                                child.remove_style_class_name('candy'+j);
-                            for(const gChild of child.get_children()) {
-                                if(gChild.remove_style_class_name)
-                                    gChild.remove_style_class_name('candy'+j);
+                    if(btn.child) {
+                        for(let j=1; j<=8; j++) {
+                            btn.child.remove_style_class_name('candy'+j);
+                            for(const child of btn.child.get_children()) {
+                                if(child.remove_style_class_name)
+                                    child.remove_style_class_name('candy'+j);
+                                for(const gChild of child.get_children()) {
+                                    if(gChild.remove_style_class_name)
+                                        gChild.remove_style_class_name('candy'+j);
+                                }
                             }
                         }
                     }
