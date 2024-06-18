@@ -214,7 +214,7 @@ function createGtkCss(obar) {
     const sbdGreen = sBarHintBd * accGreen + (1-sBarHintBd) * bgGreen;
     const sbdBlue = sBarHintBd * accBlue + (1-sBarHintBd) * bgBlue;
     // Sidebar Alpha
-    const sbAlpha = sBarTransparency? 0.65 : 1.0;
+    const sbAlpha = sBarTransparency? 0.5 : 1.0;
     // Card/Dialog BG and Backdrop
     const cbgRed = cdHint * accRed + (1-cdHint) * cdRed;
     const cbgGreen = cdHint * accGreen + (1-cdHint) * cdGreen;
@@ -551,11 +551,11 @@ function createGtkCss(obar) {
         gtkstring += `
         window, window.background,
         .nautilus-window {
-            background-color: alpha(@window_bg_color, 0.9);
+            background: alpha(@window_bg_color, 0.9);
         }
         .content-pane, .content-pane.view,
         .boxed-list {
-            background-color: alpha(@view_bg_color, 1.0);
+            opacity: 1.0;
         }
         `;
     }
