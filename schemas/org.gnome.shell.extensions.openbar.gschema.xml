@@ -693,7 +693,7 @@
       <description>Apply candybar pallete to panel buttons.</description>
     </key>
     <key type="as" name="candy1">
-      <default>['0', '0.73', '0.73']</default>
+      <default>['0', '0.61', '0.74']</default>
       <summary>Candy Palette Color 1 (RGB)</summary>
       <description>Candy color 1 of candybar.</description>
     </key>
@@ -703,7 +703,7 @@
       <description>Candy color 2 of candybar.</description>
     </key>
     <key type="as" name="candy3">
-      <default>['0.7', '0.29', '0.84']</default>
+      <default>['0.63', '0.16', '0.8']</default>
       <summary>Candy Palette Color 3 (RGB)</summary>
       <description>Candy color 3 of candybar.</description>
     </key>
@@ -773,7 +773,7 @@
       <description>Candy color 16 of candybar.</description>
     </key>
     <key type="as" name="dark-candy1">
-      <default>['0', '0.73', '0.73']</default>
+      <default>['0', '0.61', '0.74']</default>
       <summary>Candy Palette Color 1 (RGB)</summary>
       <description>Candy color 1 of candybar.</description>
     </key>
@@ -783,7 +783,7 @@
       <description>Candy color 2 of candybar.</description>
     </key>
     <key type="as" name="dark-candy3">
-      <default>['0.7', '0.29', '0.84']</default>
+      <default>['0.63', '0.16', '0.8']</default>
       <summary>Candy Palette Color 3 (RGB)</summary>
       <description>Candy color 3 of candybar.</description>
     </key>
@@ -853,7 +853,7 @@
       <description>Candy color 16 of candybar.</description>
     </key>
     <key type="as" name="light-candy1">
-      <default>['0', '0.73', '0.73']</default>
+      <default>['0', '0.61', '0.74']</default>
       <summary>Candy Palette Color 1 (RGB)</summary>
       <description>Candy color 1 of candybar.</description>
     </key>
@@ -863,7 +863,7 @@
       <description>Candy color 2 of candybar.</description>
     </key>
     <key type="as" name="light-candy3">
-      <default>['0.7', '0.29', '0.84']</default>
+      <default>['0.63', '0.16', '0.8']</default>
       <summary>Candy Palette Color 3 (RGB)</summary>
       <description>Candy color 3 of candybar.</description>
     </key>
@@ -933,7 +933,7 @@
       <description>Candy color 16 of candybar.</description>
     </key>
     <key type="d" name="candyalpha">
-      <default>0.9</default>
+      <default>0.99</default>
       <summary>Transparency (alpha) of candy colors</summary>
       <description>Transparency of candy colors.</description>
     </key>

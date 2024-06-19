@@ -469,7 +469,11 @@ export default class Openbar extends Extension {
         // console.log('setPanelStyle: ', String(obj), key, String(sig_param), callbk_param);
         const panel = Main.panel;
         const bartype = this._settings.get_string('bartype');
-        const candybar = this._settings.get_boolean('candybar');
+        let candybar = this._settings.get_boolean('candybar');
+        if(key == 'showing') {
+            // Reset Candybar in Overview if Apply-Overview is disabled
+            candybar = false;
+        }
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         let i = 0;
         for(const box of panelBoxes) {
@@ -483,8 +487,8 @@ export default class Openbar extends Extension {
                         btn.add_style_class_name('openbar button-container');
 
                         // Add candybar classes if enabled else remove them
-                        if(key == 'notify::visible' || key == 'enabled' || key == 'candybar' 
-                            || key == this.addedSignal || key == this.removedSignal) {
+                        if(key == 'enabled' || key == 'candybar' || key == 'showing' || key == 'hiding'
+                            || key == 'notify::visible' || key == this.addedSignal || key == this.removedSignal) {
                             for(let j=1; j<=16; j++) {
                                 btn.child.remove_style_class_name('candy'+j);
                                 for(const child of btn.child.get_children()) {
@@ -517,8 +521,13 @@ export default class Openbar extends Extension {
                         for(const indicator of list) { 
                             let dot = indicator.get_child_at_index(0);
                             // Some extensions can replace dot with text so add a check
-                            if(dot?.add_style_class_name)
+                            if(dot?.add_style_class_name) {
                                 dot.add_style_class_name('openbar');
+                                if(candybar)
+                                    dot.add_style_pseudo_class('candybar');
+                                else
+                                    dot.remove_style_pseudo_class('candybar');
+                            }
                         }                        
                     }
                     
@@ -623,6 +632,10 @@ export default class Openbar extends Extension {
                     this.loadStylesheet();
                     this.isObarReset = false;
                 }
+            }
+            else {
+                // Reset Candybar style in overview if disabled
+                this.setPanelStyle(null, key);
             }
             return;           
         }

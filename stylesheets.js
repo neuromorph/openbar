@@ -312,10 +312,10 @@ function createGtkCss(obar) {
     switch > slider {
         min-width: 20px;
         min-height: 20px;
-        margin: -2px 0px -2px -2px;
+        margin: -2px 0px -2px -3px;
     }
     switch:checked > slider {
-        margin: -2px -2px -2px 0px;
+        margin: -2px -3px -2px 0px;
     }
 
     /* Window Border */
@@ -1265,7 +1265,7 @@ function saveStylesheet(obar, Me) {
 
     // Candybar style 
     let candyalpha = obar._settings.get_double('candyalpha');
-    let candyStyleArr = [], candyHighlightArr = [];
+    let candyStyleArr = [], candyHighlightArr = [], candyDotStyle, candyClockStyle;
     let hgCandy = [hred, hgreen, hblue];
     for(let i=1; i<=16; i++) {
         let candyColor = obar._settings.get_strv('candy'+i);
@@ -1280,7 +1280,7 @@ function saveStylesheet(obar, Me) {
         if(autohgBar)
             hgCandy = getAutoHgColor(bgCandy);
         // Candy Highlight BG  
-        let hgalpha = 0.9*hAlpha;
+        let hgalpha = 0.8*hAlpha;
         let chred = cred*(1-hgalpha) + hgCandy[0]*hgalpha;
         let chgreen = cgreen*(1-hgalpha) + hgCandy[1]*hgalpha;
         let chblue = cblue*(1-hgalpha) + hgCandy[2]*hgalpha;
@@ -1299,6 +1299,11 @@ function saveStylesheet(obar, Me) {
             }
             candyStyle += `color: rgba(${cfgred},${cfggreen},${cfgblue},${fgalpha}) !important;`;
             candyHgStyle += `color: rgba(${chfgred},${chfggreen},${chfgblue},${fgalpha}) !important;`;
+
+            if(i==1) {
+                candyDotStyle = `background-color: rgba(${cfgred},${cfggreen},${cfgblue},${fgalpha}) !important;`;
+                candyClockStyle = `color: rgba(${chfgred},${chfggreen},${chfgblue},${fgalpha}) !important;`;
+            }
         }
 
         candyStyleArr.push(candyStyle);
@@ -1411,7 +1416,7 @@ function saveStylesheet(obar, Me) {
 
     // Define Overview style (reset) if Disabled in Overview
     let setOverview = obar._settings.get_boolean('set-overview');
-    let overviewStyle, barFgOverview, barHFgOverview, barHBgOverview;
+    let overviewStyle, barFgOverview, barHFgOverview, barHBgOverview, dotOverview;
     if(!setOverview) {
         overviewStyle = 
         `   background-color: transparent !important; 
@@ -1424,12 +1429,15 @@ function saveStylesheet(obar, Me) {
         `   color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;`;
         barHBgOverview = 
         `   background-color: rgba(${smhbgred},${smhbggreen},${smhbgblue},${mbgAlpha}) !important;`;
+        dotOverview = 
+        `   background-color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;`;
     }
     else {
         overviewStyle = ``;
         barFgOverview = ``;
         barHFgOverview = ``;
         barHBgOverview = ``;
+        dotOverview = ``;
     }
 
     let wmaxColorStyle, wmaxHoverStyle;
@@ -1561,7 +1569,107 @@ function saveStylesheet(obar, Me) {
         #panel${openbarClass}:overview:windowmax {
             ${overviewStyle}
         }
+     
+
+        #panel${openbarClass} .panel-button:hover, #panel${openbarClass} .panel-button:focus, 
+        #panel${openbarClass} .panel-button:active, #panel${openbarClass} .panel-button:checked {
+            ${btnHoverStyle}
+            color: rgba(${hfgred},${hfggreen},${hfgblue},${fgalpha}) !important;
+            ${unlockHoverStyle}
+        }
+        #panel${openbarClass}:windowmax .panel-button:hover, #panel${openbarClass}:windowmax .panel-button:focus, 
+        #panel${openbarClass}:windowmax .panel-button:active, #panel${openbarClass}:windowmax .panel-button:checked {
+            ${wmaxColorStyle}
+            ${wmaxHoverStyle}
+        }
+        #panel${openbarClass}:overview .panel-button:hover, #panel${openbarClass}:overview .panel-button:focus, 
+        #panel${openbarClass}:overview .panel-button:checked, #panel${openbarClass}:overview .panel-button:active,
+        #panel${openbarClass}:overview .panel-button:overview {
+            ${btnHoverStyle} 
+            ${setOverview? '': barHFgOverview}
+            ${setOverview? '': barHBgOverview}
+        }
+
+        #panel${openbarClass} .panel-button.clock-display .clock {
+            color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}) !important;
+        }
+        #panel${openbarClass}:windowmax .panel-button.clock-display .clock {
+            ${wmaxColorStyle}
+        }
+        #panel${openbarClass}:overview .panel-button.clock-display .clock {
+            ${barFgOverview}
+        }
         
+        #panel${openbarClass} .panel-button:hover.clock-display .clock, #panel${openbarClass} .panel-button:focus.clock-display .clock,
+        #panel${openbarClass} .panel-button:active.clock-display .clock, #panel${openbarClass} .panel-button:checked.clock-display .clock {
+            color: rgba(${hfgred},${hfggreen},${hfgblue},1.0) !important;
+        }
+        #panel${openbarClass}:windowmax .panel-button:hover.clock-display .clock, #panel${openbarClass}:windowmax .panel-button:focus.clock-display .clock,
+        #panel${openbarClass}:windowmax .panel-button:active.clock-display .clock, #panel${openbarClass}:windowmax .panel-button:checked.clock-display .clock {
+            ${wmaxColorStyle}
+        }
+        #panel${openbarClass}:overview .panel-button:hover.clock-display .clock, #panel${openbarClass}:overview .panel-button:focus.clock-display .clock,
+        #panel${openbarClass}:overview .panel-button:active.clock-display .clock, #panel${openbarClass}:overview .panel-button:checked.clock-display .clock {
+            ${barHFgOverview}
+        }
+        
+        #panel${openbarClass} .panel-button.clock-display .clock, #panel${openbarClass} .panel-button:hover.clock-display .clock,
+        #panel${openbarClass} .panel-button:active.clock-display .clock, #panel${openbarClass} .panel-button:overview.clock-display .clock, 
+        #panel${openbarClass} .panel-button:focus.clock-display .clock, #panel${openbarClass} .panel-button:checked.clock-display .clock {
+            background-color: transparent !important;
+            box-shadow: none !important;
+        }
+
+        #panel${openbarClass} .panel-button .screen-recording-indicator {
+            transition-duration: 150ms;
+            font-weight: bold;
+            background-color: rgba(${destructRed},${destructGreen},${destructBlue}, 0.8);
+            box-shadow: none !important;
+        }
+        #panel${openbarClass} .panel-button .screen-sharing-indicator,
+        #panel${openbarClass} .screencast-indicator,
+        #panel${openbarClass} .remote-access-indicator {
+            transition-duration: 150ms;
+            font-weight: bold;
+            background-color: rgba(${(destructRed+warningRed)/2},${(destructGreen+warningGreen)/2},${(destructBlue+warningBlue)/2}, 0.9); 
+            box-shadow: none !important;
+        }
+
+        #panel${openbarClass} .workspace-dot {
+            ${dotStyle}
+        }
+        #panel${openbarClass}:overview .workspace-dot {
+            ${dotOverview}
+        }
+        
+        #panel${openbarClass} .trilands:left-child {
+            ${triLeftStyle}
+        }
+        #panel${openbarClass} .trilands:right-child {
+            ${triRightStyle}
+        }
+        #panel${openbarClass} .trilands:one-child {
+            ${triBothStyle}
+        }
+        #panel${openbarClass} .trilands:mid-child {
+            ${triMidStyle}
+        }
+        #panel${openbarClass}:overview .trilands:mid-child {
+            ${setOverview? '': 'box-shadow: none;'}
+        }
+        #panel${openbarClass}:windowmax .trilands:mid-child {
+            ${neonWMax? '': 'box-shadow: none;'}
+        }
+        #panel${openbarClass} .trilands:mid-child:hover, #panel${openbarClass} .trilands:mid-child:focus, #panel${openbarClass} .trilands:mid-child:active, #panel${openbarClass} .trilands:mid-child:checked {
+            ${triMidNeonHoverStyle}
+        }
+        #panel${openbarClass}:overview .trilands:mid-child:hover, #panel${openbarClass}:overview .trilands:mid-child:focus, #panel${openbarClass}:overview .trilands:mid-child:active, #panel${openbarClass}:overview .trilands:mid-child:checked {
+            ${setOverview? '': 'box-shadow: none;'}
+        }
+    `;
+
+    // Candybar Styles
+    stylesheet += `
         #panel${openbarClass} .panel-button.candy1 {
             ${candyStyleArr[0]}
         }
@@ -1673,100 +1781,29 @@ function saveStylesheet(obar, Me) {
         #panel${openbarClass} .panel-button.candy16:hover, #panel${openbarClass} .panel-button.candy16:focus,
         #panel${openbarClass} .panel-button.candy16:active, #panel${openbarClass} .panel-button.candy16:checked {
             ${candyHighlightArr[15]}
-        }        
+        }    
+        #panel${openbarClass} .panel-button.candy1.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy1.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy1.clock-display .clock,
+        #panel${openbarClass} .panel-button.candy2.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy2.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy2.clock-display .clock,
+        #panel${openbarClass} .panel-button.candy3.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy3.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy3.clock-display .clock,
+        #panel${openbarClass} .panel-button.candy4.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy4.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy4.clock-display .clock,
+        #panel${openbarClass} .panel-button.candy5.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy5.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy5.clock-display .clock,
+        #panel${openbarClass} .panel-button.candy6.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy6.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy6.clock-display .clock,
+        #panel${openbarClass} .panel-button.candy7.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy7.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy7.clock-display .clock,
+        #panel${openbarClass} .panel-button.candy8.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy8.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy8.clock-display .clock,
+        #panel${openbarClass} .panel-button.candy9.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy9.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy9.clock-display .clock,
+        #panel${openbarClass} .panel-button.candy10.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy10.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy10.clock-display .clock,
+        #panel${openbarClass} .panel-button.candy11.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy11.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy11.clock-display .clock,
+        #panel${openbarClass} .panel-button.candy12.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy12.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy12.clock-display .clock,
+        #panel${openbarClass} .panel-button.candy13.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy13.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy13.clock-display .clock,
+        #panel${openbarClass} .panel-button.candy14.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy14.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy14.clock-display .clock,
+        #panel${openbarClass} .panel-button.candy15.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy15.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy15.clock-display .clock,
+        #panel${openbarClass} .panel-button.candy16.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy16.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy16.clock-display .clock {
+            ${candyClockStyle}
+        }            
 
-        #panel${openbarClass} .panel-button:hover, #panel${openbarClass} .panel-button:focus, 
-        #panel${openbarClass} .panel-button:active, #panel${openbarClass} .panel-button:checked {
-            ${btnHoverStyle}
-            color: rgba(${hfgred},${hfggreen},${hfgblue},${fgalpha}) !important;
-            ${unlockHoverStyle}
-        }
-        #panel${openbarClass}:windowmax .panel-button:hover, #panel${openbarClass}:windowmax .panel-button:focus, 
-        #panel${openbarClass}:windowmax .panel-button:active, #panel${openbarClass}:windowmax .panel-button:checked {
-            ${wmaxColorStyle}
-            ${wmaxHoverStyle}
-        }
-        #panel${openbarClass}:overview .panel-button:hover, #panel${openbarClass}:overview .panel-button:focus, 
-        #panel${openbarClass}:overview .panel-button:checked, #panel${openbarClass}:overview .panel-button:active,
-        #panel${openbarClass}:overview .panel-button:overview {
-            ${btnHoverStyle} 
-            ${setOverview? '': barHFgOverview}
-            ${setOverview? '': barHBgOverview}
-        }
-
-        #panel${openbarClass} .panel-button.clock-display .clock {
-            color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}) !important;
-        }
-        #panel${openbarClass}:windowmax .panel-button.clock-display .clock {
-            ${wmaxColorStyle}
-        }
-        #panel${openbarClass}:overview .panel-button.clock-display .clock {
-            ${barFgOverview}
-        }
-        
-        #panel${openbarClass} .panel-button:hover.clock-display .clock, #panel${openbarClass} .panel-button:focus.clock-display .clock,
-        #panel${openbarClass} .panel-button:active.clock-display .clock, #panel${openbarClass} .panel-button:checked.clock-display .clock {
-            color: rgba(${hfgred},${hfggreen},${hfgblue},1.0) !important;
-        }
-        #panel${openbarClass}:windowmax .panel-button:hover.clock-display .clock, #panel${openbarClass}:windowmax .panel-button:focus.clock-display .clock,
-        #panel${openbarClass}:windowmax .panel-button:active.clock-display .clock, #panel${openbarClass}:windowmax .panel-button:checked.clock-display .clock {
-            ${wmaxColorStyle}
-        }
-        #panel${openbarClass}:overview .panel-button:hover.clock-display .clock, #panel${openbarClass}:overview .panel-button:focus.clock-display .clock,
-        #panel${openbarClass}:overview .panel-button:active.clock-display .clock, #panel${openbarClass}:overview .panel-button:checked.clock-display .clock {
-            ${barHFgOverview}
-        }
-        
-        #panel${openbarClass} .panel-button.clock-display .clock, #panel${openbarClass} .panel-button:hover.clock-display .clock,
-        #panel${openbarClass} .panel-button:active.clock-display .clock, #panel${openbarClass} .panel-button:overview.clock-display .clock, 
-        #panel${openbarClass} .panel-button:focus.clock-display .clock, #panel${openbarClass} .panel-button:checked.clock-display .clock {
-            background-color: transparent !important;
-            box-shadow: none !important;
-        }
-
-        #panel${openbarClass} .panel-button .screen-recording-indicator {
-            transition-duration: 150ms;
-            font-weight: bold;
-            background-color: rgba(${destructRed},${destructGreen},${destructBlue}, 0.8);
-            box-shadow: none !important;
-        }
-        #panel${openbarClass} .panel-button .screen-sharing-indicator,
-        #panel${openbarClass} .screencast-indicator,
-        #panel${openbarClass} .remote-access-indicator {
-            transition-duration: 150ms;
-            font-weight: bold;
-            background-color: rgba(${(destructRed+warningRed)/2},${(destructGreen+warningGreen)/2},${(destructBlue+warningBlue)/2}, 0.9); 
-            box-shadow: none !important;
-        }
-
-        #panel${openbarClass} .workspace-dot {
-            ${dotStyle}
-        }
-        
-        #panel${openbarClass} .trilands:left-child {
-            ${triLeftStyle}
-        }
-        #panel${openbarClass} .trilands:right-child {
-            ${triRightStyle}
-        }
-        #panel${openbarClass} .trilands:one-child {
-            ${triBothStyle}
-        }
-        #panel${openbarClass} .trilands:mid-child {
-            ${triMidStyle}
-        }
-        #panel${openbarClass}:overview .trilands:mid-child {
-            ${setOverview? '': 'box-shadow: none;'}
-        }
-        #panel${openbarClass}:windowmax .trilands:mid-child {
-            ${neonWMax? '': 'box-shadow: none;'}
-        }
-        #panel${openbarClass} .trilands:mid-child:hover, #panel${openbarClass} .trilands:mid-child:focus, #panel${openbarClass} .trilands:mid-child:active, #panel${openbarClass} .trilands:mid-child:checked {
-            ${triMidNeonHoverStyle}
-        }
-        #panel${openbarClass}:overview .trilands:mid-child:hover, #panel${openbarClass}:overview .trilands:mid-child:focus, #panel${openbarClass}:overview .trilands:mid-child:active, #panel${openbarClass}:overview .trilands:mid-child:checked {
-            ${setOverview? '': 'box-shadow: none;'}
-        }
+        #panel${openbarClass} .workspace-dot:candybar {
+            ${candyDotStyle}
+        }   
     `;
 
     // Menu styles
