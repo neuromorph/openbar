@@ -173,13 +173,11 @@ export default class Openbar extends Extension {
             palette12?.forEach(color => {
                 // Save palette to dark/light settings
                 this._settings.set_strv(darklight+'-'+'palette'+paletteIdx, [String(color[0]), String(color[1]), String(color[2])]);
-
                 // Copy the palette for current mode to main settings
                 if( (sameUri && i == 0) || 
                     (darklight == 'dark' && currentMode == 'prefer-dark') || 
                     (darklight == 'light' && currentMode != 'prefer-dark'))
                     this._settings.set_strv('palette'+paletteIdx, [String(color[0]), String(color[1]), String(color[2])]);
-
                 paletteIdx++;
             });
             let countIdx = 1;
