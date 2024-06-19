@@ -1267,7 +1267,7 @@ function saveStylesheet(obar, Me) {
     let candyalpha = obar._settings.get_double('candyalpha');
     let candyStyleArr = [], candyHighlightArr = [];
     let hgCandy = [hred, hgreen, hblue];
-    for(let i=1; i<=8; i++) {
+    for(let i=1; i<=16; i++) {
         let candyColor = obar._settings.get_strv('candy'+i);
         let cred = parseInt(parseFloat(candyColor[0]) * 255);
         let cgreen = parseInt(parseFloat(candyColor[1]) * 255);
@@ -1289,7 +1289,7 @@ function saveStylesheet(obar, Me) {
         // Candybar Auto FG Color
         let cfgred, cfggreen, cfgblue, chfgred, chfggreen, chfgblue;
         if(autofgBar) {
-            if(getHSP(bgCandy) <= 175) {
+            if(getHSP(bgCandy) <= 180) {
                 cfgred = cfggreen = cfgblue = 250;
                 chfgred = chfggreen = chfgblue = 255;
             }
@@ -1618,6 +1618,62 @@ function saveStylesheet(obar, Me) {
         #panel${openbarClass} .panel-button.candy8:active, #panel${openbarClass} .panel-button.candy8:checked {
             ${candyHighlightArr[7]}
         }
+        #panel${openbarClass} .panel-button.candy9 {
+            ${candyStyleArr[8]}
+        }
+        #panel${openbarClass} .panel-button.candy9:hover, #panel${openbarClass} .panel-button.candy9:focus,
+        #panel${openbarClass} .panel-button.candy9:active, #panel${openbarClass} .panel-button.candy9:checked {
+            ${candyHighlightArr[8]}
+        }
+        #panel${openbarClass} .panel-button.candy10 {
+            ${candyStyleArr[9]}
+        }
+        #panel${openbarClass} .panel-button.candy10:hover, #panel${openbarClass} .panel-button.candy10:focus,
+        #panel${openbarClass} .panel-button.candy10:active, #panel${openbarClass} .panel-button.candy10:checked {
+            ${candyHighlightArr[9]}
+        }
+        #panel${openbarClass} .panel-button.candy11 {
+            ${candyStyleArr[10]}
+        }
+        #panel${openbarClass} .panel-button.candy11:hover, #panel${openbarClass} .panel-button.candy11:focus,
+        #panel${openbarClass} .panel-button.candy11:active, #panel${openbarClass} .panel-button.candy11:checked {
+            ${candyHighlightArr[10]}
+        }
+        #panel${openbarClass} .panel-button.candy12 {
+            ${candyStyleArr[11]}
+        }
+        #panel${openbarClass} .panel-button.candy12:hover, #panel${openbarClass} .panel-button.candy12:focus,
+        #panel${openbarClass} .panel-button.candy12:active, #panel${openbarClass} .panel-button.candy12:checked {
+            ${candyHighlightArr[11]}
+        }
+        #panel${openbarClass} .panel-button.candy13 {
+            ${candyStyleArr[12]}
+        }
+        #panel${openbarClass} .panel-button.candy13:hover, #panel${openbarClass} .panel-button.candy13:focus,
+        #panel${openbarClass} .panel-button.candy13:active, #panel${openbarClass} .panel-button.candy13:checked {
+            ${candyHighlightArr[12]}
+        }
+        #panel${openbarClass} .panel-button.candy14 {
+            ${candyStyleArr[13]}
+        }
+        #panel${openbarClass} .panel-button.candy14:hover, #panel${openbarClass} .panel-button.candy14:focus,
+        #panel${openbarClass} .panel-button.candy14:active, #panel${openbarClass} .panel-button.candy14:checked {
+            ${candyHighlightArr[13]}
+        }
+        #panel${openbarClass} .panel-button.candy15 {
+            ${candyStyleArr[14]}
+        }
+        #panel${openbarClass} .panel-button.candy15:hover, #panel${openbarClass} .panel-button.candy15:focus,
+        #panel${openbarClass} .panel-button.candy15:active, #panel${openbarClass} .panel-button.candy15:checked {
+            ${candyHighlightArr[14]}
+        }
+        #panel${openbarClass} .panel-button.candy16 {
+            ${candyStyleArr[15]}
+        }
+        #panel${openbarClass} .panel-button.candy16:hover, #panel${openbarClass} .panel-button.candy16:focus,
+        #panel${openbarClass} .panel-button.candy16:active, #panel${openbarClass} .panel-button.candy16:checked {
+            ${candyHighlightArr[15]}
+        }        
 
         #panel${openbarClass} .panel-button:hover, #panel${openbarClass} .panel-button:focus, 
         #panel${openbarClass} .panel-button:active, #panel${openbarClass} .panel-button:checked {
@@ -1668,13 +1724,13 @@ function saveStylesheet(obar, Me) {
             box-shadow: none !important;
         }
 
-        #panel${openbarClass} .panel-button.screen-recording-indicator {
+        #panel${openbarClass} .panel-button .screen-recording-indicator {
             transition-duration: 150ms;
             font-weight: bold;
             background-color: rgba(${destructRed},${destructGreen},${destructBlue}, 0.8);
             box-shadow: none !important;
         }
-        #panel${openbarClass} .panel-button.screen-sharing-indicator,
+        #panel${openbarClass} .panel-button .screen-sharing-indicator,
         #panel${openbarClass} .screencast-indicator,
         #panel${openbarClass} .remote-access-indicator {
             transition-duration: 150ms;
