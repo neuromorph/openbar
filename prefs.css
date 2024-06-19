@@ -98,3 +98,16 @@
 .openbar-quotebtn:hover {
   background-color: mix(@window_bg_color, rgb(128, 128, 128), 0.1);
 }
+
+/* Toggle Switch */ 
+switch {
+    margin: 1px 0px;
+    padding: 0px 2px;
+}    
+switch > slider {
+    padding: 0px 1px;
+    margin: -2px 0px -2px -2px;
+}
+switch:checked > slider {
+    margin: -2px -2px -2px 0px;
+}
