@@ -229,6 +229,8 @@ class OpenbarPrefs {
             halign: Gtk.Align.END,
             tooltip_text: tooltip_text,
         });
+        if(this._settings.get_boolean('apply-gtk'))
+            gtkswitch.css_classes = ['openbar-switch'];
         this._settings.bind(
             gsetting,
             gtkswitch,

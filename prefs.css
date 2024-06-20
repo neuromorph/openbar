@@ -100,14 +100,14 @@
 }
 
 /* Toggle Switch */ 
-switch {
+switch.openbar-switch {
     margin: 1px 0px;
     padding: 0px 2px;
 }    
-switch > slider {
+switch.openbar-switch > slider {
     padding: 0px 1px;
     margin: -2px 0px -2px -2px;
 }
-switch:checked > slider {
+switch.openbar-switch:checked > slider {
     margin: -2px -2px -2px 0px;
 }
