@@ -1265,7 +1265,7 @@ function saveStylesheet(obar, Me) {
 
     // Candybar style 
     let candyalpha = obar._settings.get_double('candyalpha');
-    let candyStyleArr = [], candyHighlightArr = [], candyDotStyle, candyClockStyle;
+    let candyStyleArr = [], candyHighlightArr = [], candyDotStyle = '', candyClockStyle = '';
     let hgCandy = [hred, hgreen, hblue];
     for(let i=1; i<=16; i++) {
         let candyColor = obar._settings.get_strv('candy'+i);
