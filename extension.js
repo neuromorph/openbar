@@ -1092,9 +1092,11 @@ export default class Openbar extends Extension {
         // Connections for panel buttons notify::visible
         for(const box of panelBoxes) {
             for(const btn of box) {
-                if(btn.child.constructor.name === 'ATIndicator' || btn.child.constructor.name === 'InputSourceIndicator'
-                    || btn.child.constructor.name === 'DwellClickIndicator') {
-                    connections.push([btn.child, 'notify::visible', this.setPanelStyle.bind(this)]);
+                if(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) {
+                    if(btn.child.constructor.name === 'ATIndicator' || btn.child.constructor.name === 'InputSourceIndicator'
+                        || btn.child.constructor.name === 'DwellClickIndicator') {
+                        connections.push([btn.child, 'notify::visible', this.setPanelStyle.bind(this)]);
+                    }
                 }
             }
         }
