@@ -85,7 +85,7 @@ function autoApplyBGPalette(obar, requestMode) {
 
     // Add palette colors to paletteArr
     for(let i=1; i<=12; i++) {
-        let [r, g, b] = obar._settings.get_strv('palette'+i);
+        let [r, g, b] = obar._settings.get_strv(requestMode+'-palette'+i);
         [r, g, b] = [parseInt(r), parseInt(g), parseInt(b)];
         paletteArr.push([[r, g, b], colorPercents[i-1]]);
     }
@@ -1058,6 +1058,17 @@ function onModeChange(obar) {
         // dlog('saving to key: ', colorKeys[i], ' from key ', prefix+colorKeys[i]);
     }
 
+    // Copy palette to main and Toggle 'bg-change' to update the current mode palette in preferences window
+    for(let i = 1; i <= 12; i++) {
+        obar._settings.set_strv('palette'+i, obar._settings.get_strv(prefix+'palette'+i));
+    }
+    let bgchange = obar._settings.get_boolean('bg-change');
+    if(bgchange)
+        obar._settings.set_boolean('bg-change', false);
+    else
+        obar._settings.set_boolean('bg-change', true);
+
+    // Disable pause-reload and trigger style reload
     obar._settings.set_boolean('pause-reload', false);
     triggerStyleReload(obar);
 }

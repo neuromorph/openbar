@@ -170,13 +170,11 @@ class Extension {
             palette12?.forEach(color => {
                 // Save palette to dark/light settings
                 this._settings.set_strv(darklight+'-'+'palette'+paletteIdx, [String(color[0]), String(color[1]), String(color[2])]);
-
                 // Copy the palette for current mode to main settings
                 if( (sameUri && i == 0) || 
                     (darklight == 'dark' && currentMode == 'prefer-dark') || 
                     (darklight == 'light' && currentMode != 'prefer-dark'))
                     this._settings.set_strv('palette'+paletteIdx, [String(color[0]), String(color[1]), String(color[2])]);
-
                 paletteIdx++;
             });
             let countIdx = 1;
@@ -231,18 +229,20 @@ class Extension {
         for(const box of panelBoxes) {
             for(const btn of box) {
                     // Remove candy classes
-                    for(let j=1; j<=8; j++) {
-                        btn.child?.remove_style_class_name('candy'+j);
-
-                        for(const child of btn.child.get_children()) {
-                            if(child.remove_style_class_name)
-                                child.remove_style_class_name('candy'+j);
-                            for(const gChild of child.get_children()) {
-                                if(gChild.remove_style_class_name)
-                                    gChild.remove_style_class_name('candy'+j);
+                    if(btn.child) {
+                        for(let j=1; j<=16; j++) {
+                            btn.child.remove_style_class_name('candy'+j);
+                            for(const child of btn.child.get_children()) {
+                                if(child.remove_style_class_name)
+                                    child.remove_style_class_name('candy'+j);
+                                for(const gChild of child.get_children()) {
+                                    if(gChild.remove_style_class_name)
+                                        gChild.remove_style_class_name('candy'+j);
+                                }
                             }
                         }
                     }
+
                     // Remove trilands class
                     btn.child?.remove_style_class_name('trilands');
                     // Remove style class from Workspace Dots
@@ -461,16 +461,14 @@ class Extension {
     }
 
     setPanelStyle(obj, key, sig_param, callbk_param) {
-        if(key == 'notify::visible' && this.notifyVisible) {
-            // console.log('notify::visible already in progress');
-            return;
-        }
-        this.notifyVisible = true;
-        this.notifyVisibleId = setTimeout(() => {this.notifyVisible = false;}, 500);
-
+        // console.log('setPanelStyle: ', String(obj), key, String(sig_param), callbk_param);
         const panel = Main.panel;
         const bartype = this._settings.get_string('bartype');
-        const candybar = this._settings.get_boolean('candybar');
+        let candybar = this._settings.get_boolean('candybar');
+        if(key == 'showing') {
+            // Reset Candybar in Overview if Apply-Overview is disabled
+            candybar = false;
+        }
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         let i = 0;
         for(const box of panelBoxes) {
@@ -484,9 +482,9 @@ class Extension {
                         btn.add_style_class_name('openbar button-container');
 
                         // Add candybar classes if enabled else remove them
-                        if(key == 'notify::visible' || key == 'enabled' || key == 'candybar' 
-                            || key == this.addedSignal || key == this.removedSignal) {
-                            for(let j=1; j<=8; j++) {
+                        if(key == 'enabled' || key == 'candybar' || key == 'showing' || key == 'hiding'
+                            || key == 'notify::visible' || key == this.addedSignal || key == this.removedSignal) {
+                            for(let j=1; j<=16; j++) {
                                 btn.child.remove_style_class_name('candy'+j);
                                 for(const child of btn.child.get_children()) {
                                     if(child.remove_style_class_name)
@@ -497,7 +495,7 @@ class Extension {
                                     }
                                 }
                             }
-                            i++; i = i%8; i = i==0? 8: i; // Cycle through candybar palette
+                            i++; i = i%16; i = i==0? 16: i; // Cycle through candybar palette
                             if(candybar) {
                                 btn.child.add_style_class_name('candy'+i);
                                 for(const child of btn.child.get_children()) {
@@ -511,11 +509,6 @@ class Extension {
                             }
                         }
                     }
-                    if((btn.child.constructor.name === 'ATIndicator' || btn.child.constructor.name === 'InputSourceIndicator'
-                        || btn.child.constructor.name === 'DwellClickIndicator' || btn.child.constructor.name === 'ScreenRecordingIndicator'
-                        || btn.child.constructor.name === 'ScreenSharingIndicator') && candybar) {
-                        this._connections.connect(btn.child, 'notify::visible', this.setPanelStyle.bind(this));
-                    }
 
                     // Workspace dots
                     if(btn.child.constructor.name === 'ActivitiesButton') {
@@ -523,8 +516,13 @@ class Extension {
                         for(const indicator of list) { 
                             let dot = indicator.get_child_at_index(0);
                             // Some extensions can replace dot with text so add a check
-                            if(dot?.add_style_class_name)
+                            if(dot?.add_style_class_name) {
                                 dot.add_style_class_name('openbar');
+                                if(candybar)
+                                    dot.add_style_pseudo_class('candybar');
+                                else
+                                    dot.remove_style_pseudo_class('candybar');
+                            }
                         }                        
                     }
                     
@@ -563,7 +561,6 @@ class Extension {
 
     updatePanelStyle(obj, key, sig_param, callbk_param) { 
         // console.log('update called with ', key, sig_param, callbk_param);
-
         let panel = Main.panel;
 
         if(!this._settings)
@@ -630,6 +627,10 @@ class Extension {
                     this.loadStylesheet();
                     this.isObarReset = false;
                 }
+            }
+            else {
+                // Reset Candybar style in overview if disabled
+                this.setPanelStyle(null, key);
             }
             return;           
         }
@@ -1085,6 +1086,17 @@ class Extension {
             connections.push([panelBox, this.addedSignal, this.updatePanelStyle.bind(this)]);
             connections.push([panelBox, this.removedSignal, this.updatePanelStyle.bind(this)]);
         } 
+        // Connections for panel buttons notify::visible
+        for(const box of panelBoxes) {
+            for(const btn of box) {
+                if(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) {
+                    if(btn.child.constructor.name === 'ATIndicator' || btn.child.constructor.name === 'InputSourceIndicator'
+                        || btn.child.constructor.name === 'DwellClickIndicator') {
+                        connections.push([btn.child, 'notify::visible', this.setPanelStyle.bind(this)]);
+                    }
+                }
+            }
+        }
         // Connection for Toggle Switch status shapes in High Contrast
         if(this.gnomeVersion <= 45) {
             connections.push( [ this._hcSettings, 'changed::high-contrast', this.updatePanelStyle.bind(this), 'high-contrast' ] );

@@ -227,6 +227,8 @@ class OpenbarPrefs {
             halign: Gtk.Align.END,
             tooltip_text: tooltip_text,
         });
+        if(this._settings.get_boolean('apply-gtk'))
+            gtkswitch.css_classes = ['openbar-switch'];
         this._settings.bind(
             gsetting,
             gtkswitch,
@@ -305,10 +307,13 @@ class OpenbarPrefs {
         }
     }
 
-    createCandyPalette(window, paletteBox) {
-        for(let i=1; i<=8; i++) {            
+    createCandyPalette(window, paletteBox1, paletteBox2) {
+        for(let i=1; i<=16; i++) {            
             let candyColor = this.createColorWidget(window, 'Candybar Color', '', 'candy'+i);
-            paletteBox.append(candyColor);
+            if(i <= 8)
+                paletteBox1.append(candyColor);
+            else
+                paletteBox2.append(candyColor);
         }
     }
 
@@ -353,7 +358,7 @@ class OpenbarPrefs {
     fillOpenbarPrefs(window) {
 
         window.default_width = 825;
-        window.default_height = 915;        
+        window.default_height = 910;        
         window.set_size_request(815, 885);
 
         window.paletteButtons = [];
@@ -1306,18 +1311,29 @@ let paletteLabel = new Gtk.Label({
         
         rowbar += 1;
 
-        // Add canybar color pallete in box
-        const candyPaletteBox = new Gtk.Box({
+        // Add canybar color pallete in boxes
+        const candyPaletteBox1 = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
             spacing: 5,
             margin_top: 5,
+            margin_bottom: 0,
+            halign: Gtk.Align.CENTER,
+            homogeneous: true,
+            css_classes: ['palette-box'],
+        });
+        const candyPaletteBox2 = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 5,
+            margin_top: 0,
             margin_bottom: 1,
             halign: Gtk.Align.CENTER,
             homogeneous: true,
             css_classes: ['palette-box'],
         });
-        this.createCandyPalette(window, candyPaletteBox);
-        bggrid.attach(candyPaletteBox, 1, rowbar, 2, 1);
+        this.createCandyPalette(window, candyPaletteBox1, candyPaletteBox2);
+        bggrid.attach(candyPaletteBox1, 1, rowbar, 2, 1);
+        rowbar += 1;
+        bggrid.attach(candyPaletteBox2, 1, rowbar, 2, 1);
 
         rowbar += 1;
 
