@@ -43,7 +43,7 @@ function saveCalEventSVG(obar, Me) {
     marker-end:none;paint-order:normal;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate" cx="16" cy="28" r="2"/>
     </svg>
     `;
-    svgpath = Me.path + '/media/calendar-today.svg';
+    svgpath = obar.obarRunDir.get_path() + '/assets/calendar-today.svg';
     svgcolor = obar.smfgHex;
     
     svg = svg.replace(`#REPLACE`, svgcolor);
@@ -77,9 +77,9 @@ function saveToggleSVG(type, obar, Me) {
 
     svgFill = obar.msHex;
     svg = svg.replace(`#SVGFILL`, svgFill);
-    svgpath = Me.path + '/media/toggle-on.svg';
+    svgpath = obar.obarRunDir.get_path() + '/assets/toggle-on.svg';
     if(type == 'on-hc') {
-        svgpath = Me.path + '/media/toggle-on-hc.svg';
+        svgpath = obar.obarRunDir.get_path() + '/assets/toggle-on-hc.svg';
         hc = `<path style="fill:#f8f7f7;fill-opacity:1;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-dashoffset:2" d="M16 8v10h-2V8Z"/>`;
     }
     svg = svg.replace(`#HIGHCONTRAST`, hc);
@@ -110,7 +110,7 @@ function saveCheckboxSVG(type, obar, Me) {
         </svg>
         `;
 
-        svgpath = Me.path + '/media/checkbox-on.svg';
+        svgpath = obar.obarRunDir.get_path() + '/assets/checkbox-on.svg';
         svgFill = obar.msHex;
         svgStroke = obar.msHex;
     }
@@ -122,7 +122,7 @@ function saveCheckboxSVG(type, obar, Me) {
         </svg>
         `;
 
-        svgpath = Me.path + '/media/checkbox-on-focused.svg';
+        svgpath = obar.obarRunDir.get_path() + '/assets/checkbox-on-focused.svg';
         svgFill = obar.msHex;
         svgStroke = obar.mhHex;
     }
@@ -133,7 +133,7 @@ function saveCheckboxSVG(type, obar, Me) {
         </svg>
         `;
 
-        svgpath = Me.path + '/media/checkbox-off-focused.svg';
+        svgpath = obar.obarRunDir.get_path() + '/assets/checkbox-off-focused.svg';
         svgFill = '#aaa';
         svgStroke = obar.mhHex;
     }
@@ -863,8 +863,6 @@ function saveStylesheet(obar, Me) {
     const mhred = parseInt(parseFloat(mhColor[0]) * 255);
     const mhgreen = parseInt(parseFloat(mhColor[1]) * 255);
     const mhblue = parseInt(parseFloat(mhColor[2]) * 255);
-    // Save menu highlight hex for use in focused svg
-    obar.mhHex = rgbToHex(mhred, mhgreen, mhblue);
 
     const mshred = parseInt(parseFloat(mshColor[0]) * 255);
     const mshgreen = parseInt(parseFloat(mshColor[1]) * 255);
@@ -956,6 +954,8 @@ function saveStylesheet(obar, Me) {
     let mhbggreen = mbggreen*(1-mhAlpha) + hgColor[1]*mhAlpha;
     let mhbgblue = mbgblue*(1-mhAlpha) + hgColor[2]*mhAlpha;
     let mhbg = `rgba(${mhbgred},${mhbggreen},${mhbgblue},${mbgAlpha})`;
+    // Save menu highlight hex for use in focused svg
+    obar.mhHex = rgbToHex(mhbgred, mhbggreen, mhbgblue);
     
     // Sub Menu Auto Highlight
     hgColor = [mhred, mhgreen, mhblue];
@@ -1387,7 +1387,7 @@ function saveStylesheet(obar, Me) {
     if(mbgGradient) { // Light Gradient
         let mGradientStyle = 
         `   box-shadow: none !important;
-            background-image: url(media/menu.svg);
+            background-image: url(assets/menu.svg);
             background-repeat: no-repeat;
             background-size: cover; `;
         menuContentStyle += mGradientStyle;
@@ -2023,24 +2023,24 @@ function saveStylesheet(obar, Me) {
             box-shadow: none;
         }        
         ${openmenuClass} .toggle-switch {
-            background-image: url(media/${toggleOffSVG});
+            background-image: url(assets/${toggleOffSVG});
             background-color: transparent !important;
         }
         ${openmenuClass} .toggle-switch:checked {
-            background-image: url(media/${toggleOnSVG});
+            background-image: url(assets/${toggleOnSVG});
             background-color: transparent !important;
         }
         ${openmenuClass} .check-box StBin {
-            background-image: url(media/checkbox-off.svg);
+            background-image: url(assets/checkbox-off.svg);
         }
         ${openmenuClass} .check-box:checked StBin {
-            background-image: url(media/checkbox-on.svg);
+            background-image: url(assets/checkbox-on.svg);
         }
         ${openmenuClass} .check-box:focus StBin {
-            background-image: url(media/checkbox-off-focused.svg);
+            background-image: url(assets/checkbox-off-focused.svg);
         }  
         ${openmenuClass} .check-box:focus:checked StBin {
-            background-image: url(media/checkbox-on-focused.svg);
+            background-image: url(assets/checkbox-on-focused.svg);
         }
 
         ${openmenuClass}.message-list-clear-button {
@@ -2139,7 +2139,7 @@ function saveStylesheet(obar, Me) {
             box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
         }
         ${openmenuClass}.calendar .calendar-today .calendar-day-with-events, ${openmenuClass}.calendar .calendar-day-with-events {
-            background-image: url("media/calendar-today.svg");
+            background-image: url("assets/calendar-today.svg");
             background-size: contain;
         }
         ${openmenuClass}.calendar-week-number {
@@ -2447,24 +2447,24 @@ function saveStylesheet(obar, Me) {
             ${sliderStyle}
         }
         .toggle-switch {
-            background-image: url(media/${toggleOffSVG});
+            background-image: url(assets/${toggleOffSVG});
             background-color: transparent !important;
         }
         .toggle-switch:checked {
-            background-image: url(media/${toggleOnSVG});
+            background-image: url(assets/${toggleOnSVG});
             background-color: transparent !important;
         }
         .check-box StBin {
-            background-image: url(media/checkbox-off.svg);
+            background-image: url(assets/checkbox-off.svg);
         }
         .check-box:checked StBin {
-            background-image: url(media/checkbox-on.svg);
+            background-image: url(assets/checkbox-on.svg);
         }
         .check-box:focus StBin {
-            background-image: url(media/checkbox-off-focused.svg);
+            background-image: url(assets/checkbox-off-focused.svg);
         }  
         .check-box:focus:checked StBin {
-            background-image: url(media/checkbox-on-focused.svg);
+            background-image: url(assets/checkbox-on-focused.svg);
         } `;
     }
 
@@ -3194,7 +3194,7 @@ function saveStylesheet(obar, Me) {
         //     height: 24px; }
     }
     
-    let stylepath = Me.path + '/stylesheet.css';
+    let stylepath = obar.obarRunDir.get_path() + '/stylesheet.css';
     let file = Gio.File.new_for_path(stylepath);
     let bytearray = new TextEncoder().encode(stylesheet);
 

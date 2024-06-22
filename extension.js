@@ -24,6 +24,7 @@ import Gio from 'gi://Gio';
 import GdkPixbuf from 'gi://GdkPixbuf';
 import Meta from 'gi://Meta';
 import Clutter from 'gi://Clutter';
+import GLib from 'gi://GLib';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as Calendar from 'resource:///org/gnome/shell/ui/calendar.js';
@@ -271,9 +272,9 @@ export default class Openbar extends Extension {
 
     unloadStylesheet() {
         const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        const stylesheetFile = this.dir.get_child('stylesheet.css');
+        this.stylesheet = this.obarRunDir.get_child('stylesheet.css');
         try { 
-            theme.unload_stylesheet(stylesheetFile); 
+            theme.unload_stylesheet(this.stylesheet); 
             delete this.stylesheet;
         } catch (e) {
             console.log('Openbar: Error unloading stylesheet: ');
@@ -283,10 +284,10 @@ export default class Openbar extends Extension {
 
     loadStylesheet() {
         const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        const stylesheetFile = this.dir.get_child('stylesheet.css');
+        this.stylesheet = this.obarRunDir.get_child('stylesheet.css');
         try {
-            theme.load_stylesheet(stylesheetFile);
-            this.stylesheet = stylesheetFile;
+            theme.load_stylesheet(this.stylesheet);
+            // this.stylesheet = stylesheetFile;
         } catch (e) {
             console.log('Openbar: Error loading stylesheet: ');
             throw e;
@@ -1153,6 +1154,28 @@ export default class Openbar extends Extension {
         let menustyle = this._settings.get_boolean('menustyle');
         this.applyMenuStyles(panel, menustyle);
 
+        // OpenBar runtime directory
+        const userRunDir = GLib.get_user_runtime_dir();
+        this.obarRunDir = Gio.File.new_for_path(`${userRunDir}/io.github.neuromorph.openbar`);
+        this.obarAssetsDir = Gio.File.new_for_path(`${this.obarRunDir.get_path()}/assets`);
+        // Create dirs if missing
+        if(!this.obarAssetsDir.query_exists(null)) {
+            try {
+                this.obarAssetsDir.make_directory_with_parents(null);
+            }
+            catch(e) {
+                console.error('Error creating OpenBar runtime/assets directory: ' + e);
+            }
+        }
+        // Copy static assets (SVGs) to runtime dir
+        const assetsSrcDir = Gio.File.new_for_path(`${this.path}/media/assets`);
+        const iter = assetsSrcDir.enumerate_children('standard::name', Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, null);
+        for(const fileInfo of iter) {
+            let srcFile = Gio.File.new_for_path(`${assetsSrcDir.get_path()}/${fileInfo.get_name()}`);
+            let dstFile = Gio.File.new_for_path(`${this.obarAssetsDir.get_path()}/${fileInfo.get_name()}`);
+            srcFile.copy(dstFile, Gio.FileCopyFlags.OVERWRITE, null, null);
+        }
+        
         // Cause stylesheet to save and reload on Enable (also creates gtk css)
         StyleSheets.reloadStyle(this, this);
         // Add Open Bar Flatpak Overrides
@@ -1213,6 +1236,8 @@ export default class Openbar extends Extension {
         // Reset the style for Panel and Menus
         this.resetPanelStyle(panel);
         this.applyMenuStyles(panel, false);
+        // Unload stylesheet
+        this.unloadStylesheet();
         // Reset panel and banner position to Top
         this.setPanelBoxPosition('Top');
         Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
