@@ -1173,7 +1173,7 @@ export default class Openbar extends Extension {
         for(const fileInfo of iter) {
             let srcFile = Gio.File.new_for_path(`${assetsSrcDir.get_path()}/${fileInfo.get_name()}`);
             let dstFile = Gio.File.new_for_path(`${this.obarAssetsDir.get_path()}/${fileInfo.get_name()}`);
-            srcFile.copy(dstFile, Gio.FileCopyFlags.OVERWRITE, null, null);
+            srcFile.copy(dstFile, Gio.FileCopyFlags.OVERWRITE | Gio.FileCopyFlags.TARGET_DEFAULT_PERMS, null, null);
         }
         
         // Cause stylesheet to save and reload on Enable (also creates gtk css)
