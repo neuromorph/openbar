@@ -992,32 +992,34 @@ export default class Openbar extends Extension {
         }
         this.updatingBguri = true;
         this.updatingBguriId = setTimeout(() => {this.updatingBguri = false;}, 5000);
-        // console.log('Going ahead with bguri======');
+        // console.log('==== Going ahead with bguri ====');
         let colorScheme = this._intSettings.get_string('color-scheme');
         if(colorScheme != this.colorScheme) {
             this.colorScheme = colorScheme;
             return;
         }
         
-        let bguriDark = this._bgSettings.get_string('picture-uri-dark');
-        let bguriLight = this._bgSettings.get_string('picture-uri');
-        this._settings.set_string('dark-bguri', bguriDark);
-        this._settings.set_string('light-bguri', bguriLight);
+        this.updateBguriId = setTimeout(() => {
+            let bguriDark = this._bgSettings.get_string('picture-uri-dark');
+            let bguriLight = this._bgSettings.get_string('picture-uri');
+            this._settings.set_string('dark-bguri', bguriDark);
+            this._settings.set_string('light-bguri', bguriLight);
 
-        let bguriOld = this._settings.get_string('bguri');
-        let bguriNew;
-        if(colorScheme == 'prefer-dark')
-            bguriNew = bguriDark;
-        else
-            bguriNew = bguriLight;        
-        this._settings.set_string('bguri', bguriNew);
-        
-        // Gnome45+: if bgnd changed with right click on image file, 
-        // filepath (bguri) remains same, so manually call updatePanelStyle
-        if(bguriOld == bguriNew) {
-            // console.log('bguriOld == bguriNew - calling updatePanelStyle for bguri');
-            this.updatePanelStyle(this._settings, 'bguri');
-        }
+            let bguriOld = this._settings.get_string('bguri');
+            let bguriNew;
+            if(colorScheme == 'prefer-dark')
+                bguriNew = bguriDark;
+            else
+                bguriNew = bguriLight;        
+            this._settings.set_string('bguri', bguriNew);
+            
+            // Gnome45+: if bgnd changed with right click on image file, 
+            // filepath (bguri) remains same, so manually call updatePanelStyle
+            if(bguriOld == bguriNew) {
+                // console.log('bguriOld == bguriNew - calling updatePanelStyle for bguri');
+                this.updatePanelStyle(this._settings, 'bguri');
+            }
+        }, 200);
     }
 
     // Connect multiple signals to ensure detecting background-change in all Gnome versions
@@ -1055,6 +1057,7 @@ export default class Openbar extends Extension {
         this.styleUnloaded = false;
         this.updatingBguri = false;
         this.updatingBguriId = null;
+        this.updateBguriId = null;
         this.notifyVisible = false;
         this.notifyVisibleId = null;
 
@@ -1181,6 +1184,10 @@ export default class Openbar extends Extension {
         if(this.updatingBguriId) {
             clearTimeout(this.updatingBguriId);
             this.updatingBguriId = null;
+        }
+        if(this.updateBguriId) {
+            clearTimeout(this.updateBguriId);
+            this.updateBguriId = null;
         }
         if(this.notifyVisibleId) {
             clearTimeout(this.notifyVisibleId);
