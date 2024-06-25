@@ -2501,9 +2501,6 @@ function saveStylesheet(obar, Me) {
     /* app-grid */
     if(applyAccentShell) {
         stylesheet += `
-        .overview-tile {
-            background-color: transparent;
-        }
         .overview-tile:active, .overview-tile:checked,
         .app-well-app:active .overview-icon, .app-well-app:checked .overview-icon 
         .show-apps:active .overview-icon, .show-apps:checked .overview-icon, 
@@ -2519,6 +2516,9 @@ function saveStylesheet(obar, Me) {
 
     if(applyAllShell) {
         stylesheet += `
+        .overview-tile {
+            background-color: transparent;
+        }
         .overview-tile, .app-well-app .overview-icon, .show-apps .overview-icon, .grid-search-result .overview-icon {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) ;
             border-radius: ${menuRadius}px;
@@ -2575,7 +2575,14 @@ function saveStylesheet(obar, Me) {
             background-color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
             border: 2px solid rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
         }
-        
+        .page-navigation-arrow {
+            background-color: ${smbg} !important;
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1) !important;
+        }
+        .page-navigation-arrow:hover, .page-navigation-arrow:focus {
+            background-color: ${smhbg} !important;
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+        }
         .page-indicator .page-indicator-icon {
             color: transparent;
             background-color: rgba(${smfgred},${smfggreen},${smfgblue},1) !important;
