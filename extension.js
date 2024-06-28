@@ -589,8 +589,8 @@ export default class Openbar extends Extension {
             this.onWindowMaxBar();
             return;
         }
-        if(key == 'cust-margin-wmax') {
-            this.setWindowMaxBar('cust-margin-wmax');
+        if(key == 'cust-margin-wmax' || key == 'margin-wmax') {
+            this.setPanelBoxPosWindowMax(this.wmax, key);
             return;
         }
 
@@ -750,7 +750,9 @@ export default class Openbar extends Extension {
         panel.add_style_class_name('openbar');
 
         if(position == 'Bottom' || key == 'position' || key == 'monitors-changed') {
-            this.setPanelBoxPosition(position, height, margin, borderWidth, bartype);
+            // If WMax is On then ignore 'margin' changes (do not set position) else set position
+            if(!(this.wmax && key == 'margin'))
+                this.setPanelBoxPosition(position, height, margin, borderWidth, bartype);
         }
 
         if(key == 'monitors-changed')
@@ -826,7 +828,7 @@ export default class Openbar extends Extension {
     setPanelBoxPosWindowMax(wmax, signal) {
         const position = this._settings.get_string('position');
         if(position == 'Bottom') {
-            if(this.position == position && this.wmax == wmax && signal != 'cust-margin-wmax')
+            if(this.position == position && this.wmax == wmax && !(signal == 'cust-margin-wmax' || signal == 'margin-wmax'))
                 return;
             const bartype = this._settings.get_string('bartype');
             const borderWidth = this._settings.get_double('bwidth');
