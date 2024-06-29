@@ -2501,9 +2501,6 @@ function saveStylesheet(obar, Me) {
     /* app-grid */
     if(applyAccentShell) {
         stylesheet += `
-        .overview-tile {
-            background-color: transparent;
-        }
         .overview-tile:active, .overview-tile:checked,
         .app-well-app:active .overview-icon, .app-well-app:checked .overview-icon 
         .show-apps:active .overview-icon, .show-apps:checked .overview-icon, 
@@ -2519,6 +2516,9 @@ function saveStylesheet(obar, Me) {
 
     if(applyAllShell) {
         stylesheet += `
+        .overview-tile {
+            background-color: transparent;
+        }
         .overview-tile, .app-well-app .overview-icon, .show-apps .overview-icon, .grid-search-result .overview-icon {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) ;
             border-radius: ${menuRadius}px;
@@ -2575,7 +2575,14 @@ function saveStylesheet(obar, Me) {
             background-color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
             border: 2px solid rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
         }
-        
+        .page-navigation-arrow {
+            background-color: ${smbg} !important;
+            color: rgba(${smfgred},${smfggreen},${smfgblue},1) !important;
+        }
+        .page-navigation-arrow:hover, .page-navigation-arrow:focus {
+            background-color: ${smhbg} !important;
+            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+        }
         .page-indicator .page-indicator-icon {
             color: transparent;
             background-color: rgba(${smfgred},${smfggreen},${smfgblue},1) !important;
@@ -3156,21 +3163,41 @@ function saveStylesheet(obar, Me) {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
             background-color: ${smhbg} !important;
         }
+        .screenshot-ui-type-button:insensitive {
+            color: rgba(${smfgred},${smfggreen},${smfgblue},0.5) !important;
+            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
+        }
+        .screenshot-ui-close-button {
+            border: none;
+            box-shadow: 0 2px 0 0 rgba(${mshred},${mshgreen},${mshblue}, 0.2) !important;
+        }
         .screenshot-ui-show-pointer-button {
             color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
-            background-color: transparent;
-        }   
+            background-color: rgba(${mfgred},${mfggreen},${mfgblue},0.15) !important;
+        }
+        .screenshot-ui-capture-button .screenshot-ui-capture-button-circle {
+            background-color: rgba(${mfgred},${mfggreen},${mfgblue},0.6) !important;
+        } 
+        .screenshot-ui-capture-button:hover .screenshot-ui-capture-button-circle, .screenshot-ui-capture-button:focus .screenshot-ui-capture-button-circle {
+            background-color: rgba(${mfgred},${mfggreen},${mfgblue},0.7) !important;
+        } 
+        .screenshot-ui-capture-button {
+            border-color: rgba(${mfgred},${mfggreen},${mfgblue},0.6) !important;
+        }
         .screenshot-ui-capture-button:hover, .screenshot-ui-capture-button:focus {
             border-color: ${msc} !important;
         }
         .screenshot-ui-capture-button:cast .screenshot-ui-capture-button-circle {
             background-color: rgba(${destructRed},${destructGreen},${destructBlue},1.0) !important;
         }
+        .screenshot-ui-shot-cast-container {
+            background-color: rgba(${mfgred},${mfggreen},${mfgblue},0.15) !important;
+        }
         .screenshot-ui-show-pointer-button:hover, .screenshot-ui-show-pointer-button:focus,
         .screenshot-ui-shot-cast-button:hover, .screenshot-ui-shot-cast-button:focus {
             color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
             background-color: ${mhbg} !important;
-        }        
+        }     
         .screenshot-ui-tooltip {
             box-shadow: 0 2px 0 0 rgba(${mshred},${mshgreen},${mshblue}, 0.25) !important; /* menu shadow */
             background-color: rgba(${tooltipBgRed},${tooltipBgGreen},${tooltipBgBlue}, 0.85); /* menu bg */

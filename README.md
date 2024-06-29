@@ -68,12 +68,18 @@ the _Extension Manager_ app.
 git clone https://github.com/neuromorph/openbar.git \
 	~/.local/share/gnome-shell/extensions/openbar@neuromorph
 ```
-OR download the release zip file (may not be latest) and unzip at location: ~/.local/share/gnome-shell/extensions/
+OR download the code zip file and unzip at location: ~/.local/share/gnome-shell/extensions/
+The extension's directory name should match its uuid i.e. "openbar@neuromorph"
 
-You may need to restart the gnome shell environnment (for manual install):
+Note: 
+Please download from following GitHub branch as per your Gnome version:
+- For Gnome 42-44: branch 'g42-44'
+- For Gnome 45+: branch 'main'
 
-- logout and login again (Do this if using Wayland) _or_
-- `alt+f2` then type `r` and `enter` 
+You will need to restart the Gnome Shell (for manual install):
+
+- Wayland: logout and login again 
+- Xorg: `alt+f2` then type `r` and `enter` 
 
 ## Settings Notes
 If the panel/menu isn't looking right, you need to tweak some settings. There are a lot of knobs to allow for different setups/tastes. It can also make it a bit overwhelming if you are not familiar with css styles but with some experimentation it will become a lot easier. Here are brief notes:
