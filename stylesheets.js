@@ -24,6 +24,12 @@ import Pango from 'gi://Pango';
 import GLib from 'gi://GLib';
 import * as Utils from './utils.js';
 
+Gio._promisify(Gio.File.prototype, 'load_contents_async', 'load_contents_finish');
+Gio._promisify(Gio.File.prototype, 'move_async', 'move_finish');
+Gio._promisify(Gio.File.prototype, 'delete_async', 'delete_finish');
+Gio._promisify(Gio.File.prototype, 'replace_async', 'replace_finish');
+Gio._promisify(Gio.OutputStream.prototype, 'write_bytes_async', 'write_bytes_finish');
+
 const colorMix = Utils.colorMix;
 const colorBlend = Utils.colorBlend;
 const colorShade = Utils.colorShade;
@@ -51,14 +57,17 @@ function saveCalEventSVG(obar, Me) {
     let file = Gio.File.new_for_path(svgpath);
     let bytearray = new TextEncoder().encode(svg);
 
-    if (bytearray.length) {
-        let output = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
-        let outputStream = Gio.BufferedOutputStream.new_sized(output, 4096);
-        outputStream.write_all(bytearray, null);
-        outputStream.close(null);
+    try {
+        file.replace_async(null, false, Gio.FileCreateFlags.NONE, GLib.PRIORITY_DEFAULT, null, (obj, res) => {
+            let stream = obj.replace_finish(res);        
+            stream.write_bytes_async(bytearray, GLib.PRIORITY_DEFAULT, null, (w_obj, w_res) => {        
+                w_obj.write_bytes_finish(w_res);        
+                stream.close(null);        
+            });        
+        });
     }
-    else {
-      console.log("Failed to write calendar-today.svg file: " + svgpath);
+    catch(e) {
+      console.log("Failed to write calendar-today.svg file: " + svgpath, e);
     }
 
 }
@@ -87,14 +96,18 @@ function saveToggleSVG(type, obar, Me) {
     let file = Gio.File.new_for_path(svgpath);
     let bytearray = new TextEncoder().encode(svg);
 
-    if (bytearray.length) {
-        let output = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
-        let outputStream = Gio.BufferedOutputStream.new_sized(output, 4096);
-        outputStream.write_all(bytearray, null);
-        outputStream.close(null);
+    try {
+        file.replace_async(null, false, Gio.FileCreateFlags.NONE, GLib.PRIORITY_DEFAULT, null, (obj, res) => {
+            let stream = obj.replace_finish(res);        
+            stream.write_bytes_async(bytearray, GLib.PRIORITY_DEFAULT, null, (w_obj, w_res) => {        
+                w_obj.write_bytes_finish(w_res);        
+                stream.close(null);      
+                log('saveToggleSVG done: '+ type);  
+            });        
+        });
     }
-    else {
-      console.log("Failed to write toggle-on.svg file: " + svgpath);
+    catch(e) {
+      console.log("Failed to write toggle-on.svg file: " + svgpath, e);
     }
 
 }
@@ -144,14 +157,17 @@ function saveCheckboxSVG(type, obar, Me) {
     let file = Gio.File.new_for_path(svgpath);
     let bytearray = new TextEncoder().encode(svg);
 
-    if (bytearray.length) {
-        let output = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
-        let outputStream = Gio.BufferedOutputStream.new_sized(output, 4096);
-        outputStream.write_all(bytearray, null);
-        outputStream.close(null);
+    try {
+        file.replace_async(null, false, Gio.FileCreateFlags.NONE, GLib.PRIORITY_DEFAULT, null, (obj, res) => {
+            let stream = obj.replace_finish(res);        
+            stream.write_bytes_async(bytearray, GLib.PRIORITY_DEFAULT, null, (w_obj, w_res) => {        
+                w_obj.write_bytes_finish(w_res);        
+                stream.close(null);        
+            });        
+        });
     }
-    else {
-      console.log("Failed to write checkbox-on/off.svg file: " + svgpath);
+    catch(e) {
+      console.log("Failed to write checkbox-on/off.svg file: " + svgpath, e);
     }
 
 }
@@ -575,7 +591,7 @@ export function saveGtkCss(obar, caller) {
     const configDir = GLib.get_user_config_dir();
     const gtk3Dir = Gio.File.new_for_path(`${configDir}/gtk-3.0`);
     const gtk4Dir = Gio.File.new_for_path(`${configDir}/gtk-4.0`);
-    [gtk3Dir, gtk4Dir].forEach(dir => {
+    [gtk3Dir, gtk4Dir].forEach(async dir => {
         // console.log(dir.get_path() +'\n' + gtkstring);
 
         // Create dir if missing
@@ -595,8 +611,8 @@ export function saveGtkCss(obar, caller) {
         let isGtkOpenBar = false;
         if(isGtk) {
             try {
-                const [ok, contents, etag] = file.load_contents(null);
-                if(ok) {
+                const [contents] = await file.load_contents_async(null);
+                if(contents) {
                     const decoder = new TextDecoder('utf-8');
                     const contentsString = decoder.decode(contents);
                     const contentsHeader = contentsString.split('\n')[1];
@@ -613,7 +629,7 @@ export function saveGtkCss(obar, caller) {
         if(caller == 'disable' || !applyGtk) {
             if(isGtkOpenBar && isBackupOpenBar) {
                 try { // Restore backup
-                    backup.move(file, Gio.FileCopyFlags.OVERWRITE, null, null);
+                    backup.move_async(file, Gio.FileCopyFlags.OVERWRITE, null, null, null, null);
                 } 
                 catch (e) {
                     console.error('Error restoring gtk.css from backup: ' + e);
@@ -621,7 +637,7 @@ export function saveGtkCss(obar, caller) {
             }
             else if(isGtkOpenBar) {
                 try {
-                    file.delete(null);
+                    file.delete_async(null, null, null);
                 }
                 catch (e) {
                     console.error('Error deleting OpenBar gtk.css: ' + e);
@@ -632,7 +648,7 @@ export function saveGtkCss(obar, caller) {
         else if(applyGtk) {
             if(isGtk && !isGtkOpenBar) {
                 try {
-                    file.move(backup, Gio.FileCopyFlags.OVERWRITE, null, null);
+                    await file.move_async(backup, Gio.FileCopyFlags.OVERWRITE, null, null, null, null);
                 }
                 catch (e) {
                     console.error('Error backing up gtk.css: ' + e);
@@ -643,11 +659,14 @@ export function saveGtkCss(obar, caller) {
             let gtkstring = createGtkCss(obar);
             let bytearray = new TextEncoder().encode(gtkstring);
             try {
-                let output = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
-                let outputStream = Gio.BufferedOutputStream.new_sized(output, 4096);
-                outputStream.write_all(bytearray, null);
-                outputStream.close(null);
-                // console.log('Saved gtk.css at: ' + dir.get_path());
+                file.replace_async(null, false, Gio.FileCreateFlags.NONE, GLib.PRIORITY_DEFAULT, null, (obj, res) => {
+                    let stream = obj.replace_finish(res);        
+                    stream.write_bytes_async(bytearray, GLib.PRIORITY_DEFAULT, null, (w_obj, w_res) => {        
+                        w_obj.write_bytes_finish(w_res);      
+                        log('wrote gtk css');  
+                        stream.close(null);        
+                    });        
+                });
             }
             catch (e) {
                 console.log("Failed to write gtk.css file: " + dir.get_path() + e);
@@ -671,12 +690,12 @@ export function saveFlatpakOverrides(obar, caller) {
     }
 
     let keyfile = GLib.KeyFile.new();
-    let global = Gio.File.new_for_path(overrideDir.get_path() + '/global');
-    if(!global.query_exists(null)) {
+    let globalFile = Gio.File.new_for_path(overrideDir.get_path() + '/global');
+    if(!globalFile.query_exists(null)) {
         try {
-            global.create(Gio.FileCreateFlags.NONE, null);
+            globalFile.create(Gio.FileCreateFlags.NONE, null);
             keyfile.set_string('Context', 'filesystems', '');
-            keyfile.save_to_file(global.get_path());
+            keyfile.save_to_file(globalFile.get_path());
         }
         catch (e) {
             console.error('Error creating flatpak override global file: ' + e);
@@ -684,7 +703,7 @@ export function saveFlatpakOverrides(obar, caller) {
     }
 
     try {
-        keyfile.load_from_file(global.get_path(), GLib.KeyFileFlags.NONE);
+        keyfile.load_from_file(globalFile.get_path(), GLib.KeyFileFlags.NONE);
     }
     catch (e) {
         console.error('Error loading flatpak override global file: ' + e);
@@ -695,7 +714,7 @@ export function saveFlatpakOverrides(obar, caller) {
             if(!obar.fsystemBackup) 
                 obar.fsystemBackup = '';
             keyfile.set_string('Context', 'filesystems', obar.fsystemBackup);
-            keyfile.save_to_file(global.get_path());
+            keyfile.save_to_file(globalFile.get_path());
         }
         else if(applyFlatpak) {
             obar.fsystemBackup = keyfile.get_string('Context', 'filesystems');
@@ -703,7 +722,7 @@ export function saveFlatpakOverrides(obar, caller) {
                 obar.fsystemBackup = '';
             let fsystem = obar.fsystemBackup + ';xdg-config/gtk-3.0:ro;xdg-config/gtk-4.0:ro;';
             keyfile.set_string('Context', 'filesystems', fsystem);
-            keyfile.save_to_file(global.get_path());
+            keyfile.save_to_file(globalFile.get_path());
         }
     }
     catch (e) {
@@ -3220,21 +3239,27 @@ function saveStylesheet(obar, Me) {
         //     width: 24px;
         //     height: 24px; }
     }
-    
+    log('stylesheet string ready to write');
+    return stylesheet;
+}
+
+async function writeStylesheet(obar, stylesheet) {
+    log('writeStylesheet called ');
     let stylepath = obar.obarRunDir.get_path() + '/stylesheet.css';
     let file = Gio.File.new_for_path(stylepath);
     let bytearray = new TextEncoder().encode(stylesheet);
 
-    if (bytearray.length) {
-        let output = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
-        let outputStream = Gio.BufferedOutputStream.new_sized(output, 4096);
-        outputStream.write_all(bytearray, null);
-        outputStream.close(null);
+    try {
+        let stream = await file.replace_async(null, false, Gio.FileCreateFlags.NONE, GLib.PRIORITY_DEFAULT, null);
+        await stream.write_bytes_async(bytearray, GLib.PRIORITY_DEFAULT, null);
+        stream.close(null);       
     }
-    else {
-      console.log("Failed to write stylsheet file: " + stylepath);
+    catch(e) {
+      console.log("Failed to write stylsheet file: " + stylepath, e);
     }
+}
 
+async function writeSVGs(obar, Me) {
     if(obar.msSVG) { // Accent color is changed
         saveToggleSVG('on', obar, Me); 
         saveToggleSVG('on-hc', obar, Me); 
@@ -3253,22 +3278,25 @@ function saveStylesheet(obar, Me) {
         saveCalEventSVG(obar, Me);
         obar.smfgSVG = false;
     }
+}
 
+async function writeGtkCss(obar) {
+    log('writeGtkCss called ');
     if(obar.gtkCSS) { // accent or Gtk/Flatpak settings changed
         saveGtkCss(obar, 'enable');
         obar.gtkCSS = false;
     }
-
 }
 
-export function reloadStyle(obar, Me) { 
+export async function reloadStyle(obar, Me) { 
     const importExport = obar._settings.get_boolean('import-export');
     const pauseStyleReload = obar._settings.get_boolean('pause-reload');
     if(importExport || pauseStyleReload)
         return;
     // console.log('reloadStyle called with ImportExport false, Pause false');
     // Save stylesheet from string to css file
-    saveStylesheet(obar, Me);
+    let stylesheet = saveStylesheet(obar, Me);    
+    await Promise.all([writeStylesheet(obar, stylesheet), writeSVGs(obar, Me), writeGtkCss(obar)]);
 
     // Cause stylesheet to reload by toggling 'reloadstyle'
     let reloadstyle = obar._settings.get_boolean('reloadstyle');

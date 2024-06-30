@@ -35,6 +35,8 @@ import * as Quantize from './quantize.js';
 import * as AutoThemes from './autothemes.js';
 import * as StyleSheets from './stylesheets.js';
 
+Gio._promisify(Gio.File.prototype, "copy_async", "copy_finish");
+
 // ConnectManager class to manage connections for events to trigger Openbar style updates
 // This class is modified from Floating Panel extension (Thanks Aylur!)
 class ConnectManager{
@@ -287,7 +289,6 @@ export default class Openbar extends Extension {
         this.stylesheet = this.obarRunDir.get_child('stylesheet.css');
         try {
             theme.load_stylesheet(this.stylesheet);
-            // this.stylesheet = stylesheetFile;
         } catch (e) {
             console.log('Openbar: Error loading stylesheet: ');
             throw e;
@@ -603,6 +604,7 @@ export default class Openbar extends Extension {
 
         if(callbk_param == 'color-scheme') {
             this.gtkCSS = true;
+            StyleSheets.saveGtkCss(this, 'enable');
             AutoThemes.onModeChange(this);
             return;
         }
@@ -836,7 +838,7 @@ export default class Openbar extends Extension {
             const custMarginWmax = this._settings.get_boolean('cust-margin-wmax');
             const marginWMax = this._settings.get_double('margin-wmax');
             let margin = this._settings.get_double('margin');
-            let height = this._settings.get_double('height');            
+            const height = this._settings.get_double('height');            
             if(wmax) {
                 margin = custMarginWmax? marginWMax: margin;
             }
@@ -1178,7 +1180,7 @@ export default class Openbar extends Extension {
         for(const fileInfo of iter) {
             let srcFile = Gio.File.new_for_path(`${assetsSrcDir.get_path()}/${fileInfo.get_name()}`);
             let dstFile = Gio.File.new_for_path(`${this.obarAssetsDir.get_path()}/${fileInfo.get_name()}`);
-            srcFile.copy(dstFile, Gio.FileCopyFlags.OVERWRITE | Gio.FileCopyFlags.TARGET_DEFAULT_PERMS, null, null);
+            srcFile.copy_async(dstFile, Gio.FileCopyFlags.OVERWRITE | Gio.FileCopyFlags.TARGET_DEFAULT_PERMS, GLib.PRIORITY_DEFAULT, null, null);
         }
         
         // Cause stylesheet to save and reload on Enable (also creates gtk css)
@@ -1245,11 +1247,14 @@ export default class Openbar extends Extension {
         // Reset the style for Panel and Menus
         this.resetPanelStyle(panel);
         this.applyMenuStyles(panel, false);
+
         // Unload stylesheet
         this.unloadStylesheet();
+
         // Reset panel and banner position to Top
         this.setPanelBoxPosition('Top');
         Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
+        
         // Clear/Restore Gtk css and Flatpak override
         StyleSheets.saveGtkCss(this, 'disable');
         StyleSheets.saveFlatpakOverrides(this, 'disable');
