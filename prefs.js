@@ -68,7 +68,7 @@ class OpenbarPrefs {
         this.timeoutId = setTimeout(() => {
             this.triggerStyleReload();
             this.timeoutId = null;
-        }, 300);
+        }, 400);
     }
 
     createComboboxWidget(options, gsetting=null) {
@@ -878,7 +878,7 @@ class OpenbarPrefs {
         });
         bargrid.attach(heightLabel, 1, rowbar, 1, 1);
 
-        let height = this.createScaleWidget(0, 100, 1, 0, 'height');
+        let height = this.createScaleWidget(10, 100, 1, 0, 'height');
         bargrid.attach(height, 2, rowbar, 1, 1);
 
         rowbar += 1;
