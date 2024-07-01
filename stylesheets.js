@@ -925,14 +925,17 @@ function saveStylesheet(obar, Me) {
     
     function getAutoHgColor(bgColor) { 
         let bgHsp = getHSP(bgColor);
+        let bgSat = Utils.getColorfulness(bgColor);
+        let grayFactor = (255 - bgSat)/255;
+        let rgb;
         if(bgHsp <= bgLightThresh) {
-            let rgb = bgHsp + 75;
-            hgColor = [rgb, rgb, rgb];
+            rgb = bgHsp + 50 + 50*grayFactor;
         }
         else {
-            let rgb = bgHsp - 75;
-            hgColor = [rgb, rgb, rgb];
+            rgb = bgHsp - 50 - 50*grayFactor;
         }
+        rgb = rgb<0? 0 : rgb>255? 255 : rgb;
+        hgColor = [rgb, rgb, rgb];
         // log('getAutoHgColor: hgColor, bgColor, bgHsp ', hgColor, bgColor, bgHsp);
         return hgColor;
     }
@@ -944,10 +947,10 @@ function saveStylesheet(obar, Me) {
     if(autohgBar)
         hgColor = getAutoHgColor(bgColor);
     
-    let hbgred = bgred*(1-hAlpha) + hgColor[0]*hAlpha;
-    let hbggreen = bggreen*(1-hAlpha) + hgColor[1]*hAlpha;
-    let hbgblue = bgblue*(1-hAlpha) + hgColor[2]*hAlpha;
-    let phbg = `rgba(${hbgred},${hbggreen},${hbgblue},${bgalpha})`;
+    let hbgred = hgColor[0];
+    let hbggreen = hgColor[1];
+    let hbgblue = hgColor[2];
+    let phbg = `rgba(${hbgred},${hbggreen},${hbgblue},${hAlpha})`;
 
     // Island Auto Highlight
     hgColor = [hred, hgreen, hblue];
@@ -1431,7 +1434,23 @@ function saveStylesheet(obar, Me) {
         -barlevel-overdrive-color: rgba(${destructRed}, ${destructGreen}, ${destructBlue}, 1) !important;
          `;
 
+    // Apply-All-Shell: Menu styles applied to shell allover
+    let applyAllShell = obar._settings.get_boolean('apply-all-shell');
+
     // Define Overview style (reset) if Disabled in Overview
+    // If applyALlShell then FG = sub-menu FG and BG = sub-menu-BG
+    // else FG = white and BG = Default Dark
+    let oFgColor, oHFgColor, oHBgColor;
+    if(applyAllShell) {
+        oFgColor = `rgba(${smfgred},${smfggreen},${smfgblue},1.0)`;
+        oHFgColor = `rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0)`;
+        oHBgColor = `rgba(${smhbgred},${smhbggreen},${smhbgblue},${mbgAlpha})`;
+    }
+    else {
+        oFgColor = `rgba(230, 230, 230, 1.0)`;
+        oHFgColor = `rgba(255, 255, 255, 1.0)`;
+        oHBgColor = `rgba(180, 180, 180, ${hAlpha})`;
+    }
     let setOverview = obar._settings.get_boolean('set-overview');
     let overviewStyle, barFgOverview, barHFgOverview, barHBgOverview, dotOverview;
     if(!setOverview) {
@@ -1439,15 +1458,15 @@ function saveStylesheet(obar, Me) {
         `   background-color: transparent !important; 
             border-color: transparent !important; 
             box-shadow: none !important; 
-            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important; `;
+            color: ${oFgColor} !important; `;
         barFgOverview = 
-        `   color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;`;
+        `   color: ${oFgColor} !important;`;
         barHFgOverview = 
-        `   color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;`;
+        `   color: ${oHFgColor} !important;`;
         barHBgOverview = 
-        `   background-color: rgba(${smhbgred},${smhbggreen},${smhbgblue},${mbgAlpha}) !important;`;
+        `   background-color: ${oHBgColor} !important;`;
         dotOverview = 
-        `   background-color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;`;
+        `   background-color: ${oFgColor} !important;`;
     }
     else {
         overviewStyle = ``;
@@ -1479,11 +1498,8 @@ function saveStylesheet(obar, Me) {
         if(autohgBar)
             hgColor = getAutoHgColor(bgColor);
         // WMax Highlight BG  
-        let wmhred = bgColor[0]*(1-hAlpha) + hgColor[0]*hAlpha;
-        let wmhgreen = bgColor[1]*(1-hAlpha) + hgColor[1]*hAlpha;
-        let wmhblue = bgColor[2]*(1-hAlpha) + hgColor[2]*hAlpha;
         wmaxHoverStyle = 
-        `background-color: rgba(${wmhred},${wmhgreen},${wmhblue},${hAlpha}) !important;
+        `background-color: rgba(${hgColor[0]},${hgColor[1]},${hgColor[2]},${hAlpha}) !important;
         transition-duration: 100ms;`;
     }
     else {
@@ -1518,7 +1534,6 @@ function saveStylesheet(obar, Me) {
         toggleOffSVG = 'toggle-off-hc.svg';
     }
 
-    let applyAllShell = obar._settings.get_boolean('apply-all-shell');
     // Add/Remove .openmenu class to Restrict/Extend menu styles to the shell
     let openmenuClass = (applyMenuShell || applyAllShell) ? '' : '.openmenu';
     // Placeholder for .openbar class
@@ -3291,8 +3306,13 @@ export async function reloadStyle(obar, Me) {
     // console.log('reloadStyle called with ImportExport false, Pause false');
     // Save stylesheet from string to css file
     let stylesheet = saveStylesheet(obar, Me);    
-    await Promise.all([writeStylesheet(obar, stylesheet), writeSVGs(obar, Me), writeGtkCss(obar)]);
-
+    try {
+        await Promise.all([writeStylesheet(obar, stylesheet), writeSVGs(obar, Me), writeGtkCss(obar)]);
+    }
+    catch(e) {
+        console.log("Failed to reload stylesheet: ", e);
+    }
+    
     // Cause stylesheet to reload by toggling 'reloadstyle'
     let reloadstyle = obar._settings.get_boolean('reloadstyle');
     if(reloadstyle)
