@@ -2903,6 +2903,12 @@ function saveStylesheet(obar, Me) {
             background-color: ${smbg} !important;
             border: 2px solid transparent;
         }
+        .modal-dialog-linked-button:first-child {
+            border-radius: 0 0 0 ${menuRadius>20? 20: menuRadius}px !important;
+        }
+        .modal-dialog-linked-button:last-child {
+            border-radius: 0 0 ${menuRadius>20? 20: menuRadius}px 0 !important;
+        }
         .modal-dialog-linked-button:hover {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
             background-color: ${smhbg} !important;
