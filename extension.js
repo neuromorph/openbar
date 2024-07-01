@@ -621,6 +621,18 @@ export default class Openbar extends Extension {
         }
 
         let bartype = this._settings.get_string('bartype');
+        // Set bgalpha as per bartype        
+        if(key == 'bartype') {
+            if(bartype == 'Trilands' || bartype == 'Islands') {                
+                this._settings.set_double('bgalpha', 0);
+            }
+            else {
+                this._settings.set_double('bgalpha', this.bgalpha);
+            }
+        }
+        if(bartype == 'Mainland' || bartype == 'Floating') {
+            this.bgalpha = this._settings.get_double('bgalpha');
+        }
         // Update triland classes if actor (panel button) removed in triland mode else return
         if(key == this.removedSignal && bartype != 'Trilands')
             return;
@@ -1074,6 +1086,7 @@ export default class Openbar extends Extension {
         this.colorScheme = this._intSettings.get_string('color-scheme');
 
         this._settings = this.getSettings(); 
+        this.bgalpha = this._settings.get_double('bgalpha');
         // Connect to the settings changes
         this._settings.connect('changed', (settings, key) => {
             this.updatePanelStyle(settings, key);

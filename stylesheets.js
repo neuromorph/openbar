@@ -101,8 +101,7 @@ function saveToggleSVG(type, obar, Me) {
             let stream = obj.replace_finish(res);        
             stream.write_bytes_async(bytearray, GLib.PRIORITY_DEFAULT, null, (w_obj, w_res) => {        
                 w_obj.write_bytes_finish(w_res);        
-                stream.close(null);      
-                log('saveToggleSVG done: '+ type);  
+                stream.close(null);
             });        
         });
     }
@@ -662,8 +661,7 @@ export function saveGtkCss(obar, caller) {
                 file.replace_async(null, false, Gio.FileCreateFlags.NONE, GLib.PRIORITY_DEFAULT, null, (obj, res) => {
                     let stream = obj.replace_finish(res);        
                     stream.write_bytes_async(bytearray, GLib.PRIORITY_DEFAULT, null, (w_obj, w_res) => {        
-                        w_obj.write_bytes_finish(w_res);      
-                        log('wrote gtk css');  
+                        w_obj.write_bytes_finish(w_res);
                         stream.close(null);        
                     });        
                 });
@@ -3239,12 +3237,10 @@ function saveStylesheet(obar, Me) {
         //     width: 24px;
         //     height: 24px; }
     }
-    log('stylesheet string ready to write');
     return stylesheet;
 }
 
 async function writeStylesheet(obar, stylesheet) {
-    log('writeStylesheet called ');
     let stylepath = obar.obarRunDir.get_path() + '/stylesheet.css';
     let file = Gio.File.new_for_path(stylepath);
     let bytearray = new TextEncoder().encode(stylesheet);
@@ -3281,7 +3277,6 @@ async function writeSVGs(obar, Me) {
 }
 
 async function writeGtkCss(obar) {
-    log('writeGtkCss called ');
     if(obar.gtkCSS) { // accent or Gtk/Flatpak settings changed
         saveGtkCss(obar, 'enable');
         obar.gtkCSS = false;
