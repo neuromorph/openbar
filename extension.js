@@ -614,8 +614,8 @@ export default class Openbar extends Extension {
             return;
         }
 
-        // Reload stylesheet on session-mode-updated (only needed for unlock-dialog)
-        if(callbk_param == 'session-mode-updated' || callbk_param == 'high-contrast') {
+        // Reload stylesheet to pick up high contrast icons
+        if(callbk_param == 'high-contrast') {
             StyleSheets.reloadStyle(this, this);
             return;
         }
@@ -1095,14 +1095,12 @@ export default class Openbar extends Extension {
         let connections = [
             [ Main.overview, 'hiding', this.updatePanelStyle.bind(this) ],
             [ Main.overview, 'showing', this.updatePanelStyle.bind(this) ],
-            [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this) ],
             [ Main.layoutManager, 'monitors-changed', this.updatePanelStyle.bind(this) ],
             [ Main.messageTray._bannerBin, this.addedSignal, this.updatePanelStyle.bind(this), 'message-banner' ],
             [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this), 100 ],
             [ global.display, 'window-entered-monitor', this.setWindowMaxBar.bind(this), 'window-entered-monitor' ],
             [ global.display, 'window-left-monitor', this.setWindowMaxBar.bind(this), 'window-left-monitor' ],
-            [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this), 'session-mode-updated' ],
-            // [ this._hcSettings, 'changed::high-contrast', this.updatePanelStyle.bind(this), 'high-contrast' ],
+            // [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this), 'session-mode-updated' ],
         ];
         // Connections for actor-added/removed OR child-added/removed as per Gnome version
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
