@@ -278,12 +278,12 @@
       <description>Transparency of Menu background.</description>
     </key>
     <key type="b" name="smbgoverride">
-      <default>false</default>
+      <default>true</default>
       <summary>Override Sub/Secondary menu BG Color?</summary>
       <description>Whether to Override Sub/Secondary menu BG Color.</description>
     </key>
     <key type="as" name="smbgcolor">
-      <default>['0.125', '0.125', '0.125']</default>
+      <default>['0.25', '0.30', '0.30']</default>
       <summary>Sub/Secondary menu BG Color (RGBA)</summary>
       <description>Sub/Secondary menu BG Color.</description>
     </key>
@@ -318,7 +318,7 @@
       <description>Menu border color.</description>
     </key>
     <key type="d" name="mbalpha">
-      <default>0.65</default>
+      <default>0.6</default>
       <summary>Transparency (alpha) Menu border</summary>
       <description>Transparency of Menu border.</description>
     </key>
