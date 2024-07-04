@@ -1360,7 +1360,7 @@ class OpenbarPrefs {
         });
         bggrid.attach(shadowLabel, 1, rowbar, 1, 1);
 
-        let shadowSwitch = this.createSwitchWidget('shadow');
+        let shadowSwitch = this.createSwitchWidget('shadow', 'Not applicable to Mainland/Floating bar if "neon glow" is On (under Bar Border)');
         bggrid.attach(shadowSwitch, 2, rowbar, 1, 1);
 
         rowbar += 1;
