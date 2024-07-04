@@ -1087,6 +1087,8 @@ export default class Openbar extends Extension {
 
         this._settings = this.getSettings(); 
         this.bgalpha = this._settings.get_double('bgalpha');
+        this._settings.set_boolean('import-export', false);
+        this._settings.set_boolean('pause-reload', false);
         // Connect to the settings changes
         this._settings.connect('changed', (settings, key) => {
             this.updatePanelStyle(settings, key);

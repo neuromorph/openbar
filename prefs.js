@@ -24,8 +24,19 @@ import Gtk from 'gi://Gtk';
 import Gdk from 'gi://Gdk';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
-
 import {ExtensionPreferences, gettext as _, pgettext} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+
+// Retain compatibility with GLib < 2.80, which lacks GioUnix (from GSConnect extension)
+let GioUnix;
+try {
+    GioUnix = (await import('gi://GioUnix?version=2.0')).default;
+} catch (e) {
+    GioUnix = {
+        InputStream: Gio.UnixInputStream,
+        OutputStream: Gio.UnixOutputStream,
+    };
+}
+
 const SCHEMA_PATH = '/org/gnome/shell/extensions/openbar/';
 
 //-----------------------------------------------
@@ -2541,15 +2552,15 @@ class OpenbarPrefs {
                 let file = Gio.File.new_for_path(filePath);
 
                 let [success_, pid_, stdin, stdout, stderr] =
-                GLib.spawn_async_with_pipes(
-                    null,
-                    ['dconf', 'load', SCHEMA_PATH],
-                    null,
-                    GLib.SpawnFlags.SEARCH_PATH | GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-                    null
-                );
+                    GLib.spawn_async_with_pipes(
+                        null,
+                        ['dconf', 'load', SCHEMA_PATH],
+                        null,
+                        GLib.SpawnFlags.SEARCH_PATH | GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+                        null
+                    );
 
-                stdin = new Gio.UnixOutputStream({fd: stdin, close_fd: true});
+                stdin = new GioUnix.OutputStream({fd: stdin, close_fd: true});
                 GLib.close(stdout);
                 GLib.close(stderr);
 
@@ -2567,7 +2578,7 @@ class OpenbarPrefs {
                    
                     // Trigger stylesheet reload to apply new settings
                     this.triggerStyleReload();                   
-                }, 2000);
+                }, 3000);
                 
             }
           }
