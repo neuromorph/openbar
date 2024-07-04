@@ -986,7 +986,7 @@ class OpenbarPrefs {
 
         // Add a WMax BG Alpha scale
         let wmaxAlphaLabel = new Gtk.Label({
-            label: 'BG Alpha (WMax)',
+            label: 'Bar BG Alpha (WMax)',
             halign: Gtk.Align.START,
         });
         bargridwmax.attach(wmaxAlphaLabel, 1, rowbar, 1, 1);
@@ -1171,7 +1171,7 @@ class OpenbarPrefs {
         // Add a Bar BG Note label
         let barBGNoteLabel = new Gtk.Label({
             use_markup: true,
-            label: `<span allow_breaks="true">Transparent Bar:\n•  Set Box/Margins Alpha to '0' and also BG Alpha to '0'.\n•  Turn Off Panel Blur in 'Blur My Shell', if applied.\n</span>`,
+            label: `<span allow_breaks="true">Transparent Bar:\n•  Set Box/Margins Alpha to '0' and also Bar BG Alpha to '0'.\n•  Turn Off Panel Blur in 'Blur My Shell', if applied.\n</span>`,
             halign: Gtk.Align.START,
             wrap: true,
             width_chars: 55,
@@ -1219,7 +1219,7 @@ class OpenbarPrefs {
 
         // Add a bar background alpha scale
         let bgAlphaLbl = new Gtk.Label({
-            label: 'BG Alpha',
+            label: 'Bar BG Alpha',
             halign: Gtk.Align.START,
         });
         bggrid.attach(bgAlphaLbl, 1, rowbar, 1, 1);
