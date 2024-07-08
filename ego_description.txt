@@ -5,7 +5,7 @@ Top Bar / Top Panel , Menus , Dash / Dock , Gnome Shell , Gtk Apps theming. Open
 Open Bar 2.0: 
 - Auto-theming completely renewed. Theme Options: Dark, Light, Pastel, True-Color
 - Apply styles to Bar, Menu, Dash / Dock and rest of the shell
-- Apply accent color and style Gtk/Flatpak apps
+- Apply accent color and style Gtk/Flatpak apps (Accent tint on Headerbar/Sidebar/Card/Dialog, Add Border, Corners, Traffic Light controls etc)
 - New UI for preferences/settings
 
 
@@ -19,7 +19,6 @@ Auto Theming:
 - Auto-themes will use the color palette generated from the background image.
 - Other settings will be set as selected, by the user, in the preferences tabs.
 - Styles will apply to the Top Bar, Menus and optionally to the shell.
-- Select desired Type of bar before applying a theme. If you change the bar type, apply the theme again.
         
         --- True Color     :  Palette colors as-is (biased towards dark). 
         --- Pastel Theme   :  Colors are pastelified (biased towards light).

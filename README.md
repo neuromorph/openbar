@@ -20,7 +20,6 @@ A GNOME Shell extension for theming Gnome Top Bar / Top Panel, Menus, Dash/Dock,
 - Auto-themes will use the color palette generated from the background image.
 - Other settings will be set as selected, by the user, in the preferences tabs.
 - Styles will apply to the Top Bar, Menus and optionally to the shell.
-- Select desired Type of bar before applying a theme. If you change the bar type, apply the theme again.
         
         - True Color     :  Palette colors as-is (biased towards dark). 
         - Pastel Theme   :  Colors are pastelified (biased towards light).
@@ -91,13 +90,13 @@ If the panel/menu isn't looking right, you need to tweak some settings. There ar
 - Vertical padding: Controls size of highlights in Mainland/Floating. Also controls size of Islands/Trilands. Increase height if padding squeezes the text.
 - Panel Shadow: a downward shadow for the panel bar. Shadow Spread controls both shadow transparency and spread together.
 - Border: 
-    = Width controls thickness (grows inwards for Islands). Adjust bar height accordingly, after setting border width.  
-    = Radius will control the shape from rectangle at radius 0 to Pill at radius close to bar height. 
-    = Neon glow: adds a neon-light like glow to the border. You need dark, relatively opaque background with bright/neon colored, relatively opaque border. Neon will override Panel shadow in Mainland and Floating mode.
+    - Width controls thickness (grows inwards for Islands). Adjust bar height accordingly, after setting border width.  
+    - Radius will control the shape from rectangle at radius 0 to Pill at radius close to bar height. 
+    - Neon glow: adds a neon-light like glow to the border. You need dark, relatively opaque background with bright/neon colored, relatively opaque border. Neon will override Panel shadow in Mainland and Floating mode.
 - Menus: 
-    = FG/BG, border, highlight are similar to above but for menus.
-    = Selected/active color is for menu items that are active e.g. Today's day in Calendar or WiFi in Quick Settings or even an active menu item with opened submenu. 
-    = Shadow applies to the panel menu. Use white/bright color in dark theme and black/dark color in light theme for the effect to show and help with contrast. Using same color as menu border is also a good idea. Use the Alphas for both border and shadow to increase or reduce their effect.
+    - FG/BG, border, highlight are similar to above but for menus.
+    - Selected/active color is for menu items that are active e.g. Today's day in Calendar or WiFi in Quick Settings or even an active menu item with opened submenu. 
+    - Shadow applies to the panel menu. Use white/bright color in dark theme and black/dark color in light theme for the effect to show and help with contrast. Using same color as menu border is also a good idea. Use the Alphas for both border and shadow to increase or reduce their effect.
 - Lastly, be a tiny bit gentler with the sliders in the settings as they modify the stylesheet behind the scene for every update.
 
 
@@ -137,7 +136,7 @@ Candybar Example:
 
 Window-Max Bar Example: 
 
-![WindowMaxBar](screens/OpenBar_WindowMax.webm) 
+![WindowMaxBar](https://github.com/neuromorph/openbar/issues/17#issue-2186440177) 
 
 More Examples: 
 ![Screenshot](screens/ego2.png)
