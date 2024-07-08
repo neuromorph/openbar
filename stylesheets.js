@@ -172,7 +172,7 @@ function saveCheckboxSVG(type, obar, Me) {
 }
 
 // Create Gtk Stylesheet string
-function createGtkCss(obar) {
+function createGtkCss(obar, gtk4) {
     // Add hint of Accent color to Headerbar and Sidebar
     let hBarHint = obar._settings.get_int('headerbar-hint')/100;
     let sBarHint = obar._settings.get_int('sidebar-hint')/100;
@@ -185,6 +185,8 @@ function createGtkCss(obar) {
     let popoverMenu = obar._settings.get_boolean('gtk-popover');
     let winBAlpha = obar._settings.get_double('winbalpha');
     let winBWidth = obar._settings.get_double('winbwidth');
+    let winBRadius = obar._settings.get_double('winbradius');
+    let cornerRadius = obar._settings.get_boolean('corner-radius');
     let winBColor = obar._settings.get_strv('winbcolor');
     const winBRed = parseInt(parseFloat(winBColor[0]) * 255);
     const winBGreen = parseInt(parseFloat(winBColor[1]) * 255);
@@ -333,30 +335,112 @@ function createGtkCss(obar) {
         margin: -2px -3px -2px 0px;
     }
 
-    /* Window Border */
-    window,
-    decoration,
-    decoration-overlay {
+    /* Window Border and Corner Radius */
+    window.csd, dialog.csd,
+    window.csd > decoration,
+    window.csd > decoration-overlay {
         border: ${winBWidth}px solid rgba(${winBRed}, ${winBGreen}, ${winBBlue}, ${winBAlpha});
     }
-    window:backdrop,
-    decoration:backdrop,
-    decoration-overlay:backdrop {
+    window.csd:backdrop, dialog:backdrop.csd,
+    window.csd:backdrop > decoration,
+    window.csd:backdrop > decoration-overlay {
         border: ${winBWidth}px solid rgba(${winBRedBd}, ${winBGreenBd}, ${winBBlueBd}, ${winBAlpha});
     }
-    window.maximized,
-    window.maximized > decoration,
-    window.maximized > decoration-overlay,
+    window.csd.maximized, window.csd.maximized > decoration, window.csd.maximized > decoration-overlay,
+    window.csd.maximized > headerbar, window.csd.maximized > .top-bar, window.csd.maximized > .titlebar,
+    window.csd.fullscreen, window.csd.fullscreen > decoration, window.csd.fullscreen > decoration-overlay,
+    window.csd.fullscreen > headerbar, window.csd.fullscreen > .top-bar, window.csd.fullscreen > .titlebar,
     tooltip > decoration, tooltip > decoration-overlay {    
         border: none;
-        /*border-radius: 0px;*/
+        border-radius: 0px;
     }
-    /*window, 
-    decoration,
-    decoration-overlay {
-        border-radius: 20px;
-    }*/
+    window.csd.tiled, window.csd.tiled-top, window.csd.tiled-right, window.csd.tiled-bottom, window.csd.tiled-left,
+    window.csd.tiled > decoration, window.csd.tiled > decoration-overlay,
+    window.csd.tiled > headerbar, window.csd.tiled > .top-bar, window.csd.tiled > .titlebar {
+        border-radius: 0px;
+    }
+    window.csd .tiled-top .tiled-right .tiled-bottom .tiled-left {
+      border: none;
+    }
     `;
+
+    if(gtk4) { // gtk4
+        if(cornerRadius) {
+            gtkstring += `
+            window.csd, dialog.csd,
+            window.csd > decoration,
+            window.csd > decoration-overlay {
+                border-radius: ${winBRadius}px;
+            }
+            `;
+        }
+    }
+    else { // gtk3
+        if(cornerRadius) {
+            gtkstring += `
+            window.csd, dialog.csd,
+            decoration, decoration-overlay {
+                border-bottom-left-radius: ${winBRadius}px;
+                border-bottom-right-radius: ${winBRadius}px;
+            }
+            decoration, decoration-overlay,
+            headerbar, .top-bar, .titlebar {
+                border-top-left-radius: ${winBRadius}px;
+                border-top-right-radius: ${winBRadius}px;
+            }
+            window.unified {
+                border-radius: ${winBRadius}px;
+            }
+            /* Terminal Preferences */
+            window > box > box > frame > scrolledwindow > viewport > list, window > box > box > frame > border { 
+                border-bottom-left-radius: ${winBRadius}px;
+            }
+            `;
+        }
+        
+        gtkstring += `
+        window.csd {
+            border: none;
+        }        
+        window.popup > decoration {
+            border: none;
+            border-radius: 6px;
+        }
+        
+        /* Gnome Terminal */
+        terminal-window > decoration, terminal-window:backdrop > decoration {
+            border: none;
+            border-bottom-left-radius: 0px;
+            border-bottom-right-radius: 0px;
+        }
+        terminal-window > box > notebook > stack > terminal-screen-container > box {      
+            border: ${winBWidth}px solid rgba(${winBRed}, ${winBGreen}, ${winBBlue}, ${winBAlpha});
+            border-top: none;
+        }
+        terminal-window > headerbar {
+            border: ${winBWidth}px solid rgba(${winBRed}, ${winBGreen}, ${winBBlue}, ${winBAlpha});
+            border-bottom: none;
+        }
+        terminal-window:backdrop > box > notebook > stack > terminal-screen-container > box {      
+            border: ${winBWidth}px solid rgba(${winBRedBd}, ${winBGreenBd}, ${winBBlueBd}, ${winBAlpha});
+            border-top: none;
+        }
+        terminal-window:backdrop > headerbar {
+            border: ${winBWidth}px solid rgba(${winBRedBd}, ${winBGreenBd}, ${winBBlueBd}, ${winBAlpha});
+            border-bottom: none;
+        }
+        terminal-window > box > notebook > stack > terminal-screen-container > box > box > scrollbar > contents > trough > slider {
+            background-color: rgba(${accRed}, ${accGreen}, ${accBlue}, 0.5);
+        }
+        terminal-window.maximized > box > notebook > stack > terminal-screen-container > box, terminal-window.maximized > headerbar {
+            border: none;
+            border-radius: 0px;
+        }
+        terminal-window.tiled > decoration, terminal-window.tiled > headerbar {
+            border-radius: 0px;
+        }        
+        `;        
+    }
     
     if(hBarHint) {
         gtkstring += `
@@ -378,53 +462,64 @@ function createGtkCss(obar) {
 
         headerbar > label, headerbar > box > label {
             color: @headerbar_fg_color;
-        }        
-        headerbar > button,
-        headerbar > box > button, headerbar > box > box > button,
-        headerbar > entry,
-        headerbar > box > entry {
-            background-image: image(rgb(${hbbgRed}, ${hbbgGreen}, ${hbbgBlue}));
-            color: @headerbar_fg_color;
-            border-color: alpha(@headerbar_fg_color, 0.2);
         }
-        headerbar:backdrop > button,
-        headerbar:backdrop > box > button, headerbar:backdrop > box > box > button,
-        headerbar:backdrop > entry,
-        headerbar:backdrop > box > entry {
-            background-image: image(rgb(${hbbdRed}, ${hbbdGreen}, ${hbbdBlue}));
-            color: rgba(${hfgRed}, ${hfgGreen}, ${hfgBlue}, 0.65);
-        }
-        headerbar > button:disabled,
-        headerbar > box > button:disabled, headerbar > box > box > button:disabled,
-        headerbar > entry:disabled,
-        headerbar > box > entry:disabled {
-            background-image: image(rgba(0,0,0,0));
-            color: alpha(@headerbar_fg_color, 0.5);
-        }
-        headerbar > button:hover,
-        headerbar > box > button:hover, headerbar > box > box > button:hover,
-        headerbar > entry:hover,
-        headerbar > box > entry:hover {
-            background-image: image(rgb(${hbhRed}, ${hbhGreen}, ${hbhBlue}));
-            border-color: alpha(@headerbar_fg_color, 0.3);
-        }
-        headerbar > button:checked,
-        headerbar > box > button:checked, headerbar > box > box > button:checked {
-            background-image: image(rgb(${hbcbgRed}, ${hbcbgGreen}, ${hbcbgBlue}));
-            border-color: alpha(@headerbar_fg_color, 0.3);
-        }
-        headerbar > button.suggested-action,
-        headerbar > box > button.suggested-action, headerbar > box > box > button.suggested-action {
-            background-image: image(@accent_bg_color);
-            color: @accent_fg_color;
-        }
-        headerbar > button.suggested-action:hover,
-        headerbar > box > button.suggested-action:hover, headerbar > box > box > button.suggested-action:hover {
-            background-image: image(rgba(${acchRed}, ${acchGreen}, ${acchBlue}, 0.85));
-            color: rgba(${afgRed}, ${afgGreen}, ${afgBlue}, 0.95);
-        }
-        
         `;
+        
+        // Headerbar Buttons (gtk3)
+        if(!gtk4) {
+            gtkstring += `      
+            headerbar > button,
+            headerbar > box > button, 
+            headerbar > box > box > button {
+                background-image: image(rgb(${hbbgRed}, ${hbbgGreen}, ${hbbgBlue}));
+                color: @headerbar_fg_color;
+                border-color: alpha(@headerbar_fg_color, 0.2);
+            }
+            headerbar > entry,
+            headerbar > box > entry {
+                background-image: image(rgb(${hbbdRed}, ${hbbdGreen}, ${hbbdBlue}));
+                color: @headerbar_fg_color;
+                border-color: alpha(@headerbar_fg_color, 0.2);
+            }
+            headerbar:backdrop > button,
+            headerbar:backdrop > box > button, headerbar:backdrop > box > box > button,
+            headerbar:backdrop > entry,
+            headerbar:backdrop > box > entry {
+                background-image: image(rgb(${hbbdRed}, ${hbbdGreen}, ${hbbdBlue}));
+                color: rgba(${hfgRed}, ${hfgGreen}, ${hfgBlue}, 0.65);
+            }
+            headerbar > button:disabled,
+            headerbar > box > button:disabled, headerbar > box > box > button:disabled,
+            headerbar > entry:disabled,
+            headerbar > box > entry:disabled {
+                background-image: image(rgba(0,0,0,0));
+                background-color: rgba(0,0,0,0);
+                color: alpha(@headerbar_fg_color, 0.5);
+            }
+            headerbar > button:hover,
+            headerbar > box > button:hover, headerbar > box > box > button:hover,
+            headerbar > entry:hover,
+            headerbar > box > entry:hover {
+                background-image: image(rgb(${hbhRed}, ${hbhGreen}, ${hbhBlue}));
+                border-color: alpha(@headerbar_fg_color, 0.3);
+            }
+            headerbar > button:checked,
+            headerbar > box > button:checked, headerbar > box > box > button:checked {
+                background-image: image(rgb(${hbcbgRed}, ${hbcbgGreen}, ${hbcbgBlue}));
+                border-color: alpha(@headerbar_fg_color, 0.3);
+            }
+            headerbar > button.suggested-action,
+            headerbar > box > button.suggested-action, headerbar > box > box > button.suggested-action {
+                background-image: image(@accent_bg_color);
+                color: @accent_fg_color;
+            }
+            headerbar > button.suggested-action:hover,
+            headerbar > box > button.suggested-action:hover, headerbar > box > box > button.suggested-action:hover {
+                background-image: image(rgba(${acchRed}, ${acchGreen}, ${acchBlue}, 0.85));
+                color: rgba(${afgRed}, ${afgGreen}, ${afgBlue}, 0.95);
+            }        
+            `;
+        }
     }
     
     if(sBarHint) {
@@ -590,7 +685,7 @@ export function saveGtkCss(obar, caller) {
     const configDir = GLib.get_user_config_dir();
     const gtk3Dir = Gio.File.new_for_path(`${configDir}/gtk-3.0`);
     const gtk4Dir = Gio.File.new_for_path(`${configDir}/gtk-4.0`);
-    [gtk3Dir, gtk4Dir].forEach(async dir => {
+    [gtk3Dir, gtk4Dir].forEach(async (dir, idx) => {
         // console.log(dir.get_path() +'\n' + gtkstring);
 
         // Create dir if missing
@@ -655,7 +750,7 @@ export function saveGtkCss(obar, caller) {
             }
 
             // Create stylesheet string and save to css file
-            let gtkstring = createGtkCss(obar);
+            let gtkstring = createGtkCss(obar, idx);
             let bytearray = new TextEncoder().encode(gtkstring);
             try {
                 file.replace_async(null, false, Gio.FileCreateFlags.NONE, GLib.PRIORITY_DEFAULT, null, (obj, res) => {
