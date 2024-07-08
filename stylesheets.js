@@ -451,6 +451,7 @@ function createGtkCss(obar, gtk4) {
         headerbar, 
         .top-bar,
         .titlebar { 
+            color: @headerbar_fg_color;
             background-color: @headerbar_bg_color;
             background-image:none;
         } 
@@ -459,7 +460,6 @@ function createGtkCss(obar, gtk4) {
         .titlebar:backdrop { 
             background-color: @headerbar_backdrop_color;
         }
-
         headerbar > label, headerbar > box > label {
             color: @headerbar_fg_color;
         }
@@ -470,7 +470,9 @@ function createGtkCss(obar, gtk4) {
             gtkstring += `      
             headerbar > button,
             headerbar > box > button, 
-            headerbar > box > box > button {
+            headerbar > box > box > button,
+            headerbar > stack > button, 
+            headerbar > stack > box > button {
                 background-image: image(rgb(${hbbgRed}, ${hbbgGreen}, ${hbbgBlue}));
                 color: @headerbar_fg_color;
                 border-color: alpha(@headerbar_fg_color, 0.2);
@@ -483,38 +485,41 @@ function createGtkCss(obar, gtk4) {
             }
             headerbar:backdrop > button,
             headerbar:backdrop > box > button, headerbar:backdrop > box > box > button,
-            headerbar:backdrop > entry,
-            headerbar:backdrop > box > entry {
+            headerbar:backdrop > stack > button, headerbar:backdrop > stack > box > button,
+            headerbar:backdrop > entry, headerbar:backdrop > box > entry {
                 background-image: image(rgb(${hbbdRed}, ${hbbdGreen}, ${hbbdBlue}));
                 color: rgba(${hfgRed}, ${hfgGreen}, ${hfgBlue}, 0.65);
             }
             headerbar > button:disabled,
             headerbar > box > button:disabled, headerbar > box > box > button:disabled,
-            headerbar > entry:disabled,
-            headerbar > box > entry:disabled {
+            headerbar > stack > button:disabled, headerbar > stack > box > button:disabled,
+            headerbar > entry:disabled, headerbar > box > entry:disabled {
                 background-image: image(rgba(0,0,0,0));
                 background-color: rgba(0,0,0,0);
                 color: alpha(@headerbar_fg_color, 0.5);
             }
             headerbar > button:hover,
             headerbar > box > button:hover, headerbar > box > box > button:hover,
-            headerbar > entry:hover,
-            headerbar > box > entry:hover {
+            headerbar > stack > button:hover, headerbar > stack > box > button:hover,
+            headerbar > entry:hover, headerbar > box > entry:hover {
                 background-image: image(rgb(${hbhRed}, ${hbhGreen}, ${hbhBlue}));
                 border-color: alpha(@headerbar_fg_color, 0.3);
             }
             headerbar > button:checked,
-            headerbar > box > button:checked, headerbar > box > box > button:checked {
+            headerbar > box > button:checked, headerbar > box > box > button:checked,
+            headerbar > stack > button:checked, headerbar > stack > box > button:checked {
                 background-image: image(rgb(${hbcbgRed}, ${hbcbgGreen}, ${hbcbgBlue}));
                 border-color: alpha(@headerbar_fg_color, 0.3);
             }
             headerbar > button.suggested-action,
-            headerbar > box > button.suggested-action, headerbar > box > box > button.suggested-action {
+            headerbar > box > button.suggested-action, headerbar > box > box > button.suggested-action,
+            headerbar > stack > button.suggested-action, headerbar > stack > box > button.suggested-action {
                 background-image: image(@accent_bg_color);
                 color: @accent_fg_color;
             }
             headerbar > button.suggested-action:hover,
-            headerbar > box > button.suggested-action:hover, headerbar > box > box > button.suggested-action:hover {
+            headerbar > box > button.suggested-action:hover, headerbar > box > box > button.suggested-action:hover,
+            headerbar > stack > button.suggested-action:hover, headerbar > stack > box > button.suggested-action:hover {
                 background-image: image(rgba(${acchRed}, ${acchGreen}, ${acchBlue}, 0.85));
                 color: rgba(${afgRed}, ${afgGreen}, ${afgBlue}, 0.95);
             }        
