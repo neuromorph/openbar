@@ -395,6 +395,17 @@ function createGtkCss(obar, gtk4) {
             window > box > box > frame > scrolledwindow > viewport > list, window > box > box > frame > border { 
                 border-bottom-left-radius: ${winBRadius}px;
             }
+            /* dconf */
+            .keys-list {
+                border-bottom-left-radius: ${winBRadius}px;
+                border-bottom-right-radius: ${winBRadius}px;
+            }
+            /* Videos */
+            window > stack > box > scrolledwindow ,
+            window > stack > box > scrolledwindow > iconview {
+                border-bottom-left-radius: ${winBRadius}px;
+                border-bottom-right-radius: ${winBRadius}px;
+            }
             `;
         }
         
