@@ -231,7 +231,9 @@ class OpenbarPrefs {
             'value',
             Gio.SettingsBindFlags.DEFAULT
         );
-        scale.connect('change-value', () => {this.setTimeoutStyleReload();});
+        const gtkScales = ['headerbar-hint', 'sidebar-hint', 'card-hint', 'winbalpha', 'winbradius', 'winbwidth'];
+        if(!gtkScales.includes(gsetting))
+            scale.connect('change-value', () => {this.setTimeoutStyleReload();});
         return scale;
     }
 
@@ -2263,6 +2265,30 @@ class OpenbarPrefs {
 
         let winBWidthScale = this.createScaleWidget(0, 10, 0.1, 1, 'winbwidth', 'Window Border Width');
         appgrid.attach(winBWidthScale, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a window corner radius switch
+        let winBRadSwitchLbl = new Gtk.Label({
+            label: `Apply Corner Radius`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(winBRadSwitchLbl, 1, rowbar, 1, 1);
+
+        let winBRadiusSwitch = this.createSwitchWidget('corner-radius', 'Enable custom Window Corner Radius as selected below');
+        appgrid.attach(winBRadiusSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a window corner radius scale
+        let winBRadiusLbl = new Gtk.Label({
+            label: `Corner Radius`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(winBRadiusLbl, 1, rowbar, 1, 1);
+
+        let winBRadiusScale = this.createScaleWidget(0, 25, 1, 0, 'winbradius', 'Window Corner Radius - may not work well for legacy/non-Gtk apps');
+        appgrid.attach(winBRadiusScale, 2, rowbar, 1, 1);
 
         rowbar += 2;
         

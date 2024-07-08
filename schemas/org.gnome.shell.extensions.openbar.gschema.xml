@@ -1307,6 +1307,16 @@
       <summary>Border width of gtk window</summary>
       <description>Border width of gtk window.</description>
     </key>
+    <key type="b" name="corner-radius">
+      <default>false</default>
+      <summary>Apply corner radius to Gtk window</summary>
+      <description>Apply corner radius to Gtk window.</description>
+    </key>
+    <key type="d" name="winbradius">
+      <default>12</default>
+      <summary>Border/Corner radius of gtk window</summary>
+      <description>Border/Corner radius of gtk window.</description>
+    </key>
     <key type="b" name="apply-flatpak">
       <default>false</default>
       <summary>Apply accent color to Flatpak apps</summary>
