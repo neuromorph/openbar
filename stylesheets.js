@@ -1695,6 +1695,7 @@ function saveStylesheet(obar, Me) {
         }
 
         #panel${openbarClass} .panel-button {
+            box-shadow: none;
             ${btnStyle}
             color: rgba(${fgred},${fggreen},${fgblue},${fgalpha});
             ${unlockStyle}

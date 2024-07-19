@@ -406,6 +406,7 @@ export default class Openbar extends Extension {
                     // DateMenu: Notifications (messages and media), DND and Clear buttons
                     //           Calendar Grid, Events, World Clock, Weather
                     if(btn.child.constructor.name === 'DateMenuButton') {
+                        btn.child.y_align = Clutter.ActorAlign.CENTER;
                         const bin = btn.child.menu.box.get_child_at_index(0); // CalendarArea 
                         const hbox = bin.get_child_at_index(0); // hbox with left and right sections
 
