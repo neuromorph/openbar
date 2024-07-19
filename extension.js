@@ -484,7 +484,8 @@ export default class Openbar extends Extension {
 
                     if(btn.child.visible) { 
                         // console.log('Visible Child: ', String(btn.child));
-                        btn.add_style_class_name('openbar button-container');
+                        btn.add_style_class_name('openbar');
+                        btn.add_style_class_name('button-container');
 
                         // Add candybar classes if enabled else remove them
                         if(key == 'enabled' || key == 'candybar' || key == 'showing' || key == 'hiding'
@@ -831,10 +832,13 @@ export default class Openbar extends Extension {
         else if(position == 'Bottom') {
             margin = (bartype == 'Mainland')? 0: margin;
             borderWidth = (bartype == 'Trilands' || bartype == 'Islands')? 0: borderWidth;  
+            let panelBoxHeight = height + 2*borderWidth + 2*margin;
+            // Scale height by Display Scaling factor
+            panelBoxHeight = this.themeContext.scale_factor * panelBoxHeight;
             let bottomX = panelMonitor.x;
-            let bottomY = panelMonitor.y + panelMonitor.height - height - 2*borderWidth - 2*margin;
+            let bottomY = panelMonitor.y + panelMonitor.height - panelBoxHeight;;
             panelBox.set_position(bottomX, bottomY);
-            panelBox.set_size(panelMonitor.width, height + 2*borderWidth + 2*margin);
+            panelBox.set_size(panelMonitor.width, panelBoxHeight);
         }        
     }
 
@@ -1082,8 +1086,10 @@ export default class Openbar extends Extension {
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
         this._intSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
         this._hcSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.a11y.interface' });
-
         this.colorScheme = this._intSettings.get_string('color-scheme');
+        
+        // Get global theme context (for display scaling)
+        this.themeContext = St.ThemeContext.get_for_stage(global.stage);
 
         this._settings = this.getSettings(); 
         this.bgalpha = this._settings.get_double('bgalpha');
