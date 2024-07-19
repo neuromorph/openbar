@@ -2,16 +2,21 @@ Top Bar / Top Panel , Menus , Dash / Dock , Gnome Shell , Gtk Apps theming. Open
 
 **Please report on GitHub if something is broken due to an update or if you have any suggestions.
 
+Update v36:
+- Support for nixpkgs  
+- Apps window corners
+- Several fixes 
+
 Open Bar 2.0: 
 - Auto-theming completely renewed. Theme Options: Dark, Light, Pastel, True-Color
 - Apply styles to Bar, Menu, Dash / Dock and rest of the shell
-- Apply accent color and style Gtk/Flatpak apps (Accent tint on Headerbar/Sidebar/Card/Dialog, Add Border, Corners, Traffic Light controls etc)
+- Apply accent color and style Gtk/Flatpak apps (Accent tint on Headerbar/Sidebar/Card/Dialog, Add Window Border, Corners, Traffic Light controls etc)
 - New UI for preferences/settings
 
 
 Compatibility with Extensions:
-- It should be (mostly) compatible with user themes and other extensions that affect the Top Panel 
-- Some extensions do not use standard widget and API (e.g. 'PanelMenu.Button' and 'main.addToStatusArea') when adding indicator to Panel and fixing that makes them work correctly with Open Bar (or user themes for that matter).
+- It should be (mostly) compatible with custom user themes and other extensions that affect the Top Panel 
+- Some extensions do not use standard widget and API (i.e. 'PanelMenu.Button' and 'main.addToStatusArea') when adding indicator to Panel and fixing that makes them work correctly with Open Bar (or user themes for that matter). Refer issue #24 on GitHub.
 
 
 Auto Theming:
@@ -28,9 +33,9 @@ Auto Theming:
 - You can select themes separately for both Gnome Dark and Light modes. 
 - Once theme is applied, you can further tweak any of the manual settings, as usual, to finetune the theme. 
 - Color changes made in current mode will be saved for that mode alone. Other settings will apply to both modes.
-- There is an option for Auto-refreshing theme when background changes. This will overwrite current themes with newly generated ones when background is changed.
+- There is an option for Auto-refreshing theme when background changes. This will overwrite current theme colors with newly generated ones when background is changed.
 - There are more settings in Auto-Theme. You can select if you want the secondary menu BG color to be derived from BG or auto-selected from palette. You can specify any preferred accent color or let the theme choose from the background. You can also select if foreground color should be auto-generated or use manual selection etc.
-- Since it is one size fit all solution, 'No Free Lunch' theorem applies. Not all options will work best for all backgrounds, so the additional knobs above will help you select the desired one. One of the theme combinations should work for you at least with little bit tweaking if needed.
+- Since it is one size fit all solution, 'No Free Lunch' theorem applies. Not all options will work best for all backgrounds, so the additional knobs above will help you select the desired one. One of the theme combinations should work well for you at least with little bit tweaking, if needed.
   
 
 Customize:
@@ -39,10 +44,10 @@ Customize:
 - Bar foreground color, font
 - Bar background color, transparency, gradient, shadow, highlights, candybar 
 - Shape rectangular to pill, border width, color, neon glow
-- Menu customizations: foreground, background colors, transparency, border, shadow,  active/selection, hover colors
+- Menu customizations: foreground, background colors, transparency, border, shadow,  accent/selection, hover colors
 etc.
 - Includes a custom color palette, under the default palette, in each color button popup. The palette is auto-generated from the desktop background.
-- Add accent hint to GTK/Flatpak apps' Headerbar, Sidebar or Card/Dialogs. Add Traffic Light controls, window border, popover styles etc.
+- Add accent hint to GTK/Flatpak apps' Headerbar, Sidebar or Card/Dialogs. Add Traffic Light controls, window border, rounded window corners (or square),  popover styles etc.
 
 
 SETTINGS NOTES:
