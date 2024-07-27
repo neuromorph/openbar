@@ -175,7 +175,9 @@ function saveCheckboxSVG(type, obar, Me) {
 function createGtkCss(obar, gtk4) {
     // Add hint of Accent color to Headerbar and Sidebar
     let hBarHint = obar._settings.get_int('headerbar-hint')/100;
+    let hBarGtk3Only = obar._settings.get_boolean('hbar-gtk3only');
     let sBarHint = obar._settings.get_int('sidebar-hint')/100;
+    let sBarGradient = obar._settings.get_string('sbar-gradient');
     let cdHint = obar._settings.get_int('card-hint')/100;
     let hBarHintBd = hBarHint/2;
     let sBarHintBd = sBarHint/2;
@@ -539,6 +541,15 @@ function createGtkCss(obar, gtk4) {
     }
     
     if(sBarHint) {
+        let sbGradStyle = 
+        `background-image: linear-gradient(
+            ${sBarGradient}, @sidebar_bg_color, rgba(${sgrRed},${sgrGreen},${sgrBlue},${sbAlpha})
+        );`
+        let sbGradBdStyle =
+        `background-image: linear-gradient(
+            ${sBarGradient}, @sidebar_backdrop_color, rgba(${sgrRed},${sgrGreen},${sgrBlue},${sbAlpha})
+        );`
+
         gtkstring += `
         @define-color sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${sbAlpha});
         @define-color sidebar_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${sbAlpha});
@@ -554,7 +565,9 @@ function createGtkCss(obar, gtk4) {
         .content-pane .sidebar-pane,
         .sidebar-pane .content-pane,
         scrolledwindow>viewport>list /* Gnome Tweaks */{
-            background-color: @sidebar_bg_color;
+            ${sBarGradient != 'none' ?
+                sbGradStyle :
+                `background-color: @sidebar_bg_color;`}
         }
         .sidebar:backdrop,
         .navigation-sidebar:backdrop,
@@ -562,9 +575,22 @@ function createGtkCss(obar, gtk4) {
         .content-pane .sidebar-pane:backdrop,
         .sidebar-pane .content-pane:backdrop,
         scrolledwindow>viewport>list:backdrop {
-            background-color: @sidebar_backdrop_color;
-        }
+            ${sBarGradient != 'none' ?
+                sbGradBdStyle :
+                `background-color: @sidebar_backdrop_color;`}
+        }   
         `;
+
+        if(sBarHint - hBarHint > 0.05) {
+            gtkstring += `
+            #NautilusPathBar {
+                ${sBarGradient != 'none' ? `background-color: alpha(@sidebar_bg_color, 0.5);` : `background-color: @sidebar_bg_color;`}
+            }
+            #NautilusPathBar:backdrop {
+                ${sBarGradient != 'none' ? `background-color: alpha(@sidebar_backdrop_color, 0.5);` : `background-color: @sidebar_backdrop_color;`}
+            }
+            `;
+        }
     }
     
     if(cdHint) {
