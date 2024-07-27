@@ -433,6 +433,7 @@ function createGtkCss(obar, gtk4) {
         terminal-window > headerbar {
             border: ${winBWidth}px solid rgba(${winBRed}, ${winBGreen}, ${winBBlue}, ${winBAlpha});
             border-bottom: none;
+            min-height: 0px;
         }
         terminal-window:backdrop > box > notebook > stack > terminal-screen-container > box {      
             border: ${winBWidth}px solid rgba(${winBRedBd}, ${winBGreenBd}, ${winBBlueBd}, ${winBAlpha});
@@ -445,13 +446,69 @@ function createGtkCss(obar, gtk4) {
         terminal-window > box > notebook > stack > terminal-screen-container > box > box > scrollbar > contents > trough > slider {
             background-color: rgba(${accRed}, ${accGreen}, ${accBlue}, 0.5);
         }
-        terminal-window.maximized > box > notebook > stack > terminal-screen-container > box, terminal-window.maximized > headerbar {
+        terminal-window.maximized > box > notebook > stack > terminal-screen-container > box, 
+        terminal-window.fullscreen > box > notebook > stack > terminal-screen-container > box, 
+        terminal-window.maximized > headerbar,
+        terminal-window.fullscreen > headerbar {
             border: none;
             border-radius: 0px;
         }
         terminal-window.tiled > decoration, terminal-window.tiled > headerbar {
             border-radius: 0px;
         }        
+        
+        .terminal-screen {
+            background-color: rgb(36, 36, 36);
+            padding: 5px 15px;
+        }
+        terminal-window > headerbar .image-button, terminal-window:backdrop > headerbar .image-button {
+            background: transparent;
+            background-image: none;
+            border: none;
+        }
+        terminal-window .image-button:hover {
+            background-image: image(rgb(${fbhRed}, ${fbhGreen}, ${fbhBlue}));
+            color: rgb(${hfgRed}, ${hfgGreen}, ${hfgBlue});
+        }
+        terminal-window .image-button:checked {
+            background-image: image(rgb(${fbcRed}, ${fbcGreen}, ${fbcBlue}));
+            color: rgb(${hfgRed}, ${hfgGreen}, ${hfgBlue});
+        }
+        /*terminal-window .titlebutton {
+            padding: 1px;
+            margin: 0 1px;
+        }*/
+        terminal-window > box > notebook > stack > terminal-screen-container > box > box > scrollbar > contents > trough > slider {
+            min-width: 3px;
+            background-color: rgba(125,125,125,0.75);
+        }
+        terminal-window > box > notebook > stack > terminal-screen-container > box > box > scrollbar > contents > trough > slider:hover {
+            transition-duration: 250ms;
+            min-width: 8px;
+            background-color: rgba(175,175,175,0.85);
+        }
+        /* Terminal Tabs */
+        terminal-window > box > notebook > header {
+            background-color: rgb(36,36,36);
+            border: none;
+            border-left: ${winBWidth}px solid rgba(${winBRed}, ${winBGreen}, ${winBBlue}, ${winBAlpha});
+            border-right: ${winBWidth}px solid rgba(${winBRed}, ${winBGreen}, ${winBBlue}, ${winBAlpha});
+        }
+        terminal-window > box > notebook > header:backdrop {
+            border-left: ${winBWidth}px solid rgba(${winBRedBd}, ${winBGreenBd}, ${winBBlueBd}, ${winBAlpha});
+            border-right: ${winBWidth}px solid rgba(${winBRedBd}, ${winBGreenBd}, ${winBBlueBd}, ${winBAlpha});
+        }
+        terminal-window > box > notebook > header > tabs > tab,
+        terminal-window > box > notebook > header > tabs > tab > box > button,
+        terminal-window > box > notebook > header > box > box > button {
+            color: rgb(210,210,210);
+        }
+        terminal-window > box > notebook > header > tabs > tab > box > button:hover,
+        terminal-window > box > notebook > header > box > box > button:hover {
+            background-color: rgb(65,65,65);
+            background-image: none;
+            border-color: transparent;
+        }
         `;        
     }
     
