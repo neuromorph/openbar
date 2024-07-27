@@ -241,6 +241,8 @@ class OpenbarPrefs {
         let gtkswitch = new Gtk.Switch({
             halign: Gtk.Align.END,
             tooltip_text: tooltip_text,
+            margin_top: 5,
+            margin_bottom: 5
         });
         if(this._settings.get_boolean('apply-gtk'))
             gtkswitch.css_classes = ['openbar-switch'];
@@ -289,8 +291,8 @@ class OpenbarPrefs {
         let separator = new Gtk.Separator({
             orientation: Gtk.Orientation.HORIZONTAL,
             hexpand: true,
-            margin_bottom: 8,
-            margin_top: 8,
+            margin_bottom: 10,
+            margin_top: 10,
         });
         return separator;
     }
@@ -494,7 +496,7 @@ class OpenbarPrefs {
 
         // Add a title label
         let titleLabel = new Gtk.Label({
-            label: `<span size="x-large">Top Bar and Beyond      </span>\n\n<span underline="none"><b>${_('Version:')} ${this.openbar.metadata.version}  |  <a href="${this.openbar.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${this.openbar.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕ 🍺     </a></b></span>`,
+            label: `<span size="x-large">Top Bar and Beyond      </span>\n\n<span underline="none"><b>${_('Version:')} ${this.openbar.metadata.version}  |  <a href="${this.openbar.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${this.openbar.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕ 🍹     </a></b></span>`,
             halign: Gtk.Align.CENTER,
             valign: Gtk.Align.CENTER,
             justify: Gtk.Justification.CENTER,
@@ -1579,12 +1581,12 @@ class OpenbarPrefs {
 
         // Add a border radius scale
         let bRadiuslbl = new Gtk.Label({
-            label: 'Radius',
+            label: 'Corner Radius',
             halign: Gtk.Align.START,
         });
         bgrid.attach(bRadiuslbl, 1, rowbar, 1, 1);
 
-        let bRadius = this.createScaleWidget(0, 50, 1, 0, 'bradius', 'There is an internal max limit on Border Radius based on the Bar Height and Border Width');
+        let bRadius = this.createScaleWidget(0, 50, 1, 0, 'bradius', 'Note: There is an internal max limit on Border Radius for "Neon" based on the Bar Height and Border Width');
         bgrid.attach(bRadius, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1661,19 +1663,6 @@ class OpenbarPrefs {
 
         rowbar = 1;
 
-        // Add Menu style apply / remove info 
-        // let menuInfoLabel = new Gtk.Label({
-        //     use_markup: true,
-        //     label: `<span allow_breaks="true">Click on Apply / Reset buttons below to Enable / Disable Menu styles. \nOnce enabled, setting-changes will apply immediately.</span>`,
-        //     halign: Gtk.Align.START,
-        // });
-        // menugrid.attach(menuInfoLabel, 1, rowbar, 2, 1);
-
-        // rowbar += 2;
-        //
-        // let menuSwitch = this.createSwitchWidget();
-        // menugrid.attach(menuSwitch, 2, rowbar, 1, 1);
-
         // Popup Menus label
         let popupMenuLabel = new Gtk.Label({
             label: `\n<span size="large">Popup Menus\n\n</span>`,
@@ -1682,6 +1671,23 @@ class OpenbarPrefs {
             css_classes: ['openbar-title'],
         });
         menugrid.attach(popupMenuLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add Menu style Enable / Disable switch 
+        let menuStyleLabel = new Gtk.Label({
+            label: `Enable Menu Styles`,
+            halign: Gtk.Align.START,
+        });
+        menugrid.attach(menuStyleLabel, 1, rowbar, 1, 1);
+        
+        let menuStyleSwitch = this.createSwitchWidget('menustyle', 'Turn Off to disable Open Bar menu styles below and instead retain your installed theme');
+        menugrid.attach(menuStyleSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1
+
+        let separator0 = this.createSeparatorWidget();
+        menugrid.attach(separator0, 1, rowbar, 2, 1);
 
         rowbar += 1;
 
