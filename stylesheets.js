@@ -2078,604 +2078,607 @@ function saveStylesheet(obar, Me) {
     `;
 
     // Menu styles
-    stylesheet += `
+    let menustyle = obar._settings.get_boolean('menustyle');
+    if(menustyle) {
+        stylesheet += `
 
-        ${openmenuClass}.popup-menu-boxpointer, ${openmenuClass}.candidate-popup-boxpointer {
-            -arrow-rise: 6px; 
-        }
+            ${openmenuClass}.popup-menu-boxpointer, ${openmenuClass}.candidate-popup-boxpointer {
+                -arrow-rise: 6px; 
+            }
 
-        ${openmenuClass}.popup-menu {
-            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
-        }
+            ${openmenuClass}.popup-menu {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
+            }
 
-        ${openmenuClass}.popup-menu-content, ${openmenuClass}.candidate-popup-content {
-            ${menuContentStyle}
-        }
-    `;
+            ${openmenuClass}.popup-menu-content, ${openmenuClass}.candidate-popup-content {
+                ${menuContentStyle}
+            }
+        `;
 
-    stylesheet += `
-        ${openmenuClass}.popup-menu-item {
-            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
-        }
-        ${openmenuClass}.popup-menu-item:focus, ${openmenuClass}.popup-menu-item:hover, ${openmenuClass}.popup-menu-item:selected {
-            color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
-            background-color: ${mhbg} !important;
-            transition-duration: 0ms !important;
-        }
+        stylesheet += `
+            ${openmenuClass}.popup-menu-item {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
+            }
+            ${openmenuClass}.popup-menu-item:focus, ${openmenuClass}.popup-menu-item:hover, ${openmenuClass}.popup-menu-item:selected {
+                color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
+                background-color: ${mhbg} !important;
+                transition-duration: 0ms !important;
+            }
 
-        ${openmenuClass}.popup-menu-item:checked, ${openmenuClass}.popup-menu-item:checked:active {
-            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-        }
-        ${openmenuClass}.popup-menu-item:checked:focus, ${openmenuClass}.popup-menu-item:checked:hover, ${openmenuClass}.popup-menu-item:checked:selected,
-        ${openmenuClass}.popup-menu-item:checked:active:focus, ${openmenuClass}.popup-menu-item:checked:active:hover, ${openmenuClass}.popup-menu-item:checked:active:selected {
-            color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1.0) !important;
-            box-shadow: none !important;
-            background-color: ${mshg} !important;
-        }
-          
-        ${openmenuClass}.popup-menu-item:active, ${openmenuClass}.popup-menu-item.selected:active {
-            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-        }
-        ${openmenuClass}.popup-menu-item:active:hover, ${openmenuClass}.popup-menu-item:active:focus, 
-        ${openmenuClass}.popup-menu-item.selected:active:hover, ${openmenuClass}.popup-menu-item.selected:active:focus {
-            color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1.0) !important;
-            background-color: ${mshg} !important;
-        }
+            ${openmenuClass}.popup-menu-item:checked, ${openmenuClass}.popup-menu-item:checked:active {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            ${openmenuClass}.popup-menu-item:checked:focus, ${openmenuClass}.popup-menu-item:checked:hover, ${openmenuClass}.popup-menu-item:checked:selected,
+            ${openmenuClass}.popup-menu-item:checked:active:focus, ${openmenuClass}.popup-menu-item:checked:active:hover, ${openmenuClass}.popup-menu-item:checked:active:selected {
+                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1.0) !important;
+                box-shadow: none !important;
+                background-color: ${mshg} !important;
+            }
+            
+            ${openmenuClass}.popup-menu-item:active, ${openmenuClass}.popup-menu-item.selected:active {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            ${openmenuClass}.popup-menu-item:active:hover, ${openmenuClass}.popup-menu-item:active:focus, 
+            ${openmenuClass}.popup-menu-item.selected:active:hover, ${openmenuClass}.popup-menu-item.selected:active:focus {
+                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1.0) !important;
+                background-color: ${mshg} !important;
+            }
 
-    `;
-        // rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha})
-    stylesheet += `
-        ${openmenuClass}.popup-sub-menu {
-            background-color: ${smbg} !important;
-            border: none;
-            box-shadow: none;
-        }
+        `;
+            // rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha})
+        stylesheet += `
+            ${openmenuClass}.popup-sub-menu {
+                background-color: ${smbg} !important;
+                border: none;
+                box-shadow: none;
+            }
+            
+            ${openmenuClass}.popup-sub-menu .popup-menu-item {
+                margin: 0px;
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha});
+            }
+            
+            ${openmenuClass}.popup-sub-menu .popup-menu-item:focus, 
+            ${openmenuClass}.popup-sub-menu .popup-menu-item:hover, 
+            ${openmenuClass}.popup-sub-menu .popup-menu-item:selected {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
+                background-color: ${smhbg} !important;
+            }
+            
+            ${openmenuClass}.popup-sub-menu .popup-menu-item:active, 
+            ${openmenuClass}.popup-sub-menu .popup-submenu-menu-item:active, 
+            ${openmenuClass}.popup-sub-menu .popup-submenu-menu-item:checked {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            ${openmenuClass}.popup-sub-menu .popup-menu-item:active:hover, ${openmenuClass}.popup-sub-menu .popup-menu-item:active:focus, 
+            ${openmenuClass}.popup-sub-menu .popup-submenu-menu-item:active:hover, ${openmenuClass}.popup-sub-menu .popup-submenu-menu-item:active:focus,
+            ${openmenuClass}.popup-sub-menu .popup-submenu-menu-item:checked:hover, ${openmenuClass}.popup-sub-menu .popup-submenu-menu-item:checked:focus {
+                background-color: ${mshg} !important;
+                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1.0) !important;
+            }
         
-        ${openmenuClass}.popup-sub-menu .popup-menu-item {
-            margin: 0px;
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha});
-        }
         
-        ${openmenuClass}.popup-sub-menu .popup-menu-item:focus, 
-        ${openmenuClass}.popup-sub-menu .popup-menu-item:hover, 
-        ${openmenuClass}.popup-sub-menu .popup-menu-item:selected {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
-            background-color: ${smhbg} !important;
-        }
+            ${openmenuClass}.popup-menu-section .popup-sub-menu {
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
+                border: none;
+                box-shadow: none;
+            }
+            ${openmenuClass}.popup-menu-section .popup-sub-menu .popup-menu-item {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha});
+            }
+            ${openmenuClass}.popup-menu-section .popup-sub-menu .popup-menu-item:hover, ${openmenuClass}.popup-menu-section .popup-sub-menu .popup-menu-item:focus,
+            ${openmenuClass}.popup-menu-section .popup-sub-menu .popup-menu-item:selected {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
+                background-color: ${smhbg} !important;
+            }
+
+            ${openmenuClass}.popup-menu-section .popup-menu-item {
+                margin: 0px;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
+            }
+            ${openmenuClass}.popup-menu-section .popup-menu-item:focus, ${openmenuClass}.popup-menu-section .popup-menu-item:hover, 
+            ${openmenuClass}.popup-menu-section .popup-menu-item:selected {
+                color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
+                background-color: ${mhbg} !important;
+            }
+            ${openmenuClass}.popup-menu-section .popup-menu-item:active, 
+            ${openmenuClass}.popup-menu-section .popup-submenu-menu-item:active, 
+            ${openmenuClass}.popup-menu-section .popup-submenu-menu-item:checked {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            ${openmenuClass}.popup-menu-section .popup-menu-item:active:hover, ${openmenuClass}.popup-menu-section .popup-menu-item:active:focus, 
+            ${openmenuClass}.popup-menu-section .popup-submenu-menu-item:active:hover, ${openmenuClass}.popup-menu-section .popup-submenu-menu-item:active:focus, 
+            ${openmenuClass}.popup-menu-section .popup-submenu-menu-item:checked:hover, ${openmenuClass}.popup-menu-section .popup-submenu-menu-item:checked:focus {
+                background-color: ${mshg} !important;
+                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1.0) !important;
+            }
+
+            ${openmenuClass}.popup-menu-item .toggle-switch:checked {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
+            }
+            ${openmenuClass}.popup-menu-item .button {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
+            }
+            ${openmenuClass}.popup-menu-item .button:hover, ${openmenuClass}.popup-menu-item .button:focus, ${openmenuClass}.popup-menu-item .button:selected {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
+                background-color: ${smhbg} !important;
+                border-color: transparent !important; 
+            }
+            ${openmenuClass} .slider{ 
+                ${sliderStyle}  
+            }
+            ${openmenuClass}.popup-separator-menu-item .popup-separator-menu-item-separator, ${openmenuClass}.popup-separator-menu-item .popup-sub-menu .popup-separator-menu-item-separator {
+                background-color: rgba(${mbred},${mbgreen},${mbblue},0.7) !important;
+            }
+
+        `;
+
+        // rgba(${mhred},${mhgreen},${mhblue},${mhAlpha})
+        stylesheet += `
+            ${openmenuClass}.datemenu-popover {
+                border-radius: ${menuRadius}px !important;
+                padding-bottom: ${5 + 0.08*menuRadius}px !important;
+            }
+
+            ${openmenuClass}.message-list-placeholder {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},0.5) !important;
+            }
+            ${openmenuClass}.message {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+                border-radius: ${notifRadius}px;
+                box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
+            }
+            ${openmenuClass}.message:hover, ${openmenuClass}.message:focus {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+                background-color: ${smhbg} !important; /* 0.9*mhAlpha */
+            }
+            ${openmenuClass}.message:focus {
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},0.5) !important;
+            }
+            ${openmenuClass}.message .message-title {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+            }
+            ${openmenuClass}.message .message-source-icon, ${openmenuClass}.message .message-source-title {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
+            }
+            ${openmenuClass}.message .message-body {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
+            }
+            ${openmenuClass}.message .event-time {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
+            }
+            ${openmenuClass}.message:hover .message-source-icon, ${openmenuClass}.message:focus .message-source-icon,
+            ${openmenuClass}.message:hover .message-title, ${openmenuClass}.message:focus .message-title,
+            ${openmenuClass}.message:hover .message-source-title, ${openmenuClass}.message:focus .message-source-title,
+            ${openmenuClass}.message:hover .message-body, ${openmenuClass}.message:focus .message-body,
+            ${openmenuClass}.message:hover .event-time, ${openmenuClass}.message:focus .event-time {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+            }
+            ${openmenuClass}.message .button, ${openmenuClass}.message .message-close-button, ${openmenuClass}.message .message-expand-button {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+            }
+            ${openmenuClass}.message .button:hover, ${openmenuClass}.message .button:focus,
+            ${openmenuClass}.message .message-close-button:hover, ${openmenuClass}.message .message-close-button:focus,
+            ${openmenuClass}.message .message-expand-button:hover, ${openmenuClass}.message .message-expand-button:focus {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
+                background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
+            }
+            ${openmenuClass}.message .message-media-control {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+            }
+            ${openmenuClass}.message .message-media-control:hover, ${openmenuClass}.message .message-media-control:focus {
+                background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
+                color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
+            }
+            ${openmenuClass}.message .message-media-control:insensitive {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.5}) !important;
+            }
+            ${openmenuClass}.message .media-message-cover-icon .fallback {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+                background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
+            }
+            ${openmenuClass}.dnd-button {
+                border-color: rgba(${mbgred},${mbggreen},${mbgblue},0.5) !important;
+                border-radius: 50px;
+            }
+            ${openmenuClass}.dnd-button:hover {
+                border-color: ${mhbg} !important;
+            }
+            ${openmenuClass}.dnd-button:focus {
+                border-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+                box-shadow: none;
+            }        
+            ${openmenuClass} .toggle-switch {
+                background-image: url(assets/${toggleOffSVG});
+                background-color: transparent !important;
+            }
+            ${openmenuClass} .toggle-switch:checked {
+                background-image: url(assets/${toggleOnSVG});
+                background-color: transparent !important;
+            }
+            ${openmenuClass} .check-box StBin {
+                background-image: url(assets/checkbox-off.svg);
+            }
+            ${openmenuClass} .check-box:checked StBin {
+                background-image: url(assets/checkbox-on.svg);
+            }
+            ${openmenuClass} .check-box:focus StBin {
+                background-image: url(assets/checkbox-off-focused.svg);
+            }  
+            ${openmenuClass} .check-box:focus:checked StBin {
+                background-image: url(assets/checkbox-on-focused.svg);
+            }
+
+            ${openmenuClass}.message-list-clear-button {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+                border-radius: ${notifRadius}px;
+                box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
+            }
+            ${openmenuClass}.message-list-clear-button:hover, ${openmenuClass}.message-list-clear-button:focus {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+                background-color: ${smhbg} !important; /* 0.9*mhAlpha */
+            }
+            ${openmenuClass}.message-list-clear-button:focus {
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},0.5) !important;
+            }
+
+            ${openmenuClass}.datemenu-today-button .date-label, ${openmenuClass}.datemenu-today-button .day-label {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.25}) !important;
+            } 
+            ${openmenuClass}.datemenu-today-button:hover, ${openmenuClass}.datemenu-today-button:focus {
+                background-color: ${mhbg} !important;  /* 0.9*mhAlpha */
+                border-radius: ${notifRadius}px;
+                color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
+            }
+
+            ${openmenuClass}.calendar {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+                border-radius: ${notifRadius}px;
+                box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
+            }
+            ${openmenuClass}.calendar .calendar-month-header .pager-button,
+            ${openmenuClass}.calendar .calendar-month-header .pager-button {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
+            }
+            ${openmenuClass}.calendar .calendar-month-header .pager-button:hover,
+            ${openmenuClass}.calendar .calendar-month-header .pager-button:focus {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+                background-color: ${smhbg} !important;
+            }
+            ${openmenuClass}.calendar .calendar-month-label {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
+            }
+            ${openmenuClass}.calendar-day-heading  {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
+            }
+            ${openmenuClass}.calendar-day-heading:focus  {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+                background-color: rgba(${smhbgred},${smhbggreen},${smhbgblue},${mhAlpha}) !important;
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
+            }
+            ${openmenuClass}.calendar-day {
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
+            }
+            ${openmenuClass}.calendar-weekday, ${openmenuClass}.calendar-work-day {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},1) !important;
+                font-weight: normal;
+            }
+            ${openmenuClass}.calendar-nonwork-day, ${openmenuClass}.calendar-weekend {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},0.7) !important;
+                font-weight: normal;
+            }
+            ${openmenuClass}.calendar-other-month-day, ${openmenuClass}.calendar-other-month {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},0.5) !important;
+                font-weight: normal;
+            }
+            ${openmenuClass}.calendar-other-month-day:hover, ${openmenuClass}.calendar-other-month-day:focus, ${openmenuClass}.calendar-other-month-day:selected,
+            ${openmenuClass}.calendar-other-month:hover, ${openmenuClass}.calendar-other-month:focus, ${openmenuClass}.calendar-other-month:selected,
+            ${openmenuClass}.calendar-nonwork-day:hover, ${openmenuClass}.calendar-nonwork-day:focus, ${openmenuClass}.calendar-nonwork-day:selected,
+            ${openmenuClass}.calendar-work-day:hover, ${openmenuClass}.calendar-work-day:focus, ${openmenuClass}.calendar-work-day:selected,
+            ${openmenuClass}.calendar-weekday:hover, ${openmenuClass}.calendar-weekday:focus, ${openmenuClass}.calendar-weekday:selected,
+            ${openmenuClass}.calendar-weekend:hover, ${openmenuClass}.calendar-weekend:focus, ${openmenuClass}.calendar-weekend:selected  {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+                background-color: ${smhbg} !important;
+            }
+            ${openmenuClass}.calendar-other-month-day:focus, ${openmenuClass}.calendar-other-month-day:selected,
+            ${openmenuClass}.calendar-other-month:focus, ${openmenuClass}.calendar-other-month:selected,
+            ${openmenuClass}.calendar-nonwork-day:focus, ${openmenuClass}.calendar-nonwork-day:selected,
+            ${openmenuClass}.calendar-work-day:focus, ${openmenuClass}.calendar-work-day:selected,
+            ${openmenuClass}.calendar-weekday:focus, ${openmenuClass}.calendar-weekday:selected,
+            ${openmenuClass}.calendar-weekend:focus, ${openmenuClass}.calendar-weekend:selected  {
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
+            }
+            ${openmenuClass}.calendar .calendar-today, ${openmenuClass}.calendar .calendar-today:selected {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            ${openmenuClass}.calendar .calendar-today:hover, ${openmenuClass}.calendar .calendar-today:focus {
+                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1.0) !important;
+                background-color: ${mshg} !important;
+            }
+            ${openmenuClass}.calendar .calendar-today:selected, ${openmenuClass}.calendar .calendar-today:focus {
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
+            }
+            ${openmenuClass}.calendar .calendar-today .calendar-day-with-events, ${openmenuClass}.calendar .calendar-day-with-events {
+                background-image: url("assets/calendar-today.svg");
+                background-size: contain;
+            }
+            ${openmenuClass}.calendar-week-number {
+                font-weight: bold;
+                font-feature-settings: "tnum";
+                background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha*0.7}) !important;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.8}) !important;
+            }
+
+            ${openmenuClass}.events-button {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+                border-radius: ${notifRadius}px;
+                box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
+            }
+            ${openmenuClass}.events-button:hover, ${openmenuClass}.events-button:focus {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+                background-color: ${smhbg} !important;
+            }
+            ${openmenuClass}.events-button:focus {
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
+            }
+            ${openmenuClass}.events-button .events-list {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+            }            
+            ${openmenuClass}.events-button .events-title {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.9}) !important;
+            }            
+            ${openmenuClass}.events-button .event-time, ${openmenuClass}.events-button .event-placeholder {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
+            }
+            ${openmenuClass}.events-button:hover .events-list, ${openmenuClass}.events-button:focus .events-list,
+            ${openmenuClass}.events-button:hover .events-title, ${openmenuClass}.events-button:focus .events-title,
+            ${openmenuClass}.events-button:hover .event-time, ${openmenuClass}.events-button:focus .event-time,
+            ${openmenuClass}.events-button:hover .event-placeholder, ${openmenuClass}.events-button:focus .event-placeholder {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+            }
+            
+            ${openmenuClass}.world-clocks-button {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+                border-radius: ${notifRadius}px;
+                box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
+            }
+            ${openmenuClass}.world-clocks-button:hover, ${openmenuClass}.world-clocks-button:focus {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+                background-color: ${smhbg} !important;
+            }
+            ${openmenuClass}.world-clocks-button:focus {
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
+            }
+            ${openmenuClass}.world-clocks-button .world-clocks-header, ${openmenuClass}.world-clocks-button .world-clocks-timezone {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.9}) !important;
+            }
+            ${openmenuClass}.world-clocks-button .world-clocks-city, ${openmenuClass}.world-clocks-button .world-clocks-time {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
+            }
+            ${openmenuClass}.world-clocks-button:hover .world-clocks-header, ${openmenuClass}.world-clocks-button:focus .world-clocks-header,
+            ${openmenuClass}.world-clocks-button:hover .world-clocks-timezone, ${openmenuClass}.world-clocks-button:focus .world-clocks-timezone,
+            ${openmenuClass}.world-clocks-button:hover .world-clocks-city, ${openmenuClass}.world-clocks-button:focus .world-clocks-city,
+            ${openmenuClass}.world-clocks-button:hover .world-clocks-time, ${openmenuClass}.world-clocks-button:focus .world-clocks-time {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+            }
         
-        ${openmenuClass}.popup-sub-menu .popup-menu-item:active, 
-        ${openmenuClass}.popup-sub-menu .popup-submenu-menu-item:active, 
-        ${openmenuClass}.popup-sub-menu .popup-submenu-menu-item:checked {
-            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-        }
-        ${openmenuClass}.popup-sub-menu .popup-menu-item:active:hover, ${openmenuClass}.popup-sub-menu .popup-menu-item:active:focus, 
-        ${openmenuClass}.popup-sub-menu .popup-submenu-menu-item:active:hover, ${openmenuClass}.popup-sub-menu .popup-submenu-menu-item:active:focus,
-        ${openmenuClass}.popup-sub-menu .popup-submenu-menu-item:checked:hover, ${openmenuClass}.popup-sub-menu .popup-submenu-menu-item:checked:focus {
-            background-color: ${mshg} !important;
-            color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1.0) !important;
-        }
-    
-    
-        ${openmenuClass}.popup-menu-section .popup-sub-menu {
-            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
-            border: none;
-            box-shadow: none;
-        }
-        ${openmenuClass}.popup-menu-section .popup-sub-menu .popup-menu-item {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha});
-        }
-        ${openmenuClass}.popup-menu-section .popup-sub-menu .popup-menu-item:hover, ${openmenuClass}.popup-menu-section .popup-sub-menu .popup-menu-item:focus,
-        ${openmenuClass}.popup-menu-section .popup-sub-menu .popup-menu-item:selected {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
-            background-color: ${smhbg} !important;
-        }
+            ${openmenuClass}.weather-button {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+                border-radius: ${notifRadius}px;
+                box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
+            }
+            ${openmenuClass}.weather-button:hover, ${openmenuClass}.weather-button:focus {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+                background-color: ${smhbg} !important;
+            }
+            ${openmenuClass}.weather-button:focus {
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
+            }
+            ${openmenuClass}.weather-button .weather-header {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+            }
+            ${openmenuClass}.weather-button .weather-header.location {
+                font-weight: normal;
+            }
+            ${openmenuClass}.weather-button .weather-forecast-time {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
+            }
+            ${openmenuClass}.weather-button:hover .weather-header, ${openmenuClass}.weather-button:focus .weather-header,
+            ${openmenuClass}.weather-button:hover .weather-header.location, ${openmenuClass}.weather-button:focus .weather-header.location,
+            ${openmenuClass}.weather-button:hover .weather-forecast-time, ${openmenuClass}.weather-button:focus .weather-forecast-time {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+            }
+        `;
 
-        ${openmenuClass}.popup-menu-section .popup-menu-item {
-            margin: 0px;
-            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha});
-        }
-        ${openmenuClass}.popup-menu-section .popup-menu-item:focus, ${openmenuClass}.popup-menu-section .popup-menu-item:hover, 
-        ${openmenuClass}.popup-menu-section .popup-menu-item:selected {
-            color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
-            background-color: ${mhbg} !important;
-        }
-        ${openmenuClass}.popup-menu-section .popup-menu-item:active, 
-        ${openmenuClass}.popup-menu-section .popup-submenu-menu-item:active, 
-        ${openmenuClass}.popup-menu-section .popup-submenu-menu-item:checked {
-            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-        }
-        ${openmenuClass}.popup-menu-section .popup-menu-item:active:hover, ${openmenuClass}.popup-menu-section .popup-menu-item:active:focus, 
-        ${openmenuClass}.popup-menu-section .popup-submenu-menu-item:active:hover, ${openmenuClass}.popup-menu-section .popup-submenu-menu-item:active:focus, 
-        ${openmenuClass}.popup-menu-section .popup-submenu-menu-item:checked:hover, ${openmenuClass}.popup-menu-section .popup-submenu-menu-item:checked:focus {
-            background-color: ${mshg} !important;
-            color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1.0) !important;
-        }
+        stylesheet += `
+            ${openmenuClass}.quick-settings {
+                border-radius: ${menuRadius}px !important;
+            }
 
-        ${openmenuClass}.popup-menu-item .toggle-switch:checked {
-            color: rgba(${mfgred},${mfggreen},${mfgblue},1.0) !important;
-        }
-        ${openmenuClass}.popup-menu-item .button {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
-            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
-        }
-        ${openmenuClass}.popup-menu-item .button:hover, ${openmenuClass}.popup-menu-item .button:focus, ${openmenuClass}.popup-menu-item .button:selected {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
-            background-color: ${smhbg} !important;
-            border-color: transparent !important; 
-        }
-        ${openmenuClass} .slider{ 
-            ${sliderStyle}  
-        }
-        ${openmenuClass}.popup-separator-menu-item .popup-separator-menu-item-separator, ${openmenuClass}.popup-separator-menu-item .popup-sub-menu .popup-separator-menu-item-separator {
-            background-color: rgba(${mbred},${mbgreen},${mbblue},0.7) !important;
-        }
+            ${openmenuClass}.quick-slider .slider{                
+                ${sliderStyle}
+            }
 
-    `;
+            ${openmenuClass}.quick-toggle {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+                box-shadow: none;
+                border-radius: ${qtoggleRadius}px;
+            }
+            ${openmenuClass}.quick-toggle:hover, ${openmenuClass}.quick-toggle:focus {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+                background-color: ${smhbg} !important;
+            }   
+            ${openmenuClass}.quick-toggle:checked, ${openmenuClass}.quick-toggle:checked:active, ${openmenuClass}.quick-toggle .button:checked {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            ${openmenuClass}.quick-toggle:checked:hover, ${openmenuClass}.quick-toggle:checked:focus, 
+            ${openmenuClass}.quick-toggle:checked:active:hover, ${openmenuClass}.quick-toggle:checked:active:focus, 
+            ${openmenuClass}.quick-toggle .button:checked:hover, ${openmenuClass}.quick-toggle .button:checked:focus {
+                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
+                background-color: ${mshg} !important;
+            }
 
-    // rgba(${mhred},${mhgreen},${mhblue},${mhAlpha})
-    stylesheet += `
-        ${openmenuClass}.datemenu-popover {
-            border-radius: ${menuRadius}px !important;
-            padding-bottom: ${5 + 0.08*menuRadius}px !important;
-        }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+                box-shadow: none;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:focus {
+                color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
+                background-color: ${smhbg} !important;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:checked, 
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:active {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+                box-shadow: none;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:checked:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:checked:focus, 
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:active:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:active:focus {
+                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
+                background-color: ${mshg} !important;
+            }
+            
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
+                border-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
+            }
+            /* adjust borders in expandable menu button */
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:ltr {
+                border-radius: 0 ${qtoggleRadius}px ${qtoggleRadius}px 0;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:rtl {
+                border-radius: ${qtoggleRadius}px 0 0 ${qtoggleRadius}px;
+            }
+            /* adjust borders if quick toggle has expandable menu button (quick-toggle-arrow)[44+] */
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:ltr { border-radius: ${qtoggleRadius}px 0 0 ${qtoggleRadius}px; }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:rtl { border-radius: 0 ${qtoggleRadius}px ${qtoggleRadius}px 0; }
+            /* if quick toggle has no expandable menu button (quick-toggle-arrow)[44+] */
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:last-child {
+                border-radius: ${qtoggleRadius}px;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:focus {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+                background-color: ${smhbg} !important;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.2}) !important;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:focus {
+                background-color: ${mshg} !important;
+            }
 
-        ${openmenuClass}.message-list-placeholder {
-            color: rgba(${mfgred},${mfggreen},${mfgblue},0.5) !important;
-        }
-        ${openmenuClass}.message {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: ${smbg} !important;
-            border-radius: ${notifRadius}px;
-            box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
-        }
-        ${openmenuClass}.message:hover, ${openmenuClass}.message:focus {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-            background-color: ${smhbg} !important; /* 0.9*mhAlpha */
-        }
-        ${openmenuClass}.message:focus {
-            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},0.5) !important;
-        }
-        ${openmenuClass}.message .message-title {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-        }
-        ${openmenuClass}.message .message-source-icon, ${openmenuClass}.message .message-source-title {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
-        }
-        ${openmenuClass}.message .message-body {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
-        }
-        ${openmenuClass}.message .event-time {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
-        }
-        ${openmenuClass}.message:hover .message-source-icon, ${openmenuClass}.message:focus .message-source-icon,
-        ${openmenuClass}.message:hover .message-title, ${openmenuClass}.message:focus .message-title,
-        ${openmenuClass}.message:hover .message-source-title, ${openmenuClass}.message:focus .message-source-title,
-        ${openmenuClass}.message:hover .message-body, ${openmenuClass}.message:focus .message-body,
-        ${openmenuClass}.message:hover .event-time, ${openmenuClass}.message:focus .event-time {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-        }
-        ${openmenuClass}.message .button, ${openmenuClass}.message .message-close-button, ${openmenuClass}.message .message-expand-button {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: ${smbg} !important;
-        }
-        ${openmenuClass}.message .button:hover, ${openmenuClass}.message .button:focus,
-        ${openmenuClass}.message .message-close-button:hover, ${openmenuClass}.message .message-close-button:focus,
-        ${openmenuClass}.message .message-expand-button:hover, ${openmenuClass}.message .message-expand-button:focus {
-            color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
-            background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
-        }
-        ${openmenuClass}.message .message-media-control {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-        }
-        ${openmenuClass}.message .message-media-control:hover, ${openmenuClass}.message .message-media-control:focus {
-            background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
-            color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
-        }
-        ${openmenuClass}.message .message-media-control:insensitive {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.5}) !important;
-        }
-        ${openmenuClass}.message .media-message-cover-icon .fallback {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
-        }
-        ${openmenuClass}.dnd-button {
-            border-color: rgba(${mbgred},${mbggreen},${mbgblue},0.5) !important;
-            border-radius: 50px;
-        }
-        ${openmenuClass}.dnd-button:hover {
-            border-color: ${mhbg} !important;
-        }
-        ${openmenuClass}.dnd-button:focus {
-            border-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-            box-shadow: none;
-        }        
-        ${openmenuClass} .toggle-switch {
-            background-image: url(assets/${toggleOffSVG});
-            background-color: transparent !important;
-        }
-        ${openmenuClass} .toggle-switch:checked {
-            background-image: url(assets/${toggleOnSVG});
-            background-color: transparent !important;
-        }
-        ${openmenuClass} .check-box StBin {
-            background-image: url(assets/checkbox-off.svg);
-        }
-        ${openmenuClass} .check-box:checked StBin {
-            background-image: url(assets/checkbox-on.svg);
-        }
-        ${openmenuClass} .check-box:focus StBin {
-            background-image: url(assets/checkbox-off-focused.svg);
-        }  
-        ${openmenuClass} .check-box:focus:checked StBin {
-            background-image: url(assets/checkbox-on-focused.svg);
-        }
+            ${openmenuClass}.quick-toggle-menu {
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
+            }
+            ${openmenuClass}.quick-toggle-menu .popup-menu-item {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+            }
+            ${openmenuClass}.quick-toggle-menu .popup-menu-item:hover, ${openmenuClass}.quick-toggle-menu .popup-menu-item:focus {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+                background-color: ${smhbg} !important;
+            }
 
-        ${openmenuClass}.message-list-clear-button {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: ${smbg} !important;
-            border-radius: ${notifRadius}px;
-            box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
-        }
-        ${openmenuClass}.message-list-clear-button:hover, ${openmenuClass}.message-list-clear-button:focus {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-            background-color: ${smhbg} !important; /* 0.9*mhAlpha */
-        }
-        ${openmenuClass}.message-list-clear-button:focus {
-            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},0.5) !important;
-        }
+            ${openmenuClass}.quick-toggle-menu .popup-menu-item:checked {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.2}) !important;
+            }            
+            ${openmenuClass}.quick-toggle-menu .popup-menu-item:checked:focus, ${openmenuClass}.quick-toggle-menu .popup-menu-item:checked:hover, 
+            ${openmenuClass}.quick-toggle-menu .popup-menu-item:checked:selected {
+                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
+                background-color: ${mshg} !important;
+            }
+            ${openmenuClass}.quick-toggle-menu .header .title, ${openmenuClass}.quick-toggle-menu .header .subtitle  {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+            }
+            ${openmenuClass}.quick-toggle-menu .header .icon {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha}) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            ${openmenuClass}.quick-toggle-menu .icon-button {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.2}) !important;
+                background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
+            }
+            ${openmenuClass}.quick-toggle-menu .icon-button:hover, ${openmenuClass}.quick-toggle-menu .icon-button:focus {
+                color: rgba(${mhfgred},${mhfggreen},${mhfgblue},${mfgAlpha*1.2}) !important;
+                background-color: rgba(${mhbgred},${mhbggreen},${mhbgblue},${mbgAlpha}) !important;
+            }
+            ${openmenuClass}.quick-toggle-menu .icon-button:checked {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha*1.2}) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            ${openmenuClass}.quick-toggle-menu .icon-button:checked:hover, ${openmenuClass}.quick-toggle-menu .icon-button:checked:focus {
+                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},${mfgAlpha*1.2}) !important;
+                background-color: ${mshg} !important;
+            }
 
-        ${openmenuClass}.datemenu-today-button .date-label, ${openmenuClass}.datemenu-today-button .day-label {
-            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.25}) !important;
-        } 
-        ${openmenuClass}.datemenu-today-button:hover, ${openmenuClass}.datemenu-today-button:focus {
-            background-color: ${mhbg} !important;  /* 0.9*mhAlpha */
-            border-radius: ${notifRadius}px;
-            color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
-        }
+            ${openmenuClass}.quick-settings-system-item .icon-button {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
+            }
+            ${openmenuClass}.quick-settings .icon-button, ${openmenuClass}.quick-settings .button {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
+            }        
+            ${openmenuClass}.quick-settings .icon-button:checked, ${openmenuClass}.quick-settings .button:checked {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha*1.2}) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }        
+            ${openmenuClass}.background-app-item .icon-button {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
+            }
 
-        ${openmenuClass}.calendar {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: ${smbg} !important;
-            border-radius: ${notifRadius}px;
-            box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
-        }
-        ${openmenuClass}.calendar .calendar-month-header .pager-button,
-        ${openmenuClass}.calendar .calendar-month-header .pager-button {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
-        }
-        ${openmenuClass}.calendar .calendar-month-header .pager-button:hover,
-        ${openmenuClass}.calendar .calendar-month-header .pager-button:focus {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-            background-color: ${smhbg} !important;
-        }
-        ${openmenuClass}.calendar .calendar-month-label {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
-        }
-        ${openmenuClass}.calendar-day-heading  {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
-        }
-        ${openmenuClass}.calendar-day-heading:focus  {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-            background-color: rgba(${smhbgred},${smhbggreen},${smhbgblue},${mhAlpha}) !important;
-            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
-        }
-        ${openmenuClass}.calendar-day {
-            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
-        }
-        ${openmenuClass}.calendar-weekday, ${openmenuClass}.calendar-work-day {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},1) !important;
-            font-weight: normal;
-        }
-        ${openmenuClass}.calendar-nonwork-day, ${openmenuClass}.calendar-weekend {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},0.7) !important;
-            font-weight: normal;
-        }
-        ${openmenuClass}.calendar-other-month-day, ${openmenuClass}.calendar-other-month {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},0.5) !important;
-            font-weight: normal;
-        }
-        ${openmenuClass}.calendar-other-month-day:hover, ${openmenuClass}.calendar-other-month-day:focus, ${openmenuClass}.calendar-other-month-day:selected,
-        ${openmenuClass}.calendar-other-month:hover, ${openmenuClass}.calendar-other-month:focus, ${openmenuClass}.calendar-other-month:selected,
-        ${openmenuClass}.calendar-nonwork-day:hover, ${openmenuClass}.calendar-nonwork-day:focus, ${openmenuClass}.calendar-nonwork-day:selected,
-        ${openmenuClass}.calendar-work-day:hover, ${openmenuClass}.calendar-work-day:focus, ${openmenuClass}.calendar-work-day:selected,
-        ${openmenuClass}.calendar-weekday:hover, ${openmenuClass}.calendar-weekday:focus, ${openmenuClass}.calendar-weekday:selected,
-        ${openmenuClass}.calendar-weekend:hover, ${openmenuClass}.calendar-weekend:focus, ${openmenuClass}.calendar-weekend:selected  {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-            background-color: ${smhbg} !important;
-        }
-        ${openmenuClass}.calendar-other-month-day:focus, ${openmenuClass}.calendar-other-month-day:selected,
-        ${openmenuClass}.calendar-other-month:focus, ${openmenuClass}.calendar-other-month:selected,
-        ${openmenuClass}.calendar-nonwork-day:focus, ${openmenuClass}.calendar-nonwork-day:selected,
-        ${openmenuClass}.calendar-work-day:focus, ${openmenuClass}.calendar-work-day:selected,
-        ${openmenuClass}.calendar-weekday:focus, ${openmenuClass}.calendar-weekday:selected,
-        ${openmenuClass}.calendar-weekend:focus, ${openmenuClass}.calendar-weekend:selected  {
-            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
-        }
-        ${openmenuClass}.calendar .calendar-today, ${openmenuClass}.calendar .calendar-today:selected {
-            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-        }
-        ${openmenuClass}.calendar .calendar-today:hover, ${openmenuClass}.calendar .calendar-today:focus {
-            color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1.0) !important;
-            background-color: ${mshg} !important;
-        }
-        ${openmenuClass}.calendar .calendar-today:selected, ${openmenuClass}.calendar .calendar-today:focus {
-            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
-        }
-        ${openmenuClass}.calendar .calendar-today .calendar-day-with-events, ${openmenuClass}.calendar .calendar-day-with-events {
-            background-image: url("assets/calendar-today.svg");
-            background-size: contain;
-        }
-        ${openmenuClass}.calendar-week-number {
-            font-weight: bold;
-            font-feature-settings: "tnum";
-            background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha*0.7}) !important;
-            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*0.8}) !important;
-        }
+            ${openmenuClass}.quick-settings-system-item .icon-button:hover, ${openmenuClass}.quick-settings-system-item .icon-button:focus,
+            ${openmenuClass}.quick-settings .icon-button:hover, ${openmenuClass}.quick-settings .icon-button:focus,
+            ${openmenuClass}.quick-settings .button:hover, ${openmenuClass}.quick-settings .button:focus,
+            ${openmenuClass}.background-app-item .icon-button:hover, ${openmenuClass}.background-app-item .icon-button:focus {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+                background-color: ${smhbg} !important;
+            }
+            
+            ${openmenuClass}.quick-settings .button:checked:hover, ${openmenuClass}.quick-settings .button:checked:focus {
+                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
+                background-color: ${mshg} !important;
+            }
 
-        ${openmenuClass}.events-button {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: ${smbg} !important;
-            border-radius: ${notifRadius}px;
-            box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
-        }
-        ${openmenuClass}.events-button:hover, ${openmenuClass}.events-button:focus {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-            background-color: ${smhbg} !important;
-        }
-        ${openmenuClass}.events-button:focus {
-            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
-        }
-        ${openmenuClass}.events-button .events-list {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-        }            
-        ${openmenuClass}.events-button .events-title {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.9}) !important;
-        }            
-        ${openmenuClass}.events-button .event-time, ${openmenuClass}.events-button .event-placeholder {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
-        }
-        ${openmenuClass}.events-button:hover .events-list, ${openmenuClass}.events-button:focus .events-list,
-        ${openmenuClass}.events-button:hover .events-title, ${openmenuClass}.events-button:focus .events-title,
-        ${openmenuClass}.events-button:hover .event-time, ${openmenuClass}.events-button:focus .event-time,
-        ${openmenuClass}.events-button:hover .event-placeholder, ${openmenuClass}.events-button:focus .event-placeholder {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-        }
-        
-        ${openmenuClass}.world-clocks-button {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: ${smbg} !important;
-            border-radius: ${notifRadius}px;
-            box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
-        }
-        ${openmenuClass}.world-clocks-button:hover, ${openmenuClass}.world-clocks-button:focus {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-            background-color: ${smhbg} !important;
-        }
-        ${openmenuClass}.world-clocks-button:focus {
-            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
-        }
-        ${openmenuClass}.world-clocks-button .world-clocks-header, ${openmenuClass}.world-clocks-button .world-clocks-timezone {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.9}) !important;
-        }
-        ${openmenuClass}.world-clocks-button .world-clocks-city, ${openmenuClass}.world-clocks-button .world-clocks-time {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
-        }
-        ${openmenuClass}.world-clocks-button:hover .world-clocks-header, ${openmenuClass}.world-clocks-button:focus .world-clocks-header,
-        ${openmenuClass}.world-clocks-button:hover .world-clocks-timezone, ${openmenuClass}.world-clocks-button:focus .world-clocks-timezone,
-        ${openmenuClass}.world-clocks-button:hover .world-clocks-city, ${openmenuClass}.world-clocks-button:focus .world-clocks-city,
-        ${openmenuClass}.world-clocks-button:hover .world-clocks-time, ${openmenuClass}.world-clocks-button:focus .world-clocks-time {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-        }
-       
-        ${openmenuClass}.weather-button {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: ${smbg} !important;
-            border-radius: ${notifRadius}px;
-            box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
-        }
-        ${openmenuClass}.weather-button:hover, ${openmenuClass}.weather-button:focus {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-            background-color: ${smhbg} !important;
-        }
-        ${openmenuClass}.weather-button:focus {
-            box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
-        }
-        ${openmenuClass}.weather-button .weather-header {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-        }
-        ${openmenuClass}.weather-button .weather-header.location {
-            font-weight: normal;
-        }
-        ${openmenuClass}.weather-button .weather-forecast-time {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.85}) !important;
-        }
-        ${openmenuClass}.weather-button:hover .weather-header, ${openmenuClass}.weather-button:focus .weather-header,
-        ${openmenuClass}.weather-button:hover .weather-header.location, ${openmenuClass}.weather-button:focus .weather-header.location,
-        ${openmenuClass}.weather-button:hover .weather-forecast-time, ${openmenuClass}.weather-button:focus .weather-forecast-time {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-        }
-    `;
-
-    stylesheet += `
-        ${openmenuClass}.quick-settings {
-            border-radius: ${menuRadius}px !important;
-        }
-
-        ${openmenuClass}.quick-slider .slider{                
-            ${sliderStyle}
-        }
-
-        ${openmenuClass}.quick-toggle {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: ${smbg} !important;
-            box-shadow: none;
-            border-radius: ${qtoggleRadius}px;
-        }
-        ${openmenuClass}.quick-toggle:hover, ${openmenuClass}.quick-toggle:focus {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-            background-color: ${smhbg} !important;
-        }   
-        ${openmenuClass}.quick-toggle:checked, ${openmenuClass}.quick-toggle:checked:active, ${openmenuClass}.quick-toggle .button:checked {
-            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-        }
-        ${openmenuClass}.quick-toggle:checked:hover, ${openmenuClass}.quick-toggle:checked:focus, 
-        ${openmenuClass}.quick-toggle:checked:active:hover, ${openmenuClass}.quick-toggle:checked:active:focus, 
-        ${openmenuClass}.quick-toggle .button:checked:hover, ${openmenuClass}.quick-toggle .button:checked:focus {
-            color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
-            background-color: ${mshg} !important;
-        }
-
-        ${openmenuClass}.quick-menu-toggle .quick-toggle {
-            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
-            background-color: ${smbg} !important;
-            box-shadow: none;
-        }
-        ${openmenuClass}.quick-menu-toggle .quick-toggle:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:focus {
-            color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
-            background-color: ${smhbg} !important;
-        }
-        ${openmenuClass}.quick-menu-toggle .quick-toggle:checked, 
-        ${openmenuClass}.quick-menu-toggle .quick-toggle:active {
-            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-            box-shadow: none;
-        }
-        ${openmenuClass}.quick-menu-toggle .quick-toggle:checked:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:checked:focus, 
-        ${openmenuClass}.quick-menu-toggle .quick-toggle:active:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:active:focus {
-            color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
-            background-color: ${mshg} !important;
-        }
-        
-        ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
-            border-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
-        }
-        /* adjust borders in expandable menu button */
-        ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:ltr {
-            border-radius: 0 ${qtoggleRadius}px ${qtoggleRadius}px 0;
-        }
-        ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:rtl {
-            border-radius: ${qtoggleRadius}px 0 0 ${qtoggleRadius}px;
-        }
-        /* adjust borders if quick toggle has expandable menu button (quick-toggle-arrow)[44+] */
-        ${openmenuClass}.quick-menu-toggle .quick-toggle:ltr { border-radius: ${qtoggleRadius}px 0 0 ${qtoggleRadius}px; }
-        ${openmenuClass}.quick-menu-toggle .quick-toggle:rtl { border-radius: 0 ${qtoggleRadius}px ${qtoggleRadius}px 0; }
-        /* if quick toggle has no expandable menu button (quick-toggle-arrow)[44+] */
-        ${openmenuClass}.quick-menu-toggle .quick-toggle:last-child {
-            border-radius: ${qtoggleRadius}px;
-        }
-        ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:focus {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-            background-color: ${smhbg} !important;
-        }
-        ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked {
-            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.2}) !important;
-        }
-        ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:focus {
-            background-color: ${mshg} !important;
-        }
-
-        ${openmenuClass}.quick-toggle-menu {
-            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
-        }
-        ${openmenuClass}.quick-toggle-menu .popup-menu-item {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-        }
-        ${openmenuClass}.quick-toggle-menu .popup-menu-item:hover, ${openmenuClass}.quick-toggle-menu .popup-menu-item:focus {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-            background-color: ${smhbg} !important;
-        }
-
-        ${openmenuClass}.quick-toggle-menu .popup-menu-item:checked {
-            color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.2}) !important;
-        }            
-        ${openmenuClass}.quick-toggle-menu .popup-menu-item:checked:focus, ${openmenuClass}.quick-toggle-menu .popup-menu-item:checked:hover, 
-        ${openmenuClass}.quick-toggle-menu .popup-menu-item:checked:selected {
-            color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
-            background-color: ${mshg} !important;
-        }
-        ${openmenuClass}.quick-toggle-menu .header .title, ${openmenuClass}.quick-toggle-menu .header .subtitle  {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-        }
-        ${openmenuClass}.quick-toggle-menu .header .icon {
-            color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha}) !important;
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-        }
-        ${openmenuClass}.quick-toggle-menu .icon-button {
-            color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.2}) !important;
-            background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
-        }
-        ${openmenuClass}.quick-toggle-menu .icon-button:hover, ${openmenuClass}.quick-toggle-menu .icon-button:focus {
-            color: rgba(${mhfgred},${mhfggreen},${mhfgblue},${mfgAlpha*1.2}) !important;
-            background-color: rgba(${mhbgred},${mhbggreen},${mhbgblue},${mbgAlpha}) !important;
-        }
-        ${openmenuClass}.quick-toggle-menu .icon-button:checked {
-            color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha*1.2}) !important;
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-        }
-        ${openmenuClass}.quick-toggle-menu .icon-button:checked:hover, ${openmenuClass}.quick-toggle-menu .icon-button:checked:focus {
-            color: rgba(${amhfgred},${amhfggreen},${amhfgblue},${mfgAlpha*1.2}) !important;
-            background-color: ${mshg} !important;
-        }
-
-        ${openmenuClass}.quick-settings-system-item .icon-button {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
-            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
-        }
-        ${openmenuClass}.quick-settings .icon-button, ${openmenuClass}.quick-settings .button {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
-            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
-        }        
-        ${openmenuClass}.quick-settings .icon-button:checked, ${openmenuClass}.quick-settings .button:checked {
-            color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha*1.2}) !important;
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-        }        
-        ${openmenuClass}.background-app-item .icon-button {
-            color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
-            background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
-        }
-
-        ${openmenuClass}.quick-settings-system-item .icon-button:hover, ${openmenuClass}.quick-settings-system-item .icon-button:focus,
-        ${openmenuClass}.quick-settings .icon-button:hover, ${openmenuClass}.quick-settings .icon-button:focus,
-        ${openmenuClass}.quick-settings .button:hover, ${openmenuClass}.quick-settings .button:focus,
-        ${openmenuClass}.background-app-item .icon-button:hover, ${openmenuClass}.background-app-item .icon-button:focus {
-            color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-            background-color: ${smhbg} !important;
-        }
-        
-        ${openmenuClass}.quick-settings .button:checked:hover, ${openmenuClass}.quick-settings .button:checked:focus {
-            color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
-            background-color: ${mshg} !important;
-        }
-
-        ${openmenuClass}.quick-settings-system-item .power-item:checked {
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-        }
-        ${openmenuClass}.nm-network-item:checked, ${openmenuClass}.nm-network-item:active {
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-        }          
-        ${openmenuClass}.bt-device-item:checked {
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-        }
-        ${openmenuClass}.keyboard-brightness-level .button:checked {
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-        }
-        ${openmenuClass}.background-apps-quick-toggle:checked {
-            background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-        }
-    `;
+            ${openmenuClass}.quick-settings-system-item .power-item:checked {
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            ${openmenuClass}.nm-network-item:checked, ${openmenuClass}.nm-network-item:active {
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }          
+            ${openmenuClass}.bt-device-item:checked {
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            ${openmenuClass}.keyboard-brightness-level .button:checked {
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            ${openmenuClass}.background-apps-quick-toggle:checked {
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+        `;
+    }
 
     //== BEYOND BAR ==//
 
