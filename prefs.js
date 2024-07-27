@@ -2202,6 +2202,18 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
+        // Add a Headerbar for Gtk3-Only switch
+        let hbarGtk3Lbl = new Gtk.Label({
+            label: `Headerbar - Gtk3 Only`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(hbarGtk3Lbl, 1, rowbar, 1, 1);
+
+        let hbarGtk3Switch = this.createSwitchWidget('hbar-gtk3only', 'Apply Headerbar Hint only to Gtk3 apps, since new Gtk4 apps tend to prefer split-view without headerbar');
+        appgrid.attach(hbarGtk3Switch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
         // Add a sidebar tint scale
         let sbHintLbl = new Gtk.Label({
             label: `Sidebar Hint`,
