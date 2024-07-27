@@ -1356,7 +1356,7 @@ function saveStylesheet(obar, Me) {
     if(widthLeft) borderStyle += ` border-left-width: ${borderWidth}px; `;
     
     let rTopLeft, rTopRight, rBottomLeft, rBottomRight;
-    if(bartype == 'Islands' || bartype == 'Trilands') {
+    if((bartype == 'Islands' || bartype == 'Trilands') && neon) {
         // Limit on max border radius (border grows inwards for Islands. '-1' for sub-pixel rounding)
         // Limit is needed for proper rendering of border and neon shadow
         let bWidthRound = Math.ceil(borderWidth);
@@ -1876,6 +1876,7 @@ function saveStylesheet(obar, Me) {
 
         #panel${openbarClass} .panel-button.clock-display .clock {
             color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}) !important;
+            border-width: 2px;
         }
         #panel${openbarClass}:windowmax .panel-button.clock-display .clock {
             ${wmaxColorStyle}
@@ -2661,9 +2662,14 @@ function saveStylesheet(obar, Me) {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
                 background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
             }
+            ${openmenuClass}.quick-settings .icon-button.flat {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.2}) !important;
+                background-color: transparent !important;
+            }
 
             ${openmenuClass}.quick-settings-system-item .icon-button:hover, ${openmenuClass}.quick-settings-system-item .icon-button:focus,
             ${openmenuClass}.quick-settings .icon-button:hover, ${openmenuClass}.quick-settings .icon-button:focus,
+            ${openmenuClass}.quick-settings .icon-button.flat:hover, ${openmenuClass}.quick-settings .icon-button.flat:focus,
             ${openmenuClass}.quick-settings .button:hover, ${openmenuClass}.quick-settings .button:focus,
             ${openmenuClass}.background-app-item .icon-button:hover, ${openmenuClass}.background-app-item .icon-button:focus {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
