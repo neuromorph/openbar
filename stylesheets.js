@@ -715,8 +715,8 @@ function createGtkCss(obar, gtk4) {
           min-width: 16px;
           min-height: 16px;
           border-radius: 100%;
-          padding: 0;
-          margin: 0 2px;
+          padding: 1px;
+          margin: 0 1px;
         }
 
         button.titlebutton:backdrop,
@@ -788,6 +788,16 @@ function createGtkCss(obar, gtk4) {
           background-color: #c0bfc0;
         }
         `;
+
+        if(gtk4) {
+            gtkstring += `
+            button.titlebutton,
+            windowcontrols > button {
+                padding: 2px;
+                margin: 0 2px;
+            }
+            `;
+        }
     }
 
     if(sBarTransparency) {
