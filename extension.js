@@ -681,8 +681,8 @@ export default class Openbar extends Extension {
         }
 
         // GTK Apps styles
-        let gtkKeys = ['apply-gtk', 'headerbar-hint', 'sidebar-hint', 'card-hint', 'winbradius', 'corner-radius', 'winbcolor', 
-            'winbalpha', 'winbwidth', 'traffic-light', 'menu-radius', 'sidebar-transparency', 'gtk-popover', 'mscolor', 'msalpha'];
+        let gtkKeys = ['apply-gtk', 'headerbar-hint', 'hbar-gtk3only', 'sidebar-hint', 'sbar-gradient', 'card-hint', 'winbradius', 'corner-radius', 
+            'winbcolor', 'winbalpha', 'winbwidth', 'traffic-light', 'menu-radius', 'sidebar-transparency', 'gtk-popover', 'mscolor', 'msalpha'];
         if(gtkKeys.includes(key)) {
             // console.log('Call saveGtkCss from extension for key: ', key);
             this.gtkCSS = true;
@@ -698,9 +698,11 @@ export default class Openbar extends Extension {
         
         let menustyle = this._settings.get_boolean('menustyle');
         if(['reloadstyle', 'removestyle', 'menustyle'].includes(key) ||
-            key == this.addedSignal && callbk_param != 'message-banner' ||
-            key == 'hiding' && !setOverview) {
+            key == this.addedSignal && callbk_param != 'message-banner') {
             this.applyMenuStyles(panel, menustyle);
+        }
+        if(key == 'menustyle') {
+            StyleSheets.reloadStyle(this, this);
         }
         
         // Auto set closest Yaru theme
@@ -1167,11 +1169,8 @@ export default class Openbar extends Extension {
                     return;
                 }
                 let menustyle = obar._settings.get_boolean('menustyle');
-                let setOverview = obar._settings.get_boolean('set-overview');
                 if(menustyle) {  
-                    if(setOverview || !Main.panel.has_style_pseudo_class('overview')) { 
-                        obar.applyCalendarGridStyle(this, menustyle);                           
-                    } 
+                    obar.applyCalendarGridStyle(this, menustyle);                           
                 }
             }
         );
