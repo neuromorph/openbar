@@ -1252,10 +1252,20 @@
       <summary>Add hint of accent color to headerbars</summary>
       <description>Add hint of accent color to headerbars.</description>
     </key>
+    <key type="b" name="hbar-gtk3only">
+      <default>false</default>
+      <summary>Apply headerbar hint only to Gtk3 apps</summary>
+      <description>Apply headerbar hint only to Gtk3 apps.</description>
+    </key>
     <key type="i" name="sidebar-hint">
       <default>10</default>
       <summary>Add hint of accent color to sidebars</summary>
       <description>Add hint of accent color to sidebars.</description>
+    </key>
+    <key type="s" name="sbar-gradient">
+      <default>"none"</default>
+      <summary>Type/direction for Gtk sidebar gradient</summary>
+      <description>Type/direction for Gtk sidebar gradient.</description>
     </key>
     <key type="i" name="card-hint">
       <default>10</default>
