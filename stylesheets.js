@@ -203,19 +203,22 @@ function createGtkCss(obar, gtk4) {
     const mbgGreen = parseInt(parseFloat(mbgColor[1]) * 255);
     const mbgBlue = parseInt(parseFloat(mbgColor[2]) * 255);
     
-    let bgRed, bgGreen, bgBlue, cdRed, cdGreen, cdBlue, hbRed, hbGreen, hbBlue, hbcRed, hbcGreen, hbcBlue;
+    let bgRed, bgGreen, bgBlue, cdRed, cdGreen, cdBlue, hbRed, hbGreen, hbBlue, 
+    vRed, vGreen, vBlue, sgrRed, sgrGreen, sgrBlue;
     const colorScheme = obar._intSettings.get_string('color-scheme');
     if(colorScheme == 'prefer-dark') {
-        bgRed = bgGreen = bgBlue = 30; // Headerbar/Sidebar BG
+        bgRed = bgGreen = bgBlue = 48; // Headerbar/Sidebar BG
+        sgrRed = sgrGreen = sgrBlue = 46; // Gradient end color for Sidebar
         cdRed = cdGreen = cdBlue = 61; // Card/Dialog BG
+        vRed = vGreen = vBlue = 44; // View/Content-Pane BG
         hbRed = hbGreen = hbBlue = 55; // Headerbar button BG
-        hbcRed = hbcGreen = hbcBlue = 15; // Headerbar Checked toggle button BG
     }
-    else {
+    else { // Light Mode
         bgRed = bgGreen = bgBlue = 235;
+        sgrRed = sgrGreen = sgrBlue = 242;
         cdRed = cdGreen = cdBlue = 255;
-        hbRed = hbGreen = hbBlue = 255;
-        hbcRed = hbcGreen = hbcBlue = 215;
+        vRed = vGreen = vBlue = 245;
+        hbRed = hbGreen = hbBlue = 250;
     }
     
     // Headerbar BG and Backdrop
@@ -248,32 +251,55 @@ function createGtkCss(obar, gtk4) {
     const hbbdRed = hBarHintBd * accRed + (1-hBarHintBd) * hbRed;
     const hbbdGreen = hBarHintBd * accGreen + (1-hBarHintBd) * hbGreen;
     const hbbdBlue = hBarHintBd * accBlue + (1-hBarHintBd) * hbBlue;
-    // Headerbar Checked Toggle Buttons BG
-    const hbcbgRed = hBarHint * accRed + (1-hBarHint) * hbcRed;
-    const hbcbgGreen = hBarHint * accGreen + (1-hBarHint) * hbcGreen;
-    const hbcbgBlue = hBarHint * accBlue + (1-hBarHint) * hbcBlue;
-    // Headerbar Buttons BG:Hover
-    let hbhRed, hbhGreen, hbhBlue, acchRed, acchGreen, acchBlue, hbBordRed, hbBordGreen, hbBordBlue;
-    if(getBgDark(hbgRed, hbgGreen, hbgBlue)) {
-        hbhRed = hbbgRed + (255 - hbbgRed) * 0.07;
-        hbhGreen = hbbgGreen + (255 - hbbgGreen) * 0.07;
-        hbhBlue = hbbgBlue + (255 - hbbgBlue) * 0.07;
-
-        acchRed = accRed + (255 - accRed) * 0.07;
-        acchGreen = accGreen + (255 - accGreen) * 0.07;
-        acchBlue = accBlue + (255 - accBlue) * 0.07;
+    // Headerbar Buttons BG:hover and BG:checked
+    let hbhRed, hbhGreen, hbhBlue, hbcRed, hbcGreen, hbcBlue, fbhRed, fbhGreen, fbhBlue, 
+    fbcRed, fbcGreen, fbcBlue, acchRed, acchGreen, acchBlue;
+    let hFactorDark = 0.08, hFactorLight = 0.05;
+    if(getBgDark(hbgRed, hbgGreen, hbgBlue)) { // Dark Mode
+        // Headerbar button hover
+        hbhRed = hbbgRed + (255 - hbbgRed) * hFactorDark;
+        hbhGreen = hbbgGreen + (255 - hbbgGreen) * hFactorDark;
+        hbhBlue = hbbgBlue + (255 - hbbgBlue) * hFactorDark;
+        // Headerbar button checked
+        hbcRed = hbhRed + (255 - hbhRed) * hFactorDark;
+        hbcGreen = hbhGreen + (255 - hbhGreen) * hFactorDark;
+        hbcBlue = hbhBlue + (255 - hbhBlue) * hFactorDark;
+        // Headerbar Flat button hover
+        fbhRed = hbgRed + (255 - hbgRed) * hFactorDark;
+        fbhGreen = hbgGreen + (255 - hbgGreen) * hFactorDark;
+        fbhBlue = hbgBlue + (255 - hbgBlue) * hFactorDark;
+        // Headerbar Flat button checked
+        fbcRed = fbhRed + (255 - fbhRed) * hFactorDark;
+        fbcGreen = fbhGreen + (255 - fbhGreen) * hFactorDark;
+        fbcBlue = fbhBlue + (255 - fbhBlue) * hFactorDark;
+        // Accent/Active button hover 
+        acchRed = accRed + (255 - accRed) * hFactorDark;
+        acchGreen = accGreen + (255 - accGreen) * hFactorDark;
+        acchBlue = accBlue + (255 - accBlue) * hFactorDark;
     }
-    else {
-        hbhRed = hbbgRed - hbbgRed * 0.07;
-        hbhGreen = hbbgGreen - hbbgGreen * 0.07;
-        hbhBlue = hbbgBlue - hbbgBlue * 0.07;
+    else { // Light Mode
+        hbhRed = hbbgRed - hbbgRed * hFactorLight;
+        hbhGreen = hbbgGreen - hbbgGreen * hFactorLight;
+        hbhBlue = hbbgBlue - hbbgBlue * hFactorLight;
 
-        acchRed = accRed - accRed * 0.07;
-        acchGreen = accGreen - accGreen * 0.07;
-        acchBlue = accBlue - accBlue * 0.07;
+        hbcRed = hbhRed - hbhRed * hFactorLight * 2;
+        hbcGreen = hbhGreen - hbhGreen * hFactorLight * 2;
+        hbcBlue = hbhBlue - hbhBlue * hFactorLight * 2;
+
+        fbhRed = hbgRed - hbgRed * hFactorLight * 1.6;
+        fbhGreen = hbgGreen - hbgGreen * hFactorLight * 1.6;
+        fbhBlue = hbgBlue - hbgBlue * hFactorLight * 1.6;
+
+        fbcRed = fbhRed - fbhRed * hFactorLight;
+        fbcGreen = fbhGreen - fbhGreen * hFactorLight;
+        fbcBlue = fbhBlue - fbhBlue * hFactorLight;
+
+        acchRed = accRed - accRed * hFactorLight;
+        acchGreen = accGreen - accGreen * hFactorLight;
+        acchBlue = accBlue - accBlue * hFactorLight;
     }
     
-    // Window Border
+    // Window Border Backdrop
     const winBRedBd = 0.6 * winBRed + 0.4 * bgRed;
     const winBGreenBd = 0.6 * winBGreen + 0.4 * bgGreen;
     const winBBlueBd = 0.6 * winBBlue + 0.4 * bgBlue;
@@ -512,7 +538,9 @@ function createGtkCss(obar, gtk4) {
         `;        
     }
     
-    if(hBarHint) {
+    if( hBarHint && 
+        ( !hBarGtk3Only || (hBarGtk3Only && !gtk4) ) ) {
+
         gtkstring += `
         @define-color headerbar_bg_color rgb(${hbgRed}, ${hbgGreen}, ${hbgBlue});
         @define-color headerbar_backdrop_color rgb(${hbdRed}, ${hbdGreen}, ${hbdBlue});
@@ -537,7 +565,8 @@ function createGtkCss(obar, gtk4) {
         
         // Headerbar Buttons (gtk3)
         if(!gtk4) {
-            gtkstring += `      
+            gtkstring += `    
+            headerbar .image-button,  
             headerbar > button,
             headerbar > box > button, 
             headerbar > box > box > button,
@@ -545,14 +574,15 @@ function createGtkCss(obar, gtk4) {
             headerbar > stack > box > button {
                 background-image: image(rgb(${hbbgRed}, ${hbbgGreen}, ${hbbgBlue}));
                 color: @headerbar_fg_color;
-                border-color: alpha(@headerbar_fg_color, 0.2);
+                border-color: alpha(@headerbar_fg_color, 0.1);
             }
             headerbar > entry,
             headerbar > box > entry {
                 background-image: image(rgb(${hbbdRed}, ${hbbdGreen}, ${hbbdBlue}));
                 color: @headerbar_fg_color;
-                border-color: alpha(@headerbar_fg_color, 0.2);
+                border-color: alpha(@headerbar_fg_color, 0.1);
             }
+            headerbar:backdrop .image-button,
             headerbar:backdrop > button,
             headerbar:backdrop > box > button, headerbar:backdrop > box > box > button,
             headerbar:backdrop > stack > button, headerbar:backdrop > stack > box > button,
@@ -568,17 +598,21 @@ function createGtkCss(obar, gtk4) {
                 background-color: rgba(0,0,0,0);
                 color: alpha(@headerbar_fg_color, 0.5);
             }
-            headerbar > button:hover,
-            headerbar > box > button:hover, headerbar > box > box > button:hover,
-            headerbar > stack > button:hover, headerbar > stack > box > button:hover,
+            headerbar .image-button:hover,
+            headerbar > button:hover, 
+            headerbar > box > button:hover, 
+            headerbar > box > box > button:hover, 
+            headerbar > stack > button:hover, 
+            headerbar > stack > box > button:hover, 
             headerbar > entry:hover, headerbar > box > entry:hover {
                 background-image: image(rgb(${hbhRed}, ${hbhGreen}, ${hbhBlue}));
-                border-color: alpha(@headerbar_fg_color, 0.3);
+                border-color: alpha(@headerbar_fg_color, 0.2);
             }
+            headerbar .image-button:checked,
             headerbar > button:checked,
             headerbar > box > button:checked, headerbar > box > box > button:checked,
             headerbar > stack > button:checked, headerbar > stack > box > button:checked {
-                background-image: image(rgb(${hbcbgRed}, ${hbcbgGreen}, ${hbcbgBlue}));
+                background-image: image(rgb(${hbcRed}, ${hbcGreen}, ${hbcBlue}));
                 border-color: alpha(@headerbar_fg_color, 0.3);
             }
             headerbar > button.suggested-action,
