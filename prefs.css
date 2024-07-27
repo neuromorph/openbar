@@ -47,7 +47,7 @@
     padding: 0px;
 }
 .openbar-sidebar {
-    border: 0px solid rgba(128, 128, 128, 0.125);
+    border: 0px solid rgba(125, 125, 125, 0.1);
     border-right-width: 1px;
 }
 .openbar-sidebar StBin {
@@ -105,7 +105,7 @@ switch.openbar-switch {
     padding: 0px 2px;
 }    
 switch.openbar-switch > slider {
-    padding: 0px 1px;
+    padding: 0px 0px;
     margin: -2px 0px -2px -2px;
 }
 switch.openbar-switch:checked > slider {
