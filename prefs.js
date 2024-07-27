@@ -2226,6 +2226,18 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
+        // Add sidebar gradient style combo
+        let sbGradComboLbl = new Gtk.Label({
+            label: `Sidebar Gradient`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(sbGradComboLbl, 1, rowbar, 1, 1);
+
+        let sbGradCombo = this.createComboboxWidget([ ["none", _("None")], ["to right", _("To Right")], ["to left", _("To Left")], ["to bottom", _("To Bottom")], ["to bottom right", _("To Bottom Right")], ["to bottom left", _("To Bottom Left")]] ,'sbar-gradient');
+        appgrid.attach(sbGradCombo, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
         // Add a Card / Dialog tint scale
         let cdHintLbl = new Gtk.Label({
             label: `Card/Dialog Hint`,
@@ -2360,7 +2372,8 @@ class OpenbarPrefs {
 
         // Add apply Accent to Gtk switch
         let appGtkLbl = new Gtk.Label({
-            label: `Apply to Gtk Apps`,
+            label: `<b>Apply to Gtk Apps</b>`,
+            use_markup: true,
             halign: Gtk.Align.START,
         });
         appgrid.attach(appGtkLbl, 1, rowbar, 1, 1);
@@ -2384,7 +2397,8 @@ class OpenbarPrefs {
 
         // Add an apply to flatpak switch
         let flatpakLabel = new Gtk.Label({
-            label: `Apply to Flatpak Apps`,
+            label: `<b>Apply to Flatpak Apps</b>`,
+            use_markup: true,
             halign: Gtk.Align.START,
         });
         appgrid.attach(flatpakLabel, 1, rowbar, 1, 1);
