@@ -286,9 +286,9 @@ function createGtkCss(obar, gtk4) {
         hbcGreen = hbhGreen - hbhGreen * hFactorLight * 2;
         hbcBlue = hbhBlue - hbhBlue * hFactorLight * 2;
 
-        fbhRed = hbgRed - hbgRed * hFactorLight * 1.6;
-        fbhGreen = hbgGreen - hbgGreen * hFactorLight * 1.6;
-        fbhBlue = hbgBlue - hbgBlue * hFactorLight * 1.6;
+        fbhRed = hbgRed - hbgRed * hFactorLight * 1.5;
+        fbhGreen = hbgGreen - hbgGreen * hFactorLight * 1.5;
+        fbhBlue = hbgBlue - hbgBlue * hFactorLight * 1.5;
 
         fbcRed = fbhRed - fbhRed * hFactorLight;
         fbcGreen = fbhGreen - fbhGreen * hFactorLight;
@@ -505,11 +505,11 @@ function createGtkCss(obar, gtk4) {
             background-image: none;
             border: none;
         }
-        terminal-window .image-button:hover {
+        terminal-window > headerbar .image-button:hover {
             background-image: image(rgb(${fbhRed}, ${fbhGreen}, ${fbhBlue}));
             color: rgb(${hfgRed}, ${hfgGreen}, ${hfgBlue});
         }
-        terminal-window .image-button:checked {
+        terminal-window > headerbar .image-button:checked {
             background-image: image(rgb(${fbcRed}, ${fbcGreen}, ${fbcBlue}));
             color: rgb(${hfgRed}, ${hfgGreen}, ${hfgBlue});
         }
@@ -2736,7 +2736,7 @@ function saveStylesheet(obar, Me) {
     /* Common Stylings */
     if(applyAccentShell) {
         stylesheet += `    
-        .slider{                
+        .slider:not(.quick-slider){               
             ${sliderStyle}
         }
         .toggle-switch {
