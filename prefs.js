@@ -241,11 +241,12 @@ class OpenbarPrefs {
         let gtkswitch = new Gtk.Switch({
             halign: Gtk.Align.END,
             tooltip_text: tooltip_text,
-            margin_top: 5,
-            margin_bottom: 5
         });
-        if(this._settings.get_boolean('apply-gtk'))
+        if(this._settings.get_boolean('apply-gtk')) {
+            gtkswitch.margin_top = 5;
+            gtkswitch.margin_bottom = 5;
             gtkswitch.css_classes = ['openbar-switch'];
+        }
         this._settings.bind(
             gsetting,
             gtkswitch,
