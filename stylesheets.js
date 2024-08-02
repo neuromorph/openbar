@@ -695,6 +695,14 @@ function createGtkCss(obar, gtk4) {
             }
             `;
         }
+        // Planify app
+        if(sBarGradient != 'none') {
+            gtkstring += `
+            .sidebar-pane .card {
+                color: @card_fg_color;
+            }
+            `;
+        }
     }
     
     if(cdHint) {
@@ -1757,6 +1765,29 @@ function saveStylesheet(obar, Me) {
         wmaxHoverStyle = ``;
     }
 
+    // Match WMax Bar BG color with Gtk Headerbar Hint, if enabled
+    let wmaxBgColorStyle, wmaxBgRed, wmaxBgGreen, wmaxBgBlue, wmBg;
+    const wmaxHbar = obar._settings.get_boolean('wmax-hbarhint');
+    if(wmaxHbar) {
+        const hBarHint = obar._settings.get_int('headerbar-hint')/100;
+        const colorScheme = obar._intSettings.get_string('color-scheme');
+        wmBg = (colorScheme == 'prefer-dark')? 48: 235;
+        wmaxBgRed = hBarHint*msred + (1-hBarHint)*wmBg;
+        wmaxBgGreen = hBarHint*msgreen + (1-hBarHint)*wmBg;
+        wmaxBgBlue = hBarHint*msblue + (1-hBarHint)*wmBg;
+        wmaxBgColorStyle = 
+        `background-color: rgb(${wmaxBgRed},${wmaxBgGreen},${wmaxBgBlue}) !important;
+         border-color: rgb(${wmaxBgRed},${wmaxBgGreen},${wmaxBgBlue}) !important;
+        `;
+    }
+    else {
+        wmaxBgColorStyle = 
+        `background-color: rgba(${bgredwmax},${bggreenwmax},${bgbluewmax},${bgalphaWMax}) !important;
+         border-color: rgba(${bgredwmax},${bggreenwmax},${bgbluewmax},${bgalphaWMax}) !important;
+        `;
+    }
+
+    // Unlock Dialog
     let unlockStyle, unlockHoverStyle;
     if(obar.main.sessionMode.isLocked) {
         unlockStyle =
@@ -1817,12 +1848,11 @@ function saveStylesheet(obar, Me) {
         }
 
         #panel${openbarClass}:windowmax {
-            background-color: rgba(${bgredwmax},${bggreenwmax},${bgbluewmax},${bgalphaWMax}) !important;
             border-radius: 0px;
-            border-color: rgba(${bgredwmax},${bggreenwmax},${bgbluewmax},${bgalphaWMax}) !important;
             box-shadow: none;
             margin: 0px;
             height: ${heightWMax}px !important;
+            ${wmaxBgColorStyle}
             ${wmaxColorStyle}        
             ${unlockStyle}
         }
