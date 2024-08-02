@@ -3142,7 +3142,7 @@ function saveStylesheet(obar, Me) {
         } 
         #dash StWidget.focused .app-well-app-running-dot, #dash StWidget.focused .app-grid-running-dot, #dash StWidget.focused .show-apps-running-dot {
             background-color: rgba(${msred},${msgreen},${msblue}, 1.0) !important;
-            border-color: rgba(${msred},${msgreen},${msblue}, 1.0) !important;
+            border-color: ${dashFgColor} !important;
             box-shadow: 0 0 2px rgba(225,225,225,0.5) !important;
         }
         
