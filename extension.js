@@ -471,19 +471,25 @@ export default class Openbar extends Extension {
         const panel = Main.panel;
         const bartype = this._settings.get_string('bartype');
         let candybar = this._settings.get_boolean('candybar');
-        if(key == 'showing') {
-            // Reset Candybar in Overview if Apply-Overview is disabled
+        // Reset Candybar in Overview. Called with 'showing' when set-Overview is disabled
+        if(key == 'showing') 
             candybar = false;
-        }
+
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
-        let i = 0;
+        let i = 0, idx, isFirst, firstIdx, lastIdx;
         for(const box of panelBoxes) {
+            isFirst = true; idx = 0;
             for(const btn of box) {
                 // Screen recording/share indicators use ButtonBox instead of Button
                 if(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) {
                     btn.child.add_style_class_name('openbar');
 
                     if(btn.child.visible) { 
+                        if(isFirst) {
+                            firstIdx = idx;
+                            isFirst = false;
+                        }
+                        lastIdx = idx;
                         // console.log('Visible Child: ', String(btn.child));
                         btn.add_style_class_name('openbar');
                         btn.add_style_class_name('button-container');
@@ -532,36 +538,28 @@ export default class Openbar extends Extension {
                             }
                         }                        
                     }
-                    
-                    // Add trilands pseudo/classes if enabled else remove them
-                    // if(btn.child.has_style_class_name('trilands'))
-                    //     btn.child.remove_style_class_name('trilands');
-                    if(bartype == 'Trilands') {
-                        btn.child.add_style_class_name('trilands');
+                }  
+                
+                idx++;
+            }
 
-                        if(btn == box.first_child && btn == box.last_child)
-                            btn.child.add_style_pseudo_class('one-child');
-                        else
-                            btn.child.remove_style_pseudo_class('one-child');
-                        
-                        if(btn == box.first_child && btn != box.last_child)
-                            btn.child.add_style_pseudo_class('left-child');
-                        else
-                            btn.child.remove_style_pseudo_class('left-child');
-                            
-                        if(btn != box.first_child && btn == box.last_child)
-                            btn.child.add_style_pseudo_class('right-child');
-                        else
-                            btn.child.remove_style_pseudo_class('right-child');
-                        
-                        if(btn != box.first_child && btn != box.last_child)
-                            btn.child.add_style_pseudo_class('mid-child');
-                        else
-                            btn.child.remove_style_pseudo_class('mid-child');
-                    }
+            // Add trilands pseudo/classes if enabled else remove them
+            if(bartype == 'Trilands') {
+                let btns = box.get_children();
+                for(let k=0; k<btns.length; k++) {
+                    btns[k].child.add_style_class_name('trilands');
+                    ['one-child', 'left-child', 'right-child', 'mid-child'].forEach(cls => {
+                        btns[k].child.remove_style_pseudo_class(cls);
+                    });
+                    if(k == firstIdx && k == lastIdx)
+                        btns[k].child.add_style_pseudo_class('one-child');
+                    else if(k == firstIdx)
+                        btns[k].child.add_style_pseudo_class('left-child');
+                    else if(k == lastIdx)
+                        btns[k].child.add_style_pseudo_class('right-child');
                     else
-                        btn.child.remove_style_class_name('trilands'); 
-                }                
+                        btns[k].child.add_style_pseudo_class('mid-child');
+                }             
             }
         }
     }
@@ -649,8 +647,10 @@ export default class Openbar extends Extension {
                 }
             }
             else {
-                // Reset Candybar style in overview if disabled
-                this.setPanelStyle(null, key);
+                // Reset Candybar style in overview if set-overview is disabled
+                let candybar = this._settings.get_boolean('candybar');
+                if(candybar)
+                    this.setPanelStyle(null, key);
             }
             return;           
         }
@@ -1082,8 +1082,6 @@ export default class Openbar extends Extension {
         this.updatingBguri = false;
         this.updatingBguriId = null;
         this.updateBguriId = null;
-        this.notifyVisible = false;
-        this.notifyVisibleId = null;
 
         // Settings for desktop background image (set bg-uri as per color scheme)
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
@@ -1234,10 +1232,6 @@ export default class Openbar extends Extension {
         if(this.updateBguriId) {
             clearTimeout(this.updateBguriId);
             this.updateBguriId = null;
-        }
-        if(this.notifyVisibleId) {
-            clearTimeout(this.notifyVisibleId);
-            this.notifyVisibleId = null;
         }
         if(this.bgMgrTimeOutId) {
             clearTimeout(this.bgMgrTimeOutId);
