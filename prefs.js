@@ -394,7 +394,7 @@ class OpenbarPrefs {
         // Get the settings object
         this._settings = openbar.getSettings();
         // Connect settings to update/save/reload stylesheet
-        let settEvents = ['bartype', 'position', 'font', 'gradient', 'cust-margin-wmax', 'border-wmax', 'neon-wmax',
+        let settEvents = ['bartype', 'position', 'font', 'gradient', 'wmax-hbarhint', 'cust-margin-wmax', 'border-wmax', 'neon-wmax',
         'gradient-direction', 'shadow', 'neon', 'heffect', 'smbgoverride', 'mbg-gradient', 'autofg-bar', 'autofg-menu',
         'width-top', 'width-bottom', 'width-left', 'width-right', 'radius-topleft', 'radius-topright', 'autohg-bar', 'autohg-menu',
         'radius-bottomleft', 'radius-bottomright', 'apply-menu-notif', 'apply-menu-shell', 'apply-accent-shell', 'apply-all-shell', 
@@ -1009,6 +1009,18 @@ class OpenbarPrefs {
 
         let wmaxAlpha = this.createScaleWidget(0, 1, 0.01, 2, 'bgalpha-wmax');
         bargridwmax.attach(wmaxAlpha, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Match wmax BG with Gtk Headerbar hint switch
+        let wmaxHbarLabel = new Gtk.Label({
+            label: 'Match BG with Headerbar',
+            halign: Gtk.Align.START,
+        });
+        bargridwmax.attach(wmaxHbarLabel, 1, rowbar, 1, 1);
+
+        let wmaxHbarSwitch = this.createSwitchWidget('wmax-hbarhint', 'Match the background color of WMax bar with the Gtk headerbar hint');
+        bargridwmax.attach(wmaxHbarSwitch, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
