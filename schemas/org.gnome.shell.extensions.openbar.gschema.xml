@@ -962,6 +962,11 @@
       <summary>Transparency (alpha) WMax</summary>
       <description>Transparency of WMax Top Bar.</description>
     </key>
+    <key type="b" name="wmax-hbarhint">
+      <default>false</default>
+      <summary>Match wmax bgcolor with Gtk headerbar hint</summary>
+      <description>Match wmax bgcolor with Gtk headerbar hint.</description>
+    </key>
     <key type="b" name="cust-margin-wmax">
       <default>false</default>
       <summary>Customize bar margin when window maximized?</summary>
@@ -1323,7 +1328,7 @@
       <description>Apply corner radius to Gtk window.</description>
     </key>
     <key type="d" name="winbradius">
-      <default>12</default>
+      <default>15</default>
       <summary>Border/Corner radius of gtk window</summary>
       <description>Border/Corner radius of gtk window.</description>
     </key>
