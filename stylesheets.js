@@ -1906,7 +1906,8 @@ function saveStylesheet(obar, Me) {
 
         #panel${openbarClass} .panel-button.clock-display .clock {
             color: rgba(${fgred},${fggreen},${fgblue},${fgalpha}) !important;
-            border-width: 2px;
+            border: none; padding: 0px 0px; text-align: center;
+            height: ${height}px !important;
         }
         #panel${openbarClass}:windowmax .panel-button.clock-display .clock {
             ${wmaxColorStyle}
