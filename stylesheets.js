@@ -460,35 +460,16 @@ function createGtkCss(obar, gtk4) {
         }
         
         /* Gnome Terminal */
-        terminal-window > decoration, terminal-window:backdrop > decoration {
-            border: none;
+        terminal-window > decoration {   
             border-bottom-left-radius: 0px;
-            border-bottom-right-radius: 0px;
-        }
-        terminal-window > box > notebook > stack > terminal-screen-container > box {      
+            border-bottom-right-radius: 0px;   
             border: ${winBWidth}px solid rgba(${winBRed}, ${winBGreen}, ${winBBlue}, ${winBAlpha});
-            border-top: none;
         }
-        terminal-window > headerbar {
-            border: ${winBWidth}px solid rgba(${winBRed}, ${winBGreen}, ${winBBlue}, ${winBAlpha});
-            border-bottom: none;
-            min-height: 0px;
-        }
-        terminal-window:backdrop > box > notebook > stack > terminal-screen-container > box {      
+        terminal-window:backdrop > decoration {      
             border: ${winBWidth}px solid rgba(${winBRedBd}, ${winBGreenBd}, ${winBBlueBd}, ${winBAlpha});
-            border-top: none;
         }
-        terminal-window:backdrop > headerbar {
-            border: ${winBWidth}px solid rgba(${winBRedBd}, ${winBGreenBd}, ${winBBlueBd}, ${winBAlpha});
-            border-bottom: none;
-        }
-        terminal-window > box > notebook > stack > terminal-screen-container > box > box > scrollbar > contents > trough > slider {
-            background-color: rgba(${accRed}, ${accGreen}, ${accBlue}, 0.5);
-        }
-        terminal-window.maximized > box > notebook > stack > terminal-screen-container > box, 
-        terminal-window.fullscreen > box > notebook > stack > terminal-screen-container > box, 
-        terminal-window.maximized > headerbar,
-        terminal-window.fullscreen > headerbar {
+        terminal-window.maximized > decoration, 
+        terminal-window.fullscreen > decoration {
             border: none;
             border-radius: 0px;
         }
@@ -500,7 +481,11 @@ function createGtkCss(obar, gtk4) {
             background-color: rgb(36, 36, 36);
             padding: 5px 15px;
         }
-        terminal-window > headerbar .image-button, terminal-window:backdrop > headerbar .image-button {
+        terminal-window > headerbar {
+            min-height: 0px;
+        }
+        terminal-window > headerbar .image-button, 
+        terminal-window:backdrop > headerbar .image-button {
             background: transparent;
             background-image: none;
             border: none;
@@ -530,12 +515,6 @@ function createGtkCss(obar, gtk4) {
         terminal-window > box > notebook > header {
             background-color: rgb(36,36,36);
             border: none;
-            border-left: ${winBWidth}px solid rgba(${winBRed}, ${winBGreen}, ${winBBlue}, ${winBAlpha});
-            border-right: ${winBWidth}px solid rgba(${winBRed}, ${winBGreen}, ${winBBlue}, ${winBAlpha});
-        }
-        terminal-window > box > notebook > header:backdrop {
-            border-left: ${winBWidth}px solid rgba(${winBRedBd}, ${winBGreenBd}, ${winBBlueBd}, ${winBAlpha});
-            border-right: ${winBWidth}px solid rgba(${winBRedBd}, ${winBGreenBd}, ${winBBlueBd}, ${winBAlpha});
         }
         terminal-window > box > notebook > header > tabs > tab,
         terminal-window > box > notebook > header > tabs > tab > box > button,
@@ -547,6 +526,12 @@ function createGtkCss(obar, gtk4) {
             background-color: rgb(65,65,65);
             background-image: none;
             border-color: transparent;
+        }
+        terminal-window > box > notebook > header > tabs > tab:hover {
+            box-shadow: inset 0 -3px rgba(210,210,210,0.85);
+        }
+        terminal-window > box > notebook > header > tabs > tab:checked:hover {
+            box-shadow: inset 0 -3px shade(@accent_color, 1.2);
         }
         `;        
     }
@@ -988,7 +973,7 @@ export function saveFlatpakOverrides(obar, caller) {
 }
 
 // Generate stylesheet string and save stylesheet file
-function saveStylesheet(obar, Me) {
+function getStylesheet(obar, Me) {
 
     let bartype = obar._settings.get_string('bartype');
     let boxcolor = obar._settings.get_strv('boxcolor');
@@ -3602,8 +3587,8 @@ export async function reloadStyle(obar, Me) {
     if(importExport || pauseStyleReload)
         return;
     // console.log('reloadStyle called with ImportExport false, Pause false');
-    // Save stylesheet from string to css file
-    let stylesheet = saveStylesheet(obar, Me);    
+    // Get stylesheet string
+    let stylesheet = getStylesheet(obar, Me);    
     try {
         await Promise.all([writeStylesheet(obar, stylesheet), writeSVGs(obar, Me), writeGtkCss(obar)]);
     }
