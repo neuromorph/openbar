@@ -1054,6 +1054,13 @@ export default class Openbar extends Extension {
         this._connections.connect(this._bgSettings, 'changed::picture-uri-dark', this.updateBguri.bind(this));
         this._connections.connect(this._intSettings, 'changed::color-scheme', this.updatePanelStyle.bind(this), 'color-scheme');
     }
+    
+    postStartup() {
+        this.postStartupId = setTimeout(() => {
+            this.reloadStylesheet();
+            this.setPanelStyle(null, 'post-startup');
+        }, 1000);    
+    }
 
     enable() {
         // Get Gnome version
@@ -1082,6 +1089,7 @@ export default class Openbar extends Extension {
         this.updatingBguri = false;
         this.updatingBguriId = null;
         this.updateBguriId = null;
+        this.postStartupId = null;
 
         // Settings for desktop background image (set bg-uri as per color scheme)
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
@@ -1109,7 +1117,7 @@ export default class Openbar extends Extension {
             [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this), 100 ],
             [ global.display, 'window-entered-monitor', this.setWindowMaxBar.bind(this), 'window-entered-monitor' ],
             [ global.display, 'window-left-monitor', this.setWindowMaxBar.bind(this), 'window-left-monitor' ],
-            [ Main.layoutManager, 'startup-complete', this.reloadStylesheet.bind(this) ],
+            [ Main.layoutManager, 'startup-complete', this.postStartup.bind(this) ],
             // [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this), 'session-mode-updated' ],
         ];
         // Connections for actor-added/removed OR child-added/removed as per Gnome version
@@ -1241,6 +1249,10 @@ export default class Openbar extends Extension {
         if(this.onFullScrTimeoutId) {
             clearTimeout(this.onFullScrTimeoutId);
             this.onFullScrTimeoutId = null;
+        }
+        if(this.postStartupId) {
+            clearTimeout(this.postStartupId);
+            this.postStartupId = null;
         }
 
         for(let i=0; i<this.msgLists.length; i++) {
