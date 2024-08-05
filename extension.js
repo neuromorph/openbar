@@ -543,10 +543,10 @@ export default class Openbar extends Extension {
                 idx++;
             }
 
-            // Add trilands pseudo/classes if enabled else remove them
-            if(bartype == 'Trilands') {
-                let btns = box.get_children();
-                for(let k=0; k<btns.length; k++) {
+            // Add trilands pseudo/classes if enabled else remove them            
+            let btns = box.get_children();
+            for(let k=0; k<btns.length; k++) {
+                if(bartype == 'Trilands') {
                     btns[k].child.add_style_class_name('trilands');
                     ['one-child', 'left-child', 'right-child', 'mid-child'].forEach(cls => {
                         btns[k].child.remove_style_pseudo_class(cls);
@@ -559,7 +559,10 @@ export default class Openbar extends Extension {
                         btns[k].child.add_style_pseudo_class('right-child');
                     else
                         btns[k].child.add_style_pseudo_class('mid-child');
-                }             
+                }
+                else {
+                    btns[k].child.remove_style_class_name('trilands');
+                }
             }
         }
     }
