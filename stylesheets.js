@@ -1725,12 +1725,12 @@ function getStylesheet(obar, Me) {
         if(getBgDark(bgredwmax, bggreenwmax, bgbluewmax)) {
             wmaxColorStyle = 
             `color: rgba(250,250,250,1.0) !important;
-            transition-duration: 100ms;`;
+             transition-duration: 100ms;`;
         }
         else {
             wmaxColorStyle = 
             `color: rgba(5,5,5,1.0) !important;
-            transition-duration: 100ms;`;
+             transition-duration: 100ms;`;
         }
     }
     else {
@@ -1744,7 +1744,7 @@ function getStylesheet(obar, Me) {
         // WMax Highlight BG  
         wmaxHoverStyle = 
         `background-color: rgba(${hgColor[0]},${hgColor[1]},${hgColor[2]},${hAlpha}) !important;
-        transition-duration: 100ms;`;
+         transition-duration: 100ms;`;
     }
     else {
         wmaxHoverStyle = ``;
@@ -1776,18 +1776,18 @@ function getStylesheet(obar, Me) {
     let unlockStyle, unlockHoverStyle;
     if(obar.main.sessionMode.isLocked) {
         unlockStyle =
-        `   background-color: transparent !important; 
-            border-color: transparent !important; 
-            color: rgba(255,255,255,1.0) !important;
-            box-shadow: none !important;
-            transition-duration: 100ms;`;
+        `background-color: transparent !important; 
+         border-color: transparent !important; 
+         color: rgba(255,255,255,1.0) !important;
+         box-shadow: none !important;
+         transition-duration: 100ms;`;
     }
     else {
         unlockStyle = ``;
     }
     if(obar.main.sessionMode.isLocked) {
         unlockHoverStyle =
-        `   color: rgba(255,255,255,1.0) !important;`;
+        `color: rgba(255,255,255,1.0) !important;`;
     }
     else {
         unlockHoverStyle = ``;
@@ -1800,6 +1800,16 @@ function getStylesheet(obar, Me) {
         toggleOnSVG = 'toggle-on-hc.svg';
         toggleOffSVG = 'toggle-off-hc.svg';
     }
+    
+    // Menu rise(margin) for Bar in Bottom Position
+    let position = obar._settings.get_string('position');
+    let bottomBarStyle;
+    if(position == 'Bottom') {
+        bottomBarStyle = 
+        `margin-bottom: 0px !important;`;
+    }
+    else
+        bottomBarStyle = ``;
 
     // Add/Remove .openmenu class to Restrict/Extend menu styles to the shell
     let openmenuClass = (applyMenuShell || applyAllShell) ? '' : '.openmenu';
@@ -2113,7 +2123,10 @@ function getStylesheet(obar, Me) {
         stylesheet += `
 
             ${openmenuClass}.popup-menu-boxpointer, ${openmenuClass}.candidate-popup-boxpointer {
-                -arrow-rise: 6px; 
+                -arrow-rise: ${6 + vPad}px; 
+            }
+            ${openmenuClass}.popup-menu.panel-menu {
+                ${bottomBarStyle}
             }
 
             ${openmenuClass}.popup-menu {
