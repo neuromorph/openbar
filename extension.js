@@ -544,23 +544,24 @@ export default class Openbar extends Extension {
             // Add trilands pseudo/classes if enabled else remove them            
             let btns = box.get_children();
             for(let k=0; k<btns.length; k++) {
-                if(bartype == 'Trilands' && 
-                (btns[k].child instanceof PanelMenu.Button || btns[k].child instanceof PanelMenu.ButtonBox)) {
-                    btns[k].child.add_style_class_name('trilands');
-                    ['one-child', 'left-child', 'right-child', 'mid-child'].forEach(cls => {
-                        btns[k].child.remove_style_pseudo_class(cls);
-                    });
-                    if(k == firstIdx && k == lastIdx)
-                        btns[k].child.add_style_pseudo_class('one-child');
-                    else if(k == firstIdx)
-                        btns[k].child.add_style_pseudo_class('left-child');
-                    else if(k == lastIdx)
-                        btns[k].child.add_style_pseudo_class('right-child');
-                    else
-                        btns[k].child.add_style_pseudo_class('mid-child');
-                }
-                else if(bartype != 'Trilands') {
-                    btns[k].child.remove_style_class_name('trilands');
+                if (btns[k].child instanceof PanelMenu.Button || btns[k].child instanceof PanelMenu.ButtonBox) {
+                    if(bartype == 'Trilands') {
+                        btns[k].child.add_style_class_name('trilands');
+                        ['one-child', 'left-child', 'right-child', 'mid-child'].forEach(cls => {
+                            btns[k].child.remove_style_pseudo_class(cls);
+                        });
+                        if(k == firstIdx && k == lastIdx)
+                            btns[k].child.add_style_pseudo_class('one-child');
+                        else if(k == firstIdx)
+                            btns[k].child.add_style_pseudo_class('left-child');
+                        else if(k == lastIdx)
+                            btns[k].child.add_style_pseudo_class('right-child');
+                        else
+                            btns[k].child.add_style_pseudo_class('mid-child');
+                    }
+                    else {
+                        btns[k].child.remove_style_class_name('trilands');
+                    }
                 }
             }
         }
