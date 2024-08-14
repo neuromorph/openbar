@@ -274,26 +274,24 @@ export default class Openbar extends Extension {
 
     unloadStylesheet() {
         const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        this.stylesheet = this.obarRunDir.get_child('stylesheet.css');
+        const stylesheet = this.obarRunDir.get_child('stylesheet.css');
         try { 
-            theme.unload_stylesheet(this.stylesheet); 
-            delete this.stylesheet;
-        } catch (e) {
-            console.log('Openbar: Error unloading stylesheet: ');
-            throw e;
+            theme.unload_stylesheet(stylesheet); 
+        } 
+        catch (e) {
+            console.log('Openbar: Error unloading stylesheet: ', e);
         }
     }
 
     loadStylesheet() {
         const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        this.stylesheet = this.obarRunDir.get_child('stylesheet.css');
+        const stylesheet = this.obarRunDir.get_child('stylesheet.css');
         try {
-            theme.load_stylesheet(this.stylesheet);
-        } catch (e) {
-            console.log('Openbar: Error loading stylesheet: ');
-            throw e;
-        }
-        
+            theme.load_stylesheet(stylesheet);
+        } 
+        catch (e) {
+            console.log('Openbar: Error loading stylesheet: ', e);
+        }        
     }
 
     reloadStylesheet() {
