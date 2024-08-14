@@ -546,7 +546,8 @@ export default class Openbar extends Extension {
             // Add trilands pseudo/classes if enabled else remove them            
             let btns = box.get_children();
             for(let k=0; k<btns.length; k++) {
-                if(bartype == 'Trilands') {
+                if(bartype == 'Trilands' && 
+                (btns[k].child instanceof PanelMenu.Button || btns[k].child instanceof PanelMenu.ButtonBox)) {
                     btns[k].child.add_style_class_name('trilands');
                     ['one-child', 'left-child', 'right-child', 'mid-child'].forEach(cls => {
                         btns[k].child.remove_style_pseudo_class(cls);
@@ -560,7 +561,7 @@ export default class Openbar extends Extension {
                     else
                         btns[k].child.add_style_pseudo_class('mid-child');
                 }
-                else {
+                else if(bartype != 'Trilands') {
                     btns[k].child.remove_style_class_name('trilands');
                 }
             }
