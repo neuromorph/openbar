@@ -476,7 +476,7 @@ export default class Openbar extends Extension {
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         let i = 0, idx, isFirst, firstIdx, lastIdx;
         for(const box of panelBoxes) {
-            isFirst = true; idx = 0;
+            isFirst = true; idx = 0; firstIdx = 0; lastIdx = 0;
             for(const btn of box) {
                 // Screen recording/share indicators use ButtonBox instead of Button
                 if(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) {
@@ -1059,9 +1059,10 @@ export default class Openbar extends Extension {
     }
     
     postStartup() {
+        this.setPanelStyle(null, 'post-startup');
+
         this.postStartupId = setTimeout(() => {
             this.reloadStylesheet();
-            this.setPanelStyle(null, 'post-startup');
         }, 2500);
     }
 
