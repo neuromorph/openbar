@@ -124,6 +124,9 @@ If the panel/menu isn't looking right, you need to tweak some settings. There ar
 
 
 ## Screenshots
+
+More recent screenshots can be found in the [Reddit post here](https://www.reddit.com/r/unixporn/comments/1ethgn2/ocgnome_open_bar_for_the_rice_guys/).
+
 Auto-Themes Examples:  
 
 ![Screenshot](screens/ego01.png)
