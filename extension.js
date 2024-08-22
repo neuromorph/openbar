@@ -1275,7 +1275,7 @@ export default class Openbar extends Extension {
         this._injections = [];
 
         // Reset the style for Panel and Menus
-        this.resetPanelStyle(panel);
+        // this.resetPanelStyle(panel);
         this.applyMenuStyles(panel, false);
 
         // Unload stylesheet
