@@ -274,7 +274,7 @@ export default class Openbar extends Extension {
 
     unloadStylesheet() {
         const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        const stylesheet = this.obarRunDir.get_child('stylesheet.css');
+        const stylesheet = this.obarConfigDir.get_child('stylesheet.css');
         try { 
             theme.unload_stylesheet(stylesheet); 
         } 
@@ -285,7 +285,7 @@ export default class Openbar extends Extension {
 
     loadStylesheet() {
         const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-        const stylesheet = this.obarRunDir.get_child('stylesheet.css');
+        const stylesheet = this.obarConfigDir.get_child('stylesheet.css');
         try {
             theme.load_stylesheet(stylesheet);
         } 
@@ -1191,10 +1191,10 @@ export default class Openbar extends Extension {
         let menustyle = this._settings.get_boolean('menustyle');
         this.applyMenuStyles(panel, menustyle);
 
-        // OpenBar runtime directory
-        const userRunDir = GLib.get_user_runtime_dir();
-        this.obarRunDir = Gio.File.new_for_path(`${userRunDir}/io.github.neuromorph.openbar`);
-        this.obarAssetsDir = Gio.File.new_for_path(`${this.obarRunDir.get_path()}/assets`);
+        // OpenBar config directory
+        const userConfigDir = GLib.get_user_config_dir();
+        this.obarConfigDir = Gio.File.new_for_path(`${userConfigDir}/io.github.neuromorph.openbar`);
+        this.obarAssetsDir = Gio.File.new_for_path(`${this.obarConfigDir.get_path()}/assets`);
         // Create dirs if missing
         if(!this.obarAssetsDir.query_exists(null)) {
             try {
