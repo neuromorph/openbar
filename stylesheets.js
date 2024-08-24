@@ -49,7 +49,7 @@ function saveCalEventSVG(obar, Me) {
     marker-end:none;paint-order:normal;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate" cx="16" cy="28" r="2"/>
     </svg>
     `;
-    svgpath = obar.obarRunDir.get_path() + '/assets/calendar-today.svg';
+    svgpath = obar.obarConfigDir.get_path() + '/assets/calendar-today.svg';
     svgcolor = obar.smfgHex;
     
     svg = svg.replace(`#REPLACE`, svgcolor);
@@ -86,9 +86,9 @@ function saveToggleSVG(type, obar, Me) {
 
     svgFill = obar.msHex;
     svg = svg.replace(`#SVGFILL`, svgFill);
-    svgpath = obar.obarRunDir.get_path() + '/assets/toggle-on.svg';
+    svgpath = obar.obarConfigDir.get_path() + '/assets/toggle-on.svg';
     if(type == 'on-hc') {
-        svgpath = obar.obarRunDir.get_path() + '/assets/toggle-on-hc.svg';
+        svgpath = obar.obarConfigDir.get_path() + '/assets/toggle-on-hc.svg';
         hc = `<path style="fill:#f8f7f7;fill-opacity:1;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-dashoffset:2" d="M16 8v10h-2V8Z"/>`;
     }
     svg = svg.replace(`#HIGHCONTRAST`, hc);
@@ -122,7 +122,7 @@ function saveCheckboxSVG(type, obar, Me) {
         </svg>
         `;
 
-        svgpath = obar.obarRunDir.get_path() + '/assets/checkbox-on.svg';
+        svgpath = obar.obarConfigDir.get_path() + '/assets/checkbox-on.svg';
         svgFill = obar.msHex;
         svgStroke = obar.msHex;
     }
@@ -134,7 +134,7 @@ function saveCheckboxSVG(type, obar, Me) {
         </svg>
         `;
 
-        svgpath = obar.obarRunDir.get_path() + '/assets/checkbox-on-focused.svg';
+        svgpath = obar.obarConfigDir.get_path() + '/assets/checkbox-on-focused.svg';
         svgFill = obar.msHex;
         svgStroke = obar.mhHex;
     }
@@ -145,7 +145,7 @@ function saveCheckboxSVG(type, obar, Me) {
         </svg>
         `;
 
-        svgpath = obar.obarRunDir.get_path() + '/assets/checkbox-off-focused.svg';
+        svgpath = obar.obarConfigDir.get_path() + '/assets/checkbox-off-focused.svg';
         svgFill = '#aaa';
         svgStroke = obar.mhHex;
     }
@@ -3552,7 +3552,7 @@ function getStylesheet(obar, Me) {
 }
 
 async function writeStylesheet(obar, stylesheet) {
-    let stylepath = obar.obarRunDir.get_path() + '/stylesheet.css';
+    let stylepath = obar.obarConfigDir.get_path() + '/stylesheet.css';
     let file = Gio.File.new_for_path(stylepath);
     let bytearray = new TextEncoder().encode(stylesheet);
 
