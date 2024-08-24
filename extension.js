@@ -1059,9 +1059,8 @@ export default class Openbar extends Extension {
     }
     
     postStartup() {
-        this.setPanelStyle(null, 'post-startup');
-
         this.postStartupId = setTimeout(() => {
+            this.setPanelStyle(null, 'post-startup');
             this.reloadStylesheet();
         }, 2500);
     }
