@@ -467,8 +467,9 @@ export default class Openbar extends Extension {
         // console.log('setPanelStyle: ', String(obj), key, String(sig_param), callbk_param);
         const panel = Main.panel;
         const bartype = this._settings.get_string('bartype');
+        const buttonBgWMax = this._settings.get_boolean('buttonbg-wmax');
         let candybar = this._settings.get_boolean('candybar');
-        if(candybar)
+        if(candybar && key != 'showing' && (buttonBgWMax || !panel.has_style_pseudo_class('windowmax')))
             panel.add_style_class_name('candybar');
         else
             panel.remove_style_class_name('candybar');
@@ -510,7 +511,7 @@ export default class Openbar extends Extension {
                                 // }
                             }
                             i++; i = i%16; i = i==0? 16: i; // Cycle through candybar palette
-                            if(candybar && key != 'showing') {
+                            if(candybar) {
                                 btn.child.add_style_pseudo_class('candy'+i);
                                 // for(const child of btn.child.get_children()) {
                                 //     if(child.add_style_class_name)
