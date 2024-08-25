@@ -404,7 +404,6 @@ export default class Openbar extends Extension {
                     // DateMenu: Notifications (messages and media), DND and Clear buttons
                     //           Calendar Grid, Events, World Clock, Weather
                     if(btn.child.constructor.name === 'DateMenuButton') {
-                        btn.child.y_align = Clutter.ActorAlign.CENTER;
                         const bin = btn.child.menu.box.get_child_at_index(0); // CalendarArea 
                         const hbox = bin.get_child_at_index(0); // hbox with left and right sections
 
@@ -469,9 +468,13 @@ export default class Openbar extends Extension {
         const panel = Main.panel;
         const bartype = this._settings.get_string('bartype');
         let candybar = this._settings.get_boolean('candybar');
+        if(candybar)
+            panel.add_style_class_name('candybar');
+        else
+            panel.remove_style_class_name('candybar');
         // Reset Candybar in Overview. Called with 'showing' when set-Overview is disabled
-        if(key == 'showing') 
-            candybar = false;
+        //if(key == 'showing') 
+        //    candybar = false;
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         let i = 0, idx, isFirst, firstIdx, lastIdx;
@@ -496,27 +499,27 @@ export default class Openbar extends Extension {
                         if(key == 'enabled' || key == 'candybar' || key == 'showing' || key == 'hiding'
                             || key == 'notify::visible' || key == this.addedSignal || key == this.removedSignal) {
                             for(let j=1; j<=16; j++) {
-                                btn.child.remove_style_class_name('candy'+j);
-                                for(const child of btn.child.get_children()) {
-                                    if(child.remove_style_class_name)
-                                        child.remove_style_class_name('candy'+j);
-                                    for(const gChild of child.get_children()) {
-                                        if(gChild.remove_style_class_name)
-                                            gChild.remove_style_class_name('candy'+j);
-                                    }
-                                }
+                                btn.child.remove_style_pseudo_class('candy'+j);
+                                // for(const child of btn.child.get_children()) {
+                                //     if(child.remove_style_class_name)
+                                //         child.remove_style_class_name('candy'+j);
+                                //     for(const gChild of child.get_children()) {
+                                //         if(gChild.remove_style_class_name)
+                                //             gChild.remove_style_class_name('candy'+j);
+                                //     }
+                                // }
                             }
                             i++; i = i%16; i = i==0? 16: i; // Cycle through candybar palette
-                            if(candybar) {
-                                btn.child.add_style_class_name('candy'+i);
-                                for(const child of btn.child.get_children()) {
-                                    if(child.add_style_class_name)
-                                        child.add_style_class_name('candy'+i);
-                                    for(const gChild of child.get_children()) {
-                                        if(gChild.add_style_class_name)
-                                            gChild.add_style_class_name('candy'+i);
-                                    }
-                                }
+                            if(candybar && key != 'showing') {
+                                btn.child.add_style_pseudo_class('candy'+i);
+                                // for(const child of btn.child.get_children()) {
+                                //     if(child.add_style_class_name)
+                                //         child.add_style_class_name('candy'+i);
+                                //     for(const gChild of child.get_children()) {
+                                //         if(gChild.add_style_class_name)
+                                //             gChild.add_style_class_name('candy'+i);
+                                //     }
+                                // }
                             }
                         }
                     }
@@ -529,10 +532,10 @@ export default class Openbar extends Extension {
                             // Some extensions can replace dot with text so add a check
                             if(dot?.add_style_class_name) {
                                 dot.add_style_class_name('openbar');
-                                if(candybar)
-                                    dot.add_style_pseudo_class('candybar');
-                                else
-                                    dot.remove_style_pseudo_class('candybar');
+                                // if(candybar)
+                                //     dot.add_style_pseudo_class('candybar');
+                                // else
+                                //     dot.remove_style_pseudo_class('candybar');
                             }
                         }                        
                     }
@@ -597,6 +600,15 @@ export default class Openbar extends Extension {
         if(key == 'cust-margin-wmax' || key == 'margin-wmax') {
             this.setPanelBoxPosWindowMax(this.wmax, key);
             return;
+        }
+        if(key == 'buttonbg-wmax' && Main.panel.has_style_pseudo_class('windowmax')) {
+            const btnBgWMax = this._settings.get_boolean('buttonbg-wmax');
+            const candybar = this._settings.get_boolean('candybar');
+            if(candybar)
+                btnBgWMax? 
+                Main.panel.add_style_class_name('candybar'):
+                Main.panel.remove_style_class_name('candybar');     
+            return;           
         }
 
         if(key == 'trigger-autotheme') {
@@ -908,12 +920,18 @@ export default class Openbar extends Extension {
         // for(const window of windows)
         //     console.log('window:', window.get_gtk_application_id());
 
+        const btnBgWMax = this._settings.get_boolean('buttonbg-wmax');
+        const candybar = this._settings.get_boolean('candybar');
         if(windows.length) {
             Main.panel.add_style_pseudo_class('windowmax');
+            if(candybar && !btnBgWMax)
+                Main.panel.remove_style_class_name('candybar');
             this.setPanelBoxPosWindowMax(true, signal);
         }
         else {
             Main.panel.remove_style_pseudo_class('windowmax');
+            if(candybar && !btnBgWMax)
+                Main.panel.add_style_class_name('candybar');
             this.setPanelBoxPosWindowMax(false, signal);
         }
     }

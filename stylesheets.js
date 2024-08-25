@@ -1025,6 +1025,7 @@ function getStylesheet(obar, Me) {
     let marginWMax = obar._settings.get_double('margin-wmax');
     let neonWMax = obar._settings.get_boolean('neon-wmax');
     let borderWMax = obar._settings.get_boolean('border-wmax');
+    let btnBgWMax = obar._settings.get_boolean('buttonbg-wmax');
     let menuRadius = obar._settings.get_double('menu-radius');
     let notifRadius = obar._settings.get_double('notif-radius');
     let qtoggleRadius = obar._settings.get_double('qtoggle-radius');
@@ -1866,6 +1867,7 @@ function getStylesheet(obar, Me) {
             ${unlockStyle}
         }
         #panel${openbarClass}:windowmax .panel-button {
+            ${btnBgWMax? '': 'background-color: transparent !important;'}
             ${borderWMax? '': 'border-color: transparent;'}
             ${neonWMax? '': 'box-shadow: none;'} 
             ${wmaxColorStyle}             
@@ -1981,140 +1983,140 @@ function getStylesheet(obar, Me) {
 
     // Candybar Styles
     stylesheet += `
-        #panel${openbarClass} .panel-button.candy1 {
+        #panel${openbarClass}.candybar .panel-button:candy1 {
             ${candyStyleArr[0]}
         }
-        #panel${openbarClass} .panel-button.candy1:hover, #panel${openbarClass} .panel-button.candy1:focus,
-        #panel${openbarClass} .panel-button.candy1:active, #panel${openbarClass} .panel-button.candy1:checked {
+        #panel${openbarClass}.candybar .panel-button:candy1:hover, #panel${openbarClass}.candybar .panel-button:candy1:focus,
+        #panel${openbarClass}.candybar .panel-button:candy1:active, #panel${openbarClass}.candybar .panel-button:candy1:checked {
             ${candyHighlightArr[0]}
         }
-        #panel${openbarClass} .panel-button.candy2 {
+        #panel${openbarClass}.candybar .panel-button:candy2 {
             ${candyStyleArr[1]}
         }
-        #panel${openbarClass} .panel-button.candy2:hover, #panel${openbarClass} .panel-button.candy2:focus,
-        #panel${openbarClass} .panel-button.candy2:active, #panel${openbarClass} .panel-button.candy2:checked {
+        #panel${openbarClass}.candybar .panel-button:candy2:hover, #panel${openbarClass}.candybar .panel-button:candy2:focus,
+        #panel${openbarClass}.candybar .panel-button:candy2:active, #panel${openbarClass}.candybar .panel-button:candy2:checked {
             ${candyHighlightArr[1]}
         }
-        #panel${openbarClass} .panel-button.candy3 {
+        #panel${openbarClass}.candybar .panel-button:candy3 {
             ${candyStyleArr[2]}
         }
-        #panel${openbarClass} .panel-button.candy3:hover, #panel${openbarClass} .panel-button.candy3:focus,
-        #panel${openbarClass} .panel-button.candy3:active, #panel${openbarClass} .panel-button.candy3:checked {
+        #panel${openbarClass}.candybar .panel-button:candy3:hover, #panel${openbarClass}.candybar .panel-button:candy3:focus,
+        #panel${openbarClass}.candybar .panel-button:candy3:active, #panel${openbarClass}.candybar .panel-button:candy3:checked {
             ${candyHighlightArr[2]}
         }
-        #panel${openbarClass} .panel-button.candy4 {
+        #panel${openbarClass}.candybar .panel-button:candy4 {
             ${candyStyleArr[3]}
         }
-        #panel${openbarClass} .panel-button.candy4:hover, #panel${openbarClass} .panel-button.candy4:focus,
-        #panel${openbarClass} .panel-button.candy4:active, #panel${openbarClass} .panel-button.candy4:checked {
+        #panel${openbarClass}.candybar .panel-button:candy4:hover, #panel${openbarClass}.candybar .panel-button:candy4:focus,
+        #panel${openbarClass}.candybar .panel-button:candy4:active, #panel${openbarClass}.candybar .panel-button:candy4:checked {
             ${candyHighlightArr[3]}
         }
-        #panel${openbarClass} .panel-button.candy5 {
+        #panel${openbarClass}.candybar .panel-button:candy5 {
             ${candyStyleArr[4]}
         }
-        #panel${openbarClass} .panel-button.candy5:hover, #panel${openbarClass} .panel-button.candy5:focus,
-        #panel${openbarClass} .panel-button.candy5:active, #panel${openbarClass} .panel-button.candy5:checked {
+        #panel${openbarClass}.candybar .panel-button:candy5:hover, #panel${openbarClass}.candybar .panel-button:candy5:focus,
+        #panel${openbarClass}.candybar .panel-button:candy5:active, #panel${openbarClass}.candybar .panel-button:candy5:checked {
             ${candyHighlightArr[4]}
         }
-        #panel${openbarClass} .panel-button.candy6 {
+        #panel${openbarClass}.candybar .panel-button:candy6 {
             ${candyStyleArr[5]}
         }
-        #panel${openbarClass} .panel-button.candy6:hover, #panel${openbarClass} .panel-button.candy6:focus,
-        #panel${openbarClass} .panel-button.candy6:active, #panel${openbarClass} .panel-button.candy6:checked {
+        #panel${openbarClass}.candybar .panel-button:candy6:hover, #panel${openbarClass}.candybar .panel-button:candy6:focus,
+        #panel${openbarClass}.candybar .panel-button:candy6:active, #panel${openbarClass}.candybar .panel-button:candy6:checked {
             ${candyHighlightArr[5]}
         }
-        #panel${openbarClass} .panel-button.candy7 {
+        #panel${openbarClass}.candybar .panel-button:candy7 {
             ${candyStyleArr[6]}
         }
-        #panel${openbarClass} .panel-button.candy7:hover, #panel${openbarClass} .panel-button.candy7:focus,
-        #panel${openbarClass} .panel-button.candy7:active, #panel${openbarClass} .panel-button.candy7:checked {
+        #panel${openbarClass}.candybar .panel-button:candy7:hover, #panel${openbarClass}.candybar .panel-button:candy7:focus,
+        #panel${openbarClass}.candybar .panel-button:candy7:active, #panel${openbarClass}.candybar .panel-button:candy7:checked {
             ${candyHighlightArr[6]}
         }
-        #panel${openbarClass} .panel-button.candy8 {
+        #panel${openbarClass}.candybar .panel-button:candy8 {
             ${candyStyleArr[7]}
         }
-        #panel${openbarClass} .panel-button.candy8:hover, #panel${openbarClass} .panel-button.candy8:focus,
-        #panel${openbarClass} .panel-button.candy8:active, #panel${openbarClass} .panel-button.candy8:checked {
+        #panel${openbarClass}.candybar .panel-button:candy8:hover, #panel${openbarClass}.candybar .panel-button:candy8:focus,
+        #panel${openbarClass}.candybar .panel-button:candy8:active, #panel${openbarClass}.candybar .panel-button:candy8:checked {
             ${candyHighlightArr[7]}
         }
-        #panel${openbarClass} .panel-button.candy9 {
+        #panel${openbarClass}.candybar .panel-button:candy9 {
             ${candyStyleArr[8]}
         }
-        #panel${openbarClass} .panel-button.candy9:hover, #panel${openbarClass} .panel-button.candy9:focus,
-        #panel${openbarClass} .panel-button.candy9:active, #panel${openbarClass} .panel-button.candy9:checked {
+        #panel${openbarClass}.candybar .panel-button:candy9:hover, #panel${openbarClass}.candybar .panel-button:candy9:focus,
+        #panel${openbarClass}.candybar .panel-button:candy9:active, #panel${openbarClass}.candybar .panel-button:candy9:checked {
             ${candyHighlightArr[8]}
         }
-        #panel${openbarClass} .panel-button.candy10 {
+        #panel${openbarClass}.candybar .panel-button:candy10 {
             ${candyStyleArr[9]}
         }
-        #panel${openbarClass} .panel-button.candy10:hover, #panel${openbarClass} .panel-button.candy10:focus,
-        #panel${openbarClass} .panel-button.candy10:active, #panel${openbarClass} .panel-button.candy10:checked {
+        #panel${openbarClass}.candybar .panel-button:candy10:hover, #panel${openbarClass}.candybar .panel-button:candy10:focus,
+        #panel${openbarClass}.candybar .panel-button:candy10:active, #panel${openbarClass}.candybar .panel-button:candy10:checked {
             ${candyHighlightArr[9]}
         }
-        #panel${openbarClass} .panel-button.candy11 {
+        #panel${openbarClass}.candybar .panel-button:candy11 {
             ${candyStyleArr[10]}
         }
-        #panel${openbarClass} .panel-button.candy11:hover, #panel${openbarClass} .panel-button.candy11:focus,
-        #panel${openbarClass} .panel-button.candy11:active, #panel${openbarClass} .panel-button.candy11:checked {
+        #panel${openbarClass}.candybar .panel-button:candy11:hover, #panel${openbarClass}.candybar .panel-button:candy11:focus,
+        #panel${openbarClass}.candybar .panel-button:candy11:active, #panel${openbarClass}.candybar .panel-button:candy11:checked {
             ${candyHighlightArr[10]}
         }
-        #panel${openbarClass} .panel-button.candy12 {
+        #panel${openbarClass}.candybar .panel-button:candy12 {
             ${candyStyleArr[11]}
         }
-        #panel${openbarClass} .panel-button.candy12:hover, #panel${openbarClass} .panel-button.candy12:focus,
-        #panel${openbarClass} .panel-button.candy12:active, #panel${openbarClass} .panel-button.candy12:checked {
+        #panel${openbarClass}.candybar .panel-button:candy12:hover, #panel${openbarClass}.candybar .panel-button:candy12:focus,
+        #panel${openbarClass}.candybar .panel-button:candy12:active, #panel${openbarClass}.candybar .panel-button:candy12:checked {
             ${candyHighlightArr[11]}
         }
-        #panel${openbarClass} .panel-button.candy13 {
+        #panel${openbarClass}.candybar .panel-button:candy13 {
             ${candyStyleArr[12]}
         }
-        #panel${openbarClass} .panel-button.candy13:hover, #panel${openbarClass} .panel-button.candy13:focus,
-        #panel${openbarClass} .panel-button.candy13:active, #panel${openbarClass} .panel-button.candy13:checked {
+        #panel${openbarClass}.candybar .panel-button:candy13:hover, #panel${openbarClass}.candybar .panel-button:candy13:focus,
+        #panel${openbarClass}.candybar .panel-button:candy13:active, #panel${openbarClass}.candybar .panel-button:candy13:checked {
             ${candyHighlightArr[12]}
         }
-        #panel${openbarClass} .panel-button.candy14 {
+        #panel${openbarClass}.candybar .panel-button:candy14 {
             ${candyStyleArr[13]}
         }
-        #panel${openbarClass} .panel-button.candy14:hover, #panel${openbarClass} .panel-button.candy14:focus,
-        #panel${openbarClass} .panel-button.candy14:active, #panel${openbarClass} .panel-button.candy14:checked {
+        #panel${openbarClass}.candybar .panel-button:candy14:hover, #panel${openbarClass}.candybar .panel-button:candy14:focus,
+        #panel${openbarClass}.candybar .panel-button:candy14:active, #panel${openbarClass}.candybar .panel-button:candy14:checked {
             ${candyHighlightArr[13]}
         }
-        #panel${openbarClass} .panel-button.candy15 {
+        #panel${openbarClass}.candybar .panel-button:candy15 {
             ${candyStyleArr[14]}
         }
-        #panel${openbarClass} .panel-button.candy15:hover, #panel${openbarClass} .panel-button.candy15:focus,
-        #panel${openbarClass} .panel-button.candy15:active, #panel${openbarClass} .panel-button.candy15:checked {
+        #panel${openbarClass}.candybar .panel-button:candy15:hover, #panel${openbarClass}.candybar .panel-button:candy15:focus,
+        #panel${openbarClass}.candybar .panel-button:candy15:active, #panel${openbarClass}.candybar .panel-button:candy15:checked {
             ${candyHighlightArr[14]}
         }
-        #panel${openbarClass} .panel-button.candy16 {
+        #panel${openbarClass}.candybar .panel-button:candy16 {
             ${candyStyleArr[15]}
         }
-        #panel${openbarClass} .panel-button.candy16:hover, #panel${openbarClass} .panel-button.candy16:focus,
-        #panel${openbarClass} .panel-button.candy16:active, #panel${openbarClass} .panel-button.candy16:checked {
+        #panel${openbarClass}.candybar .panel-button:candy16:hover, #panel${openbarClass}.candybar .panel-button:candy16:focus,
+        #panel${openbarClass}.candybar .panel-button:candy16:active, #panel${openbarClass}.candybar .panel-button:candy16:checked {
             ${candyHighlightArr[15]}
         }    
-        #panel${openbarClass} .panel-button.candy1.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy1.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy1.clock-display .clock,
-        #panel${openbarClass} .panel-button.candy2.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy2.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy2.clock-display .clock,
-        #panel${openbarClass} .panel-button.candy3.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy3.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy3.clock-display .clock,
-        #panel${openbarClass} .panel-button.candy4.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy4.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy4.clock-display .clock,
-        #panel${openbarClass} .panel-button.candy5.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy5.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy5.clock-display .clock,
-        #panel${openbarClass} .panel-button.candy6.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy6.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy6.clock-display .clock,
-        #panel${openbarClass} .panel-button.candy7.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy7.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy7.clock-display .clock,
-        #panel${openbarClass} .panel-button.candy8.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy8.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy8.clock-display .clock,
-        #panel${openbarClass} .panel-button.candy9.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy9.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy9.clock-display .clock,
-        #panel${openbarClass} .panel-button.candy10.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy10.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy10.clock-display .clock,
-        #panel${openbarClass} .panel-button.candy11.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy11.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy11.clock-display .clock,
-        #panel${openbarClass} .panel-button.candy12.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy12.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy12.clock-display .clock,
-        #panel${openbarClass} .panel-button.candy13.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy13.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy13.clock-display .clock,
-        #panel${openbarClass} .panel-button.candy14.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy14.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy14.clock-display .clock,
-        #panel${openbarClass} .panel-button.candy15.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy15.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy15.clock-display .clock,
-        #panel${openbarClass} .panel-button.candy16.clock-display .clock, #panel${openbarClass} .panel-button:hover.candy16.clock-display .clock, #panel${openbarClass} .panel-button:checked.candy16.clock-display .clock {
+        #panel${openbarClass}.candybar .panel-button:candy1.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy1.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy1.clock-display .clock,
+        #panel${openbarClass}.candybar .panel-button:candy2.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy2.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy2.clock-display .clock,
+        #panel${openbarClass}.candybar .panel-button:candy3.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy3.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy3.clock-display .clock,
+        #panel${openbarClass}.candybar .panel-button:candy4.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy4.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy4.clock-display .clock,
+        #panel${openbarClass}.candybar .panel-button:candy5.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy5.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy5.clock-display .clock,
+        #panel${openbarClass}.candybar .panel-button:candy6.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy6.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy6.clock-display .clock,
+        #panel${openbarClass}.candybar .panel-button:candy7.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy7.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy7.clock-display .clock,
+        #panel${openbarClass}.candybar .panel-button:candy8.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy8.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy8.clock-display .clock,
+        #panel${openbarClass}.candybar .panel-button:candy9.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy9.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy9.clock-display .clock,
+        #panel${openbarClass}.candybar .panel-button:candy10.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy10.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy10.clock-display .clock,
+        #panel${openbarClass}.candybar .panel-button:candy11.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy11.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy11.clock-display .clock,
+        #panel${openbarClass}.candybar .panel-button:candy12.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy12.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy12.clock-display .clock,
+        #panel${openbarClass}.candybar .panel-button:candy13.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy13.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy13.clock-display .clock,
+        #panel${openbarClass}.candybar .panel-button:candy14.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy14.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy14.clock-display .clock,
+        #panel${openbarClass}.candybar .panel-button:candy15.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy15.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy15.clock-display .clock,
+        #panel${openbarClass}.candybar .panel-button:candy16.clock-display .clock, #panel${openbarClass}.candybar .panel-button:hover:candy16.clock-display .clock, #panel${openbarClass}.candybar .panel-button:checked:candy16.clock-display .clock {
             ${candyClockStyle}
         }            
 
-        #panel${openbarClass} .workspace-dot:candybar {
+        #panel${openbarClass}.candybar .workspace-dot {
             ${candyDotStyle}
-        }   
+        }     
     `;
 
     // Menu styles

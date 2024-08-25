@@ -977,6 +977,11 @@
       <summary>WMax bar margin for panel buttons</summary>
       <description>WMax bar margin for panel buttons.</description>
     </key>
+    <key type="b" name="buttonbg-wmax">
+      <default>true</default>
+      <summary>Keep BG color for buttons when window maximized</summary>
+      <description>Keep BG color for buttons when window maximized.</description>
+    </key>
     <key type="b" name="border-wmax">
       <default>false</default>
       <summary>Border for buttons when window maximized</summary>

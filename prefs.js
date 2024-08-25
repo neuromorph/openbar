@@ -395,7 +395,7 @@ class OpenbarPrefs {
         this._settings = openbar.getSettings();
         // Connect settings to update/save/reload stylesheet
         let settEvents = ['bartype', 'position', 'font', 'gradient', 'wmax-hbarhint', 'cust-margin-wmax', 'border-wmax', 'neon-wmax',
-        'gradient-direction', 'shadow', 'neon', 'heffect', 'smbgoverride', 'mbg-gradient', 'autofg-bar', 'autofg-menu',
+        'buttonbg-wmax', 'gradient-direction', 'shadow', 'neon', 'heffect', 'smbgoverride', 'mbg-gradient', 'autofg-bar', 'autofg-menu',
         'width-top', 'width-bottom', 'width-left', 'width-right', 'radius-topleft', 'radius-topright', 'autohg-bar', 'autohg-menu',
         'radius-bottomleft', 'radius-bottomright', 'apply-menu-notif', 'apply-menu-shell', 'apply-accent-shell', 'apply-all-shell', 
         'dashdock-style', 'dborder', 'dshadow', 'set-overview']; 
@@ -1045,6 +1045,18 @@ class OpenbarPrefs {
 
         let wmaxmargin = this.createScaleWidget(0, 50, 0.2, 1, 'margin-wmax', 'Not applicable for Mainland');
         bargridwmax.attach(wmaxmargin, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+        
+        // Add a WMax Buttons BG switch
+        let wmaxBtnBGLabel = new Gtk.Label({
+            label: 'Keep Button Color (Tri/Islands)',
+            halign: Gtk.Align.START,
+        });
+        bargridwmax.attach(wmaxBtnBGLabel, 1, rowbar, 1, 1);
+
+        let wmaxBtnBGSwitch = this.createSwitchWidget('buttonbg-wmax', 'Keep BG color of buttons. If disabled, buttons will be transparent');
+        bargridwmax.attach(wmaxBtnBGSwitch, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
