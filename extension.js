@@ -295,6 +295,8 @@ export default class Openbar extends Extension {
     }
 
     reloadStylesheet() {
+        log('OpenBar - reloading stylesheet in extension.js');
+
         // Unload stylesheet
         this.unloadStylesheet();
 
@@ -463,19 +465,24 @@ export default class Openbar extends Extension {
         }
     }
 
+    // Add OpenBar style classes to Panel and Panel-Buttons
     setPanelStyle(obj, key, sig_param, callbk_param) {
         // console.log('setPanelStyle: ', String(obj), key, String(sig_param), callbk_param);
         const panel = Main.panel;
+        // Add 'openbar' class to top panel and panelBox
+        panel.add_style_class_name('openbar');
+        Main.layoutManager.panelBox.add_style_class_name('openbar'); 
+
         const bartype = this._settings.get_string('bartype');
         const buttonBgWMax = this._settings.get_boolean('buttonbg-wmax');
-        let candybar = this._settings.get_boolean('candybar');
-        if(candybar && key != 'showing' && (buttonBgWMax || !panel.has_style_pseudo_class('windowmax')))
+        const candybar = this._settings.get_boolean('candybar');
+        const setOverview = this._settings.get_boolean('set-overview');
+        if(candybar && 
+            (setOverview || !panel.has_style_pseudo_class('overview')) && 
+            (buttonBgWMax || !panel.has_style_pseudo_class('windowmax')))
             panel.add_style_class_name('candybar');
         else
             panel.remove_style_class_name('candybar');
-        // Reset Candybar in Overview. Called with 'showing' when set-Overview is disabled
-        //if(key == 'showing') 
-        //    candybar = false;
 
         const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
         let i = 0, idx, isFirst, firstIdx, lastIdx;
@@ -497,16 +504,16 @@ export default class Openbar extends Extension {
                         btn.add_style_class_name('button-container');
 
                         // Add candybar classes if enabled else remove them
-                        if(key == 'enabled' || key == 'candybar' || key == 'showing' || key == 'hiding'
+                        if(key == 'enabled' || key == 'candybar' || key == 'showing' || key == 'hiding' || key == 'overview'
                             || key == 'notify::visible' || key == this.addedSignal || key == this.removedSignal) {
                             for(let j=1; j<=16; j++) {
                                 btn.child.remove_style_pseudo_class('candy'+j);
                                 // for(const child of btn.child.get_children()) {
-                                //     if(child.remove_style_class_name)
-                                //         child.remove_style_class_name('candy'+j);
+                                //     if(child.remove_style_pseudo_class)
+                                //         child.remove_style_pseudo_class('candy'+j);
                                 //     for(const gChild of child.get_children()) {
-                                //         if(gChild.remove_style_class_name)
-                                //             gChild.remove_style_class_name('candy'+j);
+                                //         if(gChild.remove_style_pseudo_class)
+                                //             gChild.remove_style_pseudo_class('candy'+j);
                                 //     }
                                 // }
                             }
@@ -514,11 +521,11 @@ export default class Openbar extends Extension {
                             if(candybar) {
                                 btn.child.add_style_pseudo_class('candy'+i);
                                 // for(const child of btn.child.get_children()) {
-                                //     if(child.add_style_class_name)
-                                //         child.add_style_class_name('candy'+i);
+                                //     if(child.add_style_pseudo_class)
+                                //         child.add_style_pseudo_class('candy'+i);
                                 //     for(const gChild of child.get_children()) {
-                                //         if(gChild.add_style_class_name)
-                                //             gChild.add_style_class_name('candy'+i);
+                                //         if(gChild.add_style_pseudo_class)
+                                //             gChild.add_style_pseudo_class('candy'+i);
                                 //     }
                                 // }
                             }
@@ -533,10 +540,6 @@ export default class Openbar extends Extension {
                             // Some extensions can replace dot with text so add a check
                             if(dot?.add_style_class_name) {
                                 dot.add_style_class_name('openbar');
-                                // if(candybar)
-                                //     dot.add_style_pseudo_class('candybar');
-                                // else
-                                //     dot.remove_style_pseudo_class('candybar');
                             }
                         }                        
                     }
@@ -571,13 +574,14 @@ export default class Openbar extends Extension {
         }
     }
 
+    // Update panel style when Settings change
     updatePanelStyle(obj, key, sig_param, callbk_param) { 
         // console.log('update called with ', key, sig_param, callbk_param);
-        let panel = Main.panel;
 
         if(!this._settings)
             return;
 
+        // Nothing to update if it's a color palette setting
         if(key.startsWith('palette') || key.startsWith('prominent') ||
             key.startsWith('dark-') || key.startsWith('light-'))
             return;
@@ -594,6 +598,7 @@ export default class Openbar extends Extension {
             return;
         }
 
+        // Window-Max bar settings
         if(key == 'wmaxbar') {
             this.onWindowMaxBar();
             return;
@@ -612,12 +617,14 @@ export default class Openbar extends Extension {
             return;           
         }
 
+        // Generate and save autothemes for Dark and Light modes
         if(key == 'trigger-autotheme') {
             AutoThemes.autoApplyBGPalette(this, 'dark');
             AutoThemes.autoApplyBGPalette(this, 'light');
             return;
         }
 
+        // Update styles on Dark/Light mode change
         if(callbk_param == 'color-scheme') {
             this.gtkCSS = true;
             StyleSheets.saveGtkCss(this, 'enable');
@@ -625,19 +632,26 @@ export default class Openbar extends Extension {
             return;
         }
 
-        if(key == 'trigger-reload') {
+        // Update triland classes if actor (panel button) removed in triland mode else return
+        let bartype = this._settings.get_string('bartype');               
+        if(key == this.removedSignal && bartype != 'Trilands')
+            return;
+
+        // Generate/Reload stylesheet        
+        if(key == 'trigger-reload') { // A toggle key to trigger generation and reload of stylesheet
+            StyleSheets.reloadStyle(this, this);
+            return;
+        }        
+        if(callbk_param == 'high-contrast') { // Reload stylesheet to pick up high contrast icons
             StyleSheets.reloadStyle(this, this);
             return;
         }
-
-        // Reload stylesheet to pick up high contrast icons
-        if(callbk_param == 'high-contrast') {
-            StyleSheets.reloadStyle(this, this);
-            return;
+        if(key == 'reloadstyle') { // A toggle key to trigger reload of existing stylesheet
+            this.reloadStylesheet();
+            // continue to style
         }
 
-        let bartype = this._settings.get_string('bartype');
-        // Set bgalpha as per bartype        
+        // Set bgalpha as per bartype 
         if(key == 'bartype') {
             if(bartype == 'Trilands' || bartype == 'Islands') {                
                 this._settings.set_double('bgalpha', 0);
@@ -649,26 +663,17 @@ export default class Openbar extends Extension {
         if(bartype == 'Mainland' || bartype == 'Floating') {
             this.bgalpha = this._settings.get_double('bgalpha');
         }
-        // Update triland classes if actor (panel button) removed in triland mode else return
-        if(key == this.removedSignal && bartype != 'Trilands')
-            return;
-
+        
+        // Overview style
         let position = this._settings.get_string('position');
         let setOverview = this._settings.get_boolean('set-overview');
-        if(key == 'showing' || panel.has_style_pseudo_class('overview')) { 
+        if(key == 'showing' || Main.panel.has_style_pseudo_class('overview')) { 
             if(setOverview) {
                 if(this.isObarReset) { // Overview style is enabled but obar was reset due to Fullscreen
                     this.loadStylesheet();
                     this.isObarReset = false;
                 }
-            }
-            else {
-                // Reset Candybar style in overview if set-overview is disabled
-                let candybar = this._settings.get_boolean('candybar');
-                if(candybar)
-                    this.setPanelStyle(null, key);
-            }
-            return;           
+            }         
         }
         else if(key == 'hiding') {            
             if(this.styleUnloaded) {
@@ -677,9 +682,9 @@ export default class Openbar extends Extension {
             }
             this.setWindowMaxBar('hiding');
             this.onFullScreen(null, 'hiding');
-            // Continue to update style     
         }    
         
+        // Fullscreen style
         if(key == 'set-fullscreen') {
             const fullscreen = this._settings.get_boolean('set-fullscreen');
             if(fullscreen && this.isObarReset) {
@@ -690,10 +695,6 @@ export default class Openbar extends Extension {
                 this.onFullScreen(null, 'fullscreen');
             }
             return;
-        }
-
-        if(key == 'reloadstyle') { // A toggle key to trigger update for reload stylesheet
-            this.reloadStylesheet();
         }
 
         // GTK Apps styles
@@ -712,10 +713,11 @@ export default class Openbar extends Extension {
             StyleSheets.saveFlatpakOverrides(this, 'enable');
         }
         
+        // Menu style
         let menustyle = this._settings.get_boolean('menustyle');
         if(['reloadstyle', 'removestyle', 'menustyle'].includes(key) ||
             key == this.addedSignal && callbk_param != 'message-banner') {
-            this.applyMenuStyles(panel, menustyle);
+            this.applyMenuStyles(Main.panel, menustyle);
         }
         if(key == 'menustyle') {
             StyleSheets.reloadStyle(this, this);
@@ -747,6 +749,7 @@ export default class Openbar extends Extension {
             }               
         }
 
+        // Set SVG icons update flags
         if(key == 'mscolor') {
             this.msSVG = true;
             this.smfgSVG = true;
@@ -758,6 +761,7 @@ export default class Openbar extends Extension {
             this.mhSVG = true;
         }
 
+        // Manual override disables Auto theme font
         if(key == 'font') {
             this._settings.set_boolean('autotheme-font', false);
         }
@@ -774,25 +778,21 @@ export default class Openbar extends Extension {
             return;
         }    
 
-        // console.log('going ahead update with key: ', key);
-
+        // Set PanelBox position
         let borderWidth = this._settings.get_double('bwidth');
         let height = this._settings.get_double('height');
         let margin = this._settings.get_double('margin'); 
-    
-        // this.resetPanelStyle(panel);
-        Main.layoutManager.panelBox.add_style_class_name('openbar');
-        panel.add_style_class_name('openbar');
-
         if(position == 'Bottom' || key == 'position' || key == 'monitors-changed') {
             // If WMax is On then ignore 'margin' changes (do not set position) else set position
             if(!(this.wmax && key == 'margin'))
                 this.setPanelBoxPosition(position, height, margin, borderWidth, bartype);
         }
 
+        // Update background-manager if monitors changed
         if(key == 'monitors-changed')
             this.connectPrimaryBGChanged();
 
+        // Notifications position
         let setNotifications = this._settings.get_boolean('set-notifications');
         let notifKeys = ['set-notifications', 'position', 'monitors-changed', 'updated', 'enabled'];
         if(notifKeys.includes(key)) {
@@ -801,6 +801,7 @@ export default class Openbar extends Extension {
             else
                 Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
         }
+        // Notifications style
         if(key == this.addedSignal && callbk_param == 'message-banner' && setNotifications) {
             Main.messageTray._banner?.add_style_class_name('openmenu');
         }
@@ -925,13 +926,13 @@ export default class Openbar extends Extension {
         const candybar = this._settings.get_boolean('candybar');
         if(windows.length) {
             Main.panel.add_style_pseudo_class('windowmax');
-            if(candybar && !btnBgWMax)
+            if(candybar && !btnBgWMax) // Disable candybar button-colors when in WMax
                 Main.panel.remove_style_class_name('candybar');
             this.setPanelBoxPosWindowMax(true, signal);
         }
         else {
             Main.panel.remove_style_pseudo_class('windowmax');
-            if(candybar && !btnBgWMax)
+            if(candybar && !btnBgWMax) // Enable candybar button-colors when not in WMax
                 Main.panel.add_style_class_name('candybar');
             this.setPanelBoxPosWindowMax(false, signal);
         }
@@ -1077,20 +1078,31 @@ export default class Openbar extends Extension {
         this._connections.connect(this._intSettings, 'changed::color-scheme', this.updatePanelStyle.bind(this), 'color-scheme');
     }
     
-    postStartup() {
-        this.postStartupId = setTimeout(() => {
+    reloadWithTimeout() {
+        this.reloadTimeoutId = setTimeout(() => {
+            const stylesheet = this.obarConfigDir.get_child('stylesheet.css');
+            if(stylesheet.query_exists(null)) {  
+                log('OpenBar - reload stylesheet after timeout');
+                this.reloadStylesheet();
+            }
+            else {
+                log('OpenBar - generate and load stylesheet after timeout');
+                StyleSheets.reloadStyle(this, this);
+            }
+        }, 3000);
+    }
+
+    postStartup() {               
+        this.postStartupId = setTimeout(() => {    
             this.setPanelStyle(null, 'post-startup');
-            this.reloadStylesheet();
-        }, 2500);
+        }, 2000);    
     }
 
     enable() {
+        log('OpenBar - enabling extension in extension.js');
         // Get Gnome version
         const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
         this.gnomeVersion = major;
-
-        // Get the top panel
-        let panel = Main.panel;
 
         this.main = Main;
         this.msSVG = true;
@@ -1143,7 +1155,7 @@ export default class Openbar extends Extension {
             // [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this), 'session-mode-updated' ],
         ];
         // Connections for actor-added/removed OR child-added/removed as per Gnome version
-        const panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
+        const panelBoxes = [Main.panel._leftBox, Main.panel._centerBox, Main.panel._rightBox];
         for(const panelBox of panelBoxes) {
             connections.push([panelBox, this.addedSignal, this.updatePanelStyle.bind(this)]);
             connections.push([panelBox, this.removedSignal, this.updatePanelStyle.bind(this)]);
@@ -1207,7 +1219,7 @@ export default class Openbar extends Extension {
         // Apply the initial style
         this.updatePanelStyle(null, 'enabled');
         let menustyle = this._settings.get_boolean('menustyle');
-        this.applyMenuStyles(panel, menustyle);
+        this.applyMenuStyles(Main.panel, menustyle);
 
         // OpenBar config directory
         const userConfigDir = GLib.get_user_config_dir();
@@ -1222,7 +1234,7 @@ export default class Openbar extends Extension {
                 console.error('Error creating OpenBar runtime/assets directory: ' + e);
             }
         }
-        // Copy static assets (SVGs) to runtime dir
+        // Copy static assets (SVGs) to config dir
         const assetsSrcDir = Gio.File.new_for_path(`${this.path}/media/assets`);
         const iter = assetsSrcDir.enumerate_children('standard::name', Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, null);
         for(const fileInfo of iter) {
@@ -1241,6 +1253,8 @@ export default class Openbar extends Extension {
 
         // Set fullscreen mode if in Fullscreen when extension is enabled
         this.onFullScreen(null, 'enabled', null, 100); 
+
+        // this.reloadWithTimeout();
     }
 
     disable() {
