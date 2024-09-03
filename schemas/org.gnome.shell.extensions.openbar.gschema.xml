@@ -76,7 +76,7 @@
       <default>"vertical"</default>
       <summary>Gradient direction</summary>
       <description>Gradient direction of Top Bar background.</description>
-    </key>    
+    </key>
     <key type="as" name="iscolor">
       <default>['0.125', '0.125', '0.125']</default>
       <summary>Islands BG Color (RGB)</summary>
@@ -1181,11 +1181,16 @@
       <default>true</default>
       <summary>Apply border radius to Bottom Right corner</summary>
       <description>Apply border radius to Bottom Right corner.</description>
-    </key>    
+    </key>
     <key type="b" name="set-fullscreen">
       <default>true</default>
       <summary>Apply in fullscreen</summary>
       <description>Whether customization is applied in fullscreen.</description>
+    </key>
+    <key type="b" name="fitts-widgets">
+      <default>true</default>
+      <summary>Enable Fitts Law Widgets for Panel buttons</summary>
+      <description>Enable Fitts Law Widgets for Panel buttons.</description>
     </key>
     <key type="b" name="apply-menu-shell">
       <default>false</default>
