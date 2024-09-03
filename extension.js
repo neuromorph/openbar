@@ -1368,6 +1368,14 @@ export default class Openbar extends Extension {
     }
 
     updateFittsWidgetAddRemove(box, key, btn) {
+        if(this.fittsCornerTimeoutId) {
+            clearTimeout(this.fittsCornerTimeoutId);
+            this.fittsCornerTimeoutId = null;
+        }
+        if(this.disabling) {
+            return;
+        }
+        
         let panel = Main.panel;
         // log('Add/Remove Btn ', String(btn), String(panel.leftCornerButton), String(btn.child?.constructor.name));
         if( (key == this.addedSignal &&
@@ -1377,7 +1385,7 @@ export default class Openbar extends Extension {
             // log('Add/Remove CornerBtn ', String(btn.constructor.name));
             this.destroyFittsCornerWidgets();
             // Wait for Panel to update its x, width then create CornerWidgets
-            this.fittsCornerTimeoutId = setTimeout(() => this.createFittsCornerWidgets(), 1000);
+            this.fittsCornerTimeoutId = setTimeout(() => this.createFittsCornerWidgets(), 500);
         }
 
         if(!(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox))
@@ -1412,9 +1420,9 @@ export default class Openbar extends Extension {
     }
 
     disableFittsWidgets() {
-        this.addRemoveFittsWidgets(false);
-        this.connectFittsWidgetVisible(false);
         this.connectFittsWidgetAddRemove(false);
+        this.connectFittsWidgetVisible(false);
+        this.addRemoveFittsWidgets(false);
     }
 
     reloadWithTimeout() {
@@ -1465,6 +1473,7 @@ export default class Openbar extends Extension {
         this.updatingBguriId = null;
         this.updateBguriId = null;
         this.postStartupId = null;
+        this.disabling = false;
 
         // Settings for desktop background image (set bg-uri as per color scheme)
         this._bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
@@ -1609,6 +1618,8 @@ export default class Openbar extends Extension {
     }
 
     disable() {
+        this.disabling = true;
+    
         // Get the top panel
         let panel = Main.panel;
 
