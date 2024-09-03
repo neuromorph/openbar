@@ -920,6 +920,7 @@ export function saveGtkCss(obar, caller) {
 // Apply override to provide flatpak apps access to Gtk config css files
 export function saveFlatpakOverrides(obar, caller) {
     const applyFlatpak = obar._settings.get_boolean('apply-flatpak');
+    if (!applyFlatpak && !obar.fsystemChanged) return;
     const dataDir = GLib.get_user_data_dir();
     const overrideDir = Gio.File.new_for_path(`${dataDir}/flatpak/overrides`);
     if (!overrideDir.query_exists(null)) {
@@ -965,6 +966,7 @@ export function saveFlatpakOverrides(obar, caller) {
             let fsystem = obar.fsystemBackup + ';xdg-config/gtk-3.0:ro;xdg-config/gtk-4.0:ro;';
             keyfile.set_string('Context', 'filesystems', fsystem);
             keyfile.save_to_file(globalFile.get_path());
+            obar.fsystemChanged = true;
         }
     }
     catch (e) {
