@@ -1241,10 +1241,12 @@ export default class Openbar extends Extension {
                 // Get leftmost or rightmost button in the panel
                 let btn;
                 if(idx == 0) {
-                    btn = this.panelBoxes[0].get_first_child(); log('Create Left Corner', String(btn));
+                    btn = this.panelBoxes[0].get_first_child(); 
+                    // log('Create Left Corner', String(btn));
                 }
                 else {
-                    btn = this.panelBoxes[2].get_last_child(); log('Create Right Corner', String(btn));
+                    btn = this.panelBoxes[2].get_last_child(); 
+                    // log('Create Right Corner', String(btn));
                 }
 
                 // Connect signals for hover
@@ -1282,14 +1284,16 @@ export default class Openbar extends Extension {
                 //     panel.rightFittsWidgetId = id;
                 // }
                 if(idx == 0) {
+                    panel.leftCornerButton = btn;
                     panel.leftFittsWidget = widget;
-                    Main.layoutManager.addChrome(panel.leftFittsWidget);
+                    Main.layoutManager.addChrome(widget);
                 }
                 else {
+                    panel.rightCornerButton = btn;
                     panel.rightFittsWidget = widget;
-                    Main.layoutManager.addChrome(panel.rightFittsWidget);
+                    Main.layoutManager.addChrome(widget);
                 }
-                log('Add Corner', widget.x, widget.y, widget.width, widget.height);
+                // log('Add Corner', widget.x, widget.y, widget.width, widget.height);
             }
         }
         // panel.connect('destroy', () => {
@@ -1299,20 +1303,26 @@ export default class Openbar extends Extension {
 
     destroyFittsCornerWidgets() {
         let panel = Main.panel;
-        if(panel.leftFittsWidget) { log('Destroy Left Corner', String(panel.leftFittsWidget));
+        if(panel.leftFittsWidget) {
+            // log('Destroy Left Corner', String(panel.leftFittsWidget));
             Main.layoutManager.removeChrome(panel.leftFittsWidget);
             panel.leftFittsWidget.destroy();
             panel.leftFittsWidget = null;
             delete panel.leftFittsWidget;
+            panel.leftCornerButton = null;
+            delete panel.leftCornerButton;
             // panel.leftButton.disconnect(panel.leftFittsWidgetId);
             // delete panel.leftButton;
             // delete panel.leftFittsWidgetId;
         }
-        if(panel.rightFittsWidget) { log('Destroy Right Corner', String(panel.rightFittsWidget));
+        if(panel.rightFittsWidget) {
+            // log('Destroy Right Corner', String(panel.rightFittsWidget));
             Main.layoutManager.removeChrome(panel.rightFittsWidget);
             panel.rightFittsWidget.destroy();
             panel.rightFittsWidget = null;
             delete panel.rightFittsWidget;
+            panel.rightCornerButton = null;
+            delete panel.rightCornerButton;
             // panel.rightButton.disconnect(panel.rightFittsWidgetId);
             // delete panel.rightButton;
             // delete panel.rightFittsWidgetId;
@@ -1358,10 +1368,13 @@ export default class Openbar extends Extension {
     }
 
     updateFittsWidgetAddRemove(box, key, btn) {
-        //log('Add/Remove Btn ', String(btn.constructor.name));
-        if( btn == this.panelBoxes[0].get_first_child()
-            || btn == this.panelBoxes[2].get_last_child()) {
-                // log('Add/Remove CornerBtn ', String(btn.constructor.name));
+        let panel = Main.panel;
+        // log('Add/Remove Btn ', String(btn), String(panel.leftCornerButton), String(btn.child?.constructor.name));
+        if( (key == this.addedSignal &&
+            (btn == this.panelBoxes[0].get_first_child() || btn == this.panelBoxes[2].get_last_child())) ||
+            (key == this.removedSignal &&
+            (btn == panel.leftCornerButton || btn == panel.rightCornerButton)) ) {
+            // log('Add/Remove CornerBtn ', String(btn.constructor.name));
             this.destroyFittsCornerWidgets();
             // Wait for Panel to update its x, width then create CornerWidgets
             this.fittsCornerTimeoutId = setTimeout(() => this.createFittsCornerWidgets(), 1000);
