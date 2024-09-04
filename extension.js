@@ -492,8 +492,6 @@ export default class Openbar extends Extension {
             for(const btn of box) {
                 // Screen recording/share indicators use ButtonBox instead of Button
                 if(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) {
-                    btn.child.add_style_class_name('openbar');
-
                     if(btn.child.visible) {
                         if(isFirst) {
                             firstIdx = idx;
@@ -501,7 +499,6 @@ export default class Openbar extends Extension {
                         }
                         lastIdx = idx;
                         // console.log('Visible Child: ', String(btn.child));
-                        btn.add_style_class_name('openbar');
                         btn.add_style_class_name('button-container');
 
                         // Add candybar classes if enabled else remove them
@@ -509,38 +506,10 @@ export default class Openbar extends Extension {
                             || key == 'notify::visible' || key == this.addedSignal || key == this.removedSignal) {
                             for(let j=1; j<=16; j++) {
                                 btn.child.remove_style_pseudo_class('candy'+j);
-                                // for(const child of btn.child.get_children()) {
-                                //     if(child.remove_style_pseudo_class)
-                                //         child.remove_style_pseudo_class('candy'+j);
-                                //     for(const gChild of child.get_children()) {
-                                //         if(gChild.remove_style_pseudo_class)
-                                //             gChild.remove_style_pseudo_class('candy'+j);
-                                //     }
-                                // }
                             }
                             i++; i = i%16; i = i==0? 16: i; // Cycle through candybar palette
                             if(candybar) {
                                 btn.child.add_style_pseudo_class('candy'+i);
-                                // for(const child of btn.child.get_children()) {
-                                //     if(child.add_style_pseudo_class)
-                                //         child.add_style_pseudo_class('candy'+i);
-                                //     for(const gChild of child.get_children()) {
-                                //         if(gChild.add_style_pseudo_class)
-                                //             gChild.add_style_pseudo_class('candy'+i);
-                                //     }
-                                // }
-                            }
-                        }
-                    }
-
-                    // Workspace dots
-                    if(btn.child.constructor.name === 'ActivitiesButton') {
-                        let list = btn.child.get_child_at_index(0);
-                        for(const indicator of list) {
-                            let dot = indicator.get_child_at_index(0);
-                            // Some extensions can replace dot with text so add a check
-                            if(dot?.add_style_class_name) {
-                                dot.add_style_class_name('openbar');
                             }
                         }
                     }
@@ -1241,11 +1210,11 @@ export default class Openbar extends Extension {
                 // Get leftmost or rightmost button in the panel
                 let btn;
                 if(idx == 0) {
-                    btn = this.panelBoxes[0].get_first_child(); 
+                    btn = this.panelBoxes[0].get_first_child();
                     // log('Create Left Corner', String(btn));
                 }
                 else {
-                    btn = this.panelBoxes[2].get_last_child(); 
+                    btn = this.panelBoxes[2].get_last_child();
                     // log('Create Right Corner', String(btn));
                 }
 
@@ -1375,7 +1344,7 @@ export default class Openbar extends Extension {
         if(this.disabling) {
             return;
         }
-        
+
         let panel = Main.panel;
         // log('Add/Remove Btn ', String(btn), String(panel.leftCornerButton), String(btn.child?.constructor.name));
         if( (key == this.addedSignal &&
@@ -1423,20 +1392,6 @@ export default class Openbar extends Extension {
         this.connectFittsWidgetAddRemove(false);
         this.connectFittsWidgetVisible(false);
         this.addRemoveFittsWidgets(false);
-    }
-
-    reloadWithTimeout() {
-        this.reloadTimeoutId = setTimeout(() => {
-            const stylesheet = this.obarConfigDir.get_child('stylesheet.css');
-            if(stylesheet.query_exists(null)) {
-                log('OpenBar - reload stylesheet after timeout');
-                this.reloadStylesheet();
-            }
-            else {
-                log('OpenBar - generate and load stylesheet after timeout');
-                StyleSheets.reloadStyle(this, this);
-            }
-        }, 3000);
     }
 
     postStartup() {
@@ -1604,8 +1559,6 @@ export default class Openbar extends Extension {
         // Set fullscreen mode if in Fullscreen when extension is enabled
         this.onFullScreen(null, 'enabled', null, 100);
 
-        // this.reloadWithTimeout();
-
         // Fitts Widgets:
         // Enable button proximity to interact with panel buttons without having to point precisely at them.
         // Add a widget to PanelBox for each button. x1,x2 as per btn and y1,y2 as per PanelBox.
@@ -1619,7 +1572,7 @@ export default class Openbar extends Extension {
 
     disable() {
         this.disabling = true;
-    
+
         // Get the top panel
         let panel = Main.panel;
 
