@@ -1714,24 +1714,31 @@ function getStylesheet(obar, Me) {
         dotOverview = ``;
     }
 
-    let wmaxColorStyle, wmaxHoverStyle;
-    if(bartype == 'Mainland' || bartype == 'Floating') {
+    let wmaxColorStyle, wmaxHoverStyle, wmaxDotStyle;
+    if(bartype == 'Mainland' || bartype == 'Floating' || !btnBgWMax) {
         if(getBgDark(bgredwmax, bggreenwmax, bgbluewmax)) {
             wmaxColorStyle =
             `color: rgba(250,250,250,1.0) !important;
+             transition-duration: 100ms;`;
+            wmaxDotStyle =
+            `background-color: rgba(250,250,250,1.0) !important;
              transition-duration: 100ms;`;
         }
         else {
             wmaxColorStyle =
             `color: rgba(5,5,5,1.0) !important;
              transition-duration: 100ms;`;
+            wmaxDotStyle =
+            `background-color: rgba(5,5,5,1.0) !important;
+             transition-duration: 100ms;`;
         }
     }
     else {
         wmaxColorStyle = ``;
+        wmaxDotStyle = ``;
     }
     const candybar = obar._settings.get_boolean('candybar');
-    if((bartype == 'Mainland' || bartype == 'Floating') && !candybar) {
+    if(((bartype == 'Mainland' || bartype == 'Floating') && !candybar) || !btnBgWMax) {
         let hgColor = [hred, hgreen, hblue], bgColor = [bgredwmax, bggreenwmax, bgbluewmax];
         if(autohgBar)
             hgColor = getAutoHgColor(bgColor);
@@ -1956,6 +1963,9 @@ function getStylesheet(obar, Me) {
         }
         #panel${openbarClass}:overview .workspace-dot {
             ${dotOverview}
+        }
+        #panel${openbarClass}:windowmax .workspace-dot {
+            ${wmaxDotStyle}
         }
 
         #panel${openbarClass} .trilands:left-child {
