@@ -3584,7 +3584,7 @@ function getStylesheet(obar, Me) {
 }
 
 async function writeStylesheet(obar, stylesheet) {
-    log('OpenBar - writeStylesheet called in stylesheets.js');
+    // log('OpenBar - writeStylesheet called in stylesheets.js');
     let stylepath = obar.obarConfigDir.get_path() + '/stylesheet.css';
     let file = Gio.File.new_for_path(stylepath);
     let bytearray = new TextEncoder().encode(stylesheet);
@@ -3593,7 +3593,7 @@ async function writeStylesheet(obar, stylesheet) {
         let stream = await file.replace_async(null, false, Gio.FileCreateFlags.NONE, GLib.PRIORITY_DEFAULT, null);
         await stream.write_bytes_async(bytearray, GLib.PRIORITY_DEFAULT, null);
         stream.close(null);
-        log('OpenBar - wrote stylesheet in stylesheets.js');
+        // log('OpenBar - wrote stylesheet in stylesheets.js');
     }
     catch(e) {
       console.log("Failed to write stylsheet file: " + stylepath, e);
@@ -3643,7 +3643,7 @@ export async function reloadStyle(obar, Me) {
         console.log("Failed to reload stylesheet: ", e);
     }
 
-    log('OpenBar - triggering reloadStyle in stylesheets.js');
+    // log('OpenBar - triggering reloadStyle in stylesheets.js');
     // Cause stylesheet to reload by toggling 'reloadstyle'
     let reloadstyle = obar._settings.get_boolean('reloadstyle');
     if(reloadstyle)

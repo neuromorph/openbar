@@ -296,7 +296,7 @@ export default class Openbar extends Extension {
     }
 
     reloadStylesheet() {
-        log('OpenBar - reloading stylesheet in extension.js');
+        // log('OpenBar - reloading stylesheet in extension.js');
 
         // Unload stylesheet
         this.unloadStylesheet();
@@ -1401,7 +1401,7 @@ export default class Openbar extends Extension {
     }
 
     enable() {
-        log('OpenBar - enabling extension in extension.js');
+        // log('OpenBar - enabling extension in extension.js');
         // Get Gnome version
         const [major, minor] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
         this.gnomeVersion = major;
