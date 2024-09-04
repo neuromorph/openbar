@@ -3070,7 +3070,7 @@ function getStylesheet(obar, Me) {
     }
 
     /* Dash / Dock => Options in settings  */
-    let dashBgColor, dashFgColor, dashBorderColor, dashShadowColor, dashHighlightColor;
+    let dashBgColor, dashFgColor, dashBorderColor, dashShadowColor, dashHighlightColor, dashBorder = '';
     if(dashDockStyle == 'Menu') {
         dashBgColor = `rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha})`;
         dashFgColor = `rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha})`;
@@ -3090,6 +3090,8 @@ function getStylesheet(obar, Me) {
         dashFgColor = `rgba(${fgred},${fggreen},${fgblue},${fgalpha})`;
         dashBorderColor = `rgba(${bred},${bgreen},${bblue},${balpha})`;
         dashShadowColor = `rgba(${mshred},${mshgreen},${mshblue},${mshAlpha})`;
+        // dashNeon = `box-shadow: 0 0 5px 2px rgba(${bred},${bgreen},${bblue},0.55) !important; `;
+        dashBorder = `border-width: ${borderWidth}px !important; `;
     }
     else if(dashDockStyle == 'Custom') {
         dashBgColor = `rgba(${dbgred},${dbggreen},${dbgblue},${dbgAlpha})`;
@@ -3102,7 +3104,7 @@ function getStylesheet(obar, Me) {
             dfgred = dfggreen = dfgblue = 20;
         }
         dashFgColor = `rgba(${dfgred},${dfggreen},${dfgblue},1.0)`;
-        dashBorderColor = `rgba(${mbred},${mbgreen},${mbblue},${mbAlpha})`;
+        dashBorderColor = `rgba(${bred},${bgreen},${bblue},${balpha})`;
         dashShadowColor = `rgba(${mshred},${mshgreen},${mshblue},${mshAlpha})`;
         let hgColor = getAutoHgColor([dbgred,dbggreen,dbgblue]);
         // Custom Highlight RGB
@@ -3127,6 +3129,7 @@ function getStylesheet(obar, Me) {
         #dashtodockContainer.left #dash .dash-background, #dashtodockContainer.right #dash .dash-background,
         #dashtodockContainer.top #dash .dash-background, #dashtodockContainer.bottom #dash .dash-background {
             border-radius: ${dbRadius}px !important;
+            ${dashBorder}
         }
         .dash-separator {
             background-color: ${dashBorderColor} !important;
