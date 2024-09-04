@@ -2291,7 +2291,8 @@ function getStylesheet(obar, Me) {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
                 border-radius: ${notifRadius}px;
-                box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
+                box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.06) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.12) !important;
             }
             ${openmenuClass}.message:hover, ${openmenuClass}.message:focus {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
@@ -2379,7 +2380,8 @@ function getStylesheet(obar, Me) {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
                 border-radius: ${notifRadius}px;
-                box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
+                box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.06) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.12) !important;
             }
             ${openmenuClass}.message-list-clear-button:hover, ${openmenuClass}.message-list-clear-button:focus {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
@@ -2402,7 +2404,8 @@ function getStylesheet(obar, Me) {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
                 border-radius: ${notifRadius}px;
-                box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
+                box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.06) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.12) !important;
             }
             ${openmenuClass}.calendar .calendar-month-header .pager-button,
             ${openmenuClass}.calendar .calendar-month-header .pager-button {
@@ -2485,7 +2488,8 @@ function getStylesheet(obar, Me) {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
                 border-radius: ${notifRadius}px;
-                box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
+                box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.06) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.12) !important;
             }
             ${openmenuClass}.events-button:hover, ${openmenuClass}.events-button:focus {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
@@ -2514,7 +2518,8 @@ function getStylesheet(obar, Me) {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
                 border-radius: ${notifRadius}px;
-                box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
+                box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.06) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.12) !important;
             }
             ${openmenuClass}.world-clocks-button:hover, ${openmenuClass}.world-clocks-button:focus {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
@@ -2540,7 +2545,8 @@ function getStylesheet(obar, Me) {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
                 border-radius: ${notifRadius}px;
-                box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.08) !important;
+                box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.06) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.12) !important;
             }
             ${openmenuClass}.weather-button:hover, ${openmenuClass}.weather-button:focus {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
@@ -2577,8 +2583,9 @@ function getStylesheet(obar, Me) {
             ${openmenuClass}.quick-toggle {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
-                box-shadow: none;
                 border-radius: ${qtoggleRadius}px;
+                box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.1) !important;
             }
             ${openmenuClass}.quick-toggle:hover, ${openmenuClass}.quick-toggle:focus {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
@@ -2598,7 +2605,8 @@ function getStylesheet(obar, Me) {
             ${openmenuClass}.quick-menu-toggle .quick-toggle {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
-                box-shadow: none;
+                box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.1) !important;
             }
             ${openmenuClass}.quick-menu-toggle .quick-toggle:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:focus {
                 color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
@@ -2608,7 +2616,6 @@ function getStylesheet(obar, Me) {
             ${openmenuClass}.quick-menu-toggle .quick-toggle:active {
                 color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
                 background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-                box-shadow: none;
             }
             ${openmenuClass}.quick-menu-toggle .quick-toggle:checked:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:checked:focus,
             ${openmenuClass}.quick-menu-toggle .quick-toggle:active:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:active:focus {
@@ -2619,7 +2626,8 @@ function getStylesheet(obar, Me) {
             ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
                 background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
-                border-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
+                box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.1) !important;
             }
             /* adjust borders in expandable menu button */
             ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:ltr {
@@ -2644,6 +2652,7 @@ function getStylesheet(obar, Me) {
                 background-color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.2}) !important;
             }
             ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:focus {
+                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
                 background-color: ${mshg} !important;
             }
 
@@ -2698,6 +2707,8 @@ function getStylesheet(obar, Me) {
             ${openmenuClass}.quick-settings .icon-button, ${openmenuClass}.quick-settings .button {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
                 background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
+                box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.1) !important;
             }
             ${openmenuClass}.quick-settings .icon-button:checked, ${openmenuClass}.quick-settings .button:checked {
                 color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha*1.2}) !important;
@@ -2710,6 +2721,8 @@ function getStylesheet(obar, Me) {
             ${openmenuClass}.quick-settings .icon-button.flat {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha*1.2}) !important;
                 background-color: transparent !important;
+                box-shadow: none !important;
+                border: none !important;
             }
 
             ${openmenuClass}.quick-settings-system-item .icon-button:hover, ${openmenuClass}.quick-settings-system-item .icon-button:focus,
