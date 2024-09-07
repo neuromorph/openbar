@@ -577,6 +577,7 @@ function createGtkCss(obar, gtk4) {
             background: transparent;
             background-image: none;
             border: none;
+            padding: 3px;
         }
         terminal-window > headerbar .image-button:hover {
             background-image: image(rgb(${fbhRed}, ${fbhGreen}, ${fbhBlue}));
