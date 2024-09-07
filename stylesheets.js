@@ -1185,9 +1185,9 @@ function getStylesheet(obar, Me) {
     const bggreen2 = parseInt(parseFloat(bgcolor2[1]) * 255);
     const bgblue2 = parseInt(parseFloat(bgcolor2[2]) * 255);
 
-    const bgredwmax = parseInt(parseFloat(bgcolorWMax[0]) * 255);
-    const bggreenwmax = parseInt(parseFloat(bgcolorWMax[1]) * 255);
-    const bgbluewmax = parseInt(parseFloat(bgcolorWMax[2]) * 255);
+    let bgredwmax = parseInt(parseFloat(bgcolorWMax[0]) * 255);
+    let bggreenwmax = parseInt(parseFloat(bgcolorWMax[1]) * 255);
+    let bgbluewmax = parseInt(parseFloat(bgcolorWMax[2]) * 255);
 
     const isred = parseInt(parseFloat(islandsColor[0]) * 255);
     const isgreen = parseInt(parseFloat(islandsColor[1]) * 255);
@@ -1811,6 +1811,30 @@ function getStylesheet(obar, Me) {
         dotOverview = ``;
     }
 
+    // Match WMax Bar BG color with Gtk Headerbar Hint, if enabled
+    let wmaxBgColorStyle, wmaxBgRed, wmaxBgGreen, wmaxBgBlue, wmBg;
+    const wmaxHbar = obar._settings.get_boolean('wmax-hbarhint');
+    if(wmaxHbar) {
+        const hBarHint = obar._settings.get_int('headerbar-hint')/100;
+        const hscdColor = obar._settings.get_strv('hscd-color');
+        const hscdRed = parseInt(parseFloat(hscdColor[0]) * 255);
+        const hscdGreen = parseInt(parseFloat(hscdColor[1]) * 255);
+        const hscdBlue = parseInt(parseFloat(hscdColor[2]) * 255);
+        const colorScheme = obar._intSettings.get_string('color-scheme');
+        wmBg = (colorScheme == 'prefer-dark')? 48: 235;
+        wmaxBgRed = hBarHint*hscdRed + (1-hBarHint)*wmBg;
+        wmaxBgGreen = hBarHint*hscdGreen + (1-hBarHint)*wmBg;
+        wmaxBgBlue = hBarHint*hscdBlue + (1-hBarHint)*wmBg;
+
+        bgredwmax = wmaxBgRed;
+        bggreenwmax = wmaxBgGreen;
+        bgbluewmax = wmaxBgBlue;
+        bgalphaWMax = 1.0;
+    }
+    wmaxBgColorStyle =
+    `background-color: rgba(${bgredwmax},${bggreenwmax},${bgbluewmax},${bgalphaWMax}) !important;
+     border-color: rgba(${bgredwmax},${bggreenwmax},${bgbluewmax},${bgalphaWMax}) !important;
+    `;
     let wmaxColorStyle, wmaxHoverStyle, wmaxDotStyle;
     if(bartype == 'Mainland' || bartype == 'Floating' || !btnBgWMax) {
         if(getBgDark(bgredwmax, bggreenwmax, bgbluewmax)) {
@@ -1855,27 +1879,6 @@ function getStylesheet(obar, Me) {
     else {
         heightWMax = height + 2*margin;
         marginWMax = margin;
-    }
-    // Match WMax Bar BG color with Gtk Headerbar Hint, if enabled
-    let wmaxBgColorStyle, wmaxBgRed, wmaxBgGreen, wmaxBgBlue, wmBg;
-    const wmaxHbar = obar._settings.get_boolean('wmax-hbarhint');
-    if(wmaxHbar) {
-        const hBarHint = obar._settings.get_int('headerbar-hint')/100;
-        const colorScheme = obar._intSettings.get_string('color-scheme');
-        wmBg = (colorScheme == 'prefer-dark')? 48: 235;
-        wmaxBgRed = hBarHint*msred + (1-hBarHint)*wmBg;
-        wmaxBgGreen = hBarHint*msgreen + (1-hBarHint)*wmBg;
-        wmaxBgBlue = hBarHint*msblue + (1-hBarHint)*wmBg;
-        wmaxBgColorStyle =
-        `background-color: rgb(${wmaxBgRed},${wmaxBgGreen},${wmaxBgBlue}) !important;
-         border-color: rgb(${wmaxBgRed},${wmaxBgGreen},${wmaxBgBlue}) !important;
-        `;
-    }
-    else {
-        wmaxBgColorStyle =
-        `background-color: rgba(${bgredwmax},${bggreenwmax},${bgbluewmax},${bgalphaWMax}) !important;
-         border-color: rgba(${bgredwmax},${bggreenwmax},${bgbluewmax},${bgalphaWMax}) !important;
-        `;
     }
 
     // Unlock Dialog
@@ -1974,8 +1977,7 @@ function getStylesheet(obar, Me) {
         }
         #panel${openbarClass}:windowmax .panel-button {
             ${btnBgWMax? '': 'background-color: transparent !important;'}
-            ${borderWMax? '': wmaxHbar? `border-color: rgb(${wmaxBgRed},${wmaxBgGreen},${wmaxBgBlue});` :
-                                        `border-color: rgba(${bgredwmax},${bggreenwmax},${bgbluewmax},${bgalphaWMax});`}
+            ${borderWMax? '': `border-color: rgba(${bgredwmax},${bggreenwmax},${bgbluewmax},${bgalphaWMax});`}
             ${neonWMax? '': 'box-shadow: none;'}
             ${wmaxColorStyle}
         }
