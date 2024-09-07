@@ -1262,6 +1262,21 @@
       <summary>Apply accent color to Gtk apps</summary>
       <description>Apply accent color to Gtk apps.</description>
     </key>
+    <key type="as" name="hscd-color">
+      <default>['0', '0.7', '0.75']</default>
+      <summary>Headerbar/Sidebar/Card/Dialog Color (RGB) of Gtk window</summary>
+      <description>Headerbar/Sidebar/Card/Dialog Color (RGB) of Gtk window.</description>
+    </key>
+    <key type="as" name="dark-hscd-color">
+      <default>['0', '0.7', '0.75']</default>
+      <summary>Headerbar/Sidebar/Card/Dialog Color (RGB) of Gtk window</summary>
+      <description>Headerbar/Sidebar/Card/Dialog Color (RGB) of Gtk window.</description>
+    </key>
+    <key type="as" name="light-hscd-color">
+      <default>['0', '0.7', '0.75']</default>
+      <summary>Headerbar/Sidebar/Card/Dialog Color (RGB) of Gtk window</summary>
+      <description>Headerbar/Sidebar/Card/Dialog Color (RGB) of Gtk window.</description>
+    </key>
     <key type="i" name="headerbar-hint">
       <default>0</default>
       <summary>Add hint of accent color to headerbars</summary>
@@ -1287,10 +1302,35 @@
       <summary>Add hint of accent color to cards and dialogs</summary>
       <description>Add hint of accent color to cards and dialogs.</description>
     </key>
-    <key type="b" name="sidebar-transparency">
-      <default>false</default>
-      <summary>Add transparency to sidebars</summary>
-      <description>Add transparency to sidebars.</description>
+    <key type="as" name="vw-color">
+      <default>['0', '0.7', '0.75']</default>
+      <summary>View/Window Color (RGB) of Gtk window</summary>
+      <description>View/Window Color (RGB) of Gtk window.</description>
+    </key>
+    <key type="as" name="dark-vw-color">
+      <default>['0', '0.7', '0.75']</default>
+      <summary>View/Window Color (RGB) of Gtk window</summary>
+      <description>View/Window Color (RGB) of Gtk window.</description>
+    </key>
+    <key type="as" name="light-vw-color">
+      <default>['0', '0.7', '0.75']</default>
+      <summary>View/Window Color (RGB) of Gtk window</summary>
+      <description>View/Window Color (RGB) of Gtk window.</description>
+    </key>
+    <key type="i" name="view-hint">
+      <default>0</default>
+      <summary>Add hint of accent color to view pane</summary>
+      <description>Add hint of accent color to view pane.</description>
+    </key>
+    <key type="i" name="window-hint">
+      <default>0</default>
+      <summary>Add hint of accent color to window</summary>
+      <description>Add hint of accent color to window.</description>
+    </key>
+    <key type="d" name="gtk-transparency">
+      <default>1.0</default>
+      <summary>Add transparency to gtk app window</summary>
+      <description>Add transparency to gtk app window.</description>
     </key>
     <key type="b" name="traffic-light">
       <default>false</default>
@@ -1308,17 +1348,17 @@
       <description>Whether to set Yaru theme closest to OpenBar accent (Ubuntu).</description>
     </key>
     <key type="as" name="winbcolor">
-      <default>['0.125', '0.125', '0.125']</default>
+      <default>['0', '0.7', '0.75']</default>
       <summary>Border Color (RGB) of Gtk window</summary>
       <description>Border Color (RGB) of Gtk window.</description>
     </key>
     <key type="as" name="dark-winbcolor">
-      <default>['0.125', '0.125', '0.125']</default>
+      <default>['0', '0.7', '0.75']</default>
       <summary>Border Color (RGB) of Gtk window</summary>
       <description>Border Color (RGB) of Gtk window.</description>
     </key>
     <key type="as" name="light-winbcolor">
-      <default>['0.125', '0.125', '0.125']</default>
+      <default>['0', '0.7', '0.75']</default>
       <summary>Border Color (RGB) of Gtk window</summary>
       <description>Border Color (RGB) of Gtk window.</description>
     </key>
@@ -1341,6 +1381,11 @@
       <default>15</default>
       <summary>Border/Corner radius of gtk window</summary>
       <description>Border/Corner radius of gtk window.</description>
+    </key>
+    <key type="s" name="gtk-shadow">
+      <default>"Default"</default>
+      <summary>Type of shadow for Gtk Window</summary>
+      <description>Type of shadow for Gtk Window.</description>
     </key>
     <key type="b" name="apply-flatpak">
       <default>false</default>
