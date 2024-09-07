@@ -231,7 +231,7 @@ class OpenbarPrefs {
             'value',
             Gio.SettingsBindFlags.DEFAULT
         );
-        const gtkScales = ['headerbar-hint', 'sidebar-hint', 'card-hint', 'winbalpha', 'winbradius', 'winbwidth'];
+        const gtkScales = ['headerbar-hint', 'sidebar-hint', 'card-hint', 'view-hint', 'window-hint', 'gtk-transparency', 'winbalpha', 'winbradius', 'winbwidth'];
         if(!gtkScales.includes(gsetting))
             scale.connect('change-value', () => {this.setTimeoutStyleReload();});
         return scale;
@@ -2205,7 +2205,7 @@ class OpenbarPrefs {
 
         // Add a Gtk/Flatpak info label
         let appInfoLabel = new Gtk.Label({
-            label: `<span>This applies theme Accent Color and below styles to Gtk / Flatpak apps:\n•  Set desired styles and Turn-On 'Apply to Gtk/Flatpak' below.\n•  Reload the apps (or Gnome) for changes to take effect.\n•  You may need to set 'theme' in apps (e.g. Terminal) to 'System' or 'Default'.</span>\n\n`,
+            label: `<span>This applies theme Accent Color and below styles to Gtk / Flatpak apps:\n•  Set desired styles and Turn-On 'Apply to Gtk/Flatpak' below.\n•  Reload the apps (or Gnome) for changes to take effect.\n•  You may need to set 'theme' in apps (e.g. Terminal) to 'System' or 'Default'.</span>\n`,
             use_markup: true,
             halign: Gtk.Align.START,
             wrap: true,
@@ -2216,17 +2216,33 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a Gtk Popover style switch
-        let popoverLbl = new Gtk.Label({
-            label: `Popover Styles`,
+        let gtkSeparator1 = this.createSeparatorWidget();
+        appgrid.attach(gtkSeparator1, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add a HSCD info label
+        let hscdLabel = new Gtk.Label({
+            label: `<span><b>Headerbar | Sidebar | Card | Dialog</b></span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+            margin_top: 10,
+        });
+        appgrid.attach(hscdLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1
+
+        // Add a HSCD color button
+        let hscdColorLbl = new Gtk.Label({
+            label: `Hint Color`,
             halign: Gtk.Align.START,
         });
-        appgrid.attach(popoverLbl, 1, rowbar, 1, 1);
+        appgrid.attach(hscdColorLbl, 1, rowbar, 1, 1);
 
-        let popoverSwitch = this.createSwitchWidget('gtk-popover', 'Apply menu styles to app popovers');
-        appgrid.attach(popoverSwitch, 2, rowbar, 1, 1);
+        let hscdColorBtn = this.createColorWidget(window, 'Headerbar/Sidebar Hint Color', 'Headerbar/Sidebar/Card/Dialog Hint Color', 'hscd-color');
+        appgrid.attach(hscdColorBtn, 2, rowbar, 1, 1);
 
-        rowbar += 2;
+        rowbar += 1;
 
         // Add a headerbar tint scale
         let hbHintLbl = new Gtk.Label({
@@ -2235,7 +2251,7 @@ class OpenbarPrefs {
         });
         appgrid.attach(hbHintLbl, 1, rowbar, 1, 1);
 
-        let hbHintScale = this.createScaleWidget(0, 100, 1, 0, 'headerbar-hint', 'Adds hint of Accent color to Headerbars');
+        let hbHintScale = this.createScaleWidget(0, 100, 1, 0, 'headerbar-hint', 'Adds hint of selected color to Headerbars');
         appgrid.attach(hbHintScale, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -2259,7 +2275,7 @@ class OpenbarPrefs {
         });
         appgrid.attach(sbHintLbl, 1, rowbar, 1, 1);
 
-        let sbHintScale = this.createScaleWidget(0, 100, 1, 0, 'sidebar-hint', 'Adds hint of Accent color to Sidebars');
+        let sbHintScale = this.createScaleWidget(0, 100, 1, 0, 'sidebar-hint', 'Adds hint of selected color to Sidebars');
         appgrid.attach(sbHintScale, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -2283,22 +2299,78 @@ class OpenbarPrefs {
         });
         appgrid.attach(cdHintLbl, 1, rowbar, 1, 1);
 
-        let cdHintScale = this.createScaleWidget(0, 100, 1, 0, 'card-hint', 'Adds hint of Accent color to Cards and Dialogs');
+        let cdHintScale = this.createScaleWidget(0, 100, 1, 0, 'card-hint', 'Adds hint of selected color to Cards and Dialogs');
         appgrid.attach(cdHintScale, 2, rowbar, 1, 1);
 
         rowbar += 3;
 
-        // Add a traffic light switch
-        let trfLightLbl = new Gtk.Label({
-            label: `Traffic Light Controls`,
+        let gtkSeparator2 = this.createSeparatorWidget();
+        appgrid.attach(gtkSeparator2, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add a VW info label
+        let vwLabel = new Gtk.Label({
+            label: `<span><b>View Pane | Window</b></span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+            margin_top: 10,
+        });
+        appgrid.attach(vwLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1
+
+        // Add a vw color button
+        let vwColorLbl = new Gtk.Label({
+            label: `Hint Color`,
             halign: Gtk.Align.START,
         });
-        appgrid.attach(trfLightLbl, 1, rowbar, 1, 1);
+        appgrid.attach(vwColorLbl, 1, rowbar, 1, 1);
 
-        let trfLightSwitch = this.createSwitchWidget('traffic-light', 'Apply Traffic Light Window Control Buttons');
-        appgrid.attach(trfLightSwitch, 2, rowbar, 1, 1);
+        let vwColorBtn = this.createColorWidget(window, 'View/Window Hint Color', 'View/Window Hint Color', 'vw-color');
+        appgrid.attach(vwColorBtn, 2, rowbar, 1, 1);
 
-        rowbar += 3;
+        rowbar += 1;
+
+        // Add a view tint scale
+        let viewHintLbl = new Gtk.Label({
+            label: `View Pane Hint`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(viewHintLbl, 1, rowbar, 1, 1);
+
+        let viewHintScale = this.createScaleWidget(0, 100, 1, 0, 'view-hint', 'Adds hint of selected color to view pane');
+        appgrid.attach(viewHintScale, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a window tint scale
+        let windowHintLbl = new Gtk.Label({
+            label: `Window Hint`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(windowHintLbl, 1, rowbar, 1, 1);
+
+        let windowHintScale = this.createScaleWidget(0, 100, 1, 0, 'window-hint', 'Adds hint of selected color to window');
+        appgrid.attach(windowHintScale, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        let gtkSeparator3 = this.createSeparatorWidget();
+        appgrid.attach(gtkSeparator3, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add a Window Border info label
+        let wbLabel = new Gtk.Label({
+            label: `<span><b>Window Border</b></span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+            margin_top: 10,
+        });
+        appgrid.attach(wbLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
 
         // Add a window border color button
         let winBColorLbl = new Gtk.Label({
@@ -2358,17 +2430,69 @@ class OpenbarPrefs {
         let winBRadiusScale = this.createScaleWidget(0, 25, 1, 0, 'winbradius', 'Window Corner Radius - may not work well for legacy/non-Gtk apps');
         appgrid.attach(winBRadiusScale, 2, rowbar, 1, 1);
 
-        rowbar += 2;
+        rowbar += 1;
 
-        // Add a transparency switch
-        let sbTransLbl = new Gtk.Label({
-            label: `⚠ Transparency`,
+        let gtkSeparator4 = this.createSeparatorWidget();
+        appgrid.attach(gtkSeparator4, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add a More info label
+        let moreLabel = new Gtk.Label({
+            label: `<span><b>And More</b></span>`,
+            use_markup: true,
+            halign: Gtk.Align.START,
+            margin_top: 10,
+        });
+        appgrid.attach(moreLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1
+
+        // Add a Gtk Popover style switch
+        let popoverLbl = new Gtk.Label({
+            label: `Popover Styles`,
             halign: Gtk.Align.START,
         });
-        appgrid.attach(sbTransLbl, 1, rowbar, 1, 1);
+        appgrid.attach(popoverLbl, 1, rowbar, 1, 1);
 
-        let sbTransSwitch = this.createSwitchWidget('sidebar-transparency', '⚠ Unstable: Some widgets may get unexpected transparency');
-        appgrid.attach(sbTransSwitch, 2, rowbar, 1, 1);
+        let popoverSwitch = this.createSwitchWidget('gtk-popover', 'Apply Top Panel menu styles to app popovers');
+        appgrid.attach(popoverSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add window shadow style combo
+        let wShadowComboLbl = new Gtk.Label({
+            label: `Window Shadow Style`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(wShadowComboLbl, 1, rowbar, 1, 1);
+
+        let wShadowCombo = this.createComboboxWidget([ ["Default", _("Default")], ["Floating", _("Float - Bottom Right")], ["None", _("None")] ] ,'gtk-shadow');
+        appgrid.attach(wShadowCombo, 2, rowbar, 1, 1);
+
+        rowbar += 1
+
+        // Add a traffic light switch
+        let trfLightLbl = new Gtk.Label({
+            label: `Traffic Light Controls`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(trfLightLbl, 1, rowbar, 1, 1);
+
+        let trfLightSwitch = this.createSwitchWidget('traffic-light', 'Apply Traffic Light Window Control Buttons');
+        appgrid.attach(trfLightSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a transparency switch
+        let winTransLbl = new Gtk.Label({
+            label: `⚠ Transparency / Alpha`,
+            halign: Gtk.Align.START,
+        });
+        appgrid.attach(winTransLbl, 1, rowbar, 1, 1);
+
+        let winTransScale = this.createScaleWidget(0, 1, 0.05, 2, 'gtk-transparency', 'Window Transparency - may not work well for legacy/non-Gtk apps');
+        appgrid.attach(winTransScale, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
@@ -2393,8 +2517,23 @@ class OpenbarPrefs {
         let yaruThemeSwitch = this.createSwitchWidget('set-yarutheme', 'Auto-set Yaru theme closest to the accent color');
         appgrid.attach(yaruThemeSwitch, 2, rowbar, 1, 1);
 
+        rowbar += 1;
+
+        let gtkSeparator5 = this.createSeparatorWidget();
+        appgrid.attach(gtkSeparator5, 1, rowbar, 2, 1);
 
         rowbar += 2;
+
+        // Add a Apply Styles info label
+        let applyLabel = new Gtk.Label({
+            label: `<span><b>Apply App Styles</b></span>`,
+            use_markup: true,
+            halign: Gtk.Align.CENTER,
+            margin_top: 10,
+        });
+        appgrid.attach(applyLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1
 
         // Add a Gtk info label
         let appLabel = new Gtk.Label({
