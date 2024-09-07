@@ -832,13 +832,13 @@ function createGtkCss(obar, gtk4) {
           min-height: 16px;
           border-radius: 100%;
           padding: 1px;
-          margin: 0 1px;
+          margin: 0 2px;
         }
 
-        button.titlebutton:backdrop,
+        /*button.titlebutton:backdrop,
         windowcontrols > button:backdrop {
           opacity: 0.65;
-        }
+        }*/
 
         button.titlebutton > image,
         windowcontrols > button > image {
@@ -847,7 +847,7 @@ function createGtkCss(obar, gtk4) {
 
         .titlebar .right,
         windowcontrols.end {
-          margin-right: 8px;
+          margin-right: 4px;
         }
 
         .titlebar .left,
@@ -864,39 +864,39 @@ function createGtkCss(obar, gtk4) {
         button.titlebutton.close:hover:backdrop,
         windowcontrols > button.close,
         windowcontrols > button.close:hover:backdrop {
-          background-color: #ff605c;
+          background-color: #fc6060;
           background-image: none;
         }
 
         button.titlebutton.close:hover,
         windowcontrols > button.close:hover {
-          background-color: shade(#ff605c,1.1);
+          background-color: shade(#fc6060,1.1);
         }
 
         button.titlebutton.maximize,
         button.titlebutton.maximize:hover:backdrop,
         windowcontrols > button.maximize,
         windowcontrols > button.maximize:hover:backdrop {
-          background-color: #00ca4e;
+          background-color: #44ba80;
           background-image: none;
         }
 
         button.titlebutton.maximize:hover,
         windowcontrols > button.maximize:hover {
-          background-color: shade(#00ca4e,1.1);
+          background-color: shade(#44ba80,1.1);
         }
 
         button.titlebutton.minimize,
         button.titlebutton.minimize:hover:backdrop,
         windowcontrols > button.minimize,
         windowcontrols > button.minimize:hover:backdrop {
-          background-color: #ffbd44;
+          background-color: #eeaf50;
           background-image: none;
         }
 
         button.titlebutton.minimize:hover,
         windowcontrols > button.minimize:hover {
-          background-color: shade(#ffbd44,1.1);
+          background-color: shade(#eeaf50,1.1);
         }
 
         button.titlebutton.close:backdrop, button.titlebutton.maximize:backdrop, button.titlebutton.minimize:backdrop,
@@ -910,7 +910,7 @@ function createGtkCss(obar, gtk4) {
             button.titlebutton,
             windowcontrols > button {
                 padding: 2px;
-                margin: 0 2px;
+                margin: 0 3px;
             }
             `;
         }
