@@ -669,12 +669,18 @@ export default class Openbar extends Extension {
 
         // GTK Apps styles
         let gtkKeys = ['apply-gtk', 'headerbar-hint', 'hbar-gtk3only', 'sidebar-hint', 'sbar-gradient', 'card-hint', 'view-hint', 'window-hint', 'winbradius', 'corner-radius',
-            'winbcolor', 'winbalpha', 'winbwidth', 'traffic-light', 'menu-radius', 'gtk-transparency', 'gtk-popover', 'mscolor', 'msalpha', 'hscd-color', 'vw-color'];
+            'winbcolor', 'winbalpha', 'winbwidth', 'traffic-light', 'menu-radius', 'gtk-transparency', 'gtk-popover', 'mscolor', 'msalpha', 'hscd-color', 'vw-color', 'gtk-shadow'];
         if(gtkKeys.includes(key)) {
             // console.log('Call saveGtkCss from extension for key: ', key);
             this.gtkCSS = true;
+            // For mscolor/msalpha, stylesheet will be generated/reloaded and also saveGtkCss will be called (in styleSheets.js)
+            // For other keys, call saveGtkCss from here
             if(key != 'mscolor' && key != 'msalpha') {
                 StyleSheets.saveGtkCss(this, 'enable');
+                const wmaxHbar = this._settings.get_boolean('wmax-hbarhint');
+                // Reload styelsheet to match WMax bar with Gtk headerbar
+                if((key == 'headerbar-hint' || key == 'hscd-color') && wmaxHbar)
+                    StyleSheets.reloadStyle(this, this);
                 return;
             }
         }
