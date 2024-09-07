@@ -3141,7 +3141,7 @@ function getStylesheet(obar, Me) {
             border: 2px solid ${mhbg} !important;
         }
         StEntry .search-entry {
-            border: 2px solid rgba(${smfgred},${smfggreen},${smfgblue},0.6) !important;
+            border: 2px solid rgba(${smfgred},${smfggreen},${smfgblue},0.5) !important;
         }
         .system-action-icon {
             background-color: rgba(0, 0, 0, 0.8);
