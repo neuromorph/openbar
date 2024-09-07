@@ -47,9 +47,9 @@ export function autoApplyBGPalette(obar, requestMode) {
     const importExport = obar._settings.get_boolean('import-export');
     if(importExport)
         return;
-    
+
     // dlog('autoApply caller trace ' + autoApplyBGPalette.caller, requestMode);
-    
+
     // Pause stylesheet reloading, while auto-theme settings are updated, to prevent multiple style reloads
     obar._settings.set_boolean('pause-reload', true);
 
@@ -61,13 +61,13 @@ export function autoApplyBGPalette(obar, requestMode) {
         (themeLight == 'Select Theme' && requestMode == 'light'))
         return;
 
-    // Save autotheme, to be applied, as 'theme' 
+    // Save autotheme, to be applied, as 'theme'
     let theme;
     if(requestMode == 'dark')
         theme = themeDark;
     else
         theme = themeLight;
-        
+
     // const toRGBArray = rgbStr => rgbStr.match(/\d+/g);
 
     let prominentArr = [], paletteArr = [];
@@ -348,7 +348,7 @@ export function autoApplyBGPalette(obar, requestMode) {
     let minTotal, best, closest, promLen, paletteLen;
 
     // ACCENT COLOR SELECTION
-    best = null, closest = null; 
+    best = null, closest = null;
     promLen = prominentArr.length;
     paletteLen = paletteArr.length;
     let accentColor, bestAccent = 1000, bestAccentIdx=0, closestAccent=1000, closestAccentIdx=0;
@@ -366,10 +366,10 @@ export function autoApplyBGPalette(obar, requestMode) {
             // dlog('light', light, 'sat', sat, 'accentProm', accentProm);
 
 
-            if( light > ACCENT_LIGHT_LOW && light < ACCENT_LIGHT_HIGH && 
+            if( light > ACCENT_LIGHT_LOW && light < ACCENT_LIGHT_HIGH &&
                 accentProm > ACCENT_PROM_LOW &&
                 sat > ACCENT_SAT_LOW)
-            {                
+            {
                 best = minTotal;
                 // dlog('best', best);
                 if(bestAccent > best) {
@@ -387,14 +387,14 @@ export function autoApplyBGPalette(obar, requestMode) {
             }
         }
         if(best) {
-            accentColor = paletteArr[bestAccentIdx][0]; 
+            accentColor = paletteArr[bestAccentIdx][0];
             // dlog('Best Accent Color', accentColor, bestAccentIdx);
             paletteArr.splice(bestAccentIdx, 1);
             if(bestAccentIdx < promLen)
                 prominentArr.splice(bestAccentIdx, 1);
         }
         else {
-            accentColor = paletteArr[closestAccentIdx][0]; 
+            accentColor = paletteArr[closestAccentIdx][0];
             // dlog('Closest Accent Color', accentColor, closestAccentIdx);
             paletteArr.splice(closestAccentIdx, 1);
             if(closestAccentIdx < promLen)
@@ -413,27 +413,27 @@ export function autoApplyBGPalette(obar, requestMode) {
         let accentSatMin = false;
 
         if(sat > ACCENT_SAT_DND_MIN && sat < ACCENT_SAT_MIN) {
-            sat = Math.min(ACCENT_SAT_MIN, 3*sat); 
+            sat = Math.min(ACCENT_SAT_MIN, 3*sat);
             // dlog(`\nsat < ${ACCENT_SAT_MIN}, Setting sat to ${sat}`);
             accentSatMin = true;
         }
         else if(sat > ACCENT_SAT_MAX) {
-            sat = ACCENT_SAT_MAX; 
+            sat = ACCENT_SAT_MAX;
             // dlog(`\nsat > ${ACCENT_SAT_MAX}, Setting sat to ${ACCENT_SAT_MAX}`);
         }
         else if(sat >= ACCENT_SAT_MIN && sat <= ACCENT_SAT_MAX) {
             sat = sat - 0.35*(sat - (ACCENT_SAT_MIN + ACCENT_SAT_MAX)/2);
         }
-        
-        if(light < ACCENT_LIGHT_MIN) { 
+
+        if(light < ACCENT_LIGHT_MIN) {
             if(accentSatMin)
                 light = light + 0.5*(ACCENT_LIGHT_MIN - light);
             else
-                light = ACCENT_LIGHT_MIN; 
+                light = ACCENT_LIGHT_MIN;
             // dlog(`\nlight < ${ACCENT_LIGHT_MIN}, Setting light to ${light}`);
         }
-        else if(light > ACCENT_LIGHT_MAX) { 
-            light = ACCENT_LIGHT_MAX; 
+        else if(light > ACCENT_LIGHT_MAX) {
+            light = ACCENT_LIGHT_MAX;
             // dlog(`\nlight > ${ACCENT_LIGHT_MAX}, Setting light to ${ACCENT_LIGHT_MAX}`);
 
         }
@@ -443,26 +443,26 @@ export function autoApplyBGPalette(obar, requestMode) {
 
         // Some colors (Hues) can be too bright so reduce their sat if needed
         if(hue >= 50*100/360 && hue <= 160*100/360) { // bright Green
-            let hueSat = 45 + 2.5*Math.abs(hue - 90*100/360)/10; 
+            let hueSat = 45 + 2.5*Math.abs(hue - 90*100/360)/10;
             // dlog('Sat', sat, 'HueSat', hueSat);
-            if(sat > hueSat) 
+            if(sat > hueSat)
                 sat = hueSat;
         }
         if(hue >= 290*100/360 && hue <= 330*100/360) { // bright Pink
             let hueSat = 50 + 3*Math.abs(hue - 300*100/360)/10;
-            if(sat > hueSat) 
+            if(sat > hueSat)
                 sat = hueSat;
         }
 
         accentColor = hslToRgb([hue, sat, light].map((x) => x/100));
         // Too dark colors are percieved as Blackish and too light as Whitish by user, however,
-        // Increasing sat/light for too dark can result in random color due to amplification of 
+        // Increasing sat/light for too dark can result in random color due to amplification of
         // difference between R, G, B values. Set them back to grayscale.
         if(ogSat < 2 || ogLight < 6 || (ogSat <18 && ogLight < 18)) {
-            if(theme == 'Dark') {                
+            if(theme == 'Dark') {
                 let rgb = Math.max(accentColor[0], accentColor[1], accentColor[2]);
                 accentColor = [rgb, rgb, rgb];
-            }            
+            }
             if(theme == 'Light') {
                 let rgb = Math.min(accentColor[0], accentColor[1], accentColor[2]);
                 accentColor = [rgb, rgb, rgb];
@@ -477,15 +477,15 @@ export function autoApplyBGPalette(obar, requestMode) {
     let mbgColor, closestMbg=1000, closestMbgIdx=0, bestMbg=1000, bestMbgIdx=0;;
     best = null, closest = null;
     promLen = prominentArr.length;
-    
+
     for(let i=0, promColor; i<promLen; i++) {
         promColor = prominentArr[i][0];
-        let [hue, sat, light] = rgbToHsl(promColor).map((x) => x*100); 
+        let [hue, sat, light] = rgbToHsl(promColor).map((x) => x*100);
         // dlog('\nMenuBG Color', promColor, 'HSL', hue, sat, light);
         let mbgProm = prominentArr[i][1];
         let mbgAccentDist = colorDistance2000(promColor, accentColor);
         let mbgAccentContrast = contrastRatio(promColor, accentColor);
-        
+
         minTotal = -1.15*mbgProm + MBG_SAT_MULT*Math.abs(sat-MBG_SAT_TARGET) + 1.15*Math.abs(light-MBG_LIGHT_TARGET) + (mbgAccentDist<40? 0.75*Math.abs(40-mbgAccentDist): 0) + MBG_ACC_CONTRAST_MULT*Math.abs(3-mbgAccentContrast);
         // dlog('mbgMinTotal', minTotal, 'light', 0.25*light, 'sat', sat, 'mbgProminence', mbgProm, 'mbgAccentDist', mbgAccentDist, 'mbgAccentContrast', mbgAccentContrast);
 
@@ -510,18 +510,18 @@ export function autoApplyBGPalette(obar, requestMode) {
         }
     }
     if(best) {
-        mbgColor = prominentArr[bestMbgIdx][0];  
-        // dlog('Best MenuBG Color', mbgColor, bestMbgIdx);        
+        mbgColor = prominentArr[bestMbgIdx][0];
+        // dlog('Best MenuBG Color', mbgColor, bestMbgIdx);
         prominentArr.splice(bestMbgIdx, 1);
         paletteArr.splice(bestMbgIdx, 1);
     }
     else {
-        mbgColor = prominentArr[closestMbgIdx][0]; 
+        mbgColor = prominentArr[closestMbgIdx][0];
         // dlog('Closest MenuBG Color', mbgColor, closestMbgIdx);
         prominentArr.splice(closestMbgIdx, 1);
         paletteArr.splice(closestMbgIdx, 1);
     }
-    
+
 
     // Sub-Menu BG COLOR SELECTION
     let smbgColor, bestSmbg=1000, bestSmbgIdx=0, closestSmbg=1000, closestSmbgIdx=0;
@@ -530,7 +530,7 @@ export function autoApplyBGPalette(obar, requestMode) {
 
     for(let i=0, promColor; i<promLen; i++) {
         promColor = prominentArr[i][0];
-        let [hue, sat, light] = rgbToHsl(promColor).map((x) => x*100); 
+        let [hue, sat, light] = rgbToHsl(promColor).map((x) => x*100);
         // dlog('\nSMBG Color', promColor, 'HSL', hue, sat, light);
 
         let smbgMbgDist = colorDistance2000(promColor, mbgColor);
@@ -565,13 +565,13 @@ export function autoApplyBGPalette(obar, requestMode) {
         }
     }
     if(best) {
-        smbgColor = prominentArr[bestSmbgIdx][0]; 
+        smbgColor = prominentArr[bestSmbgIdx][0];
         // dlog('Best SMBG Color', smbgColor, bestSmbgIdx);
         prominentArr.splice(bestSmbgIdx, 1);
         paletteArr.splice(bestSmbgIdx, 1);
     }
     else {
-        smbgColor = prominentArr[closestSmbgIdx][0]; 
+        smbgColor = prominentArr[closestSmbgIdx][0];
         // dlog('Closest SMBG Color', smbgColor, closestSmbgIdx);
         prominentArr.splice(closestSmbgIdx, 1);
         paletteArr.splice(closestSmbgIdx, 1);
@@ -643,7 +643,7 @@ export function autoApplyBGPalette(obar, requestMode) {
                 mbgColor = addShade(mbgColor, 0.08);
             }
         }
-        
+
         // dlog('MenuBG color (moderated): ', mbgColor);
     }
 
@@ -728,9 +728,9 @@ export function autoApplyBGPalette(obar, requestMode) {
     // All themes
     // Adjust saturation and lightness of Accent color if Accent is too close OR too far from to MBG or SMBG
     if(theme != 'None') {
-        let accentMbgColDist = colorDistance2000(accentColor, mbgColor); 
+        let accentMbgColDist = colorDistance2000(accentColor, mbgColor);
         // dlog('Accent-MBG Color Distance', accentMbgColDist);
-        let accentSmbgColDist = colorDistance2000(accentColor, smbgColor); 
+        let accentSmbgColDist = colorDistance2000(accentColor, smbgColor);
         // dlog('Accent-SMBG Color Distance', accentSmbgColDist);
         if(accentMbgColDist < 25 || accentSmbgColDist < 25) {
             // dlog('Accent color too close to MBG or SMBG ', accentColor);
@@ -749,7 +749,7 @@ export function autoApplyBGPalette(obar, requestMode) {
             let minL = Math.min(ml, sl);
             let maxL = Math.max(ml, sl);
             let minS = Math.min(ms, ss);
-            let maxS = Math.max(ms, ss);    
+            let maxS = Math.max(ms, ss);
 
             if(al < minL && minL - al < lThresh) {
                 // dlog('al<minL: ' + al + ' - ' + minL + ' - ' + lThresh);
@@ -799,11 +799,11 @@ export function autoApplyBGPalette(obar, requestMode) {
             }
 
             accentColor = hslToRgb([ah, as, al]);
-        
+
             // dlog('Accent Color (dist moderated)', accentColor);
         }
     }
-     
+
 
     // BAR BG COLOR SELECTION
     best = null, closest = null;
@@ -813,9 +813,9 @@ export function autoApplyBGPalette(obar, requestMode) {
     for(let i=0, paletteColor; i<paletteLen; i++) {
         paletteColor = paletteArr[i][0];
         let barProm = paletteArr[i][1];
-        let [hue, sat, light] = rgbToHsl(paletteColor).map((x) => x*100); 
+        let [hue, sat, light] = rgbToHsl(paletteColor).map((x) => x*100);
         // dlog('Bar Color', paletteColor, 'HSL', hue, sat, light);
-        let barMbgDist = colorDistance2000(paletteColor, mbgColor); 
+        let barMbgDist = colorDistance2000(paletteColor, mbgColor);
         // dlog('barMbgDist', barMbgDist);
 
         minTotal = -2.5*Math.abs(light-BAR_LIGHT_EVADE) + 1.35*barMbgDist + 0.25*sat - 1.5*barProm;
@@ -839,18 +839,18 @@ export function autoApplyBGPalette(obar, requestMode) {
         }
     }
     if(best) {
-        barBgColor = paletteArr[bestBarIdx][0]; 
+        barBgColor = paletteArr[bestBarIdx][0];
         // dlog('Best Bar BG Color', barBgColor, bestBarIdx);
         paletteArr.splice(bestBarIdx, 1);
     }
     else {
-        barBgColor = paletteArr[closestBarBgIdx][0]; 
+        barBgColor = paletteArr[closestBarBgIdx][0];
         // dlog('Closest Bar BG Color', barBgColor, closestBarBgIdx);
         paletteArr.splice(closestBarBgIdx, 1);
     }
 
     // Push Bar BG towards lighter or darker end to get enough contrast with FG text
-    let barHSP = getHSP(barBgColor); 
+    let barHSP = getHSP(barBgColor);
     // dlog('barHSP', barHSP);
     if(barHSP > 155 && barHSP < 200) {
         barBgColor = addTint(barBgColor, 0.22);
@@ -863,7 +863,7 @@ export function autoApplyBGPalette(obar, requestMode) {
 
     // Add hard limits on Bar BG lightness for Dark and Light themes
     if(theme == 'Dark') {
-        let [hue, sat, light] = rgbToHsl(barBgColor).map((x) => x*100); 
+        let [hue, sat, light] = rgbToHsl(barBgColor).map((x) => x*100);
         if(light > 40) {
             light = 40;
             // dlog('light > 40, set to 40');
@@ -872,7 +872,7 @@ export function autoApplyBGPalette(obar, requestMode) {
         barBgColor = addShade(barBgColor, 0.15);
     }
     if(theme == 'Light') {
-        let [hue, sat, light] = rgbToHsl(barBgColor).map((x) => x*100); 
+        let [hue, sat, light] = rgbToHsl(barBgColor).map((x) => x*100);
         if(light < 80) {
             light = 80;
             // dlog('light < 80, set to 80');
@@ -894,11 +894,11 @@ export function autoApplyBGPalette(obar, requestMode) {
         barLightTarget = BORDER_LIGHT_LOW;
     }
     let barBorderColor, closestBarBorder=1000, closestBarBorderIdx=0, borderSat, closestBorderSat, borderLight, closestBorderLight;
-    
+
     if(neon) {
         for(let i=0, paletteColor; i<barBorderPalette.length; i++) {
             paletteColor = barBorderPalette[i];
-            let [hue, sat, light] = rgbToHsl(paletteColor).map((x) => x*100); 
+            let [hue, sat, light] = rgbToHsl(paletteColor).map((x) => x*100);
             // dlog('Bar Border Color', paletteColor, 'HSL', hue, sat, light);
             let barBorderIdx = paletteArr.map(x => x[0]).indexOf(paletteColor);
 
@@ -927,7 +927,7 @@ export function autoApplyBGPalette(obar, requestMode) {
         }
         let [h, s, l] = rgbToHsl(barBorderColor);
         if(borderSat < BORDER_NEON_SAT_LOW && borderSat > BORDER_NEON_SAT_DND_MIN) {
-            s = s*1.2;            
+            s = s*1.2;
         }
         if(borderLight < BORDER_LIGHT_LOW) {
             l = l*1.2;
@@ -946,8 +946,8 @@ export function autoApplyBGPalette(obar, requestMode) {
     let wmaxBarBgColor;
     let hBarHint = obar._settings.get_int('headerbar-hint')/100;
     if(requestMode == 'light') {
-        wmaxBarBgColor = [hBarHint*accentColor[0] + (1-hBarHint)*235, 
-                          hBarHint*accentColor[1] + (1-hBarHint)*235, 
+        wmaxBarBgColor = [hBarHint*accentColor[0] + (1-hBarHint)*235,
+                          hBarHint*accentColor[1] + (1-hBarHint)*235,
                           hBarHint*accentColor[2] + (1-hBarHint)*235];
     }
     else {
@@ -965,10 +965,10 @@ export function autoApplyBGPalette(obar, requestMode) {
         menuBorderPalette = paletteArr.slice(0).map(x => x[0]).sort(compareLightness).reverse(); // Sort for Light colors
     let menuBorderColor = menuBorderPalette[0];
     paletteArr.splice(paletteArr.map(x => x[0]).indexOf(menuBorderColor), 1);
-    // dlog('Use Lightest Menu Border: ', menuBorderColor, 0);    
-        
+    // dlog('Use Lightest Menu Border: ', menuBorderColor, 0);
 
-    let bgcolorWmax, bgcolor, bgalpha, iscolor, isalpha, bgcolor2, shcolor, hcolor, halpha, bcolor, balpha, 
+
+    let bgcolorWmax, bgcolor, bgalpha, iscolor, isalpha, bgcolor2, shcolor, hcolor, halpha, bcolor, balpha,
     mbgcolor, mbgalpha, smbgcolor, smbgalpha, mbcolor, mbalpha, mhcolor, mhalpha, mshcolor, mshalpha, mscolor, msalpha;
 
     let bartype = obar._settings.get_string('bartype');
@@ -982,7 +982,7 @@ export function autoApplyBGPalette(obar, requestMode) {
     else {
         bgalpha = 0;
     }
-    iscolor = getStrv(barBgColor); 
+    iscolor = getStrv(barBgColor);
     isalpha = 0.95;
     bgcolor2 = getStrv(smbgColor);
     bcolor = getStrv(barBorderColor);
@@ -991,15 +991,15 @@ export function autoApplyBGPalette(obar, requestMode) {
     bgcolorWmax = getStrv(wmaxBarBgColor);
 
     // MENU
-    mbgcolor = getStrv(mbgColor); 
-    smbgcolor = getStrv(smbgColor); 
+    mbgcolor = getStrv(mbgColor);
+    smbgcolor = getStrv(smbgColor);
     mbcolor = getStrv(menuBorderColor);
     // mhcolor = getStrv(menuHighlight);
     mshcolor = getStrv([0,0,0]); //menuBorderColor
     mscolor = getStrv(accentColor);
 
     // Update settings for bar and menu
-    
+
     // BAR
     if(bartype == 'Trilands' || bartype == 'Islands')
         obar._settings.set_boolean('shadow', false);
@@ -1017,22 +1017,22 @@ export function autoApplyBGPalette(obar, requestMode) {
     // obar._settings.set_boolean('autofg-menu', true);
     obar._settings.set_boolean('autohg-menu', true);
 
-    let colorKeys = ['boxcolor', 'bgcolor', 'bgcolor2', 'iscolor', 'shcolor', 'bcolor', 'bgcolor-wmax', 
-                    'mbgcolor', 'smbgcolor', 'mbcolor', 'mshcolor', 'mscolor', 'winbcolor'];
-    let colors = [bgcolor, bgcolor, bgcolor2, iscolor, shcolor, bcolor, bgcolorWmax, 
-                    mbgcolor, smbgcolor, mbcolor, mshcolor, mscolor, mscolor];
+    let colorKeys = ['boxcolor', 'bgcolor', 'bgcolor2', 'iscolor', 'shcolor', 'bcolor', 'bgcolor-wmax',
+                    'mbgcolor', 'smbgcolor', 'mbcolor', 'mshcolor', 'mscolor', 'winbcolor', 'hscd-color', 'vw-color'];
+    let colors = [bgcolor, bgcolor, bgcolor2, iscolor, shcolor, bcolor, bgcolorWmax,
+                    mbgcolor, smbgcolor, mbcolor, mshcolor, mscolor, mscolor, mscolor, mscolor];
 
     for(let i = 0; i < colorKeys.length; i++) {
         obar._settings.set_strv(requestMode+'-'+colorKeys[i], colors[i]);
-        if((requestMode == 'dark' && currentMode == 'prefer-dark') || 
+        if((requestMode == 'dark' && currentMode == 'prefer-dark') ||
             (requestMode == 'light' && currentMode != 'prefer-dark'))
             obar._settings.set_strv(colorKeys[i], colors[i]);
     }
 
     // GTK Window
     // obar._settings.set_strv('winbcolor', mscolor);
-    
-    // Mark auto-theme is applied for font weight and trigger style reload 
+
+    // Mark auto-theme is applied for font weight and trigger style reload
     obar._settings.set_boolean('autotheme-font', true);
     obar._settings.set_boolean('pause-reload', false);
     triggerStyleReload(obar);
@@ -1042,7 +1042,7 @@ export function onModeChange(obar) {
     const importExport = obar._settings.get_boolean('import-export');
     if(importExport)
         return;
-    
+
     // Pause stylesheet reloading, while auto-theme settings are updated, to prevent multiple style reloads
     obar._settings.set_boolean('pause-reload', true);
 
@@ -1050,7 +1050,7 @@ export function onModeChange(obar) {
     obar._settings.set_string('color-scheme', currentMode); // Save mode for preferences
     let prefix = (currentMode == 'prefer-dark') ? 'dark-' : 'light-';
     let colorKeys = ['boxcolor', 'bgcolor', 'bgcolor2', 'iscolor', 'shcolor', 'bcolor', 'bgcolor-wmax', 'accent-color', 'winbcolor',
-                    'mbgcolor', 'smbgcolor', 'mbcolor', 'mshcolor', 'mscolor', 'fgcolor', 'hcolor', 'mfgcolor', 'mhcolor'];
+                    'mbgcolor', 'smbgcolor', 'mbcolor', 'mshcolor', 'mscolor', 'fgcolor', 'hcolor', 'mfgcolor', 'mhcolor', 'hscd-color', 'vw-color'];
     for(let i = 0; i < colorKeys.length; i++) {
         obar._settings.set_strv(colorKeys[i], obar._settings.get_strv(prefix+colorKeys[i]));
         // dlog('saving to key: ', colorKeys[i], ' from key ', prefix+colorKeys[i]);
@@ -1070,7 +1070,7 @@ export function onModeChange(obar) {
     obar._settings.set_boolean('pause-reload', false);
     triggerStyleReload(obar);
 }
-  
+
 // Find Yaru theme with Accent color closest to theme accent color
 export function getClosestYaruTheme(obar) {
     let yaruThemes = ['default', 'bark', 'sage', 'olive', 'viridian', 'prussiangreen', 'blue', 'purple', 'magenta', 'red'];
@@ -1078,8 +1078,8 @@ export function getClosestYaruTheme(obar) {
     let yaruAccents = yaruAccentsHex.map(x => hexToRgb(x));
 
     let themeAccent = obar._settings.get_strv('mscolor');
-    themeAccent = [parseInt(parseFloat(themeAccent[0])*255), 
-                    parseInt(parseFloat(themeAccent[1])*255), 
+    themeAccent = [parseInt(parseFloat(themeAccent[0])*255),
+                    parseInt(parseFloat(themeAccent[1])*255),
                     parseInt(parseFloat(themeAccent[2])*255)];
 
     let closest = 1000;
