@@ -179,16 +179,28 @@ function createGtkCss(obar, gtk4) {
     let sBarHint = obar._settings.get_int('sidebar-hint')/100;
     let sBarGradient = obar._settings.get_string('sbar-gradient');
     let cdHint = obar._settings.get_int('card-hint')/100;
-    let hBarHintBd = hBarHint/2;
-    let sBarHintBd = sBarHint/2;
-    let cdHintBd = cdHint/2;
-    let sBarTransparency = obar._settings.get_boolean('sidebar-transparency');
+    let vHint = obar._settings.get_int('view-hint')/100;
+    let wHint = obar._settings.get_int('window-hint')/100;
+    let hBarHintBd = hBarHint*2/3;
+    let sBarHintBd = sBarHint*2/3;
+    let cdHintBd = cdHint*2/3;
+    let vHintBd = vHint*2/3;
+    let wHintBd = wHint*2/3;
+    let gtkTransparency = obar._settings.get_double('gtk-transparency');
     let trafficLightButtons = obar._settings.get_boolean('traffic-light');
     let popoverMenu = obar._settings.get_boolean('gtk-popover');
     let winBAlpha = obar._settings.get_double('winbalpha');
     let winBWidth = obar._settings.get_double('winbwidth');
     let winBRadius = obar._settings.get_double('winbradius');
     let cornerRadius = obar._settings.get_boolean('corner-radius');
+    let hscdColor = obar._settings.get_strv('hscd-color');
+    const hscdRed = parseInt(parseFloat(hscdColor[0]) * 255);
+    const hscdGreen = parseInt(parseFloat(hscdColor[1]) * 255);
+    const hscdBlue = parseInt(parseFloat(hscdColor[2]) * 255);
+    let vwColor = obar._settings.get_strv('vw-color');
+    const vwRed = parseInt(parseFloat(vwColor[0]) * 255);
+    const vwGreen = parseInt(parseFloat(vwColor[1]) * 255);
+    const vwBlue = parseInt(parseFloat(vwColor[2]) * 255);
     let winBColor = obar._settings.get_strv('winbcolor');
     const winBRed = parseInt(parseFloat(winBColor[0]) * 255);
     const winBGreen = parseInt(parseFloat(winBColor[1]) * 255);
@@ -204,53 +216,70 @@ function createGtkCss(obar, gtk4) {
     const mbgBlue = parseInt(parseFloat(mbgColor[2]) * 255);
 
     let bgRed, bgGreen, bgBlue, cdRed, cdGreen, cdBlue, hbRed, hbGreen, hbBlue,
-    vRed, vGreen, vBlue, sgrRed, sgrGreen, sgrBlue;
+    vRed, vGreen, vBlue, sgrRed, sgrGreen, sgrBlue, wRed, wGreen, wBlue;
     const colorScheme = obar._intSettings.get_string('color-scheme');
     if(colorScheme == 'prefer-dark') {
-        bgRed = bgGreen = bgBlue = 48; // Headerbar/Sidebar BG
-        sgrRed = sgrGreen = sgrBlue = 46; // Gradient end color for Sidebar
-        cdRed = cdGreen = cdBlue = 61; // Card/Dialog BG
-        vRed = vGreen = vBlue = 44; // View/Content-Pane BG
         hbRed = hbGreen = hbBlue = 55; // Headerbar button BG
+        bgRed = bgGreen = bgBlue = 48; // Headerbar/Sidebar BG
+        vRed = vGreen = vBlue = 42; // View/Content-Pane BG 44
+        wRed = wGreen = wBlue = 32; // Window BG 24
+        cdRed = cdGreen = cdBlue = 61; // Card/Dialog BG
+        // sgrRed = sgrGreen = sgrBlue = 46; // Gradient end color for Sidebar
     }
     else { // Light Mode
-        bgRed = bgGreen = bgBlue = 235;
-        sgrRed = sgrGreen = sgrBlue = 242;
-        cdRed = cdGreen = cdBlue = 255;
-        vRed = vGreen = vBlue = 245;
-        hbRed = hbGreen = hbBlue = 250;
+        hbRed = hbGreen = hbBlue = 250; // Headerbar button BG
+        bgRed = bgGreen = bgBlue = 235; // Headerbar/Sidebar BG
+        vRed = vGreen = vBlue = 245; // View/Content-Pane BG
+        wRed = wGreen = wBlue = 250; // Window BG
+        cdRed = cdGreen = cdBlue = 255; // Card/Dialog BG
+        // sgrRed = sgrGreen = sgrBlue = 242; // Gradient end color for Sidebar
     }
 
     // Headerbar BG and Backdrop
-    const hbgRed = hBarHint * accRed + (1-hBarHint) * bgRed;
-    const hbgGreen = hBarHint * accGreen + (1-hBarHint) * bgGreen;
-    const hbgBlue = hBarHint * accBlue + (1-hBarHint) * bgBlue;
-    const hbdRed = hBarHintBd * accRed + (1-hBarHintBd) * bgRed;
-    const hbdGreen = hBarHintBd * accGreen + (1-hBarHintBd) * bgGreen;
-    const hbdBlue = hBarHintBd * accBlue + (1-hBarHintBd) * bgBlue;
+    const hbgRed = hBarHint * hscdRed + (1-hBarHint) * bgRed;
+    const hbgGreen = hBarHint * hscdGreen + (1-hBarHint) * bgGreen;
+    const hbgBlue = hBarHint * hscdBlue + (1-hBarHint) * bgBlue;
+    const hbdRed = hBarHintBd * hscdRed + (1-hBarHintBd) * bgRed;
+    const hbdGreen = hBarHintBd * hscdGreen + (1-hBarHintBd) * bgGreen;
+    const hbdBlue = hBarHintBd * hscdBlue + (1-hBarHintBd) * bgBlue;
     // Sidebar BG and Backdrop
-    const sbgRed = sBarHint * accRed + (1-sBarHint) * bgRed;
-    const sbgGreen = sBarHint * accGreen + (1-sBarHint) * bgGreen;
-    const sbgBlue = sBarHint * accBlue + (1-sBarHint) * bgBlue;
-    const sbdRed = sBarHintBd * accRed + (1-sBarHintBd) * bgRed;
-    const sbdGreen = sBarHintBd * accGreen + (1-sBarHintBd) * bgGreen;
-    const sbdBlue = sBarHintBd * accBlue + (1-sBarHintBd) * bgBlue;
-    // Sidebar Alpha
-    const sbAlpha = sBarTransparency? 0.5 : 1.0;
+    const sbgRed = sBarHint * hscdRed + (1-sBarHint) * bgRed;
+    const sbgGreen = sBarHint * hscdGreen + (1-sBarHint) * bgGreen;
+    const sbgBlue = sBarHint * hscdBlue + (1-sBarHint) * bgBlue;
+    const sbdRed = sBarHintBd * hscdRed + (1-sBarHintBd) * bgRed;
+    const sbdGreen = sBarHintBd * hscdGreen + (1-sBarHintBd) * bgGreen;
+    const sbdBlue = sBarHintBd * hscdBlue + (1-sBarHintBd) * bgBlue;
     // Card/Dialog BG and Backdrop
-    const cbgRed = cdHint * accRed + (1-cdHint) * cdRed;
-    const cbgGreen = cdHint * accGreen + (1-cdHint) * cdGreen;
-    const cbgBlue = cdHint * accBlue + (1-cdHint) * cdBlue;
-    const cbdRed = cdHintBd * accRed + (1-cdHintBd) * cdRed;
-    const cbdGreen = cdHintBd * accGreen + (1-cdHintBd) * cdGreen;
-    const cbdBlue = cdHintBd * accBlue + (1-cdHintBd) * cdBlue;
+    const cbgRed = cdHint * hscdRed + (1-cdHint) * cdRed;
+    const cbgGreen = cdHint * hscdGreen + (1-cdHint) * cdGreen;
+    const cbgBlue = cdHint * hscdBlue + (1-cdHint) * cdBlue;
+    const cbdRed = cdHintBd * hscdRed + (1-cdHintBd) * cdRed;
+    const cbdGreen = cdHintBd * hscdGreen + (1-cdHintBd) * cdGreen;
+    const cbdBlue = cdHintBd * hscdBlue + (1-cdHintBd) * cdBlue;
+    // View/Content-Pane BG and Backdrop
+    const vbgRed = vHint * vwRed + (1-vHint) * vRed;
+    const vbgGreen = vHint * vwGreen + (1-vHint) * vGreen;
+    const vbgBlue = vHint * vwBlue + (1-vHint) * vBlue;
+    const vbdRed = vHintBd * vwRed + (1-vHintBd) * vRed;
+    const vbdGreen = vHintBd * vwGreen + (1-vHintBd) * vGreen;
+    const vbdBlue = vHintBd * vwBlue + (1-vHintBd) * vBlue;
+    // Window BG and Backdrop
+    const wbgRed = wHint * vwRed + (1-wHint) * wRed;
+    const wbgGreen = wHint * vwGreen + (1-wHint) * wGreen;
+    const wbgBlue = wHint * vwBlue + (1-wHint) * wBlue;
+    const wbdRed = wHintBd * vwRed + (1-wHintBd) * wRed;
+    const wbdGreen = wHintBd * vwGreen + (1-wHintBd) * wGreen;
+    const wbdBlue = wHintBd * vwBlue + (1-wHintBd) * wBlue;
+    // View and Window Alpha
+    const winAlpha = gtkTransparency;
+    const viewAlpha = winAlpha == 1? 1 : winAlpha/2;
     // Headerbar Buttons BG and Backdrop
-    const hbbgRed = hBarHint * accRed + (1-hBarHint) * hbRed;
-    const hbbgGreen = hBarHint * accGreen + (1-hBarHint) * hbGreen;
-    const hbbgBlue = hBarHint * accBlue + (1-hBarHint) * hbBlue;
-    const hbbdRed = hBarHintBd * accRed + (1-hBarHintBd) * hbRed;
-    const hbbdGreen = hBarHintBd * accGreen + (1-hBarHintBd) * hbGreen;
-    const hbbdBlue = hBarHintBd * accBlue + (1-hBarHintBd) * hbBlue;
+    const hbbgRed = hBarHint * hscdRed + (1-hBarHint) * hbRed;
+    const hbbgGreen = hBarHint * hscdGreen + (1-hBarHint) * hbGreen;
+    const hbbgBlue = hBarHint * hscdBlue + (1-hBarHint) * hbBlue;
+    const hbbdRed = hBarHintBd * hscdRed + (1-hBarHintBd) * hbRed;
+    const hbbdGreen = hBarHintBd * hscdGreen + (1-hBarHintBd) * hbGreen;
+    const hbbdBlue = hBarHintBd * hscdBlue + (1-hBarHintBd) * hbBlue;
     // Headerbar Buttons BG:hover and BG:checked
     let hbhRed, hbhGreen, hbhBlue, hbcRed, hbcGreen, hbcBlue, fbhRed, fbhGreen, fbhBlue,
     fbcRed, fbcGreen, fbcBlue, acchRed, acchGreen, acchBlue;
@@ -304,6 +333,7 @@ function createGtkCss(obar, gtk4) {
     const winBGreenBd = 0.6 * winBGreen + 0.4 * bgGreen;
     const winBBlueBd = 0.6 * winBBlue + 0.4 * bgBlue;
 
+    // Foreground Colors
     let hfgRed, hfgGreen, hfgBlue;
     if(getBgDark(hbgRed, hbgGreen, hbgBlue))
         hfgRed = hfgGreen = hfgBlue = 255;
@@ -334,15 +364,40 @@ function createGtkCss(obar, gtk4) {
     else
         cfgRed = cfgGreen = cfgBlue = 20;
 
+    let wfgRed, wfgGreen, wfgBlue;
+    if(getBgDark(wbgRed, wbgGreen, wbgBlue))
+        wfgRed = wfgGreen = wfgBlue = 255;
+    else
+        wfgRed = wfgGreen = wfgBlue = 20;
+
+    let vfgRed, vfgGreen, vfgBlue;
+    if(getBgDark(vbgRed, vbgGreen, vbgBlue))
+        vfgRed = vfgGreen = vfgBlue = 255;
+    else
+        vfgRed = vfgGreen = vfgBlue = 20;
 
     let gtkstring = `
     /*** Open Bar GTK CSS ***/
     /* This file is autogenerated. Do not edit. */
 
-    @define-color view_bg_color rgb(${vRed}, ${vGreen}, ${vBlue});
+    @define-color window_bg_color rgba(${wbgRed}, ${wbgGreen}, ${wbgBlue}, ${winAlpha});
+    @define-color window_backdrop_color rgb(${wbdRed}, ${wbdGreen}, ${wbdBlue});
+    @define-color window_fg_color rgb(${wfgRed}, ${wfgGreen}, ${wfgBlue});
+    window.csd {
+        background-color: @window_bg_color;
+    }
+    window.csd:backdrop {
+        background-color: @window_backdrop_color;
+    }
 
+    @define-color view_bg_color rgba(${vbgRed}, ${vbgGreen}, ${vbgBlue}, ${viewAlpha});
+    @define-color view_backdrop_color rgb(${vbdRed}, ${vbdGreen}, ${vbdBlue});
+    @define-color view_fg_color rgb(${vfgRed}, ${vfgGreen}, ${vfgBlue});
     .content-pane, .content-pane.view {
         background-color: @view_bg_color;
+    }
+    .content-pane:backdrop, .content-pane.view:backdrop {
+        background-color: @view_backdrop_color;
     }
 
     @define-color accent_color rgba(${accRed}, ${accGreen}, ${accBlue}, 1.0);
@@ -632,20 +687,20 @@ function createGtkCss(obar, gtk4) {
     if(sBarHint) {
         let sbGradStyle =
         `background-image: linear-gradient(
-            ${sBarGradient}, @sidebar_bg_color, rgba(${sgrRed},${sgrGreen},${sgrBlue},${sbAlpha})
+            ${sBarGradient}, @sidebar_bg_color, rgba(${vbgRed},${vbgGreen},${vbgBlue},${viewAlpha})
         );`
         let sbGradBdStyle =
         `background-image: linear-gradient(
-            ${sBarGradient}, @sidebar_backdrop_color, rgba(${sgrRed},${sgrGreen},${sgrBlue},${sbAlpha})
+            ${sBarGradient}, @sidebar_backdrop_color, rgb(${vbgRed},${vbgGreen},${vbgBlue})
         );`
 
         gtkstring += `
-        @define-color sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${sbAlpha});
-        @define-color sidebar_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${sbAlpha});
+        @define-color sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${viewAlpha});
+        @define-color sidebar_backdrop_color rgb(${sbdRed}, ${sbdGreen}, ${sbdBlue});
         @define-color sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.9);
 
-        @define-color secondary_sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${0.9*sbAlpha});
-        @define-color secondary_sidebar_backdrop_color rgba(${sbdRed}, ${sbdGreen}, ${sbdBlue}, ${0.9*sbAlpha});
+        @define-color secondary_sidebar_bg_color rgba(${sbgRed}, ${sbgGreen}, ${sbgBlue}, ${0.9*viewAlpha});
+        @define-color secondary_sidebar_backdrop_color rgb(${sbdRed}, ${sbdGreen}, ${sbdBlue});
         @define-color secondary_sidebar_fg_color rgba(${sfgRed}, ${sfgGreen}, ${sfgBlue}, 0.9);
 
         .sidebar,
@@ -692,11 +747,11 @@ function createGtkCss(obar, gtk4) {
 
     if(cdHint) {
         gtkstring += `
-        @define-color card_bg_color rgb(${cbgRed}, ${cbgGreen}, ${cbgBlue});
+        @define-color card_bg_color rgba(${cbgRed}, ${cbgGreen}, ${cbgBlue}, ${viewAlpha});
         @define-color card_backdrop_color rgb(${cbdRed}, ${cbdGreen}, ${cbdBlue});
         @define-color card_fg_color rgba(${cfgRed}, ${cfgGreen}, ${cfgBlue}, 0.9);
 
-        @define-color dialog_bg_color rgb(${cbgRed}, ${cbgGreen}, ${cbgBlue});
+        @define-color dialog_bg_color rgba(${cbgRed}, ${cbgGreen}, ${cbgBlue}, ${viewAlpha});
         @define-color dialog_backdrop_color rgb(${cbdRed}, ${cbdGreen}, ${cbdBlue});
         @define-color dialog_fg_color rgba(${cfgRed}, ${cfgGreen}, ${cfgBlue}, 0.9);
         `;
@@ -804,19 +859,6 @@ function createGtkCss(obar, gtk4) {
             }
             `;
         }
-    }
-
-    if(sBarTransparency) {
-        gtkstring += `
-        window, window.background,
-        .nautilus-window {
-            background: alpha(@window_bg_color, 0.9);
-        }
-        .content-pane, .content-pane.view,
-        .boxed-list {
-            opacity: 1.0;
-        }
-        `;
     }
 
     return gtkstring;
