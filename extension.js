@@ -668,8 +668,8 @@ export default class Openbar extends Extension {
         }
 
         // GTK Apps styles
-        let gtkKeys = ['apply-gtk', 'headerbar-hint', 'hbar-gtk3only', 'sidebar-hint', 'sbar-gradient', 'card-hint', 'winbradius', 'corner-radius',
-            'winbcolor', 'winbalpha', 'winbwidth', 'traffic-light', 'menu-radius', 'sidebar-transparency', 'gtk-popover', 'mscolor', 'msalpha'];
+        let gtkKeys = ['apply-gtk', 'headerbar-hint', 'hbar-gtk3only', 'sidebar-hint', 'sbar-gradient', 'card-hint', 'view-hint', 'window-hint', 'winbradius', 'corner-radius',
+            'winbcolor', 'winbalpha', 'winbwidth', 'traffic-light', 'menu-radius', 'gtk-transparency', 'gtk-popover', 'mscolor', 'msalpha', 'hscd-color', 'vw-color'];
         if(gtkKeys.includes(key)) {
             // console.log('Call saveGtkCss from extension for key: ', key);
             this.gtkCSS = true;
