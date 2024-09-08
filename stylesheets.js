@@ -1840,19 +1840,15 @@ function getStylesheet(obar, Me) {
     if(bartype == 'Mainland' || bartype == 'Floating' || !btnBgWMax) {
         if(getBgDark(bgredwmax, bggreenwmax, bgbluewmax)) {
             wmaxColorStyle =
-            `color: rgba(250,250,250,1.0) !important;
-             transition-duration: 100ms;`;
+            `color: rgba(250,250,250,1.0) !important; `;
             wmaxDotStyle =
-            `background-color: rgba(250,250,250,1.0) !important;
-             transition-duration: 100ms;`;
+            `background-color: rgba(250,250,250,1.0) !important; `;
         }
         else {
             wmaxColorStyle =
-            `color: rgba(5,5,5,1.0) !important;
-             transition-duration: 100ms;`;
+            `color: rgba(5,5,5,1.0) !important; `;
             wmaxDotStyle =
-            `background-color: rgba(5,5,5,1.0) !important;
-             transition-duration: 100ms;`;
+            `background-color: rgba(5,5,5,1.0) !important; `;
         }
     }
     else {
@@ -1866,8 +1862,7 @@ function getStylesheet(obar, Me) {
             hgColor = getAutoHgColor(bgColor);
         // WMax Highlight BG
         wmaxHoverStyle =
-        `background-color: rgba(${hgColor[0]},${hgColor[1]},${hgColor[2]},${hAlpha}) !important;
-         transition-duration: 100ms;`;
+        `background-color: rgba(${hgColor[0]},${hgColor[1]},${hgColor[2]},${hAlpha}) !important; `;
     }
     else {
         wmaxHoverStyle = ``;
@@ -1890,7 +1885,7 @@ function getStylesheet(obar, Me) {
          border-color: transparent !important;
          color: rgba(255,255,255,1.0) !important;
          box-shadow: none !important;
-         transition-duration: 100ms;`;
+         transition-duration: 150ms;`;
     }
     else {
         unlockStyle = ``;
@@ -2043,18 +2038,18 @@ function getStylesheet(obar, Me) {
             box-shadow: none !important;
         }
 
-        #panel${openbarClass} .panel-button .screen-recording-indicator {
+        #panel${openbarClass} .panel-button.screen-recording-indicator, #panel${openbarClass}:windowmax .panel-button.screen-recording-indicator {
             transition-duration: 150ms;
             font-weight: bold;
-            background-color: rgba(${destructRed},${destructGreen},${destructBlue}, 0.8);
+            background-color: rgba(${destructRed},${destructGreen},${destructBlue}, 0.8) !important;
             box-shadow: none !important;
         }
-        #panel${openbarClass} .panel-button .screen-sharing-indicator,
-        #panel${openbarClass} .screencast-indicator,
-        #panel${openbarClass} .remote-access-indicator {
+        #panel${openbarClass} .panel-button.screen-sharing-indicator, #panel${openbarClass}:windowmax .panel-button.screen-sharing-indicator,
+        #panel${openbarClass} .screencast-indicator, #panel${openbarClass}:windowmax .screencast-indicator,
+        #panel${openbarClass} .remote-access-indicator, #panel${openbarClass}:windowmax .remote-access-indicator {
             transition-duration: 150ms;
             font-weight: bold;
-            background-color: rgba(${(destructRed+warningRed)/2},${(destructGreen+warningGreen)/2},${(destructBlue+warningBlue)/2}, 0.9);
+            background-color: rgba(${(destructRed+warningRed)/2},${(destructGreen+warningGreen)/2},${(destructBlue+warningBlue)/2}, 0.9) !important;
             box-shadow: none !important;
         }
 
@@ -2261,7 +2256,7 @@ function getStylesheet(obar, Me) {
             ${openmenuClass}.popup-menu-item:focus, ${openmenuClass}.popup-menu-item:hover, ${openmenuClass}.popup-menu-item:selected {
                 color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1.0) !important;
                 background-color: ${mhbg} !important;
-                transition-duration: 0ms !important;
+                /*transition-duration: 0ms !important;*/
             }
 
             ${openmenuClass}.popup-menu-item:checked, ${openmenuClass}.popup-menu-item:checked:active {
@@ -2977,13 +2972,13 @@ function getStylesheet(obar, Me) {
         }
         .overview-tile:hover, .app-well-app:hover .overview-icon, .grid-search-result:hover .overview-icon {
             background-color: rgba(${smhbgred},${smhbggreen},${smhbgblue},${0.95*mbgAlpha}) ;
-            transition-duration: 100ms;
+            /*transition-duration: 100ms;*/
         }
         .overview-tile:focus, .overview-tile:selected,
         .app-well-app:focus .overview-icon, .app-well-app:selected .overview-icon
         .grid-search-result:focus .overview-icon, .grid-search-result:selected .overview-icon {
             background-color: ${smhbg} ;
-            transition-duration: 100ms;
+            /*transition-duration: 100ms;*/
         }
         .app-well-app.app-folder .overview-icon, .overview-tile.app-folder,
         .app-folder.grid-search-result .overview-icon {
