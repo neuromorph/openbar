@@ -49,7 +49,7 @@ function saveCalEventSVG(obar, Me) {
     marker-end:none;paint-order:normal;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate" cx="16" cy="28" r="2"/>
     </svg>
     `;
-    svgpath = obar.obarConfigDir.get_path() + '/assets/calendar-today.svg';
+    svgpath = obar.obarRunDir.get_path() + '/assets/calendar-today.svg';
     svgcolor = obar.smfgHex;
 
     svg = svg.replace(`#REPLACE`, svgcolor);
@@ -86,9 +86,9 @@ function saveToggleSVG(type, obar, Me) {
 
     svgFill = obar.msHex;
     svg = svg.replace(`#SVGFILL`, svgFill);
-    svgpath = obar.obarConfigDir.get_path() + '/assets/toggle-on.svg';
+    svgpath = obar.obarRunDir.get_path() + '/assets/toggle-on.svg';
     if(type == 'on-hc') {
-        svgpath = obar.obarConfigDir.get_path() + '/assets/toggle-on-hc.svg';
+        svgpath = obar.obarRunDir.get_path() + '/assets/toggle-on-hc.svg';
         hc = `<path style="fill:#f8f7f7;fill-opacity:1;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-dashoffset:2" d="M16 8v10h-2V8Z"/>`;
     }
     svg = svg.replace(`#HIGHCONTRAST`, hc);
@@ -122,7 +122,7 @@ function saveCheckboxSVG(type, obar, Me) {
         </svg>
         `;
 
-        svgpath = obar.obarConfigDir.get_path() + '/assets/checkbox-on.svg';
+        svgpath = obar.obarRunDir.get_path() + '/assets/checkbox-on.svg';
         svgFill = obar.msHex;
         svgStroke = obar.msHex;
     }
@@ -134,7 +134,7 @@ function saveCheckboxSVG(type, obar, Me) {
         </svg>
         `;
 
-        svgpath = obar.obarConfigDir.get_path() + '/assets/checkbox-on-focused.svg';
+        svgpath = obar.obarRunDir.get_path() + '/assets/checkbox-on-focused.svg';
         svgFill = obar.msHex;
         svgStroke = obar.mhHex;
     }
@@ -145,7 +145,7 @@ function saveCheckboxSVG(type, obar, Me) {
         </svg>
         `;
 
-        svgpath = obar.obarConfigDir.get_path() + '/assets/checkbox-off-focused.svg';
+        svgpath = obar.obarRunDir.get_path() + '/assets/checkbox-off-focused.svg';
         svgFill = '#aaa';
         svgStroke = obar.mhHex;
     }
@@ -1281,7 +1281,7 @@ function getStylesheet(obar, Me) {
         }
         rgb = rgb<0? 0 : rgb>255? 255 : rgb;
         hgColor = [rgb, rgb, rgb];
-        // log('getAutoHgColor: hgColor, bgColor, bgHsp ', hgColor, bgColor, bgHsp);
+        // console.log('getAutoHgColor: hgColor, bgColor, bgHsp ', hgColor, bgColor, bgHsp);
         return hgColor;
     }
 
@@ -3679,8 +3679,7 @@ function getStylesheet(obar, Me) {
 }
 
 async function writeStylesheet(obar, stylesheet) {
-    // log('OpenBar - writeStylesheet called in stylesheets.js');
-    let stylepath = obar.obarConfigDir.get_path() + '/stylesheet.css';
+    let stylepath = obar.obarRunDir.get_path() + '/stylesheet.css';
     let file = Gio.File.new_for_path(stylepath);
     let bytearray = new TextEncoder().encode(stylesheet);
 
@@ -3688,7 +3687,6 @@ async function writeStylesheet(obar, stylesheet) {
         let stream = await file.replace_async(null, false, Gio.FileCreateFlags.NONE, GLib.PRIORITY_DEFAULT, null);
         await stream.write_bytes_async(bytearray, GLib.PRIORITY_DEFAULT, null);
         stream.close(null);
-        // log('OpenBar - wrote stylesheet in stylesheets.js');
     }
     catch(e) {
       console.log("Failed to write stylsheet file: " + stylepath, e);
@@ -3738,7 +3736,6 @@ export async function reloadStyle(obar, Me) {
         console.log("Failed to reload stylesheet: ", e);
     }
 
-    // log('OpenBar - triggering reloadStyle in stylesheets.js');
     // Cause stylesheet to reload by toggling 'reloadstyle'
     let reloadstyle = obar._settings.get_boolean('reloadstyle');
     if(reloadstyle)
