@@ -1274,10 +1274,10 @@ function getStylesheet(obar, Me) {
         let grayFactor = (255 - bgSat)/255;
         let rgb;
         if(bgHsp <= bgLightThresh) {
-            rgb = bgHsp + 50 + 50*grayFactor;
+            rgb = bgHsp + 30 + 130*grayFactor;
         }
         else {
-            rgb = bgHsp - 50 - 50*grayFactor;
+            rgb = bgHsp - 30 - 130*grayFactor;
         }
         rgb = rgb<0? 0 : rgb>255? 255 : rgb;
         hgColor = [rgb, rgb, rgb];
@@ -1306,7 +1306,7 @@ function getStylesheet(obar, Me) {
     let ishbgred = isred*(1-hAlpha) + hgColor[0]*hAlpha;
     let ishbggreen = isgreen*(1-hAlpha) + hgColor[1]*hAlpha;
     let ishbgblue = isblue*(1-hAlpha) + hgColor[2]*hAlpha;
-    let ihbg = `rgba(${ishbgred},${ishbggreen},${ishbgblue},${isalpha})`;
+    let ihbg = `rgba(${ishbgred},${ishbggreen},${ishbgblue},${1.0})`;
 
     // Menu Auto Highlight
     let autohgMenu = obar._settings.get_boolean('autohg-menu');
@@ -1318,7 +1318,7 @@ function getStylesheet(obar, Me) {
     let mhbgred = mbgred*(1-mhAlpha) + hgColor[0]*mhAlpha;
     let mhbggreen = mbggreen*(1-mhAlpha) + hgColor[1]*mhAlpha;
     let mhbgblue = mbgblue*(1-mhAlpha) + hgColor[2]*mhAlpha;
-    let mhbg = `rgba(${mhbgred},${mhbggreen},${mhbgblue},${mbgAlpha})`;
+    let mhbg = `rgba(${mhbgred},${mhbggreen},${mhbgblue},${1.0})`;
     // Save menu highlight hex for use in focused svg
     obar.mhHex = rgbToHex(mhbgred, mhbggreen, mhbgblue);
 
@@ -1328,10 +1328,10 @@ function getStylesheet(obar, Me) {
     if(autohgMenu)
         hgColor = getAutoHgColor(bgColor);
 
-    let smhbgred = smbgred*(1-mhAlpha) + hgColor[0]*mhAlpha;
-    let smhbggreen = smbggreen*(1-mhAlpha) + hgColor[1]*mhAlpha;
-    let smhbgblue = smbgblue*(1-mhAlpha) + hgColor[2]*mhAlpha;
-    let smhbg = `rgba(${smhbgred},${smhbggreen},${smhbgblue},${mbgAlpha})`;
+    let smhbgred = smbgred*(1-0.75*mhAlpha) + hgColor[0]*0.75*mhAlpha;
+    let smhbggreen = smbggreen*(1-0.75*mhAlpha) + hgColor[1]*0.75*mhAlpha;
+    let smhbgblue = smbgblue*(1-0.75*mhAlpha) + hgColor[2]*0.75*mhAlpha;
+    let smhbg = `rgba(${smhbgred},${smhbggreen},${smhbgblue},${1.0})`;
 
     // Active/Accent Auto Highlight
     hgColor = [mhred, mhgreen, mhblue];
@@ -1342,7 +1342,7 @@ function getStylesheet(obar, Me) {
     let mshbgred = msred*(1-mhAlpha) + hgColor[0]*mhAlpha;
     let mshbggreen = msgreen*(1-mhAlpha) + hgColor[1]*mhAlpha;
     let mshbgblue = msblue*(1-mhAlpha) + hgColor[2]*mhAlpha;
-    let mshg = `rgba(${mshbgred},${mshbggreen},${mshbgblue},${msAlpha})`; //msalpha
+    let mshg = `rgba(${mshbgred},${mshbggreen},${mshbgblue},${1.0})`; //msalpha
 
 
     ///// FG COLORS for BAR and MENU
