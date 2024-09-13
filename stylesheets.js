@@ -2387,14 +2387,15 @@ function getStylesheet(obar, Me) {
                 background-color: ${smbg} !important;
                 border-radius: ${notifRadius}px;
                 box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
-                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.125) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.14) !important;
             }
             ${openmenuClass}.message:hover, ${openmenuClass}.message:focus {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
                 background-color: ${smhbg} !important; /* 0.9*mhAlpha */
             }
             ${openmenuClass}.message:focus {
-                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},0.5) !important;
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},0.65) !important;
+                border-color: transparent !important;
             }
             ${openmenuClass}.message .message-title {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
@@ -2440,15 +2441,15 @@ function getStylesheet(obar, Me) {
                 background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
             }
             ${openmenuClass}.dnd-button {
-                border-color: rgba(${mbgred},${mbggreen},${mbgblue},0.5) !important;
+                border-color: transparent !important;
                 border-radius: 50px;
             }
             ${openmenuClass}.dnd-button:hover {
                 border-color: ${mhbg} !important;
             }
             ${openmenuClass}.dnd-button:focus {
-                border-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-                box-shadow: none;
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},0.65) !important;
+                border-color: transparent !important;
             }
             ${openmenuClass} .toggle-switch {
                 background-image: url(assets/${toggleOffSVG});
@@ -2476,14 +2477,15 @@ function getStylesheet(obar, Me) {
                 background-color: ${smbg} !important;
                 border-radius: ${notifRadius}px;
                 box-shadow: 0 1px 1px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
-                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.12) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
             }
             ${openmenuClass}.message-list-clear-button:hover, ${openmenuClass}.message-list-clear-button:focus {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
                 background-color: ${smhbg} !important; /* 0.9*mhAlpha */
             }
             ${openmenuClass}.message-list-clear-button:focus {
-                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},0.5) !important;
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},0.65) !important;
+                border-color: transparent !important;
             }
 
             ${openmenuClass}.datemenu-today-button .date-label, ${openmenuClass}.datemenu-today-button .day-label {
@@ -2494,13 +2496,17 @@ function getStylesheet(obar, Me) {
                 border-radius: ${notifRadius}px;
                 color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
             }
+            ${openmenuClass}.datemenu-today-button:focus {
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},0.65) !important;
+                border-color: transparent !important;
+            }
 
             ${openmenuClass}.calendar {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
                 border-radius: ${notifRadius}px;
                 box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
-                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.125) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.14) !important;
             }
             ${openmenuClass}.calendar .calendar-month-header .pager-button,
             ${openmenuClass}.calendar .calendar-month-header .pager-button {
@@ -2516,6 +2522,9 @@ function getStylesheet(obar, Me) {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
                 background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
             }
+            ${openmenuClass}.calendar .calendar-month-label:focus {
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.65}) !important;
+            }
             ${openmenuClass}.calendar-day-heading  {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
                 background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
@@ -2523,7 +2532,7 @@ function getStylesheet(obar, Me) {
             ${openmenuClass}.calendar-day-heading:focus  {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
                 background-color: rgba(${smhbgred},${smhbggreen},${smhbgblue},${mhAlpha}) !important;
-                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.65}) !important;
             }
             ${openmenuClass}.calendar-day {
                 background-color: rgba(${smbgred},${smbggreen},${smbgblue},${0.5*mbgAlpha}) !important;
@@ -2549,13 +2558,14 @@ function getStylesheet(obar, Me) {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
                 background-color: ${smhbg} !important;
             }
+            ${openmenuClass}.calendar .calendar-month-header .pager-button:focus, ${openmenuClass}.calendar .calendar-month-header .pager-button:selected,
             ${openmenuClass}.calendar-other-month-day:focus, ${openmenuClass}.calendar-other-month-day:selected,
             ${openmenuClass}.calendar-other-month:focus, ${openmenuClass}.calendar-other-month:selected,
             ${openmenuClass}.calendar-nonwork-day:focus, ${openmenuClass}.calendar-nonwork-day:selected,
             ${openmenuClass}.calendar-work-day:focus, ${openmenuClass}.calendar-work-day:selected,
             ${openmenuClass}.calendar-weekday:focus, ${openmenuClass}.calendar-weekday:selected,
             ${openmenuClass}.calendar-weekend:focus, ${openmenuClass}.calendar-weekend:selected  {
-                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.65}) !important;
             }
             ${openmenuClass}.calendar .calendar-today, ${openmenuClass}.calendar .calendar-today:selected {
                 color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
@@ -2566,7 +2576,7 @@ function getStylesheet(obar, Me) {
                 background-color: ${mshg} !important;
             }
             ${openmenuClass}.calendar .calendar-today:selected, ${openmenuClass}.calendar .calendar-today:focus {
-                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.65}) !important;
             }
             ${openmenuClass}.calendar .calendar-today .calendar-day-with-events, ${openmenuClass}.calendar .calendar-day-with-events {
                 background-image: url("assets/calendar-today.svg");
@@ -2584,14 +2594,15 @@ function getStylesheet(obar, Me) {
                 background-color: ${smbg} !important;
                 border-radius: ${notifRadius}px;
                 box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
-                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.125) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.14) !important;
             }
             ${openmenuClass}.events-button:hover, ${openmenuClass}.events-button:focus {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
                 background-color: ${smhbg} !important;
             }
             ${openmenuClass}.events-button:focus {
-                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.65}) !important;
+                border-color: transparent !important;
             }
             ${openmenuClass}.events-button .events-list {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
@@ -2614,14 +2625,15 @@ function getStylesheet(obar, Me) {
                 background-color: ${smbg} !important;
                 border-radius: ${notifRadius}px;
                 box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
-                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.125) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.14) !important;
             }
             ${openmenuClass}.world-clocks-button:hover, ${openmenuClass}.world-clocks-button:focus {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
                 background-color: ${smhbg} !important;
             }
             ${openmenuClass}.world-clocks-button:focus {
-                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.65}) !important;
+                border-color: transparent !important;
             }
             ${openmenuClass}.world-clocks-button .world-clocks-header, ${openmenuClass}.world-clocks-button .world-clocks-timezone {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*0.9}) !important;
@@ -2641,14 +2653,15 @@ function getStylesheet(obar, Me) {
                 background-color: ${smbg} !important;
                 border-radius: ${notifRadius}px;
                 box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
-                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.125) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.14) !important;
             }
             ${openmenuClass}.weather-button:hover, ${openmenuClass}.weather-button:focus {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
                 background-color: ${smhbg} !important;
             }
             ${openmenuClass}.weather-button:focus {
-                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.5}) !important;
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.65}) !important;
+                border-color: transparent !important;
             }
             ${openmenuClass}.weather-button .weather-header {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
@@ -2671,8 +2684,12 @@ function getStylesheet(obar, Me) {
                 border-radius: ${menuRadius}px !important;
             }
 
-            ${openmenuClass}.quick-slider .slider{
+            ${openmenuClass}.quick-slider .slider {
                 ${sliderStyle}
+            }
+            ${openmenuClass}.quick-slider .slider-bin:focus {
+                box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.65}) !important;
+                border-color: transparent !important;
             }
 
             ${openmenuClass}.quick-toggle {
@@ -2680,7 +2697,7 @@ function getStylesheet(obar, Me) {
                 background-color: ${smbg} !important;
                 border-radius: ${qtoggleRadius}px;
                 box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
-                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.1) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
             }
             ${openmenuClass}.quick-toggle:hover, ${openmenuClass}.quick-toggle:focus {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
@@ -2701,7 +2718,7 @@ function getStylesheet(obar, Me) {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
                 box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
-                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.1) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
             }
             ${openmenuClass}.quick-menu-toggle .quick-toggle:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:focus {
                 color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
@@ -2722,7 +2739,7 @@ function getStylesheet(obar, Me) {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
                 background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
                 box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
-                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.1) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
             }
             /* adjust borders in expandable menu button */
             ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:ltr {
@@ -2803,7 +2820,7 @@ function getStylesheet(obar, Me) {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha*1.2}) !important;
                 background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
                 box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
-                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.1) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
             }
             ${openmenuClass}.quick-settings .icon-button:checked, ${openmenuClass}.quick-settings .button:checked {
                 color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha*1.2}) !important;
