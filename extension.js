@@ -507,6 +507,15 @@ export default class Openbar extends Extension {
                                 btn.child.add_style_pseudo_class('candy'+i);
                             }
                         }
+
+                        if(btn.child.constructor.name === 'DateMenuButton') {
+                            // Remove padding widget to get rid of empty space on left when Message/DND indicator is on right
+                            if(!this.dateMenuLeftPadWidget) {
+                                this.dateMenuBtnBox = btn.child.get_first_child();
+                                this.dateMenuLeftPadWidget = this.dateMenuBtnBox.get_first_child();
+                                this.dateMenuBtnBox.remove_child(this.dateMenuLeftPadWidget);
+                            }
+                        }
                     }
                 }
 
@@ -1600,6 +1609,11 @@ export default class Openbar extends Extension {
         panel.remove_style_class_name('openbar');
         panel.remove_style_class_name('candybar');
         panel.remove_style_class_name('trilands');
+        // Reset left padding widget into DateMenu button
+        if(this.dateMenuLeftPadWidget) {
+            this.dateMenuBtnBox.insert_child_at_index(this.dateMenuLeftPadWidget, 0);
+            this.dateMenuLeftPadWidget = null;
+        }
         // Reset the style for Menus
         this.applyMenuStyles(panel, false);
 
