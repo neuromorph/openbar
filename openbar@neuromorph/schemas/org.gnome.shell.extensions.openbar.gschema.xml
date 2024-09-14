@@ -338,7 +338,7 @@
       <description>Highlight of Top Bar menus.</description>
     </key>
     <key type="d" name="mhalpha">
-      <default>0.35</default>
+      <default>0.3</default>
       <summary>Transparency (alpha) Menu Highlight</summary>
       <description>Transparency of menu highlight.</description>
     </key>
