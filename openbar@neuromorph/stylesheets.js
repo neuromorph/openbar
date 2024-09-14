@@ -397,7 +397,8 @@ function createGtkCss(obar, gtk4) {
 
                 2px 1.5px 3px -0.5px rgba(0,0,0, 0.11),
                 4px 3px 6px -1px rgba(0,0,0, 0.11),
-                -6px -4px 6px -2px rgba(0,0,0, 0.05);
+                -6px -4px 6px -2px rgba(0,0,0, 0.05),
+                0 0 0 1px rgba(0,0,0, 0.1);
         `;
         winBdShadowStyle =
         `   box-shadow:
