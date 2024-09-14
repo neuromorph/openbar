@@ -2537,7 +2537,7 @@ class OpenbarPrefs {
 
         // Add a Gtk info label
         let appLabel = new Gtk.Label({
-            label: `<span><b>GTK3 / GTK4</b></span>\n\n<span size="small" allow_breaks="true">⚠ Warning: It will write to 'gtk.css' under '$XDG_CONFIG_HOME/gtk-3.0/' and 'gtk-4.0'.\n    If existing gtk.css is detected, Open Bar will create a backup and restore it on disable.\n    You are advised to also take a manual backup as a failsafe.</span>`,
+            label: `<span><b>GTK3 / GTK4</b></span>\n\n<span size="small" allow_breaks="true">⚠ It will write to 'gtk.css' under '$XDG_CONFIG_HOME/gtk-3.0/' and 'gtk-4.0'.\n     For existing gtk.css, Open Bar will create a backup and restore it on disable.\n     You are advised to also take a manual backup as a failsafe.</span>`,
             use_markup: true,
             halign: Gtk.Align.START,
             wrap: true,
@@ -2562,7 +2562,7 @@ class OpenbarPrefs {
 
         // Add a Flatpak info label
         let flatLabel = new Gtk.Label({
-            label: `<span><b>FLATPAK</b></span>\n\n<span size="small" allow_breaks="true">⚠ Warning: Applies overrides to provide flatpak apps access to Gtk configs.\n    Overrides will be removed on disable.\n    Requires 'Apply to Gtk Apps' to be tunrned On.</span>`,
+            label: `<span><b>FLATPAK</b></span>\n\n<span size="small" allow_breaks="true">⚠ Applies overrides to provide flatpak apps access to Gtk configs.\n     Overrides will be removed on disable.\n     Requires 'Apply to Gtk Apps' to be tunrned On.</span>`,
                     use_markup: true,
             halign: Gtk.Align.START,
             wrap: true,
