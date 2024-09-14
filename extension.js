@@ -231,47 +231,6 @@ export default class Openbar extends Extension {
         else object[name] = injection[name];
     }
 
-    // resetPanelStyle(panel) {
-    //     for(const box of this.panelBoxes) {
-    //         for(const btn of box) {
-    //             // Remove candy classes
-    //             if(btn.child) {
-    //                 for(let j=1; j<=16; j++) {
-    //                     btn.child.remove_style_class_name('candy'+j);
-    //                     for(const child of btn.child.get_children()) {
-    //                         if(child.remove_style_class_name)
-    //                             child.remove_style_class_name('candy'+j);
-    //                         for(const gChild of child.get_children()) {
-    //                             if(gChild.remove_style_class_name)
-    //                                 gChild.remove_style_class_name('candy'+j);
-    //                         }
-    //                     }
-    //                 }
-    //             }
-
-    //             // Remove trilands class
-    //             btn.child?.remove_style_class_name('trilands');
-    //             // Remove style class from Workspace Dots
-    //             if(btn.child?.constructor.name === 'ActivitiesButton') {
-    //                 let list = btn.child.get_child_at_index(0);
-    //                 for(const indicator of list) {
-    //                     let dot = indicator.get_child_at_index(0);
-    //                     // dot?.set_style(null);
-    //                     if(dot?.remove_style_class_name)
-    //                         dot.remove_style_class_name('openbar');
-    //                 }
-    //             }
-
-    //             // Remove style class from Button and Container
-    //             btn.remove_style_class_name('openbar');
-    //             btn.child?.remove_style_class_name('openbar');
-    //         }
-    //     }
-    //     // Remove style class from Panel and PanelBox
-    //     Main.layoutManager.panelBox.remove_style_class_name('openbar');
-    //     panel.remove_style_class_name('openbar');
-    // }
-
     unloadStylesheet() {
         const theme = this.themeContext.get_theme();
         const stylesheet = this.obarRunDir.get_child('stylesheet.css');
@@ -466,20 +425,22 @@ export default class Openbar extends Extension {
     setPanelStyle(obj, key, sig_param, callbk_param) {
         // console.log('setPanelStyle: ', String(obj), key, String(sig_param), callbk_param);
         const panel = Main.panel;
-        // // Add 'openbar' class to top panel and panelBox
-        // panel.add_style_class_name('openbar');
-        // Main.layoutManager.panelBox.add_style_class_name('openbar');
-
         const bartype = this._settings.get_string('bartype');
         const buttonBgWMax = this._settings.get_boolean('buttonbg-wmax');
         const candybar = this._settings.get_boolean('candybar');
         const setOverview = this._settings.get_boolean('set-overview');
+        // Add/remove candybar class as per settings
         if(candybar &&
             (setOverview || !panel.has_style_pseudo_class('overview')) &&
             (buttonBgWMax || !panel.has_style_pseudo_class('windowmax')))
             panel.add_style_class_name('candybar');
         else
             panel.remove_style_class_name('candybar');
+        // Add/remove trialnds class as per bartype
+        if(bartype == 'Trilands')
+            panel.add_style_class_name('trilands');
+        else
+            panel.remove_style_class_name('trilands');
 
         let i = 0, idx, isFirst, firstIdx, lastIdx;
         for(const box of this.panelBoxes) {
@@ -522,15 +483,14 @@ export default class Openbar extends Extension {
                 idx++;
             }
 
-            // Add trilands pseudo/classes if enabled else remove them
+            // Add trilands pseudo-classes if enabled else remove them
             let btns = box.get_children();
             for(let k=0; k<btns.length; k++) {
-                if (btns[k].child instanceof PanelMenu.Button || btns[k].child instanceof PanelMenu.ButtonBox) {
+                if(btns[k].child instanceof PanelMenu.Button || btns[k].child instanceof PanelMenu.ButtonBox) {
+                    ['one-child', 'left-child', 'right-child', 'mid-child'].forEach(cls => {
+                        btns[k].child.remove_style_pseudo_class(cls);
+                    });
                     if(bartype == 'Trilands') {
-                        btns[k].child.add_style_class_name('trilands');
-                        ['one-child', 'left-child', 'right-child', 'mid-child'].forEach(cls => {
-                            btns[k].child.remove_style_pseudo_class(cls);
-                        });
                         if(k == firstIdx && k == lastIdx)
                             btns[k].child.add_style_pseudo_class('one-child');
                         else if(k == firstIdx)
@@ -539,9 +499,6 @@ export default class Openbar extends Extension {
                             btns[k].child.add_style_pseudo_class('right-child');
                         else
                             btns[k].child.add_style_pseudo_class('mid-child');
-                    }
-                    else {
-                        btns[k].child.remove_style_class_name('trilands');
                     }
                 }
             }
@@ -648,10 +605,6 @@ export default class Openbar extends Extension {
             }
         }
         else if(key == 'hiding') {
-            // if(this.styleUnloaded) {
-            //     this.loadStylesheet();
-            //     this.styleUnloaded = false;
-            // }
             this.setWindowMaxBar('hiding');
             this.onFullScreen(null, 'hiding');
         }
