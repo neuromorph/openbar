@@ -1274,10 +1274,10 @@ function getStylesheet(obar, Me) {
         let grayFactor = (255 - bgSat)/255;
         let rgb;
         if(bgHsp <= bgLightThresh) {
-            rgb = bgHsp + 30 + 130*grayFactor;
+            rgb = bgHsp + 40 + 80*grayFactor;
         }
         else {
-            rgb = bgHsp - 30 - 130*grayFactor;
+            rgb = bgHsp - 40 - 100*grayFactor;
         }
         rgb = rgb<0? 0 : rgb>255? 255 : rgb;
         hgColor = [rgb, rgb, rgb];
@@ -2063,28 +2063,30 @@ function getStylesheet(obar, Me) {
             ${wmaxDotStyle}
         }
 
-        #panel${openbarClass} .trilands:left-child {
+        #panel${openbarClass}.trilands .panel-button:left-child {
             ${triLeftStyle}
         }
-        #panel${openbarClass} .trilands:right-child {
+        #panel${openbarClass}.trilands .panel-button:right-child {
             ${triRightStyle}
         }
-        #panel${openbarClass} .trilands:one-child {
+        #panel${openbarClass}.trilands .panel-button:one-child {
             ${triBothStyle}
         }
-        #panel${openbarClass} .trilands:mid-child {
+        #panel${openbarClass}.trilands .panel-button:mid-child {
             ${triMidStyle}
         }
-        #panel${openbarClass}:overview .trilands:mid-child {
+        #panel${openbarClass}.trilands:overview .panel-button:mid-child {
             ${setOverview? '': 'box-shadow: none;'}
         }
-        #panel${openbarClass}:windowmax .trilands:mid-child {
+        #panel${openbarClass}.trilands:windowmax .panel-button:mid-child {
             ${neonWMax? '': 'box-shadow: none;'}
         }
-        #panel${openbarClass} .trilands:mid-child:hover, #panel${openbarClass} .trilands:mid-child:focus, #panel${openbarClass} .trilands:mid-child:active, #panel${openbarClass} .trilands:mid-child:checked {
+        #panel${openbarClass}.trilands .panel-button:mid-child:hover, #panel${openbarClass}.trilands .panel-button:mid-child:focus,
+        #panel${openbarClass}.trilands .panel-button:mid-child:active, #panel${openbarClass}.trilands .panel-button:mid-child:checked {
             ${triMidNeonHoverStyle}
         }
-        #panel${openbarClass}:overview .trilands:mid-child:hover, #panel${openbarClass}:overview .trilands:mid-child:focus, #panel${openbarClass}:overview .trilands:mid-child:active, #panel${openbarClass}:overview .trilands:mid-child:checked {
+        #panel${openbarClass}.trilands:overview .panel-button:mid-child:hover, #panel${openbarClass}.trilands:overview .panel-button:mid-child:focus,
+        #panel${openbarClass}.trilands:overview .panel-button:mid-child:active, #panel${openbarClass}.trilands:overview .panel-button:mid-child:checked {
             ${setOverview? '': 'box-shadow: none;'}
         }
     `;
