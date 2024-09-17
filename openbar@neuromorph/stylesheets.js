@@ -2236,7 +2236,7 @@ function getStylesheet(obar, Me) {
         stylesheet += `
 
             ${openmenuClass}.popup-menu-boxpointer {
-                -arrow-rise: ${(margin + vPad)? margin + vPad : 6}px;
+                -arrow-rise: ${(margin+vPad)? Math.ceil(margin+vPad+2) : 6}px;
             }
 
             ${openmenuClass}.popup-menu.panel-menu {
