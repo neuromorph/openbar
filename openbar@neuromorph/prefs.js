@@ -906,7 +906,7 @@ class OpenbarPrefs {
         });
         bargrid.attach(marginLabel, 1, rowbar, 1, 1);
 
-        let margin = this.createScaleWidget(0, 50, 0.2, 1, 'margin', 'Not applicable for Mainland');
+        let margin = this.createScaleWidget(0, 30, 0.2, 1, 'margin', 'Not applicable for Mainland');
         bargrid.attach(margin, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -939,11 +939,11 @@ class OpenbarPrefs {
         let fittsWidgetsLabel = new Gtk.Label({
             label: 'Enable Buttons Proximity',
             halign: Gtk.Align.START,
-            tooltip_text: 'Interact with panel buttons from proximity without having to precisely point at them, refer Fitts Law.',
+            tooltip_text: 'Interact with panel buttons, from the screen-edge proximity, without having to precisely pinpoint them, refer Fitts Law.',
         });
         bargrid.attach(fittsWidgetsLabel, 1, rowbar, 1, 1);
 
-        let fittsWidgetsSwitch = this.createSwitchWidget('fitts-widgets', "Interact with panel buttons from proximity without having to precisely point at them, refer Fitts Law.");
+        let fittsWidgetsSwitch = this.createSwitchWidget('fitts-widgets', "Interact with panel buttons, from the screen-edge proximity, without having to precisely pinpoint them, refer Fitts Law.");
         bargrid.attach(fittsWidgetsSwitch, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1056,7 +1056,7 @@ class OpenbarPrefs {
         });
         bargridwmax.attach(wmaxmarginLabel, 1, rowbar, 1, 1);
 
-        let wmaxmargin = this.createScaleWidget(0, 50, 0.2, 1, 'margin-wmax', 'Not applicable for Mainland');
+        let wmaxmargin = this.createScaleWidget(0, 30, 0.2, 1, 'margin-wmax', 'Not applicable for Mainland');
         bargridwmax.attach(wmaxmargin, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1539,7 +1539,7 @@ class OpenbarPrefs {
         });
         hgrid.attach(vBtnPadLbl, 1, rowbar, 1, 1);
 
-        let vBtnPad = this.createScaleWidget(0, 30, 0.5, 1, 'vpad', 'Vertical padding for panel buttons/highlights');
+        let vBtnPad = this.createScaleWidget(0, 20, 0.5, 1, 'vpad', 'Vertical padding for panel buttons/highlights');
         hgrid.attach(vBtnPad, 2, rowbar, 1, 1);
 
         ////////////////////////////////////////////////////////////////////////////
@@ -1977,7 +1977,7 @@ class OpenbarPrefs {
         });
         menugrid.attach(mSliderHtLbl, 1, rowbar, 1, 1);
 
-        let mSliderHt = this.createScaleWidget(1, 30, 1, 0, 'slider-height', 'Slider height for Volume/Brightness etc');
+        let mSliderHt = this.createScaleWidget(1, 20, 1, 0, 'slider-height', 'Slider height for Volume/Brightness etc');
         menugrid.attach(mSliderHt, 2, rowbar, 1, 1);
 
         rowbar += 1;
