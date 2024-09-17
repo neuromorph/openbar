@@ -425,10 +425,10 @@ function createGtkCss(obar, gtk4) {
     @define-color view_bg_color rgba(${vbgRed}, ${vbgGreen}, ${vbgBlue}, ${viewAlpha});
     @define-color view_backdrop_color rgb(${vbdRed}, ${vbdGreen}, ${vbdBlue});
     @define-color view_fg_color rgb(${vfgRed}, ${vfgGreen}, ${vfgBlue});
-    .content-pane, .content-pane.view {
+    .content-pane, .content-pane.view, .view {
         background-color: @view_bg_color;
     }
-    .content-pane:backdrop, .content-pane.view:backdrop {
+    .content-pane:backdrop, .content-pane.view:backdrop, .view:backdrop {
         background-color: @view_backdrop_color;
     }
 
