@@ -594,7 +594,6 @@ export default class Openbar extends Extension {
         }
 
         // Overview style
-        let position = this._settings.get_string('position');
         let setOverview = this._settings.get_boolean('set-overview');
         if(key == 'showing' || panel.has_style_pseudo_class('overview')) {
             if(setOverview) {
@@ -720,6 +719,7 @@ export default class Openbar extends Extension {
         }
 
         // Set PanelBox position
+        let position = this._settings.get_string('position');
         let borderWidth = this._settings.get_double('bwidth');
         let height = this._settings.get_double('height');
         let margin = this._settings.get_double('margin');
@@ -727,6 +727,10 @@ export default class Openbar extends Extension {
             // If WMax is On then ignore 'margin' changes (do not set position) else set position
             if(!(this.wmax && key == 'margin'))
                 this.setPanelBoxPosition(position, height, margin, borderWidth, bartype);
+        }
+        if(key == 'position') {
+            this.disableFittsWidgets();
+            this.enableFittsWidgets();
         }
 
         // Update background-manager if monitors changed
@@ -1022,19 +1026,24 @@ export default class Openbar extends Extension {
     createFittsWidget(box, btn) {
         let panel = Main.panel;
         let panelBox = Main.layoutManager.panelBox;
+        let position = this._settings.get_string('position');
 
-        if(!btn.FittsWidget && (btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox)
-            && btn.child.visible && btn.child.constructor.name != 'AstraMonitorContainer') {
+        if( !btn.FittsWidget &&
+            (btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) &&
+            btn.child.visible ) {
+
             btn.FittsWidget = new St.Widget({
                 x: panelBox.x + panel.x + box.x + btn.x,
                 width: btn.width,
                 y: panelBox.y,
-                height: panelBox.height,
+                height: panel.y + btn.child.y,
                 reactive: true,
                 track_hover: true,
                 visible: true,
                 // style: 'background-color: rgba(200, 200, 0, 0.35);'
             });
+            if(position == 'Bottom')
+                btn.FittsWidget.y = panelBox.y + panelBox.height - btn.FittsWidget.height;
 
             // Bind x of FittsWidget to params it depends on: panelBox.x + panel.x + box.x + btn.x
             btn.bind_property_full('x', btn.FittsWidget, 'x', GObject.BindingFlags.SYNC_CREATE,
@@ -1048,65 +1057,39 @@ export default class Openbar extends Extension {
 
             // Bind width of FittsWidget to params it depends on: btn.width
             btn.bind_property('width', btn.FittsWidget, 'width', GObject.BindingFlags.SYNC_CREATE);
-            // Bind y and height of FittsWidget to params it depends on: panelBox.y and panelBox.height
-            panelBox.bind_property('y', btn.FittsWidget, 'y', GObject.BindingFlags.SYNC_CREATE);
-            panelBox.bind_property('height', btn.FittsWidget, 'height', GObject.BindingFlags.SYNC_CREATE);
+
+            // Bind y of FittsWidget to params it depends on: Top Panel => panelBox.y OR
+            // Bottom Panel => panelBox.y + panelBox.height - btn.FittsWidget.height
+            if(position == 'Top')
+                panelBox.bind_property('y', btn.FittsWidget, 'y', GObject.BindingFlags.SYNC_CREATE);
+            else if(position == 'Bottom') {
+                panelBox.bind_property_full('y', btn.FittsWidget, 'y', GObject.BindingFlags.SYNC_CREATE,
+                    (bind, value) => [true, value + panelBox.height - btn.FittsWidget.height], null);
+                panelBox.bind_property_full('height', btn.FittsWidget, 'y', GObject.BindingFlags.SYNC_CREATE,
+                    (bind, value) => [true, panelBox.y + value - btn.FittsWidget.height], null);
+                btn.FittsWidget.bind_property_full('height', btn.FittsWidget, 'y', GObject.BindingFlags.SYNC_CREATE,
+                    (bind, value) => [true, panelBox.y + panelBox.height - value], null);
+            }
+
+            // Bind height of FittsWidget to params it depends on: panel.y + btn.child.y
+            panel.bind_property_full('y', btn.FittsWidget, 'height', GObject.BindingFlags.SYNC_CREATE,
+                (bind, value) => [true, value + btn.child.y], null);
+            btn.child.bind_property_full('y', btn.FittsWidget, 'height', GObject.BindingFlags.SYNC_CREATE,
+                    (bind, value) => [true, panel.y + value], null);
 
             // Connect signals for hover
             btn.FittsWidget.connect('enter-event', (actor, event) => {
-                btn.child? btn.child.add_style_pseudo_class('hover')
-                        : btn.add_style_pseudo_class('hover');
-
+                btn.child.add_style_pseudo_class('hover');
                 return Clutter.EVENT_PROPAGATE;
             });
             btn.FittsWidget.connect('leave-event', (actor, event) => {
-                btn.child? btn.child.remove_style_pseudo_class('hover')
-                        : btn.remove_style_pseudo_class('hover');
-
+                btn.child.remove_style_pseudo_class('hover');
                 return Clutter.EVENT_PROPAGATE;
             });
+
             // Connect signals for captured-event
             btn.FittsWidget.connect('captured-event', (actor, event) => {
-                btn.child? btn.child.event(event, false)
-                        : btn.event(event, false);
-                return Clutter.EVENT_PROPAGATE;
-            });
-            // Connect signals for button-press-event when Menu is open
-            btn.FittsWidgetId = btn.child?.menu?.actor.connect('captured-event', (actor, event) => {
-                let [x, y] = event.get_coords();
-                let panelBtns = [];
-                for(const box of this.panelBoxes) {
-                    for(const btn of box) {
-                        if((btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox) &&
-                            btn.child.visible && btn.child.constructor.name != 'AstraMonitorContainer')
-                            panelBtns.push(btn);
-                    }
-                }
-                // Remove hover style from all buttons if event outside of panelBox
-                if(!panelBox.allocation.contains(x, y)) {
-                    panelBtns.forEach(btn => btn.child.remove_style_pseudo_class('hover'));
-                    return Clutter.EVENT_PROPAGATE;
-                }
-                // A part of the FittsWidget is covered by the BoxPointer arrow when menu is open
-                // Close the menu when clicked on the BoxPointer arrow (inside FittsWidget)
-                if(btn.FittsWidget.allocation.contains(x, y) &&
-                    btn.child.menu.open &&
-                    (event.type() === Clutter.EventType.BUTTON_PRESS ||
-                     event.type() === Clutter.EventType.TOUCH_BEGIN)) {
-                    btn.child.add_style_pseudo_class('hover');
-                    btn.child.menu.close();
-                    return Clutter.EVENT_PROPAGATE;
-                }
-                // Manage button hover for all the buttons while a menu is open
-                panelBtns.forEach(btn => {
-                    if(btn.FittsWidget.allocation.contains(x, y)) {
-                        btn.child.add_style_pseudo_class('hover');
-                        btn.child.event(event, false);
-                    }
-                    else
-                        btn.child.remove_style_pseudo_class('hover');
-                });
-
+                btn.child.event(event, false);
                 return Clutter.EVENT_PROPAGATE;
             });
 
@@ -1119,8 +1102,6 @@ export default class Openbar extends Extension {
             Main.layoutManager.removeChrome(btn.FittsWidget);
             btn.FittsWidget.destroy();
             delete btn.FittsWidget;
-            btn.child?.menu?.actor.disconnect(btn.FittsWidgetId);
-            delete btn.FittsWidgetId;
         }
     }
 
@@ -1153,8 +1134,9 @@ export default class Openbar extends Extension {
                 }
                 // Bind width of FittsWidget to params it depends on: panel.x
                 panel.bind_property('x', widget, 'width', GObject.BindingFlags.SYNC_CREATE);
-                // Bind y and height of FittsWidget to params it depends on: panelBox.y and panelBox.height
+                // Bind y of FittsWidget to params it depends on: panelBox.y
                 panelBox.bind_property('y', widget, 'y', GObject.BindingFlags.SYNC_CREATE);
+                // Bind height of FittsWidget to params it depends on: panelBox.height
                 panelBox.bind_property('height', widget, 'height', GObject.BindingFlags.SYNC_CREATE);
 
                 // Get leftmost or rightmost visible button in the panel
@@ -1171,19 +1153,16 @@ export default class Openbar extends Extension {
 
                 // Connect signals for hover
                 widget.connect('enter-event', (actor, event) => {
-                    btn.child? btn.child.add_style_pseudo_class('hover')
-                            : btn.get_first_child()?.add_style_pseudo_class('hover');
+                    btn.child.add_style_pseudo_class('hover');
                     return Clutter.EVENT_PROPAGATE;
                 });
                 widget.connect('leave-event', (actor, event) => {
-                    btn.child? btn.child.remove_style_pseudo_class('hover')
-                            : btn.get_first_child()?.remove_style_pseudo_class('hover');
+                    btn.child.remove_style_pseudo_class('hover');
                     return Clutter.EVENT_PROPAGATE;
                 });
                 // Connect signals for captured-event
                 widget.connect('captured-event', (actor, event) => {
-                    btn.child? btn.child.event(event, false)
-                            : btn.get_first_child()?.event(event, false);
+                    btn.child.event(event, false);
                     return Clutter.EVENT_PROPAGATE;
                 });
 
