@@ -1071,28 +1071,42 @@ export function onModeChange(obar) {
     triggerStyleReload(obar);
 }
 
-// Find Yaru theme with Accent color closest to theme accent color
-export function getClosestYaruTheme(obar) {
-    let yaruThemes = ['default', 'bark', 'sage', 'olive', 'viridian', 'prussiangreen', 'blue', 'purple', 'magenta', 'red'];
-    let yaruAccentsHex = ['#E95420', '#787859', '#657B69', '#4B8501', '#03875B', '#308280', '#0073E5', '#7764D8', '#B34CB3', '#DA3450'];
-    let yaruAccents = yaruAccentsHex.map(x => hexToRgb(x));
-
-    let themeAccent = obar._settings.get_strv('mscolor');
-    themeAccent = [parseInt(parseFloat(themeAccent[0])*255),
-                    parseInt(parseFloat(themeAccent[1])*255),
-                    parseInt(parseFloat(themeAccent[2])*255)];
+// Find index of theme accent color that is closest to obar accent color
+function getClosestTheme(obar, accentsHex) {
+    let accents = accentsHex.map(x => hexToRgb(x));
+    let obarAccent = obar._settings.get_strv('mscolor');
+    obarAccent = [parseInt(parseFloat(obarAccent[0])*255),
+                    parseInt(parseFloat(obarAccent[1])*255),
+                    parseInt(parseFloat(obarAccent[2])*255)];
 
     let closest = 1000;
-    let closestTheme = 'default';
-    for(let i = 0; i < yaruAccents.length; i++) {
-        let dist = colorDistance2000(themeAccent, yaruAccents[i]);
+    let closestThemeIdx = 0;
+    for(let i = 0; i < accents.length; i++) {
+        let dist = colorDistance2000(obarAccent, accents[i]);
         if(dist < closest) {
             closest = dist;
-            closestTheme = yaruThemes[i];
+            closestThemeIdx = i;
         }
     }
 
-    return closestTheme;
+    return closestThemeIdx;
+}
+
+// Find Yaru theme with Accent color closest to obar accent color
+export function getClosestYaruTheme(obar) {
+    let yaruThemes = ['default', 'bark', 'sage', 'olive', 'viridian', 'prussiangreen', 'blue', 'purple', 'magenta', 'red'];
+    let yaruAccentsHex = ['#E95420', '#787859', '#657B69', '#4B8501', '#03875B', '#308280', '#0073E5', '#7764D8', '#B34CB3', '#DA3450'];
+
+    let closestIdx = getClosestTheme(obar, yaruAccentsHex);
+    return yaruThemes[closestIdx];
+}
+// Find Gnome Accent color closest to obar accent color
+export function getClosestGnomeAccent(obar) {
+    let gnomeAccents = ['blue', 'teal', 'green', 'yellow', 'orange', 'red', 'pink', 'purple', 'slate'];
+    let gnomeAccentsHex = ['#3584e4', '#2190a4', '#3a944a', '#c88800', '#ed5b00', '#e62d42', '#d56199', '#9141ac', '#6f8396'];
+
+    let closestIdx = getClosestTheme(obar, gnomeAccentsHex);
+    return gnomeAccents[closestIdx];
 }
 
 function triggerStyleReload(obar) {

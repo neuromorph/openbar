@@ -654,6 +654,11 @@ export default class Openbar extends Extension {
             StyleSheets.reloadStyle(this, this);
         }
 
+        // Auto set closest Gnome Accent color
+        if(key == 'mscolor' && this.gnomeVersion >= 47) {
+            let closestAccent = AutoThemes.getClosestGnomeAccent(this);
+            this._intSettings.set_string('accent-color', closestAccent);
+        }
         // Auto set closest Yaru theme
         if(key == 'mscolor' || key == 'set-yarutheme') {
             let setYaruTheme = this._settings.get_boolean('set-yarutheme');
@@ -1464,12 +1469,18 @@ export default class Openbar extends Extension {
         // Set fullscreen mode if in Fullscreen when extension is enabled
         this.onFullScreen(null, 'enabled', null, 100);
 
-        // Fitts Widgets:
+        /* Fitts Widgets:
+         * Add a widget to PanelBox for each button.
+         * Widget x1,x2 as per btn and y1,y2 to extend button interaction to screen-edge.
+         * Track widget events and send to button.
+         */
+        // Do not enable if Dash-to-Panel is On
+        this._shellSettings = new Gio.Settings({ schema_id: 'org.gnome.shell' });
+        let enabledExtensions = this._shellSettings.get_strv('enabled-extensions');
+        let dtpOn = enabledExtensions.includes('dash-to-panel@jderose9.github.com');
         // Enable button proximity to interact with panel buttons without having to point precisely at them.
-        // Add a widget to PanelBox for each button. x1,x2 as per btn and y1,y2 as per PanelBox.
-        // Track widget events and send to button.
         const fittsWidgets = this._settings.get_boolean('fitts-widgets');
-        if(fittsWidgets)
+        if(fittsWidgets && !dtpOn)
             this.fittsEnableTimeoutId = setTimeout(() => {
                 this.enableFittsWidgets();
             }, 5000);

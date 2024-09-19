@@ -2273,12 +2273,13 @@ function getStylesheet(obar, Me) {
                 background-color: ${mshg} !important;
             }
 
-            ${openmenuClass}.popup-menu-item:active, ${openmenuClass}.popup-menu-item.selected:active {
+            ${openmenuClass}.popup-menu-item:active, ${openmenuClass}.popup-menu-item.selected:active, ${openmenuClass}.popup-menu-item:selected:active {
                 color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
                 background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
             }
             ${openmenuClass}.popup-menu-item:active:hover, ${openmenuClass}.popup-menu-item:active:focus,
-            ${openmenuClass}.popup-menu-item.selected:active:hover, ${openmenuClass}.popup-menu-item.selected:active:focus {
+            ${openmenuClass}.popup-menu-item.selected:active:hover, ${openmenuClass}.popup-menu-item:selected:active:hover,
+            ${openmenuClass}.popup-menu-item.selected:active:focus, ${openmenuClass}.popup-menu-item:selected:active:focus {
                 color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1.0) !important;
                 background-color: ${mshg} !important;
             }
