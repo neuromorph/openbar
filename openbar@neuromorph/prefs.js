@@ -170,9 +170,9 @@ class OpenbarPrefs {
         color.connect('color-set', (widget) => {
             rgba = widget.get_rgba();
             this._settings.set_strv(gsetting, [
-                rgba.red.toString(),
-                rgba.green.toString(),
-                rgba.blue.toString(),
+                rgba.red.toFixed(3).toString(),
+                rgba.green.toFixed(3).toString(),
+                rgba.blue.toFixed(3).toString(),
             ]);
             // In addition to main gsetting, also copy the color to dark/light setting
             let prefix, mode = this._settings.get_string('color-scheme');
@@ -182,9 +182,9 @@ class OpenbarPrefs {
                 prefix = 'light-';
             // console.log('saving from key: ' + gsetting + ' to key: ' + `${prefix}${gsetting}`);
             this._settings.set_strv(`${prefix}${gsetting}`, [
-                rgba.red.toString(),
-                rgba.green.toString(),
-                rgba.blue.toString(),
+                rgba.red.toFixed(3).toString(),
+                rgba.green.toFixed(3).toString(),
+                rgba.blue.toFixed(3).toString(),
             ]);
             this.triggerStyleReload();
         });
