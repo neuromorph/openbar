@@ -733,7 +733,9 @@ export default class Openbar extends Extension {
             if(!(this.wmax && key == 'margin'))
                 this.setPanelBoxPosition(position, height, margin, borderWidth, bartype);
         }
-        if(key == 'position') {
+        // Reset Fitts Widgets
+        const fittsWidgets = this._settings.get_boolean('fitts-widgets');
+        if(key == 'position' && fittsWidgets) {
             this.disableFittsWidgets();
             this.enableFittsWidgets();
         }
@@ -1050,6 +1052,9 @@ export default class Openbar extends Extension {
             if(position == 'Bottom')
                 btn.FittsWidget.y = panelBox.y + panelBox.height - btn.FittsWidget.height;
 
+            // Connect to btn destroy signal to also destroy its FittsWidget
+            btn.destroyFittsId = btn.connect('destroy', () => {this.destroyFittsWidget(btn);});
+
             // Bind x of FittsWidget to params it depends on: panelBox.x + panel.x + box.x + btn.x
             btn.bind_property_full('x', btn.FittsWidget, 'x', GObject.BindingFlags.SYNC_CREATE,
                 (bind, value) => [true, panelBox.x + panel.x + box.x + value], null);
@@ -1213,8 +1218,11 @@ export default class Openbar extends Extension {
             for(const btn of box) {
                 if(add)
                     this.createFittsWidget(box, btn);
-                else
+                else {
                     this.destroyFittsWidget(btn);
+                    btn.disconnect(btn.destroyFittsId);
+                    delete btn.destroyFittsId;
+                }
             }
         }
 
