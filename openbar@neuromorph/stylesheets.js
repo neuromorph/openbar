@@ -1073,6 +1073,11 @@ export function saveFlatpakOverrides(obar, caller) {
     }
 }
 
+function parseRGB(rgb) {
+    rgb = rgb<0? 0 : rgb>255? 255 : Math.round(rgb);
+    return rgb;
+}
+
 // Generate stylesheet string and save stylesheet file
 function getStylesheet(obar, Me) {
 
@@ -1267,7 +1272,7 @@ function getStylesheet(obar, Me) {
     }
 
     // Auto Highlight BG colors
-    let hspThresh = 155, hgColor, bgColor, bgDarkThresh = 135, bgLightThresh = 180;
+    let hgColor, bgColor, bgLightThresh = 180;
 
     function getAutoHgColor(bgColor) {
         let bgHsp = getHSP(bgColor);
@@ -1280,7 +1285,7 @@ function getStylesheet(obar, Me) {
         else {
             rgb = bgHsp - 40 - 100*grayFactor;
         }
-        rgb = rgb<0? 0 : rgb>255? 255 : rgb;
+        rgb = parseRGB(rgb);
         hgColor = [rgb, rgb, rgb];
         // console.log('getAutoHgColor: hgColor, bgColor, bgHsp ', hgColor, bgColor, bgHsp);
         return hgColor;
@@ -1304,9 +1309,9 @@ function getStylesheet(obar, Me) {
     if(autohgBar)
         hgColor = getAutoHgColor(bgColor);
 
-    let ishbgred = isred*(1-hAlpha) + hgColor[0]*hAlpha;
-    let ishbggreen = isgreen*(1-hAlpha) + hgColor[1]*hAlpha;
-    let ishbgblue = isblue*(1-hAlpha) + hgColor[2]*hAlpha;
+    let ishbgred = parseRGB(isred*(1-hAlpha) + hgColor[0]*hAlpha);
+    let ishbggreen = parseRGB(isgreen*(1-hAlpha) + hgColor[1]*hAlpha);
+    let ishbgblue = parseRGB(isblue*(1-hAlpha) + hgColor[2]*hAlpha);
     let ihbg = `rgba(${ishbgred},${ishbggreen},${ishbgblue},${1.0})`;
 
     // Menu Auto Highlight
@@ -1316,9 +1321,9 @@ function getStylesheet(obar, Me) {
     if(autohgMenu)
         hgColor = getAutoHgColor(bgColor);
 
-    let mhbgred = mbgred*(1-mhAlpha) + hgColor[0]*mhAlpha;
-    let mhbggreen = mbggreen*(1-mhAlpha) + hgColor[1]*mhAlpha;
-    let mhbgblue = mbgblue*(1-mhAlpha) + hgColor[2]*mhAlpha;
+    let mhbgred = parseRGB(mbgred*(1-mhAlpha) + hgColor[0]*mhAlpha);
+    let mhbggreen = parseRGB(mbggreen*(1-mhAlpha) + hgColor[1]*mhAlpha);
+    let mhbgblue = parseRGB(mbgblue*(1-mhAlpha) + hgColor[2]*mhAlpha);
     let mhbg = `rgba(${mhbgred},${mhbggreen},${mhbgblue},${1.0})`;
     // Save menu highlight hex for use in focused svg
     obar.mhHex = rgbToHex(mhbgred, mhbggreen, mhbgblue);
@@ -1329,9 +1334,9 @@ function getStylesheet(obar, Me) {
     if(autohgMenu)
         hgColor = getAutoHgColor(bgColor);
 
-    let smhbgred = smbgred*(1-0.75*mhAlpha) + hgColor[0]*0.75*mhAlpha;
-    let smhbggreen = smbggreen*(1-0.75*mhAlpha) + hgColor[1]*0.75*mhAlpha;
-    let smhbgblue = smbgblue*(1-0.75*mhAlpha) + hgColor[2]*0.75*mhAlpha;
+    let smhbgred = parseRGB(smbgred*(1-0.75*mhAlpha) + hgColor[0]*0.75*mhAlpha);
+    let smhbggreen = parseRGB(smbggreen*(1-0.75*mhAlpha) + hgColor[1]*0.75*mhAlpha);
+    let smhbgblue = parseRGB(smbgblue*(1-0.75*mhAlpha) + hgColor[2]*0.75*mhAlpha);
     let smhbg = `rgba(${smhbgred},${smhbggreen},${smhbgblue},${1.0})`;
 
     // Active/Accent Auto Highlight
@@ -1340,9 +1345,9 @@ function getStylesheet(obar, Me) {
     if(autohgMenu)
         hgColor = getAutoHgColor(bgColor);
 
-    let mshbgred = msred*(1-mhAlpha) + hgColor[0]*mhAlpha;
-    let mshbggreen = msgreen*(1-mhAlpha) + hgColor[1]*mhAlpha;
-    let mshbgblue = msblue*(1-mhAlpha) + hgColor[2]*mhAlpha;
+    let mshbgred = parseRGB(msred*(1-mhAlpha) + hgColor[0]*mhAlpha);
+    let mshbggreen = parseRGB(msgreen*(1-mhAlpha) + hgColor[1]*mhAlpha);
+    let mshbgblue = parseRGB(msblue*(1-mhAlpha) + hgColor[2]*mhAlpha);
     let mshg = `rgba(${mshbgred},${mshbggreen},${mshbgblue},${1.0})`; //msalpha
 
 
@@ -1824,9 +1829,9 @@ function getStylesheet(obar, Me) {
         const hscdBlue = parseInt(parseFloat(hscdColor[2]) * 255);
         const colorScheme = obar._intSettings.get_string('color-scheme');
         wmBg = (colorScheme == 'prefer-dark')? 48: 235;
-        wmaxBgRed = hBarHint*hscdRed + (1-hBarHint)*wmBg;
-        wmaxBgGreen = hBarHint*hscdGreen + (1-hBarHint)*wmBg;
-        wmaxBgBlue = hBarHint*hscdBlue + (1-hBarHint)*wmBg;
+        wmaxBgRed = parseRGB(hBarHint*hscdRed + (1-hBarHint)*wmBg);
+        wmaxBgGreen = parseRGB(hBarHint*hscdGreen + (1-hBarHint)*wmBg);
+        wmaxBgBlue = parseRGB(hBarHint*hscdBlue + (1-hBarHint)*wmBg);
 
         bgredwmax = wmaxBgRed;
         bggreenwmax = wmaxBgGreen;
@@ -2696,82 +2701,6 @@ function getStylesheet(obar, Me) {
                 border-color: transparent !important;
             }
 
-            ${openmenuClass}.quick-toggle {
-                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-                background-color: ${smbg} !important;
-                border-radius: ${qtoggleRadius}px;
-                box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
-                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
-            }
-            ${openmenuClass}.quick-toggle:hover, ${openmenuClass}.quick-toggle:focus {
-                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-                background-color: ${smhbg} !important;
-            }
-            ${openmenuClass}.quick-toggle:checked, ${openmenuClass}.quick-toggle:checked:active, ${openmenuClass}.quick-toggle .button:checked {
-                color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
-                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-            }
-            ${openmenuClass}.quick-toggle:checked:hover, ${openmenuClass}.quick-toggle:checked:focus,
-            ${openmenuClass}.quick-toggle:checked:active:hover, ${openmenuClass}.quick-toggle:checked:active:focus,
-            ${openmenuClass}.quick-toggle .button:checked:hover, ${openmenuClass}.quick-toggle .button:checked:focus {
-                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
-                background-color: ${mshg} !important;
-            }
-
-            ${openmenuClass}.quick-menu-toggle .quick-toggle {
-                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
-                background-color: ${smbg} !important;
-                box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
-                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
-            }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:focus {
-                color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
-                background-color: ${smhbg} !important;
-            }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle:checked,
-            ${openmenuClass}.quick-menu-toggle .quick-toggle:active {
-                color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
-                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
-            }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle:checked:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:checked:focus,
-            ${openmenuClass}.quick-menu-toggle .quick-toggle:active:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:active:focus {
-                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
-                background-color: ${mshg} !important;
-            }
-
-            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow {
-                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
-                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
-                box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
-                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
-            }
-            /* adjust borders in expandable menu button */
-            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:ltr {
-                border-radius: 0 ${qtoggleRadius}px ${qtoggleRadius}px 0;
-            }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:rtl {
-                border-radius: ${qtoggleRadius}px 0 0 ${qtoggleRadius}px;
-            }
-            /* adjust borders if quick toggle has expandable menu button (quick-toggle-arrow)[44+] */
-            ${openmenuClass}.quick-menu-toggle .quick-toggle:ltr { border-radius: ${qtoggleRadius}px 0 0 ${qtoggleRadius}px; }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle:rtl { border-radius: 0 ${qtoggleRadius}px ${qtoggleRadius}px 0; }
-            /* if quick toggle has no expandable menu button (quick-toggle-arrow)[44+] */
-            ${openmenuClass}.quick-menu-toggle .quick-toggle:last-child {
-                border-radius: ${qtoggleRadius}px;
-            }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:focus {
-                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
-                background-color: ${smhbg} !important;
-            }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked {
-                color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
-                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.2}) !important;
-            }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:focus {
-                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
-                background-color: ${mshg} !important;
-            }
-
             ${openmenuClass}.quick-toggle-menu {
                 background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha}) !important;
             }
@@ -2869,6 +2798,89 @@ function getStylesheet(obar, Me) {
             }
             ${openmenuClass}.background-apps-quick-toggle:checked {
                 background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+
+            ${openmenuClass}.quick-toggle {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+                border-radius: ${qtoggleRadius}px;
+                box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
+            }
+            ${openmenuClass}.quick-toggle:hover, ${openmenuClass}.quick-toggle:focus {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+                background-color: ${smhbg} !important;
+            }
+            ${openmenuClass}.quick-toggle:checked, ${openmenuClass}.quick-toggle:checked:active, ${openmenuClass}.quick-toggle .button:checked {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            ${openmenuClass}.quick-toggle:checked:hover, ${openmenuClass}.quick-toggle:checked:focus,
+            ${openmenuClass}.quick-toggle:checked:active:hover, ${openmenuClass}.quick-toggle:checked:active:focus,
+            ${openmenuClass}.quick-toggle .button:checked:hover, ${openmenuClass}.quick-toggle .button:checked:focus {
+                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
+                background-color: ${mshg} !important;
+            }
+
+            ${openmenuClass}.quick-menu-toggle .quick-toggle {
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: ${smbg} !important;
+                box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:focus {
+                color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
+                background-color: ${smhbg} !important;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:checked,
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:active {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:checked:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:checked:focus,
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:active:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:active:focus {
+                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
+                background-color: ${mshg} !important;
+            }
+
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow {
+                color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
+                background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
+                box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
+                border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
+            }
+            /* adjust borders in expandable menu button */
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:ltr {
+                border-radius: 0 ${qtoggleRadius}px ${qtoggleRadius}px 0;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:rtl {
+                border-radius: ${qtoggleRadius}px 0 0 ${qtoggleRadius}px;
+            }
+            /* adjust borders if quick toggle has expandable menu button (quick-toggle-arrow)[44+] */
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:ltr { border-radius: ${qtoggleRadius}px 0 0 ${qtoggleRadius}px; }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:rtl { border-radius: 0 ${qtoggleRadius}px ${qtoggleRadius}px 0; }
+            /* if quick toggle has no expandable menu button (quick-toggle-arrow)[44+] */
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:last-child {
+                border-radius: ${qtoggleRadius}px;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:focus {
+                color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
+                background-color: ${smhbg} !important;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
+                background-color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.2}) !important;
+                border: none !important;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:ltr {
+                border-left: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:rtl {
+                border-right: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
+            }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:focus {
+                color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
+                background-color: ${mshg} !important;
             }
         `;
     }
@@ -3022,6 +3034,7 @@ function getStylesheet(obar, Me) {
         .app-folder-dialog .folder-name-container .icon-button {
             color: rgba(${mfgred},${mfggreen},${mfgblue},1) !important;
             background-color: ${mbg} !important;
+            border-color: ${msc} !important;
         }
         .app-folder-dialog .folder-name-container .edit-folder-button:hover,
         .app-folder-dialog .folder-name-container .edit-folder-button:focus,
