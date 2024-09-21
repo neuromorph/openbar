@@ -237,102 +237,102 @@ function createGtkCss(obar, gtk4) {
     }
 
     // Headerbar BG and Backdrop
-    const hbgRed = hBarHint * hscdRed + (1-hBarHint) * bgRed;
-    const hbgGreen = hBarHint * hscdGreen + (1-hBarHint) * bgGreen;
-    const hbgBlue = hBarHint * hscdBlue + (1-hBarHint) * bgBlue;
-    const hbdRed = hBarHintBd * hscdRed + (1-hBarHintBd) * bgRed;
-    const hbdGreen = hBarHintBd * hscdGreen + (1-hBarHintBd) * bgGreen;
-    const hbdBlue = hBarHintBd * hscdBlue + (1-hBarHintBd) * bgBlue;
+    const hbgRed = parseRGB(hBarHint * hscdRed + (1-hBarHint) * bgRed);
+    const hbgGreen = parseRGB(hBarHint * hscdGreen + (1-hBarHint) * bgGreen);
+    const hbgBlue = parseRGB(hBarHint * hscdBlue + (1-hBarHint) * bgBlue);
+    const hbdRed = parseRGB(hBarHintBd * hscdRed + (1-hBarHintBd) * bgRed);
+    const hbdGreen = parseRGB(hBarHintBd * hscdGreen + (1-hBarHintBd) * bgGreen);
+    const hbdBlue = parseRGB(hBarHintBd * hscdBlue + (1-hBarHintBd) * bgBlue);
     // Sidebar BG and Backdrop
-    const sbgRed = sBarHint * hscdRed + (1-sBarHint) * bgRed;
-    const sbgGreen = sBarHint * hscdGreen + (1-sBarHint) * bgGreen;
-    const sbgBlue = sBarHint * hscdBlue + (1-sBarHint) * bgBlue;
-    const sbdRed = sBarHintBd * hscdRed + (1-sBarHintBd) * bgRed;
-    const sbdGreen = sBarHintBd * hscdGreen + (1-sBarHintBd) * bgGreen;
-    const sbdBlue = sBarHintBd * hscdBlue + (1-sBarHintBd) * bgBlue;
+    const sbgRed = parseRGB(sBarHint * hscdRed + (1-sBarHint) * bgRed);
+    const sbgGreen = parseRGB(sBarHint * hscdGreen + (1-sBarHint) * bgGreen);
+    const sbgBlue = parseRGB(sBarHint * hscdBlue + (1-sBarHint) * bgBlue);
+    const sbdRed = parseRGB(sBarHintBd * hscdRed + (1-sBarHintBd) * bgRed);
+    const sbdGreen = parseRGB(sBarHintBd * hscdGreen + (1-sBarHintBd) * bgGreen);
+    const sbdBlue = parseRGB(sBarHintBd * hscdBlue + (1-sBarHintBd) * bgBlue);
     // Card/Dialog BG and Backdrop
-    const cbgRed = cdHint * hscdRed + (1-cdHint) * cdRed;
-    const cbgGreen = cdHint * hscdGreen + (1-cdHint) * cdGreen;
-    const cbgBlue = cdHint * hscdBlue + (1-cdHint) * cdBlue;
-    const cbdRed = cdHintBd * hscdRed + (1-cdHintBd) * cdRed;
-    const cbdGreen = cdHintBd * hscdGreen + (1-cdHintBd) * cdGreen;
-    const cbdBlue = cdHintBd * hscdBlue + (1-cdHintBd) * cdBlue;
+    const cbgRed = parseRGB(cdHint * hscdRed + (1-cdHint) * cdRed);
+    const cbgGreen = parseRGB(cdHint * hscdGreen + (1-cdHint) * cdGreen);
+    const cbgBlue = parseRGB(cdHint * hscdBlue + (1-cdHint) * cdBlue);
+    const cbdRed = parseRGB(cdHintBd * hscdRed + (1-cdHintBd) * cdRed);
+    const cbdGreen = parseRGB(cdHintBd * hscdGreen + (1-cdHintBd) * cdGreen);
+    const cbdBlue = parseRGB(cdHintBd * hscdBlue + (1-cdHintBd) * cdBlue);
     // View/Content-Pane BG and Backdrop
-    const vbgRed = vHint * vwRed + (1-vHint) * vRed;
-    const vbgGreen = vHint * vwGreen + (1-vHint) * vGreen;
-    const vbgBlue = vHint * vwBlue + (1-vHint) * vBlue;
-    const vbdRed = vHintBd * vwRed + (1-vHintBd) * vRed;
-    const vbdGreen = vHintBd * vwGreen + (1-vHintBd) * vGreen;
-    const vbdBlue = vHintBd * vwBlue + (1-vHintBd) * vBlue;
+    const vbgRed = parseRGB(vHint * vwRed + (1-vHint) * vRed);
+    const vbgGreen = parseRGB(vHint * vwGreen + (1-vHint) * vGreen);
+    const vbgBlue = parseRGB(vHint * vwBlue + (1-vHint) * vBlue);
+    const vbdRed = parseRGB(vHintBd * vwRed + (1-vHintBd) * vRed);
+    const vbdGreen = parseRGB(vHintBd * vwGreen + (1-vHintBd) * vGreen);
+    const vbdBlue = parseRGB(vHintBd * vwBlue + (1-vHintBd) * vBlue);
     // Window BG and Backdrop
-    const wbgRed = wHint * vwRed + (1-wHint) * wRed;
-    const wbgGreen = wHint * vwGreen + (1-wHint) * wGreen;
-    const wbgBlue = wHint * vwBlue + (1-wHint) * wBlue;
-    const wbdRed = wHintBd * vwRed + (1-wHintBd) * wRed;
-    const wbdGreen = wHintBd * vwGreen + (1-wHintBd) * wGreen;
-    const wbdBlue = wHintBd * vwBlue + (1-wHintBd) * wBlue;
+    const wbgRed = parseRGB(wHint * vwRed + (1-wHint) * wRed);
+    const wbgGreen = parseRGB(wHint * vwGreen + (1-wHint) * wGreen);
+    const wbgBlue = parseRGB(wHint * vwBlue + (1-wHint) * wBlue);
+    const wbdRed = parseRGB(wHintBd * vwRed + (1-wHintBd) * wRed);
+    const wbdGreen = parseRGB(wHintBd * vwGreen + (1-wHintBd) * wGreen);
+    const wbdBlue = parseRGB(wHintBd * vwBlue + (1-wHintBd) * wBlue);
     // View and Window Alpha
     const winAlpha = gtkTransparency;
     const viewAlpha = winAlpha == 1? 1 : winAlpha/2;
     // Headerbar Buttons BG and Backdrop
-    const hbbgRed = hBarHint * hscdRed + (1-hBarHint) * hbRed;
-    const hbbgGreen = hBarHint * hscdGreen + (1-hBarHint) * hbGreen;
-    const hbbgBlue = hBarHint * hscdBlue + (1-hBarHint) * hbBlue;
-    const hbbdRed = hBarHintBd * hscdRed + (1-hBarHintBd) * hbRed;
-    const hbbdGreen = hBarHintBd * hscdGreen + (1-hBarHintBd) * hbGreen;
-    const hbbdBlue = hBarHintBd * hscdBlue + (1-hBarHintBd) * hbBlue;
+    const hbbgRed = parseRGB(hBarHint * hscdRed + (1-hBarHint) * hbRed);
+    const hbbgGreen = parseRGB(hBarHint * hscdGreen + (1-hBarHint) * hbGreen);
+    const hbbgBlue = parseRGB(hBarHint * hscdBlue + (1-hBarHint) * hbBlue);
+    const hbbdRed = parseRGB(hBarHintBd * hscdRed + (1-hBarHintBd) * hbRed);
+    const hbbdGreen = parseRGB(hBarHintBd * hscdGreen + (1-hBarHintBd) * hbGreen);
+    const hbbdBlue = parseRGB(hBarHintBd * hscdBlue + (1-hBarHintBd) * hbBlue);
     // Headerbar Buttons BG:hover and BG:checked
     let hbhRed, hbhGreen, hbhBlue, hbcRed, hbcGreen, hbcBlue, fbhRed, fbhGreen, fbhBlue,
     fbcRed, fbcGreen, fbcBlue, acchRed, acchGreen, acchBlue;
     let hFactorDark = 0.08, hFactorLight = 0.05;
     if(getBgDark(hbgRed, hbgGreen, hbgBlue)) { // Dark Mode
         // Headerbar button hover
-        hbhRed = hbbgRed + (255 - hbbgRed) * hFactorDark;
-        hbhGreen = hbbgGreen + (255 - hbbgGreen) * hFactorDark;
-        hbhBlue = hbbgBlue + (255 - hbbgBlue) * hFactorDark;
+        hbhRed = parseRGB(hbbgRed + (255 - hbbgRed) * hFactorDark);
+        hbhGreen = parseRGB(hbbgGreen + (255 - hbbgGreen) * hFactorDark);
+        hbhBlue = parseRGB(hbbgBlue + (255 - hbbgBlue) * hFactorDark);
         // Headerbar button checked
-        hbcRed = hbhRed + (255 - hbhRed) * hFactorDark;
-        hbcGreen = hbhGreen + (255 - hbhGreen) * hFactorDark;
-        hbcBlue = hbhBlue + (255 - hbhBlue) * hFactorDark;
+        hbcRed = parseRGB(hbhRed + (255 - hbhRed) * hFactorDark);
+        hbcGreen = parseRGB(hbhGreen + (255 - hbhGreen) * hFactorDark);
+        hbcBlue = parseRGB(hbhBlue + (255 - hbhBlue) * hFactorDark);
         // Headerbar Flat button hover
-        fbhRed = hbgRed + (255 - hbgRed) * hFactorDark;
-        fbhGreen = hbgGreen + (255 - hbgGreen) * hFactorDark;
-        fbhBlue = hbgBlue + (255 - hbgBlue) * hFactorDark;
+        fbhRed = parseRGB(hbgRed + (255 - hbgRed) * hFactorDark);
+        fbhGreen = parseRGB(hbgGreen + (255 - hbgGreen) * hFactorDark);
+        fbhBlue = parseRGB(hbgBlue + (255 - hbgBlue) * hFactorDark);
         // Headerbar Flat button checked
-        fbcRed = fbhRed + (255 - fbhRed) * hFactorDark;
-        fbcGreen = fbhGreen + (255 - fbhGreen) * hFactorDark;
-        fbcBlue = fbhBlue + (255 - fbhBlue) * hFactorDark;
+        fbcRed = parseRGB(fbhRed + (255 - fbhRed) * hFactorDark);
+        fbcGreen = parseRGB(fbhGreen + (255 - fbhGreen) * hFactorDark);
+        fbcBlue = parseRGB(fbhBlue + (255 - fbhBlue) * hFactorDark);
         // Accent/Active button hover
-        acchRed = accRed + (255 - accRed) * hFactorDark;
-        acchGreen = accGreen + (255 - accGreen) * hFactorDark;
-        acchBlue = accBlue + (255 - accBlue) * hFactorDark;
+        acchRed = parseRGB(accRed + (255 - accRed) * hFactorDark);
+        acchGreen = parseRGB(accGreen + (255 - accGreen) * hFactorDark);
+        acchBlue = parseRGB(accBlue + (255 - accBlue) * hFactorDark);
     }
     else { // Light Mode
-        hbhRed = hbbgRed - hbbgRed * hFactorLight;
-        hbhGreen = hbbgGreen - hbbgGreen * hFactorLight;
-        hbhBlue = hbbgBlue - hbbgBlue * hFactorLight;
+        hbhRed = parseRGB(hbbgRed - hbbgRed * hFactorLight);
+        hbhGreen = parseRGB(hbbgGreen - hbbgGreen * hFactorLight);
+        hbhBlue = parseRGB(hbbgBlue - hbbgBlue * hFactorLight);
 
-        hbcRed = hbhRed - hbhRed * hFactorLight * 2;
-        hbcGreen = hbhGreen - hbhGreen * hFactorLight * 2;
-        hbcBlue = hbhBlue - hbhBlue * hFactorLight * 2;
+        hbcRed = parseRGB(hbhRed - hbhRed * hFactorLight * 2);
+        hbcGreen = parseRGB(hbhGreen - hbhGreen * hFactorLight * 2);
+        hbcBlue = parseRGB(hbhBlue - hbhBlue * hFactorLight * 2);
 
-        fbhRed = hbgRed - hbgRed * hFactorLight * 1.5;
-        fbhGreen = hbgGreen - hbgGreen * hFactorLight * 1.5;
-        fbhBlue = hbgBlue - hbgBlue * hFactorLight * 1.5;
+        fbhRed = parseRGB(hbgRed - hbgRed * hFactorLight * 1.5);
+        fbhGreen = parseRGB(hbgGreen - hbgGreen * hFactorLight * 1.5);
+        fbhBlue = parseRGB(hbgBlue - hbgBlue * hFactorLight * 1.5);
 
-        fbcRed = fbhRed - fbhRed * hFactorLight;
-        fbcGreen = fbhGreen - fbhGreen * hFactorLight;
-        fbcBlue = fbhBlue - fbhBlue * hFactorLight;
+        fbcRed = parseRGB(fbhRed - fbhRed * hFactorLight);
+        fbcGreen = parseRGB(fbhGreen - fbhGreen * hFactorLight);
+        fbcBlue = parseRGB(fbhBlue - fbhBlue * hFactorLight);
 
-        acchRed = accRed - accRed * hFactorLight;
-        acchGreen = accGreen - accGreen * hFactorLight;
-        acchBlue = accBlue - accBlue * hFactorLight;
+        acchRed = parseRGB(accRed - accRed * hFactorLight);
+        acchGreen = parseRGB(accGreen - accGreen * hFactorLight);
+        acchBlue = parseRGB(accBlue - accBlue * hFactorLight);
     }
 
     // Window Border Backdrop
-    const winBRedBd = 0.6 * winBRed + 0.4 * bgRed;
-    const winBGreenBd = 0.6 * winBGreen + 0.4 * bgGreen;
-    const winBBlueBd = 0.6 * winBBlue + 0.4 * bgBlue;
+    const winBRedBd = parseRGB(0.6 * winBRed + 0.4 * bgRed);
+    const winBGreenBd = parseRGB(0.6 * winBGreen + 0.4 * bgGreen);
+    const winBBlueBd = parseRGB(0.6 * winBBlue + 0.4 * bgBlue);
 
     // Foreground Colors
     let hfgRed, hfgGreen, hfgBlue;
@@ -1652,9 +1652,9 @@ function getStylesheet(obar, Me) {
             hgCandy = getAutoHgColor(bgCandy);
         // Candy Highlight BG
         let hgalpha = 0.8*hAlpha;
-        let chred = cred*(1-hgalpha) + hgCandy[0]*hgalpha;
-        let chgreen = cgreen*(1-hgalpha) + hgCandy[1]*hgalpha;
-        let chblue = cblue*(1-hgalpha) + hgCandy[2]*hgalpha;
+        let chred = parseRGB(cred*(1-hgalpha) + hgCandy[0]*hgalpha);
+        let chgreen = parseRGB(cgreen*(1-hgalpha) + hgCandy[1]*hgalpha);
+        let chblue = parseRGB(cblue*(1-hgalpha) + hgCandy[2]*hgalpha);
         let candyHgStyle = `background-color: rgba(${chred},${chgreen},${chblue},${calpha}) !important; `;
 
         // Candybar Auto FG Color
