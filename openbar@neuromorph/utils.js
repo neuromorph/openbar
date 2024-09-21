@@ -48,9 +48,9 @@ export function compareHSP(A, B) {
 export function colorMove(A, B, factor) {
     let [r1, g1, b1] = [parseInt(A[0]), parseInt(A[1]), parseInt(A[2])];
     let [r2, g2, b2] = [parseInt(B[0]), parseInt(B[1]), parseInt(B[2])];
-    
-    let r = (r2 - r1); 
-    let g = (g2 - g1); 
+
+    let r = (r2 - r1);
+    let g = (g2 - g1);
     let b = (b2 - b1);
     if(r==0 && factor < 0)
         r = factor*255;
@@ -123,11 +123,11 @@ export function compareLightness(A, B) {
     return (hslA[2] < hslB[2])? -1 : (hslA[2] > hslB[2])? 1 : 0;
 }
 
-// Convert to String in 0-1 range to store in gsettings 
+// Convert to String in 0-1 range to store in gsettings
 export function getStrv(strInt) {
     // Color settings are stored as RGB in range 0-1 so we convert from 0-255
     let [r, g, b] = [parseInt(strInt[0]), parseInt(strInt[1]), parseInt(strInt[2])];
-    return [String(r/255), String(g/255), String(b/255)];
+    return [(r/255).toFixed(3), (g/255).toFixed(3), (b/255).toFixed(3)];
 }
 
 // Convert from color array to rgb string
@@ -160,7 +160,7 @@ export function rgbToHsl(rgb) {
 export function hslToRgb(hsl) {
     let [h, s, l] = hsl;
     let r, g, b;
-  
+
     if (s === 0) {
         r = g = b = l; // achromatic
     } else {
@@ -172,15 +172,15 @@ export function hslToRgb(hsl) {
             if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
             return p;
         };
-  
+
         const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
         const p = 2 * l - q;
-  
+
         r = hue2rgb(p, q, h + 1 / 3);
         g = hue2rgb(p, q, h);
         b = hue2rgb(p, q, h - 1 / 3);
     }
-  
+
     return [r * 255, g * 255, b * 255];
 }
 
@@ -244,7 +244,7 @@ export function colorDistance2000(color1, color2) {
 
     const h1Prime = (Math.atan2(lab1[2], a1Prime) * 180) / Math.PI + (lab1[2] < 0 ? 360 : 0);
     const h2Prime = (Math.atan2(lab2[2], a2Prime) * 180) / Math.PI + (lab2[2] < 0 ? 360 : 0);
-    
+
     let deltaHPrime;
     if (Math.abs(h1Prime - h2Prime) <= 180) {
         deltaHPrime = h2Prime - h1Prime;
