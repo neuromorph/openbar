@@ -1922,6 +1922,22 @@ function getStylesheet(obar, Me) {
     else
         bottomBarStyle = ``;
 
+    // Modal Dialog Link button styles
+    let dialogLinkBtnFirstStyle, dialogLinkBtnLastStyle;
+    let btnRadius = menuRadius>20? 20: menuRadius;
+    if(obar.gnomeVersion >= 47) {
+        dialogLinkBtnFirstStyle =
+        `border-radius: ${btnRadius}px 0 0 ${btnRadius}px !important;`;
+        dialogLinkBtnLastStyle =
+        `border-radius: 0 ${btnRadius}px ${btnRadius}px 0 !important;`;
+    }
+    else {
+        dialogLinkBtnFirstStyle =
+        `border-radius: 0 0 0 ${btnRadius}px !important;`;
+        dialogLinkBtnLastStyle =
+        `border-radius: 0 0 ${btnRadius}px 0 !important;`;
+    }
+
     // Add/Remove .openmenu class to Restrict/Extend menu styles to the shell
     let openmenuClass = (applyMenuShell || applyAllShell) ? '' : '.openmenu';
     // Placeholder for .openbar class
@@ -3358,10 +3374,10 @@ function getStylesheet(obar, Me) {
             border: 2px solid transparent;
         }
         .modal-dialog-linked-button:first-child {
-            border-radius: 0 0 0 ${menuRadius>20? 20: menuRadius}px !important;
+            ${dialogLinkBtnFirstStyle}
         }
         .modal-dialog-linked-button:last-child {
-            border-radius: 0 0 ${menuRadius>20? 20: menuRadius}px 0 !important;
+            ${dialogLinkBtnLastStyle}
         }
         .modal-dialog-linked-button:hover {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
