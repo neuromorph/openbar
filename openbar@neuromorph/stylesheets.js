@@ -1763,7 +1763,7 @@ function getStylesheet(obar, Me) {
     let sliHandRadius = Math.ceil(8 - sliHandBorder/2);
     if(sliHandRadius < 4) sliHandRadius = 4;
     let sliderStyle =
-    `   color: rgba(${sliderBaseColor}, 1) !important;
+    `   color: rgba(${obar.gnomeVersion >= 47? sliderActiveColor : sliderBaseColor}, 1) !important;
         -barlevel-height: ${sliderHeight}px;
         -barlevel-border-width: 0.5px;
         -barlevel-border-color: rgba(${bCol},${bCol},${bCol},0.25) !important;
@@ -1775,6 +1775,7 @@ function getStylesheet(obar, Me) {
         -barlevel-active-background-color: rgba(${sliderActiveColor}, 1) !important;
         -barlevel-overdrive-color: rgba(${destructRed}, ${destructGreen}, ${destructBlue}, 1) !important;
          `;
+    let sliderHoverStyle = ``; // Keep default hover
 
     // Apply-All-Shell: Menu styles applied to shell allover
     let applyAllShell = obar._settings.get_boolean('apply-all-shell');
@@ -2391,6 +2392,9 @@ function getStylesheet(obar, Me) {
             ${openmenuClass} .slider{
                 ${sliderStyle}
             }
+            ${openmenuClass} .slider:hover{
+                ${sliderHoverStyle}
+            }
             ${openmenuClass}.popup-separator-menu-item .popup-separator-menu-item-separator, ${openmenuClass}.popup-separator-menu-item .popup-sub-menu .popup-separator-menu-item-separator {
                 background-color: rgba(${mbred},${mbgreen},${mbblue},0.7) !important;
             }
@@ -2712,6 +2716,9 @@ function getStylesheet(obar, Me) {
             ${openmenuClass}.quick-slider .slider {
                 ${sliderStyle}
             }
+            ${openmenuClass}.quick-slider .slider:hover{
+                ${sliderHoverStyle}
+            }
             ${openmenuClass}.quick-slider .slider-bin:focus {
                 box-shadow: inset 0 0 0 2px rgba(${msred},${msgreen},${msblue},${0.65}) !important;
                 border-color: transparent !important;
@@ -2943,6 +2950,9 @@ function getStylesheet(obar, Me) {
         stylesheet += `
         .slider:not(.quick-slider){
             ${sliderStyle}
+        }
+        .slider:not(.quick-slider):hover {
+            ${sliderHoverStyle}
         }
         .toggle-switch {
             background-image: url(assets/${toggleOffSVG});
