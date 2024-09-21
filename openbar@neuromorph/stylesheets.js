@@ -2725,7 +2725,10 @@ function getStylesheet(obar, Me) {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
             }
             ${openmenuClass}.quick-toggle-menu .header .icon {
-                color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha}) !important;
+                color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
+                background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
+            }
+            ${openmenuClass}.quick-toggle-menu .header .icon.active {
                 background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
             }
             ${openmenuClass}.quick-toggle-menu .icon-button {
@@ -3237,9 +3240,9 @@ function getStylesheet(obar, Me) {
         dashShadowColor = `rgba(${mshred},${mshgreen},${mshblue},${mshAlpha})`;
         let hgColor = getAutoHgColor([dbgred,dbggreen,dbgblue]);
         // Custom Highlight RGB
-        let chred = dbgred*(1-hAlpha) + hgColor[0]*hAlpha;
-        let chgreen = dbggreen*(1-hAlpha) + hgColor[1]*hAlpha;
-        let chblue = dbgblue*(1-hAlpha) + hgColor[2]*hAlpha;
+        let chred = parseRGB(dbgred*(1-hAlpha) + hgColor[0]*hAlpha);
+        let chgreen = parseRGB(dbggreen*(1-hAlpha) + hgColor[1]*hAlpha);
+        let chblue = parseRGB(dbgblue*(1-hAlpha) + hgColor[2]*hAlpha);
         dashHighlightColor = `rgba(${chred},${chgreen},${chblue},${dbgAlpha})`;
     }
 
