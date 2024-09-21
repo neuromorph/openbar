@@ -1989,7 +1989,7 @@ class OpenbarPrefs {
         });
         menugrid.attach(mSliHandBordLbl, 1, rowbar, 1, 1);
 
-        let mSliHandBord = this.createScaleWidget(0, 20, 1, 0, 'handle-border', 'Width of the border of Slider handle');
+        let mSliHandBord = this.createScaleWidget(0, 20, 1, 0, 'handle-border', 'Width of the border of Slider handle. Note: Not supported in Gnome 47+');
         menugrid.attach(mSliHandBord, 2, rowbar, 1, 1);
 
         ////////////////////////////////////////////////////////////////////
