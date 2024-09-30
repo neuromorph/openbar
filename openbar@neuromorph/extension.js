@@ -402,7 +402,10 @@ export default class Openbar extends Extension {
 
                             if(item.constructor.name === 'Calendar') {
                                 this.applyCalendarGridStyle(item, add);
-                                this.calendarTimeoutId = setTimeout(() => {this.applyCalendarGridStyle(item, add);}, 250);
+                                this.calendarTimeoutId = setTimeout(() => {
+                                    this.applyCalendarGridStyle(item, add);
+                                    this.calendarTimeoutId = null;
+                                }, 250);
                             }
                         });
                     }
@@ -962,24 +965,25 @@ export default class Openbar extends Extension {
 
         // Timeout to allow other extensions to move panel to another monitor
         this.onFullScrTimeoutId =
-        setTimeout(() => {
-            // Check if panelBox is on the monitor which is in fullscreen
-            const LM = Main.layoutManager;
-            let panelBoxMonitor = this.getPanelMonitor()[0];
-            let panelFullMonFound = false;
-            for(const monitor of LM.monitors) {
-                if(monitor.inFullscreen && monitor == panelBoxMonitor) {
-                    this.unloadStylesheet();
-                    this.isObarReset = true;
-                    panelFullMonFound = true;
-                    break;
+            setTimeout(() => {
+                // Check if panelBox is on the monitor which is in fullscreen
+                const LM = Main.layoutManager;
+                let panelBoxMonitor = this.getPanelMonitor()[0];
+                let panelFullMonFound = false;
+                for(const monitor of LM.monitors) {
+                    if(monitor.inFullscreen && monitor == panelBoxMonitor) {
+                        this.unloadStylesheet();
+                        this.isObarReset = true;
+                        panelFullMonFound = true;
+                        break;
+                    }
                 }
-            }
-            if(!panelFullMonFound && this.isObarReset) {
-                this.loadStylesheet();
-                this.isObarReset = false;
-            }
-        }, timeout);
+                if(!panelFullMonFound && this.isObarReset) {
+                    this.loadStylesheet();
+                    this.isObarReset = false;
+                }
+                this.onFullScrTimeoutId = null;
+            }, timeout);
     }
 
     updateBguri(obj, signal) {
@@ -990,7 +994,10 @@ export default class Openbar extends Extension {
             return;
         }
         this.updatingBguri = true;
-        this.updatingBguriId = setTimeout(() => {this.updatingBguri = false;}, 5000);
+        this.updatingBguriId = setTimeout(() => {
+            this.updatingBguri = false;
+            this.updatingBguriId = null;
+        }, 5000);
         // console.log('==== Going ahead with bguri ====');
         let colorScheme = this._intSettings.get_string('color-scheme');
         if(colorScheme != this.colorScheme) {
@@ -1018,6 +1025,7 @@ export default class Openbar extends Extension {
                 // console.log('bguriOld == bguriNew - calling updatePanelStyle for bguri');
                 this.updatePanelStyle(this._settings, 'bguri');
             }
+            this.updateBguriId = null;
         }, 200);
     }
 
@@ -1220,7 +1228,8 @@ export default class Openbar extends Extension {
                     this.createFittsWidget(box, btn);
                 else {
                     this.destroyFittsWidget(btn);
-                    btn.disconnect(btn.destroyFittsId);
+                    if(btn.destroyFittsId > 0)
+                        btn.disconnect(btn.destroyFittsId);
                     delete btn.destroyFittsId;
                 }
             }
@@ -1269,7 +1278,10 @@ export default class Openbar extends Extension {
             (btn == panel.leftCornerButton || btn == panel.rightCornerButton)) ) {
             this.destroyFittsCornerWidgets();
             // Wait for Panel to update its x, width then create CornerWidgets
-            this.fittsCornerTimeoutId = setTimeout(() => this.createFittsCornerWidgets(), 500);
+            this.fittsCornerTimeoutId = setTimeout(() => {
+                this.createFittsCornerWidgets();
+                this.fittsCornerTimeoutId = null;
+            }, 500);
         }
 
         if(!(btn.child instanceof PanelMenu.Button || btn.child instanceof PanelMenu.ButtonBox))
@@ -1312,6 +1324,7 @@ export default class Openbar extends Extension {
     postStartup() {
         this.postStartupId = setTimeout(() => {
             this.setPanelStyle(null, 'post-startup');
+            this.postStartupId = null;
         }, 2000);
     }
 
@@ -1415,6 +1428,7 @@ export default class Openbar extends Extension {
         // Connect to background manager (give time for it to be available)
         this.bgMgrTimeOutId = setTimeout(() => {
             this.connectPrimaryBGChanged();
+            this.bgMgrTimeOutId = null;
         }, 2000);
         // Set initial bguri as per color-scheme
         const bguri = this._settings.get_string('bguri');
@@ -1491,6 +1505,7 @@ export default class Openbar extends Extension {
         if(fittsWidgets && !dtpOn)
             this.fittsEnableTimeoutId = setTimeout(() => {
                 this.enableFittsWidgets();
+                this.fittsEnableTimeoutId = null;
             }, 5000);
     }
 
@@ -1507,35 +1522,35 @@ export default class Openbar extends Extension {
 
         this.disconnectWindowSignals();
 
-        if(this.calendarTimeoutId) {
+        if(this.calendarTimeoutId > 0) {
             clearTimeout(this.calendarTimeoutId);
             this.calendarTimeoutId = null;
         }
-        if(this.updatingBguriId) {
+        if(this.updatingBguriId > 0) {
             clearTimeout(this.updatingBguriId);
             this.updatingBguriId = null;
         }
-        if(this.updateBguriId) {
+        if(this.updateBguriId > 0) {
             clearTimeout(this.updateBguriId);
             this.updateBguriId = null;
         }
-        if(this.bgMgrTimeOutId) {
+        if(this.bgMgrTimeOutId > 0) {
             clearTimeout(this.bgMgrTimeOutId);
             this.bgMgrTimeOutId = null;
         }
-        if(this.onFullScrTimeoutId) {
+        if(this.onFullScrTimeoutId > 0) {
             clearTimeout(this.onFullScrTimeoutId);
             this.onFullScrTimeoutId = null;
         }
-        if(this.postStartupId) {
+        if(this.postStartupId > 0) {
             clearTimeout(this.postStartupId);
             this.postStartupId = null;
         }
-        if(this.fittsEnableTimeoutId) {
+        if(this.fittsEnableTimeoutId > 0) {
             clearTimeout(this.fittsEnableTimeoutId);
             this.fittsEnableTimeoutId = null;
         }
-        if(this.fittsCornerTimeoutId) {
+        if(this.fittsCornerTimeoutId > 0) {
             clearTimeout(this.fittsCornerTimeoutId);
             this.fittsCornerTimeoutId = null;
         }
@@ -1584,6 +1599,7 @@ export default class Openbar extends Extension {
         this._bgSettings = null;
         this._intSettings = null;
         this._hcSettings = null;
+        this._shellSettings = null;
     }
 }
 
