@@ -957,7 +957,7 @@ export function autoApplyBGPalette(obar, requestMode) {
     }
 
 
-    // MENU BORDER = SHADOW COLOR SELECTION (for MENU)
+    // MENU BORDER AND MANUAL HIGHLIGHT COLORS SELECTION
     let menuBorderPalette;
     if(requestMode == 'light')
         menuBorderPalette = paletteArr.slice(0).map(x => x[0]).sort(compareLightness); // Sort for Dark colors
@@ -966,6 +966,8 @@ export function autoApplyBGPalette(obar, requestMode) {
     let menuBorderColor = menuBorderPalette[0];
     paletteArr.splice(paletteArr.map(x => x[0]).indexOf(menuBorderColor), 1);
     // dlog('Use Lightest Menu Border: ', menuBorderColor, 0);
+    let barHighlightColor = menuBorderColor;
+    let menuHighlightColor = menuBorderColor;
 
 
     let bgcolorWmax, bgcolor, bgalpha, iscolor, isalpha, bgcolor2, shcolor, hcolor, halpha, bcolor, balpha,
@@ -989,6 +991,7 @@ export function autoApplyBGPalette(obar, requestMode) {
     // hcolor = getStrv(barHighlight);
     shcolor = getStrv([0,0,0]); //barBorderColor
     bgcolorWmax = getStrv(wmaxBarBgColor);
+    hcolor = getStrv(barHighlightColor);
 
     // MENU
     mbgcolor = getStrv(mbgColor);
@@ -997,6 +1000,7 @@ export function autoApplyBGPalette(obar, requestMode) {
     // mhcolor = getStrv(menuHighlight);
     mshcolor = getStrv([0,0,0]); //menuBorderColor
     mscolor = getStrv(accentColor);
+    mhcolor = getStrv(menuHighlightColor);
 
     // Update settings for bar and menu
 
@@ -1017,9 +1021,9 @@ export function autoApplyBGPalette(obar, requestMode) {
     // obar._settings.set_boolean('autofg-menu', true);
     obar._settings.set_boolean('autohg-menu', true);
 
-    let colorKeys = ['boxcolor', 'bgcolor', 'bgcolor2', 'iscolor', 'shcolor', 'bcolor', 'bgcolor-wmax',
+    let colorKeys = ['boxcolor', 'bgcolor', 'bgcolor2', 'iscolor', 'shcolor', 'bcolor', 'bgcolor-wmax', 'hcolor', 'mhcolor',
                     'mbgcolor', 'smbgcolor', 'mbcolor', 'mshcolor', 'mscolor', 'winbcolor', 'hscd-color', 'vw-color'];
-    let colors = [bgcolor, bgcolor, bgcolor2, iscolor, shcolor, bcolor, bgcolorWmax,
+    let colors = [bgcolor, bgcolor, bgcolor2, iscolor, shcolor, bcolor, bgcolorWmax, hcolor, mhcolor,
                     mbgcolor, smbgcolor, mbcolor, mshcolor, mscolor, mscolor, mscolor, mscolor];
 
     for(let i = 0; i < colorKeys.length; i++) {
