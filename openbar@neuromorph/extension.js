@@ -1464,11 +1464,6 @@ export default class Openbar extends Extension {
             }
         );
 
-        // Apply the initial style
-        this.updatePanelStyle(null, 'enabled');
-        let menustyle = this._settings.get_boolean('menustyle');
-        this.applyMenuStyles(panel, menustyle);
-
         // OpenBar runtime directory
         const userRunDir = GLib.get_user_runtime_dir();
         this.obarRunDir = Gio.File.new_for_path(`${userRunDir}/io.github.neuromorph.openbar`);
@@ -1498,6 +1493,17 @@ export default class Openbar extends Extension {
         StyleSheets.reloadStyle(this, this);
         // Add Open Bar Flatpak Overrides
         StyleSheets.saveFlatpakOverrides(this, 'enable');
+
+        // Apply the initial style
+        this.updatePanelStyle(null, 'enabled');
+        let menustyle = this._settings.get_boolean('menustyle');
+        this.applyMenuStyles(panel, menustyle);
+        // Refresh to fix any indicators added during initial styling
+        this.enableStyleTimeoutId = setTimeout(() => {
+            this.updatePanelStyle(null, 'enabled');
+            this.applyMenuStyles(panel, menustyle);
+            this.enableStyleTimeoutId = null;
+        }, 1000);
 
         // Set initial Window Max Bar
         this.onWindowMaxBar();
@@ -1559,6 +1565,10 @@ export default class Openbar extends Extension {
         if(this.postStartupId > 0) {
             clearTimeout(this.postStartupId);
             this.postStartupId = null;
+        }
+        if(this.enableStyleTimeoutId > 0) {
+            clearTimeout(this.enableStyleTimeoutId);
+            this.enableStyleTimeoutId = null;
         }
         if(this.fittsEnableTimeoutId > 0) {
             clearTimeout(this.fittsEnableTimeoutId);
