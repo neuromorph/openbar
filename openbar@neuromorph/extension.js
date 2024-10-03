@@ -561,9 +561,7 @@ export default class Openbar extends Extension {
 
         // Update styles on Dark/Light mode change
         if(callbk_param == 'color-scheme') {
-            this.gtkCSS = true;
-            StyleSheets.saveGtkCss(this, 'enable');
-            AutoThemes.onModeChange(this);
+            this.onModeChange();
             return;
         }
 
@@ -984,6 +982,12 @@ export default class Openbar extends Extension {
                 }
                 this.onFullScrTimeoutId = null;
             }, timeout);
+    }
+
+    onModeChange() {
+        this.gtkCSS = true;
+        StyleSheets.saveGtkCss(this, 'enable');
+        AutoThemes.onModeChange(this);
     }
 
     updateBguri(obj, signal) {
@@ -1432,7 +1436,17 @@ export default class Openbar extends Extension {
         }, 2000);
         // Set initial bguri as per color-scheme
         const bguri = this._settings.get_string('bguri');
-        if(bguri == '') this.updateBguri();
+        if(bguri == '')
+            this.updateBguri();
+        else {
+            // If mode was changed (by script/extension) while OpenBar was disabled (screen-lock),
+            // detect mode-change and update styles
+            let bguriDark = this._bgSettings.get_string('picture-uri-dark');
+            let bguriLight = this._bgSettings.get_string('picture-uri');
+            let currentBgUri = (this.colorScheme == 'prefer-dark') ? bguriDark : bguriLight;
+            if(bguri != currentBgUri)
+                this.onModeChange();
+        }
 
         // Update calendar style on Calendar rebuild through fn injection
         const obar = this;
