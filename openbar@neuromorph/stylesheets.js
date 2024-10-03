@@ -1693,7 +1693,6 @@ function getStylesheet(obar, Me) {
     if(bartype == 'Islands' || bartype == 'Trilands') {
         panelStyle +=
         ` margin: ${margin}px ${1.5*margin}px;
-          padding: 0px ${vPad}px;
           ${fgStyle} `;
 
         btnStyle +=
@@ -1714,8 +1713,7 @@ function getStylesheet(obar, Me) {
         ` ${fgStyle}
           ${borderStyle}
           ${gradientStyle}
-          ${neonStyle}
-          padding: 0px ${vPad}px; `;
+          ${neonStyle} `;
 
         btnStyle +=
         ` ${fgStyle}
@@ -1961,6 +1959,13 @@ function getStylesheet(obar, Me) {
            background-color: rgba(${boxred},${boxgreen},${boxblue},${boxalpha}) !important;
         }
 
+        #panelLeft {
+            margin-left: ${vPad}px;
+        }
+        #panelRight {
+            margin-right: ${vPad}px;
+        }
+
         #panel${openbarClass} {
             ${panelStyle}
             ${unlockStyle}
@@ -1972,6 +1977,7 @@ function getStylesheet(obar, Me) {
 
         #panel${openbarClass}:windowmax {
             border-radius: 0px;
+            border-width: 0px;
             box-shadow: none;
             margin: 0px;
             height: ${heightWMax}px !important;
@@ -2089,14 +2095,14 @@ function getStylesheet(obar, Me) {
         #panel${openbarClass}.trilands .panel-button:left-child {
             ${triLeftStyle}
         }
+        #panel${openbarClass}.trilands .panel-button:mid-child {
+            ${triMidStyle}
+        }
         #panel${openbarClass}.trilands .panel-button:right-child {
             ${triRightStyle}
         }
         #panel${openbarClass}.trilands .panel-button:one-child {
             ${triBothStyle}
-        }
-        #panel${openbarClass}.trilands .panel-button:mid-child {
-            ${triMidStyle}
         }
         #panel${openbarClass}.trilands:overview .panel-button:mid-child {
             ${setOverview? '': 'box-shadow: none;'}
