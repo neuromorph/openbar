@@ -2072,6 +2072,7 @@ function getStylesheet(obar, Me) {
             font-weight: bold;
             background-color: rgba(${destructRed},${destructGreen},${destructBlue}, 0.8) !important;
             box-shadow: none !important;
+            color: rgba(255,255,255,1.0) !important;
         }
         #panel${openbarClass} .panel-button.screen-sharing-indicator, #panel${openbarClass}:windowmax .panel-button.screen-sharing-indicator,
         #panel${openbarClass} .screencast-indicator, #panel${openbarClass}:windowmax .screencast-indicator,
@@ -2080,6 +2081,7 @@ function getStylesheet(obar, Me) {
             font-weight: bold;
             background-color: rgba(${(destructRed+warningRed)/2},${(destructGreen+warningGreen)/2},${(destructBlue+warningBlue)/2}, 0.9) !important;
             box-shadow: none !important;
+            color: rgba(255,255,255,1.0) !important;
         }
 
         #panel${openbarClass} .workspace-dot {
