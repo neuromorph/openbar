@@ -1441,10 +1441,8 @@ export default class Openbar extends Extension {
         else {
             // If mode was changed (by script/extension) while OpenBar was disabled (screen-lock),
             // detect mode-change and update styles
-            let bguriDark = this._bgSettings.get_string('picture-uri-dark');
-            let bguriLight = this._bgSettings.get_string('picture-uri');
-            let currentBgUri = (this.colorScheme == 'prefer-dark') ? bguriDark : bguriLight;
-            if(bguri != currentBgUri)
+            let obarScheme = this._settings.get_string('color-scheme');
+            if(obarScheme != this.colorScheme)
                 this.onModeChange();
         }
 
