@@ -1115,7 +1115,7 @@ export default class Openbar extends Extension {
                 return Clutter.EVENT_PROPAGATE;
             });
 
-            Main.layoutManager.addChrome(btn.FittsWidget);
+            Main.layoutManager.addChrome(btn.FittsWidget, {trackFullscreen: true});
         }
     }
 
@@ -1130,11 +1130,12 @@ export default class Openbar extends Extension {
     createFittsCornerWidgets() {
         let panel = Main.panel;
         let panelBox = Main.layoutManager.panelBox;
+
         for(const idx of [0, 1]) {
             if((idx == 0 && !panel.leftFittsWidget) || (idx == 1 && !panel.rightFittsWidget)) {
                 let widget = new St.Widget({
-                    x: (idx == 0) ? panelBox.x : panelBox.x + panelBox.width - panel.x,
-                    width: panel.x,
+                    x: (idx == 0) ? panelBox.x : panelBox.x + panelBox.width - panel.x - panel._leftBox.x - 2, // 2 for border width
+                    width: panel.x + panel._leftBox.x + 2,
                     y: panelBox.y,
                     height: panelBox.height,
                     reactive: true,
@@ -1146,16 +1147,21 @@ export default class Openbar extends Extension {
                 if(idx == 0) { // Bind x of leftFittsWidget to params it depends on: panelBox.x
                     panelBox.bind_property('x', widget, 'x', GObject.BindingFlags.SYNC_CREATE);
                 }
-                else { // Bind x of rightFittsWidget to params it depends on: panelBox.x + panelBox.width - panel.x
+                else { // Bind x of rightFittsWidget to params it depends on: panelBox.x + panelBox.width - panel.x - panel._leftBox.x - 2
                     panelBox.bind_property_full('x', widget, 'x', GObject.BindingFlags.SYNC_CREATE,
-                        (bind, value) => [true, value + panelBox.width - panel.x], null);
+                        (bind, value) => [true, value + panelBox.width - panel.x - panel._leftBox.x - 2], null);
                     panelBox.bind_property_full('width', widget, 'x', GObject.BindingFlags.SYNC_CREATE,
-                        (bind, value) => [true, panelBox.x + value - panel.x], null);
+                        (bind, value) => [true, panelBox.x + value - panel.x - panel._leftBox.x - 2], null);
                     panel.bind_property_full('x', widget, 'x', GObject.BindingFlags.SYNC_CREATE,
-                        (bind, value) => [true, panelBox.x + panelBox.width - value], null);
+                        (bind, value) => [true, panelBox.x + panelBox.width - value - panel._leftBox.x - 2], null);
+                    panel._leftBox.bind_property_full('x', widget, 'x', GObject.BindingFlags.SYNC_CREATE,
+                        (bind, value) => [true, panelBox.x + panelBox.width - panel.x - value - 2], null);
                 }
-                // Bind width of FittsWidget to params it depends on: panel.x
-                panel.bind_property('x', widget, 'width', GObject.BindingFlags.SYNC_CREATE);
+                // Bind width of FittsWidget to params it depends on: panel.x + panel._leftBox.x + 2
+                panel.bind_property_full('x', widget, 'width', GObject.BindingFlags.SYNC_CREATE,
+                    (bind, value) => [true, value + panel._leftBox.x + 2], null);
+                panel._leftBox.bind_property_full('x', widget, 'width', GObject.BindingFlags.SYNC_CREATE,
+                    (bind, value) => [true, panel.x + value + 2], null);
                 // Bind y of FittsWidget to params it depends on: panelBox.y
                 panelBox.bind_property('y', widget, 'y', GObject.BindingFlags.SYNC_CREATE);
                 // Bind height of FittsWidget to params it depends on: panelBox.height
@@ -1191,13 +1197,12 @@ export default class Openbar extends Extension {
                 if(idx == 0) {
                     panel.leftCornerButton = btn;
                     panel.leftFittsWidget = widget;
-                    Main.layoutManager.addChrome(widget);
                 }
                 else {
                     panel.rightCornerButton = btn;
                     panel.rightFittsWidget = widget;
-                    Main.layoutManager.addChrome(widget);
                 }
+                Main.layoutManager.addChrome(widget, {trackFullscreen: true});
             }
         }
     }
