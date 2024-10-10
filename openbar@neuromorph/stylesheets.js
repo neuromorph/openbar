@@ -1467,7 +1467,7 @@ function getStylesheet(obar, Me) {
     rTopRight = radiusTopRight? borderRadius: 0;
     rBottomLeft = radiusBottomLeft? borderRadius: 0;
     rBottomRight = radiusBottomRight? borderRadius: 0;
-    radiusStyle = ` border-radius: ${rTopLeft}px ${rTopRight}px ${rBottomRight}px ${rBottomLeft}px; `;
+    radiusStyle = ` border-radius: ${rTopLeft}px ${rTopRight}px ${rBottomRight}px ${rBottomLeft}px !important; `;
 
     // if (bordertype == 'double') // Radius not supported on outline
     //     style += ` outline: ${borderWidth}px ${bordertype} rgba(${bred},${bgreen},${bblue},${balpha}); `;
@@ -1959,10 +1959,10 @@ function getStylesheet(obar, Me) {
            background-color: rgba(${boxred},${boxgreen},${boxblue},${boxalpha}) !important;
         }
 
-        #panelLeft {
+        #panel${openbarClass} #panelLeft {
             margin-left: ${vPad}px;
         }
-        #panelRight {
+        #panel${openbarClass} #panelRight {
             margin-right: ${vPad}px;
         }
 
@@ -1976,10 +1976,10 @@ function getStylesheet(obar, Me) {
         }
 
         #panel${openbarClass}:windowmax {
-            border-radius: 0px;
-            border-width: 0px;
-            box-shadow: none;
-            margin: 0px;
+            border-radius: 0px !important;
+            border-width: 0px !important;
+            box-shadow: none !important;
+            margin: 0px !important;
             height: ${heightWMax}px !important;
             ${wmaxBgColorStyle}
             ${wmaxColorStyle}
@@ -2094,31 +2094,36 @@ function getStylesheet(obar, Me) {
             ${wmaxDotStyle}
         }
 
-        #panel${openbarClass}.trilands .panel-button:left-child {
-            ${triLeftStyle}
-        }
-        #panel${openbarClass}.trilands .panel-button:mid-child {
+        #panel${openbarClass}.trilands .panel-button {
             ${triMidStyle}
         }
-        #panel${openbarClass}.trilands .panel-button:right-child {
+        #panel${openbarClass}.trilands .button-container:first-child .panel-button {
+            ${triLeftStyle}
+        }
+        #panel${openbarClass}.trilands .button-container:last-child .panel-button {
             ${triRightStyle}
         }
-        #panel${openbarClass}.trilands .panel-button:one-child {
+        #panel${openbarClass}.trilands .button-container:first-child:last-child .panel-button {
             ${triBothStyle}
         }
-        #panel${openbarClass}.trilands:overview .panel-button:mid-child {
+
+        #panel${openbarClass}.trilands:overview .panel-button {
             ${setOverview? '': 'box-shadow: none;'}
         }
-        #panel${openbarClass}.trilands:windowmax .panel-button:mid-child {
+        #panel${openbarClass}.trilands:windowmax .panel-button {
             ${neonWMax? '': 'box-shadow: none;'}
         }
-        #panel${openbarClass}.trilands .panel-button:mid-child:hover, #panel${openbarClass}.trilands .panel-button:mid-child:focus,
-        #panel${openbarClass}.trilands .panel-button:mid-child:active, #panel${openbarClass}.trilands .panel-button:mid-child:checked {
+        #panel${openbarClass}.trilands .panel-button:hover, #panel${openbarClass}.trilands .panel-button:focus,
+        #panel${openbarClass}.trilands .panel-button:active, #panel${openbarClass}.trilands .panel-button:checked {
             ${triMidNeonHoverStyle}
         }
-        #panel${openbarClass}.trilands:overview .panel-button:mid-child:hover, #panel${openbarClass}.trilands:overview .panel-button:mid-child:focus,
-        #panel${openbarClass}.trilands:overview .panel-button:mid-child:active, #panel${openbarClass}.trilands:overview .panel-button:mid-child:checked {
+        #panel${openbarClass}.trilands:overview .panel-button:hover, #panel${openbarClass}.trilands:overview .panel-button:focus,
+        #panel${openbarClass}.trilands:overview .panel-button:active, #panel${openbarClass}.trilands:overview .panel-button:checked {
             ${setOverview? '': 'box-shadow: none;'}
+        }
+        #panel${openbarClass}.trilands:windowmax .panel-button:hover, #panel${openbarClass}.trilands:windowmax .panel-button:focus,
+        #panel${openbarClass}.trilands:windowmax .panel-button:active, #panel${openbarClass}.trilands:windowmax .panel-button:checked {
+            ${neonWMax? '': 'box-shadow: none;'}
         }
     `;
 
