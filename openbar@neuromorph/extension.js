@@ -488,33 +488,39 @@ export default class Openbar extends Extension {
 
             // Add trilands pseudo-classes if enabled else remove them
             let btns = box.get_children();
-            if(bartype == 'Trilands') {
-                for(let k=0; k<btns.length; k++) {
-                    if(btns[k].child instanceof PanelMenu.Button || btns[k].child instanceof PanelMenu.ButtonBox) {
-                        if(k == firstIdx && k != lastIdx)
-                            box.set_child_at_index(btns[k], 0);
-                        else if(k == lastIdx && k != firstIdx)
-                            box.set_child_at_index(btns[k], btns.length-1);
-                    }
-                }
-            }
-            // for(let k=0; k<btns.length; k++) {
-            //     if(btns[k].child instanceof PanelMenu.Button || btns[k].child instanceof PanelMenu.ButtonBox) {
-            //         ['one-child', 'left-child', 'right-child', 'mid-child'].forEach(cls => {
-            //             btns[k].child.remove_style_pseudo_class(cls);
-            //         });
-            //         if(bartype == 'Trilands') {
-            //             if(k == firstIdx && k == lastIdx)
-            //                 btns[k].child.add_style_pseudo_class('one-child');
-            //             else if(k == firstIdx)
-            //                 btns[k].child.add_style_pseudo_class('left-child');
-            //             else if(k == lastIdx)
-            //                 btns[k].child.add_style_pseudo_class('right-child');
-            //             else
-            //                 btns[k].child.add_style_pseudo_class('mid-child');
+            // if(bartype == 'Trilands') {
+            //     for(let k=0; k<btns.length; k++) {
+            //         if(btns[k].child instanceof PanelMenu.Button || btns[k].child instanceof PanelMenu.ButtonBox) {
+            //             if(k == firstIdx && k != lastIdx)
+            //                 box.set_child_at_index(btns[k], 0);
+            //             else if(k == lastIdx && k != firstIdx)
+            //                 box.set_child_at_index(btns[k], btns.length-1);
             //         }
             //     }
             // }
+            for(let k=0; k<btns.length; k++) {
+                if(btns[k].child instanceof PanelMenu.Button || btns[k].child instanceof PanelMenu.ButtonBox) {
+                    // ['one-child', 'left-child', 'right-child', 'mid-child'].forEach(cls => {
+                        // btns[k].child.remove_style_pseudo_class(cls);
+                    // });
+                    btns[k].child.style = ``;
+                    if(bartype == 'Trilands') {
+                        let borderRadius = this._settings.get_double('bradius');
+                        if(k == firstIdx && k == lastIdx)
+                            btns[k].child.style = ` border-radius: ${borderRadius}px ${borderRadius}px ${borderRadius}px ${borderRadius}px !important; `;
+                            // btns[k].child.add_style_pseudo_class('one-child');
+                        else if(k == firstIdx)
+                            btns[k].child.style = ` border-radius: ${borderRadius}px 0px 0px ${borderRadius}px !important; `;
+                            // btns[k].child.add_style_pseudo_class('left-child');
+                        else if(k == lastIdx)
+                            btns[k].child.style = ` border-radius: 0px ${borderRadius}px ${borderRadius}px 0px !important; `;
+                            // btns[k].child.add_style_pseudo_class('right-child');
+                        else
+                            btns[k].child.style = ` border-radius: 0px !important; `;
+                            // btns[k].child.add_style_pseudo_class('mid-child');
+                    }
+                }
+            }
         }
     }
 

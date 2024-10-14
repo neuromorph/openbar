@@ -2094,6 +2094,7 @@ function getStylesheet(obar, Me) {
             ${wmaxDotStyle}
         }
 
+        /*
         #panel${openbarClass}.trilands .panel-button {
             ${triMidStyle}
         }
@@ -2125,6 +2126,7 @@ function getStylesheet(obar, Me) {
         #panel${openbarClass}.trilands:windowmax .panel-button:active, #panel${openbarClass}.trilands:windowmax .panel-button:checked {
             ${neonWMax? '': 'box-shadow: none;'}
         }
+        */
     `;
 
     // Candybar Styles
