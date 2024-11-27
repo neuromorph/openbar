@@ -745,6 +745,7 @@ export default class Openbar extends Extension {
         let borderWidth = this._settings.get_double('bwidth');
         let height = this._settings.get_double('height');
         let margin = this._settings.get_double('margin');
+        let bottomMargin = this._settings.get_double('bottom-margin');
         if(position == 'Bottom' || key == 'position' || key == 'monitors-changed') {
             // If WMax is On then ignore 'margin' changes (do not set position) else set position
             if(!(this.wmax && key == 'margin'))
@@ -843,6 +844,7 @@ export default class Openbar extends Extension {
             const custMarginWmax = this._settings.get_boolean('cust-margin-wmax');
             const marginWMax = this._settings.get_double('margin-wmax');
             let margin = this._settings.get_double('margin');
+            let bottomMargin = this._settings.get_double('bottom-margin');
             const height = this._settings.get_double('height');
             if(wmax) {
                 margin = custMarginWmax? marginWMax: margin;
