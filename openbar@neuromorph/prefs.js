@@ -398,7 +398,7 @@ class OpenbarPrefs {
         'buttonbg-wmax', 'gradient-direction', 'shadow', 'neon', 'heffect', 'smbgoverride', 'mbg-gradient', 'autofg-bar', 'autofg-menu',
         'width-top', 'width-bottom', 'width-left', 'width-right', 'radius-topleft', 'radius-topright', 'autohg-bar', 'autohg-menu',
         'radius-bottomleft', 'radius-bottomright', 'apply-menu-notif', 'apply-menu-shell', 'apply-accent-shell', 'apply-all-shell',
-        'dashdock-style', 'dborder', 'dshadow', 'set-overview'];
+        'dashdock-style', 'dborder', 'dshadow', 'set-overview', 'bottom-margin-switch'];
         settEvents.forEach(event => {
             this._settings.connect('changed::'+event, () => {this.triggerStyleReload();});
         });
@@ -908,6 +908,31 @@ class OpenbarPrefs {
 
         let margin = this.createScaleWidget(0, 30, 0.2, 1, 'margin', 'Not applicable for Mainland');
         bargrid.attach(margin, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a separate bottom margin switch
+        let bottomMarginSwitchLabel = new Gtk.Label({
+            label: 'Enable Separate Bottom Margin',
+            halign: Gtk.Align.START,
+            tooltip_text: 'Turn on to use the separate bar bottom margin slider, by preference or for compatibility with other extensions.',
+        });
+        bargrid.attach(bottomMarginSwitchLabel, 1, rowbar, 1, 1);
+
+        let bottomMarginSwitch = this.createSwitchWidget('bottom-margin-switch', "Turn on to use the separate bar bottom margin slider, by preference or for compatibility with other extensions.");
+        bargrid.attach(bottomMarginSwitch, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
+        // Add a bar bottom margin scale
+        let bottomMarginLabel = new Gtk.Label({
+            label: 'Bar Bottom Margin',
+            halign: Gtk.Align.START,
+        });
+        bargrid.attach(bottomMarginLabel, 1, rowbar, 1, 1);
+
+        let bottomMargin = this.createScaleWidget(0, 30, 0.2, 1, 'bottom-margin', 'Not applicable for Mainland');
+        bargrid.attach(bottomMargin, 2, rowbar, 1, 1);
 
         rowbar += 1;
 

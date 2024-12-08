@@ -192,6 +192,16 @@
       <summary>Top Bar margin</summary>
       <description>Top Bar margin.</description>
     </key>
+    <key type="b" name="bottom-margin-switch">
+      <default>false</default>
+      <summary>Top Bar bottom margin switch</summary>
+      <description>Whether separate Top Bar bottom margin is enabled.</description>
+    </key>
+    <key type="d" name="bottom-margin">
+      <default>6.5</default>
+      <summary>Top Bar bottom margin</summary>
+      <description>Top Bar bottom margin.</description>
+    </key>
     <key type="s" name="font">
       <default>""</default>
       <summary>Font</summary>

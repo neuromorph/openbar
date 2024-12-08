@@ -1106,6 +1106,7 @@ function getStylesheet(obar, Me) {
     let font = obar._settings.get_string("font");
     let height = obar._settings.get_double('height');
     let margin = obar._settings.get_double('margin');
+    let bottomMargin = obar._settings.get_double('bottom-margin');
     let hColor = obar._settings.get_strv('hcolor');
     let hAlpha = obar._settings.get_double('halpha');
     let hPad = obar._settings.get_double('hpad');
@@ -1686,14 +1687,26 @@ function getStylesheet(obar, Me) {
         panelStyle +=
         ` margin: 0px; border-radius: 0px; `;
     }
+    let bottomMarginSwitch = obar._settings.get_boolean('bottom-margin-switch');
     if(bartype == 'Floating') {
-        panelStyle +=
-        ` margin: ${margin}px ${3*margin}px; `;
+    	if(bottomMarginSwitch) {
+    		panelStyle +=
+    		` margin: ${margin}px ${3*margin}px ${bottomMargin}px ${3*margin}px; `;
+    	} else {
+	        panelStyle +=
+	        ` margin: ${margin}px ${3*margin}px; `;
+    	}
     }
     if(bartype == 'Islands' || bartype == 'Trilands') {
-        panelStyle +=
-        ` margin: ${margin}px ${1.5*margin}px;
-          ${fgStyle} `;
+    	if(bottomMarginSwitch) {
+			panelStyle +=
+    		` margin: ${margin}px ${3*margin}px ${bottomMargin}px ${3*margin}px;
+	          ${fgStyle} `;
+    	} else {
+	        panelStyle +=
+	        ` margin: ${margin}px ${1.5*margin}px;
+	          ${fgStyle} `;
+    	}
 
         btnStyle +=
         ` ${borderStyle}
