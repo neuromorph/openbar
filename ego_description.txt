@@ -1,12 +1,17 @@
-Top Bar / Top Panel , Menus , Dash / Dock , Gnome Shell , Gtk Apps theming. Open the bar and let the colors 🍹 flow.
+Theming Top Bar / Top Panel , Menus , Dash / Dock , Gnome Shell , Gtk Apps. 
+Open the bar and let the colors 🍹 flow.
 
 **Please report on GitHub if something is broken due to an update or if you have any suggestions.
 
-Open Bar 2.0: 
-- Auto-theming completely renewed. Theme Options: Dark, Light, Pastel, True-Color
-- Apply styles to Bar, Menu, Dash / Dock and rest of the shell
-- Apply accent color and style Gtk/Flatpak apps (Accent tint on Headerbar/Sidebar/Card/Dialog, Add Window Border, Corners, Traffic Light controls etc)
-- New UI for preferences/settings
+•  Open Bar allows you to theme the Top Bar, Pop-up Menus, Dash, Dock and rest of the Gnome Shell.
+•  You can also extend the theme to Gtk and Flatpak apps to the extent possible with CSS.
+•  You can choose any color for Accent and for everything else in the shell.
+•  There are a lot of settings to allow full customization and they are grouped as tabs in the left panel.
+•  To make things easier, there is an auto-theme feature that picks colors from the desktop background.
+•  You can start with selecting the Type of bar, then select the desired Auto-Theme and apply.
+•  Floating or Island bars are great on the desktop but when a window is maximized, you must try Window-Max bar.
+•  Next, you can apply styles to Dash/Dock, Shell and Apps as desired for full theming experience.
+•  Lastly, feel free to play with the settings and things will start becoming much easier.
 
 
 Compatibility with Extensions:

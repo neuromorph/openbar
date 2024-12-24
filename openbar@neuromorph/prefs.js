@@ -375,9 +375,17 @@ class OpenbarPrefs {
 
     fillOpenbarPrefs(window, openbar) {
 
-        window.default_width = 825;
-        window.default_height = 910;
-        window.set_size_request(815, 885);
+        // Get the settings object
+        this._settings = openbar.getSettings();
+
+        let mWidth = this._settings.get_int('monitor-width');
+        let mHeight = this._settings.get_int('monitor-height');
+
+        window.default_width = 820; // 825
+        window.default_height = 940; //910
+        let reqWidth = mWidth >= 1000? 815: mWidth - 100;
+        let reqHeight = mHeight >= 1000? 935: mHeight - 100;
+        window.set_size_request(reqWidth, reqHeight); // 815, 885
 
         window.paletteButtons = [];
         window.colorButtons = [];
@@ -398,7 +406,7 @@ class OpenbarPrefs {
         'buttonbg-wmax', 'gradient-direction', 'shadow', 'neon', 'heffect', 'smbgoverride', 'mbg-gradient', 'autofg-bar', 'autofg-menu',
         'width-top', 'width-bottom', 'width-left', 'width-right', 'radius-topleft', 'radius-topright', 'autohg-bar', 'autohg-menu',
         'radius-bottomleft', 'radius-bottomright', 'apply-menu-notif', 'apply-menu-shell', 'apply-accent-shell', 'apply-all-shell',
-        'dashdock-style', 'dborder', 'dshadow', 'set-overview', 'bottom-margin-switch'];
+        'dashdock-style', 'dborder', 'dshadow', 'set-overview', 'set-bottom-margin'];
         settEvents.forEach(event => {
             this._settings.connect('changed::'+event, () => {this.triggerStyleReload();});
         });
@@ -555,6 +563,55 @@ class OpenbarPrefs {
         });
         quoteBox.append(quoteLabel);
         this.setQuoteLabel(quoteLabel);
+
+        //////////////////////////////////////////////////////////////////////////////////
+
+        // WELCOME PAGE
+
+        let welcomegrid = this.createGridWidget();
+
+        rowbar = 1;
+
+        let wecomeLabel = new Gtk.Label({
+            label: `\n<span size="large">Welcome to Open Bar!</span>\n`,
+            halign: Gtk.Align.CENTER,
+            use_markup: true,
+            css_classes: ['openbar-title'],
+        });
+        welcomegrid.attach(wecomeLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Welcome Info Expander
+        const welcomeExpander = new Gtk.Expander({
+            label: `<b>Introduction</b>`,
+            expanded: false,
+            use_markup: true,
+            margin_top: 5,
+            margin_bottom: 10,
+            css_classes: ['openbar-expander'],
+        });
+
+        let welcomeNotesLabel = new Gtk.Label({
+            label: `<span  allow_breaks="true">\
+            \n•  Open Bar allows you to theme the Top Bar, Pop-up Menus, Dash, Dock and rest of the Gnome Shell.\
+            \n•  You can also extend the theme to Gtk and Flatpak apps to the extent possible with CSS.\
+            \n•  You can choose any color for Accent and for everything else in the shell.\
+            \n•  There are a lot of settings to allow full customization and they are grouped as tabs in the left panel.\
+            \n•  To make things easier, there is an auto-theme feature that picks colors from the desktop background.\
+            \n•  You can start with selecting the Type of bar, then select the desired Auto-Theme and apply.\
+            \n•  Floating or Island bars are great on the desktop but when a window is maximized, you must try Window-Max bar.\
+            \n•  Next, you can apply styles to Dash/Dock, Shell and Apps as desired for full theming experience.\
+            \n•  Lastly, feel free to play with the settings and things will start becoming much easier.\
+            \n\n Open the theming bar and let the colors flow!
+        </span>`,
+            wrap: true,
+            use_markup: true,
+            halign: Gtk.Align.START,
+            width_chars: 55,
+        });
+        welcomeExpander.set_child(welcomeNotesLabel);
+        welcomegrid.attach(welcomeExpander, 1, rowbar, 2, 1);
 
         //////////////////////////////////////////////////////////////////////////////////
 
@@ -887,6 +944,19 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
+        //Position of notification popups
+        let notifPosLbl = new Gtk.Label({
+            label: 'Apply to Notifications',
+            halign: Gtk.Align.START,
+            tooltip_text: 'Move notification popups as per the bar position (Top/Bottom)'
+        });
+        bargrid.attach(notifPosLbl, 1, rowbar, 1, 1);
+
+        let notifPos = this.createSwitchWidget('set-notif-position', 'Move notification popups as per the bar position (Top/Bottom)');
+        bargrid.attach(notifPos, 2, rowbar, 1, 1);
+
+        rowbar += 1;
+
         // Add a bar height scale
         let heightLabel = new Gtk.Label({
             label: 'Bar Height',
@@ -911,27 +981,27 @@ class OpenbarPrefs {
 
         rowbar += 1;
 
-        // Add a separate bottom margin switch
+        // Add a custom bottom margin switch
         let bottomMarginSwitchLabel = new Gtk.Label({
-            label: 'Enable Separate Bottom Margin',
+            label: 'Customize Bottom Margin',
             halign: Gtk.Align.START,
-            tooltip_text: 'Turn on to use the separate bar bottom margin slider, by preference or for compatibility with other extensions.',
+            tooltip_text: 'Turn-On to use custom bottom-margin below. Allows to adjust the gap between top bar and app windows. Especially useful when using tiling extensions.',
         });
         bargrid.attach(bottomMarginSwitchLabel, 1, rowbar, 1, 1);
 
-        let bottomMarginSwitch = this.createSwitchWidget('bottom-margin-switch', "Turn on to use the separate bar bottom margin slider, by preference or for compatibility with other extensions.");
+        let bottomMarginSwitch = this.createSwitchWidget('set-bottom-margin', "Turn-On to use custom bottom-margin below. Allows to adjust the gap between top bar and app windows. Especially useful when using tiling extensions.");
         bargrid.attach(bottomMarginSwitch, 2, rowbar, 1, 1);
 
         rowbar += 1;
 
         // Add a bar bottom margin scale
         let bottomMarginLabel = new Gtk.Label({
-            label: 'Bar Bottom Margin',
+            label: 'Custom Bottom Margin',
             halign: Gtk.Align.START,
         });
         bargrid.attach(bottomMarginLabel, 1, rowbar, 1, 1);
 
-        let bottomMargin = this.createScaleWidget(0, 30, 0.2, 1, 'bottom-margin', 'Not applicable for Mainland');
+        let bottomMargin = this.createScaleWidget(0, 30, 0.2, 1, 'bottom-margin', 'Allows to adjust the gap between top bar and app windows. Especially useful when using tiling extensions.');
         bargrid.attach(bottomMargin, 2, rowbar, 1, 1);
 
         rowbar += 1;
@@ -1064,7 +1134,7 @@ class OpenbarPrefs {
 
         // Add a WMax custom margin enable switch
         let wmaxCustMarginLabel = new Gtk.Label({
-            label: 'Customize margins?',
+            label: 'Customize Bar Height?',
             halign: Gtk.Align.START,
         });
         bargridwmax.attach(wmaxCustMarginLabel, 1, rowbar, 1, 1);
@@ -1076,7 +1146,7 @@ class OpenbarPrefs {
 
         // Add a wmax bar margin scale
         let wmaxmarginLabel = new Gtk.Label({
-            label: 'Custom Margins (WMax)',
+            label: 'Bar Height (WMax)',
             halign: Gtk.Align.START,
         });
         bargridwmax.attach(wmaxmarginLabel, 1, rowbar, 1, 1);
@@ -1715,7 +1785,7 @@ class OpenbarPrefs {
         });
         bgrid.attach(neonLbl, 1, rowbar, 1, 1);
 
-        let neon = this.createSwitchWidget('neon', 'Select bright/neon color for border and dark-opaque background for Bar/Islands');
+        let neon = this.createSwitchWidget('neon', 'Adds neon-glow effect. Select bright/neon color for border and dark-opaque background for Bar/Islands');
         bgrid.attach(neon, 2, rowbar, 1, 1);
 
         ////////////////////////////////////////////////////////////////////
@@ -2620,7 +2690,7 @@ class OpenbarPrefs {
 
         // Import Export Label
         let ieLabel = new Gtk.Label({
-            label: `<span size="large">Import / Export Settings</span>\n\n`,
+            label: `<span size="large">Import / Export Settings</span>\n`,
             use_markup: true,
             halign: Gtk.Align.CENTER,
             css_classes: ['openbar-title'],
@@ -2677,6 +2747,42 @@ class OpenbarPrefs {
         });
         iegrid.attach(exportBtn, 2, rowbar, 1, 1);
 
+        rowbar += 1;
+
+        // Reset Settings Label
+        let resetTitleLabel = new Gtk.Label({
+            label: `\n\n\n<span size="large">Reset Settings</span>\n`,
+            use_markup: true,
+            halign: Gtk.Align.CENTER,
+            css_classes: ['openbar-title'],
+        });
+        iegrid.attach(resetTitleLabel, 1, rowbar, 2, 1);
+
+        rowbar += 1;
+
+        // Add a Reset Settings button
+        let resetLbl = new Gtk.Label({
+            label: `⚠ Reset all Open Bar settings to default values`,
+            halign: Gtk.Align.START,
+        });
+        iegrid.attach(resetLbl, 1, rowbar, 1, 1);
+
+        // Add button to Reset Settings
+        const resetBtnLabel = new Gtk.Label({
+            use_markup: true,
+            label: `<span>${_("Reset ⚙")}</span>`,
+        });
+        const resetBtn = new Gtk.Button({
+            child: resetBtnLabel,
+            // margin_top: 35,
+            tooltip_text: _("It will reset all Open Bar settings to their default values"),
+            halign: Gtk.Align.END,
+        });
+        resetBtn.connect('clicked', () => {
+            this.resetSettingsDialog(window);
+        });
+        iegrid.attach(resetBtn, 2, rowbar, 1, 1);
+
         /////////////////////////////////////////////////////////////////////
 
         // PREFERENCES LAYOUT:
@@ -2701,6 +2807,7 @@ class OpenbarPrefs {
             css_classes: ['openbar-stack'],
         });
         // Add pages to the stack
+        stack.add_titled(welcomegrid, 'welcome',  '🙏🏻  Welcome');
         stack.add_titled(palettegrid, 'autotheme',  '✨  Auto Theming');
         stack.add_titled(bargrid, 'barprops',       '⚌  Top Bar Properties');
         stack.add_titled(bargridwmax, 'wmaxbar',    '⊞   Window-Max Bar');
@@ -2712,7 +2819,7 @@ class OpenbarPrefs {
         stack.add_titled(dashgrid, 'dashdock',      '⏏   Dash / Dock');
         stack.add_titled(beyondgrid, 'shell',       'ଳ   Gnome Shell');
         stack.add_titled(appgrid, 'gtkflatpak',     '⌘   Gtk / Flatpak Apps');
-        stack.add_titled(iegrid, 'importexport',    '⧉   Import / Export');
+        stack.add_titled(iegrid, 'importexport',    '⧉   Settings Admin');
 
         scrollWindow.set_child(stack);
 
@@ -2744,6 +2851,32 @@ class OpenbarPrefs {
             }
         });
 
+    }
+
+    resetSettingsDialog(window){
+        let dialog = new Gtk.MessageDialog({
+          modal: true,
+          text: _("Reset Open Bar settings?"),
+          secondary_text: _("This will reset all the Open Bar settings to their default values. If needed, you can save the current settings by exporting them to a file before you reset."),
+          transient_for: window,
+        });
+        // add buttons to dialog as 'Delete' and 'Cancel' with 'Cancel' as default
+        dialog.add_button(_("Cancel"), Gtk.ResponseType.CANCEL);
+        dialog.add_button(_("Reset"), Gtk.ResponseType.YES);
+        dialog.set_default_response(Gtk.ResponseType.CANCEL);
+
+        dialog.connect("response", (dialog, responseId) => {
+          if (responseId == Gtk.ResponseType.YES) {
+            this._settings.set_boolean('import-export', true);
+            let keys = this._settings.list_keys();
+            let keysToKeep = ['import-export', 'default-font', 'bguri', 'dark-bguri', 'light-bguri'];
+            keys.forEach(k => { if(!keysToKeep.includes(k)) this._settings.reset(k); });
+            this._settings.set_boolean('import-export', false);
+          }
+          dialog.destroy();
+        });
+
+        dialog.show();
     }
 
     setQuoteLabel(quoteLabel) {

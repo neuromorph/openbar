@@ -1687,26 +1687,40 @@ function getStylesheet(obar, Me) {
         panelStyle +=
         ` margin: 0px; border-radius: 0px; `;
     }
-    let bottomMarginSwitch = obar._settings.get_boolean('bottom-margin-switch');
+    let setBottomMargin = obar._settings.get_boolean('set-bottom-margin');
+    let position = obar._settings.get_string('position');
     if(bartype == 'Floating') {
-    	if(bottomMarginSwitch) {
-    		panelStyle +=
-    		` margin: ${margin}px ${3*margin}px ${bottomMargin}px ${3*margin}px; `;
+    	if(setBottomMargin) {
+            if(position == 'Top') {
+                panelStyle +=
+    		    ` margin: ${margin}px ${3*margin}px ${bottomMargin}px ${3*margin}px; `;
+            }
+            else {
+                panelStyle +=
+    		    ` margin: ${bottomMargin}px ${3*margin}px ${margin}px ${3*margin}px; `;
+            }
+
     	} else {
 	        panelStyle +=
 	        ` margin: ${margin}px ${3*margin}px; `;
     	}
     }
     if(bartype == 'Islands' || bartype == 'Trilands') {
-    	if(bottomMarginSwitch) {
-			panelStyle +=
-    		` margin: ${margin}px ${3*margin}px ${bottomMargin}px ${3*margin}px;
-	          ${fgStyle} `;
+    	if(setBottomMargin) {
+            if(position == 'Top') {
+                panelStyle +=
+                ` margin: ${margin}px ${1.5*margin}px ${bottomMargin}px ${1.5*margin}px; `;
+            }
+            else {
+                panelStyle +=
+                ` margin: ${bottomMargin}px ${1.5*margin}px ${margin}px ${1.5*margin}px; `;
+            }
+
     	} else {
 	        panelStyle +=
-	        ` margin: ${margin}px ${1.5*margin}px;
-	          ${fgStyle} `;
+	        ` margin: ${margin}px ${1.5*margin}px; `;
     	}
+        panelStyle += ` ${fgStyle} `;
 
         btnStyle +=
         ` ${borderStyle}
@@ -1925,7 +1939,6 @@ function getStylesheet(obar, Me) {
     }
 
     // Menu rise(margin) for Bar in Bottom Position
-    let position = obar._settings.get_string('position');
     let bottomBarStyle;
     if(position == 'Bottom') {
         bottomBarStyle =

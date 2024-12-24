@@ -745,11 +745,12 @@ export default class Openbar extends Extension {
         let borderWidth = this._settings.get_double('bwidth');
         let height = this._settings.get_double('height');
         let margin = this._settings.get_double('margin');
+        let setBottomMargin = this._settings.get_boolean('set-bottom-margin');
         let bottomMargin = this._settings.get_double('bottom-margin');
         if(position == 'Bottom' || key == 'position' || key == 'monitors-changed') {
             // If WMax is On then ignore 'margin' changes (do not set position) else set position
-            if(!(this.wmax && key == 'margin'))
-                this.setPanelBoxPosition(position, height, margin, borderWidth, bartype);
+            if(!(this.wmax && (key == 'margin' || key == 'bottom-margin')))
+                this.setPanelBoxPosition(position, height, margin, setBottomMargin, bottomMargin, borderWidth, bartype);
         }
         // Reset Fitts Widgets
         const fittsWidgets = this._settings.get_boolean('fitts-widgets');
@@ -764,9 +765,10 @@ export default class Openbar extends Extension {
 
         // Notifications position
         let setNotifications = this._settings.get_boolean('set-notifications');
-        let notifKeys = ['set-notifications', 'position', 'monitors-changed', 'updated', 'enabled'];
-        if(notifKeys.includes(key)) {
-            if(setNotifications && position == 'Bottom')
+        let setNotifPos = this._settings.get_boolean('set-notif-position');
+        let notifKeys = ['set-notif-position', 'position', 'monitors-changed', 'updated', 'enabled'];
+        if(notifKeys.includes(key) && setNotifPos) {
+            if(position == 'Bottom')
                 Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.END;
             else
                 Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
@@ -810,7 +812,7 @@ export default class Openbar extends Extension {
         return [monitors[panelMonIndex], panelMonIndex];
     }
 
-    setPanelBoxPosition(position, height, margin, borderWidth, bartype) {
+    setPanelBoxPosition(position, height, margin, setBottomMargin, bottomMargin, borderWidth, bartype) {
         let panelMonitor = this.getPanelMonitor()[0];
         let panelBox = Main.layoutManager.panelBox;
         if(position == 'Top') {
@@ -822,11 +824,12 @@ export default class Openbar extends Extension {
         else if(position == 'Bottom') {
             margin = (bartype == 'Mainland')? 0: margin;
             borderWidth = (bartype == 'Trilands' || bartype == 'Islands')? 0: borderWidth;
-            let panelBoxHeight = height + 2*borderWidth + 2*margin;
+            let windowGap = setBottomMargin? bottomMargin: margin;
+            let panelBoxHeight = height + 2*borderWidth + margin + windowGap;
             // Scale height by Display Scaling factor
             panelBoxHeight = this.themeContext.scale_factor * panelBoxHeight;
             let bottomX = panelMonitor.x;
-            let bottomY = panelMonitor.y + panelMonitor.height - panelBoxHeight;;
+            let bottomY = panelMonitor.y + panelMonitor.height - panelBoxHeight;
             panelBox.set_position(bottomX, bottomY);
             panelBox.set_size(panelMonitor.width, panelBoxHeight);
         }
@@ -849,7 +852,7 @@ export default class Openbar extends Extension {
             if(wmax) {
                 margin = custMarginWmax? marginWMax: margin;
             }
-            this.setPanelBoxPosition(position, height, margin, borderWidth, bartype);
+            this.setPanelBoxPosition(position, height, margin, false, bottomMargin, borderWidth, bartype);
             this.wmax = wmax;
             this.position = position;
         }
@@ -1399,6 +1402,11 @@ export default class Openbar extends Extension {
         // this.bgalpha = this._settings.get_double('bgalpha');
         this._settings.set_boolean('import-export', false);
         this._settings.set_boolean('pause-reload', false);
+
+        let panelMonitor = this.getPanelMonitor()[0];
+        this._settings.set_int('monitor-height', panelMonitor.height);
+        this._settings.set_int('monitor-width', panelMonitor.width);
+
         // Connect to the settings changes
         this._settings.connect('changed', (settings, key) => {
             this.updatePanelStyle(settings, key);

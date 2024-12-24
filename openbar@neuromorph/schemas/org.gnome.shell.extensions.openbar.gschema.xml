@@ -172,6 +172,11 @@
       <summary>Apply to notification popups</summary>
       <description>Whether customization is applied to notifications.</description>
     </key>
+    <key type="b" name="set-notif-position">
+      <default>false</default>
+      <summary>Move notification popups along with the bar (Top/Bottom)</summary>
+      <description>Move notification popups along with the bar (Top/Bottom).</description>
+    </key>
     <key type="b" name="gradient">
       <default>false</default>
       <summary>Gradient Effect</summary>
@@ -192,7 +197,7 @@
       <summary>Top Bar margin</summary>
       <description>Top Bar margin.</description>
     </key>
-    <key type="b" name="bottom-margin-switch">
+    <key type="b" name="set-bottom-margin">
       <default>false</default>
       <summary>Top Bar bottom margin switch</summary>
       <description>Whether separate Top Bar bottom margin is enabled.</description>
@@ -1416,6 +1421,16 @@
       <default>['0.15', '0.635', '0.41']</default>
       <summary>Success Color</summary>
       <description>Shell success color.</description>
+    </key>
+    <key type="i" name="monitor-height">
+      <default>1000</default>
+      <summary>Monitor height</summary>
+      <description>Monitor height.</description>
+    </key>
+    <key type="i" name="monitor-width">
+      <default>1000</default>
+      <summary>Monitor width</summary>
+      <description>Monitor width.</description>
     </key>
   </schema>
 </schemalist>
