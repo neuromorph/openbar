@@ -2657,7 +2657,7 @@ class OpenbarPrefs {
 
         // Add a Flatpak info label
         let flatLabel = new Gtk.Label({
-            label: `<span><b>FLATPAK</b></span>\n\n<span size="small" allow_breaks="true">⚠ Applies overrides to provide flatpak apps access to Gtk configs.\n     Overrides will be removed on disable.\n     Requires 'Apply to Gtk Apps' to be tunrned On.</span>`,
+            label: `<span><b>FLATPAK</b></span>\n\n<span size="small" allow_breaks="true">⚠ Applies overrides to provide flatpak apps access to Gtk configs.\n     Overrides will be removed on disable.\n     Requires 'Apply to Gtk Apps' to be turned On.</span>`,
                     use_markup: true,
             halign: Gtk.Align.START,
             wrap: true,
@@ -2869,7 +2869,8 @@ class OpenbarPrefs {
           if (responseId == Gtk.ResponseType.YES) {
             this._settings.set_boolean('import-export', true);
             let keys = this._settings.list_keys();
-            let keysToKeep = ['import-export', 'default-font', 'bguri', 'dark-bguri', 'light-bguri'];
+            let keysToKeep = ['import-export', 'default-font', 'bguri', 'dark-bguri', 'light-bguri', 'bgpalette', 'color-scheme',
+                'monitor-height', 'monitor-width'];
             keys.forEach(k => { if(!keysToKeep.includes(k)) this._settings.reset(k); });
             this._settings.set_boolean('import-export', false);
           }
