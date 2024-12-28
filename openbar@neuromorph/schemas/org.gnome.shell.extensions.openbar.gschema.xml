@@ -293,7 +293,7 @@
       <description>Transparency of Menu background.</description>
     </key>
     <key type="b" name="smbgoverride">
-      <default>true</default>
+      <default>false</default>
       <summary>Override Sub/Secondary menu BG Color?</summary>
       <description>Whether to Override Sub/Secondary menu BG Color.</description>
     </key>
