@@ -915,18 +915,17 @@ function createGtkCss(obar, gtk4) {
                 margin: 0 3px;
             }
             `;
-        }
-        
-        // Fix for Gtk4 DING extension
-        gtkstring += `
-        #desktopwindow.background {
-            background-color: transparent;
-            border-radius: 0px;
-        }
-        `;
-
+        } 
     }
 
+    // Fix for Gtk4 DING extension
+    gtkstring += `
+    #desktopwindow.background {
+        background-color: transparent;
+        border-radius: 0px;
+    }
+    `;
+        
     return gtkstring;
 }
 
