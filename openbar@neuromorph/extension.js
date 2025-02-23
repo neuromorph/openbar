@@ -950,7 +950,8 @@ export default class Openbar extends Extension {
         let wmaxbar = this._settings.get_boolean('wmaxbar');
         if(wmaxbar) {
             this._windowSignals = new Map();
-            for(const window of global.get_window_actors()){
+            const windowActors = this.gnomeVersion < 48? global.get_window_actors() : global.compositor.get_window_actors();
+            for(const window of windowActors){
                 this.onWindowAdded(null, 'enabled', window);
             }
             this._connections.connect(global.window_group, this.addedSignal, this.onWindowAdded.bind(this));
