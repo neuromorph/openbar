@@ -915,7 +915,7 @@ function createGtkCss(obar, gtk4) {
                 margin: 0 3px;
             }
             `;
-        } 
+        }
     }
 
     // Fix for Gtk4 DING extension
@@ -925,7 +925,7 @@ function createGtkCss(obar, gtk4) {
         border-radius: 0px;
     }
     `;
-        
+
     return gtkstring;
 }
 
@@ -2801,6 +2801,7 @@ function getStylesheet(obar, Me) {
                 background-color: rgba(${mbgred},${mbggreen},${mbgblue},${mbgAlpha}) !important;
             }
             ${openmenuClass}.quick-toggle-menu .header .icon.active {
+                color: rgba(${amfgred},${amfggreen},${amfgblue},${mfgAlpha}) !important;
                 background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
             }
             ${openmenuClass}.quick-toggle-menu .icon-button {
@@ -2897,63 +2898,82 @@ function getStylesheet(obar, Me) {
                 background-color: ${mshg} !important;
             }
 
-            ${openmenuClass}.quick-menu-toggle .quick-toggle {
+            ${openmenuClass}.quick-menu-toggle .quick-toggle,
+            ${openmenuClass}.quick-toggle-has-menu .quick-toggle {
                 color: rgba(${mfgred},${mfggreen},${mfgblue},${mfgAlpha}) !important;
                 background-color: ${smbg} !important;
                 box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
                 border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
             }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:focus {
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:focus,
+            ${openmenuClass}.quick-toggle-has-menu .quick-toggle:hover, ${openmenuClass}.quick-toggle-has-menu .quick-toggle:focus {
                 color: rgba(${mhfgred},${mhfggreen},${mhfgblue},1) !important;
                 background-color: ${smhbg} !important;
             }
             ${openmenuClass}.quick-menu-toggle .quick-toggle:checked,
-            ${openmenuClass}.quick-menu-toggle .quick-toggle:active {
+            ${openmenuClass}.quick-toggle-has-menu .quick-toggle:checked,
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:active,
+            ${openmenuClass}.quick-toggle-has-menu .quick-toggle:active {
                 color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
                 background-color: rgba(${msred},${msgreen},${msblue},${msAlpha}) !important;
             }
             ${openmenuClass}.quick-menu-toggle .quick-toggle:checked:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:checked:focus,
-            ${openmenuClass}.quick-menu-toggle .quick-toggle:active:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:active:focus {
+            ${openmenuClass}.quick-toggle-has-menu .quick-toggle:checked:hover, ${openmenuClass}.quick-toggle-has-menu .quick-toggle:checked:focus,
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:active:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle:active:focus,
+            ${openmenuClass}.quick-toggle-has-menu .quick-toggle:active:hover, ${openmenuClass}.quick-toggle-has-menu .quick-toggle:active:focus {
                 color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
                 background-color: ${mshg} !important;
             }
 
-            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow {
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow,
+            ${openmenuClass}.quick-toggle-has-menu .quick-toggle-arrow {
                 color: rgba(${smfgred},${smfggreen},${smfgblue},${mfgAlpha}) !important;
                 background-color: rgba(${smbgred},${smbggreen},${smbgblue},${mbgAlpha*1.2}) !important;
                 box-shadow: 0 1px 2px 0 rgba(${mshred},${mshgreen},${mshblue},0.05) !important;
                 border: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
             }
             /* adjust borders in expandable menu button */
-            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:ltr {
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:ltr,
+            ${openmenuClass}.quick-toggle-has-menu .quick-toggle-arrow:ltr {
                 border-radius: 0 ${qtoggleRadius}px ${qtoggleRadius}px 0;
             }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:rtl {
+            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:rtl,
+            ${openmenuClass}.quick-toggle-has-menu .quick-toggle-arrow:rtl {
                 border-radius: ${qtoggleRadius}px 0 0 ${qtoggleRadius}px;
             }
             /* adjust borders if quick toggle has expandable menu button (quick-toggle-arrow)[44+] */
-            ${openmenuClass}.quick-menu-toggle .quick-toggle:ltr { border-radius: ${qtoggleRadius}px 0 0 ${qtoggleRadius}px; }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle:rtl { border-radius: 0 ${qtoggleRadius}px ${qtoggleRadius}px 0; }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:ltr,
+            ${openmenuClass}.quick-toggle-has-menu .quick-toggle:ltr
+            { border-radius: ${qtoggleRadius}px 0 0 ${qtoggleRadius}px; }
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:rtl,
+            ${openmenuClass}.quick-toggle-has-menu .quick-toggle:rtl
+            { border-radius: 0 ${qtoggleRadius}px ${qtoggleRadius}px 0; }
             /* if quick toggle has no expandable menu button (quick-toggle-arrow)[44+] */
-            ${openmenuClass}.quick-menu-toggle .quick-toggle:last-child {
+            ${openmenuClass}.quick-menu-toggle .quick-toggle:last-child,
+            ${openmenuClass}.quick-toggle-has-menu .quick-toggle:last-child {
                 border-radius: ${qtoggleRadius}px;
             }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:focus {
+            ${openmenuClass} .quick-toggle-arrow.icon-button:hover , ${openmenuClass} .quick-toggle-arrow.icon-button:focus,
+            ${openmenuClass} .quick-toggle-menu-button.icon-button:hover , ${openmenuClass} .quick-toggle-menu-button.icon-button:focus  {
                 color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1) !important;
                 background-color: ${smhbg} !important;
             }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked {
+            ${openmenuClass} .quick-toggle-arrow.icon-button:checked,
+            ${openmenuClass} .quick-toggle-menu-button.icon-button:checked {
                 color: rgba(${amfgred},${amfggreen},${amfgblue},1.0) !important;
                 background-color: rgba(${msred},${msgreen},${msblue},${msAlpha*1.2}) !important;
                 border: none !important;
             }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:ltr {
+            ${openmenuClass} .quick-toggle-arrow.icon-button:checked:ltr,
+            ${openmenuClass} .quick-toggle-menu-button.icon-button:checked:ltr {
                 border-left: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
             }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:rtl {
+            ${openmenuClass} .quick-toggle-arrow.icon-button:checked:rtl,
+            ${openmenuClass} .quick-toggle-menu-button.icon-button:checked:rtl {
                 border-right: 1px solid rgba(${mshred},${mshgreen},${mshblue},0.13) !important;
             }
-            ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:hover, ${openmenuClass}.quick-menu-toggle .quick-toggle-arrow:checked:focus {
+            ${openmenuClass} .quick-toggle-arrow.icon-button:checked:hover , ${openmenuClass} .quick-toggle-arrow.icon-button:checked:focus,
+            ${openmenuClass} .quick-toggle-menu-button.icon-button:checked:hover , ${openmenuClass} .quick-toggle-menu-button.icon-button:checked:focus  {
                 color: rgba(${amhfgred},${amhfggreen},${amhfgblue},1) !important;
                 background-color: ${mshg} !important;
             }
@@ -3427,23 +3447,24 @@ function getStylesheet(obar, Me) {
         .dialog-list .dialog-list-box .dialog-list-item .dialog-list-item-description {
             color: rgba(${smfgred},${smfggreen},${smfgblue},0.85) !important;
         }
-        .modal-dialog-linked-button {
+        .modal-dialog-linked-button, .modal-dialog-button {
             color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
             background-color: ${smbg} !important;
             border: 2px solid transparent;
         }
-        .modal-dialog-linked-button:first-child {
+        .modal-dialog-linked-button:first-child, .modal-dialog-button:first-child {
             ${dialogLinkBtnFirstStyle}
         }
-        .modal-dialog-linked-button:last-child {
+        .modal-dialog-linked-button:last-child, .modal-dialog-button:last-child {
             ${dialogLinkBtnLastStyle}
         }
-        .modal-dialog-linked-button:hover {
+        .modal-dialog-linked-button:hover, .modal-dialog-button:hover {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
             background-color: ${smhbg} !important;
             box-shadow: none !important;
         }
-        .modal-dialog-linked-button:focus, .modal-dialog-linked-button:selected {
+        .modal-dialog-linked-button:focus, .modal-dialog-button:focus,
+        .modal-dialog-linked-button:selected, .modal-dialog-button:selected {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
             background-color: ${smhbg} !important;
             /*border-color: ${msc} !important;
@@ -3604,7 +3625,7 @@ function getStylesheet(obar, Me) {
             color: rgba(${smhfgred},${smhfggreen},${smhfgblue},1.0) !important;
             background-color: ${smhbg} !important;
         }
-        .keyboard-subkeys {
+        .keyboard-subkeys, .keyboard-subkeys-boxpointer {
             color: rgba(${smfgred},${smfggreen},${smfgblue},1.0) !important;
             -arrow-background-color: ${shadeMbg(0.9, 0.2*mbgShade)} !important;
         } `;
