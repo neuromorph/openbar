@@ -175,7 +175,8 @@ class OpenbarPrefs {
                 rgba.blue.toFixed(3),
             ]);
             // In addition to main gsetting, also copy the color to dark/light setting
-            let prefix, mode = this._settings.get_string('color-scheme');
+            let prefix;
+            let mode = this._settings.get_string('color-scheme');
             if(mode == 'prefer-dark')
                 prefix = 'dark-';
             else
@@ -503,14 +504,19 @@ class OpenbarPrefs {
         });
         titlegrid.attach(aboutImage, 1, rowbar, 1, 1);
 
+        let titleClass = 'openbar-title-light';
+        let mode = this._settings.get_string('color-scheme');
+        if(mode == 'prefer-dark')
+            titleClass = 'openbar-title-dark';
+
         // Add a title label
         let titleLabel = new Gtk.Label({
-            label: `<span size="x-large">Top Bar and Beyond      </span>\n\n<span underline="none"><b>${_('Version:')} ${this.openbar.metadata.version}  |  <a href="${this.openbar.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${this.openbar.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕ 🍹     </a></b></span>`,
+            label: `<span size="x-large">Top Bar and Beyond      </span>\n\n<span underline="none"><b>${_('Version:')} ${this.openbar.metadata.version}  |  <a href="${this.openbar.metadata.url}">Home</a>  |  © <a href="https://extensions.gnome.org/accounts/profile/neuromorph">neuromorph</a>  |  <a href="${this.openbar.metadata.url}">☆ Star</a>  |  <a href="https://www.buymeacoffee.com/neuromorph"> ☕      </a></b></span>`,
             halign: Gtk.Align.CENTER,
             valign: Gtk.Align.CENTER,
             justify: Gtk.Justification.CENTER,
             use_markup: true,
-            css_classes: ['openbar-title'],
+            css_classes: [titleClass],
         });
         titlegrid.attach(titleLabel, 2, rowbar, 1, 1);
 
@@ -576,7 +582,7 @@ class OpenbarPrefs {
             label: `\n<span size="large">Welcome to Open Bar!</span>\n`,
             halign: Gtk.Align.CENTER,
             use_markup: true,
-            css_classes: ['openbar-title'],
+            css_classes: [titleClass],
         });
         welcomegrid.attach(wecomeLabel, 1, rowbar, 2, 1);
 
@@ -625,7 +631,7 @@ class OpenbarPrefs {
             label: `\n<span size="large">Automatic Themes from Desktop Background</span>\n`,
             halign: Gtk.Align.CENTER,
             use_markup: true,
-            css_classes: ['openbar-title'],
+            css_classes: [titleClass],
         });
         palettegrid.attach(autoThemeLabel, 1, rowbar, 2, 1);
 
@@ -915,7 +921,7 @@ class OpenbarPrefs {
             label: `<span size="large">Top Bar Properties\n\n</span>`,
             use_markup: true,
             halign: Gtk.Align.CENTER,
-            css_classes: ['openbar-title'],
+            css_classes: [titleClass],
         });
         bargrid.attach(topBarLbl, 1, rowbar, 2, 1);
         rowbar += 1;
@@ -1066,7 +1072,7 @@ class OpenbarPrefs {
             label: `<span size="large">Window-Max Bar Properties\n\n</span>`,
             halign: Gtk.Align.CENTER,
             use_markup: true,
-            css_classes: ['openbar-title'],
+            css_classes: [titleClass],
         });
         bargridwmax.attach(wmaxBarPropLabel, 1, rowbar, 2, 1);
 
@@ -1203,7 +1209,7 @@ class OpenbarPrefs {
             label: `<span size="large">Bar Foreground\n\n</span>`,
             halign: Gtk.Align.CENTER,
             use_markup: true,
-            css_classes: ['openbar-title'],
+            css_classes: [titleClass],
         });
         fggrid.attach(fgLabel, 1, rowbar, 2, 1);
 
@@ -1310,7 +1316,7 @@ class OpenbarPrefs {
             label: `<span size="large">Bar Background\n\n</span>`,
             halign: Gtk.Align.CENTER,
             use_markup: true,
-            css_classes: ['openbar-title'],
+            css_classes: [titleClass],
         });
         bggrid.attach(bgLabel, 1, rowbar, 2, 1);
 
@@ -1548,7 +1554,7 @@ class OpenbarPrefs {
             label: `<span size="large">Bar Highlights (Hover - Focus)</span>\n\n`,
             use_markup: true,
             halign: Gtk.Align.CENTER,
-            css_classes: ['openbar-title'],
+            css_classes: [titleClass],
         });
         hgrid.attach(highlightsLbl, 1, rowbar, 2, 1);
 
@@ -1665,7 +1671,7 @@ class OpenbarPrefs {
             label: `<span size="large">Bar Border\n\n</span>`,
             halign: Gtk.Align.CENTER,
             use_markup: true,
-            css_classes: ['openbar-title'],
+            css_classes: [titleClass],
         });
         bgrid.attach(borderBarLabel, 1, rowbar, 2, 1);
 
@@ -1801,7 +1807,7 @@ class OpenbarPrefs {
             label: `\n<span size="large">Popup Menus\n\n</span>`,
             halign: Gtk.Align.CENTER,
             use_markup: true,
-            css_classes: ['openbar-title'],
+            css_classes: [titleClass],
         });
         menugrid.attach(popupMenuLabel, 1, rowbar, 2, 1);
 
@@ -2100,7 +2106,7 @@ class OpenbarPrefs {
             label: `<span size="large">Dash / Dock Style\n\n</span>`,
             halign: Gtk.Align.CENTER,
             use_markup: true,
-            css_classes: ['openbar-title'],
+            css_classes: [titleClass],
         });
         dashgrid.attach(dashLbl, 1, rowbar, 2, 1);
 
@@ -2214,7 +2220,7 @@ class OpenbarPrefs {
             label: `<span size="large">Gnome Shell Styles</span>\n`,
             use_markup: true,
             halign: Gtk.Align.CENTER,
-            css_classes: ['openbar-title'],
+            css_classes: [titleClass],
         });
         beyondgrid.attach(shellLabel, 1, rowbar, 2, 1);
 
@@ -2292,7 +2298,7 @@ class OpenbarPrefs {
             use_markup: true,
             halign: Gtk.Align.CENTER,
             tooltip_text: 'App theming is experimental',
-            css_classes: ['openbar-title'],
+            css_classes: [titleClass],
         });
         appgrid.attach(gtkflatpakLabel, 1, rowbar, 2, 1);
 
@@ -2693,7 +2699,7 @@ class OpenbarPrefs {
             label: `<span size="large">Import / Export Settings</span>\n`,
             use_markup: true,
             halign: Gtk.Align.CENTER,
-            css_classes: ['openbar-title'],
+            css_classes: [titleClass],
         });
         iegrid.attach(ieLabel, 1, rowbar, 2, 1);
 
@@ -2754,7 +2760,7 @@ class OpenbarPrefs {
             label: `\n\n\n<span size="large">Reset Settings</span>\n`,
             use_markup: true,
             halign: Gtk.Align.CENTER,
-            css_classes: ['openbar-title'],
+            css_classes: [titleClass],
         });
         iegrid.attach(resetTitleLabel, 1, rowbar, 2, 1);
 
@@ -2811,7 +2817,7 @@ class OpenbarPrefs {
         stack.add_titled(palettegrid, 'autotheme',  '✨  Auto Theming');
         stack.add_titled(bargrid, 'barprops',       '⚌  Top Bar Properties');
         stack.add_titled(bargridwmax, 'wmaxbar',    '⊞   Window-Max Bar');
-        stack.add_titled(fggrid, 'barfg',           '⩜   Bar Foreground');
+        stack.add_titled(fggrid, 'barfg',           '☉   Bar Foreground');
         stack.add_titled(bggrid, 'barbg',           '●   Bar Background');
         stack.add_titled(hgrid, 'highlights',       '✠   Bar Highlights');
         stack.add_titled(bgrid, 'barborder',        '▣   Bar Border');
@@ -2869,8 +2875,7 @@ class OpenbarPrefs {
           if (responseId == Gtk.ResponseType.YES) {
             this._settings.set_boolean('import-export', true);
             let keys = this._settings.list_keys();
-            let keysToKeep = ['import-export', 'default-font', 'bguri', 'dark-bguri', 'light-bguri', 'bgpalette', 'color-scheme',
-                'monitor-height', 'monitor-width'];
+            let keysToKeep = ['import-export', 'default-font', 'bguri', 'dark-bguri', 'light-bguri'];
             keys.forEach(k => { if(!keysToKeep.includes(k)) this._settings.reset(k); });
             this._settings.set_boolean('import-export', false);
           }
