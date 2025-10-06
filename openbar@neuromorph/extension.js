@@ -383,6 +383,7 @@ export default class Openbar extends Extension {
                         this.applySectionStyles(sectionList, add);
 
                         const msgHbox = msgbox.get_child_at_index(1); // hbox at botton for dnd and clear buttons
+                        let clearBtn; // fixes the "ReferenceError: clearBtn is not defined" issue
                         if(this.gnomeVersion < 49) {
                             const dndBtn = msgHbox.get_child_at_index(1);
                             this.applyMenuClass(dndBtn, add);
