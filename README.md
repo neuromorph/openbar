@@ -73,7 +73,7 @@ The extension's directory name should match its uuid i.e. "openbar@neuromorph"
 Note: 
 Please download from following GitHub branch as per your Gnome version:
 - For Gnome 42-44: branch 'g42-44'
-- For Gnome 45+: branch 'main'
+- For Gnome 45-50: branch 'main'
 
 You will need to restart the Gnome Shell (for manual install):
 
