@@ -52,7 +52,17 @@
 .openbar-sidebar {
     border: 0px solid rgba(125, 125, 125, 0.1);
     border-right-width: 1px;
+    min-width: 220px;
 }
+
+.openbar-sidebar row {
+    min-width: 200px;
+}
+
+.openbar-prefs-page clamp {
+    max-width: 9999px;
+}
+
 .openbar-sidebar StBin {
     padding: 14px;
     text-shadow: 1px 1px rgba(0, 0, 0, 0.25);
