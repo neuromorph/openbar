@@ -383,17 +383,22 @@ export default class Openbar extends Extension {
                         this.applySectionStyles(sectionList, add);
 
                         const msgHbox = msgbox.get_child_at_index(1); // hbox at botton for dnd and clear buttons
+                        let clearBtn;
                         if(this.gnomeVersion < 49) {
                             const dndBtn = msgHbox.get_child_at_index(1);
-                            this.applyMenuClass(dndBtn, add);
-                            const toggleSwitch = dndBtn.get_child_at_index(0);
-                            this.applyMenuClass(toggleSwitch, add);
-                            const clearBtn = msgHbox.get_child_at_index(2);
+                            if (dndBtn) {
+                                this.applyMenuClass(dndBtn, add);
+                                const toggleSwitch = dndBtn.get_child_at_index(0);
+                                if (toggleSwitch)
+                                    this.applyMenuClass(toggleSwitch, add);
+                            }
+                            clearBtn = msgHbox.get_child_at_index(2);
                         }
                         else {
-                            const clearBtn = msgHbox.get_child_at_index(1);
+                            clearBtn = msgHbox.get_child_at_index(1);
                         }
-                        this.applyMenuClass(clearBtn, add);
+                        if (clearBtn)
+                            this.applyMenuClass(clearBtn, add);
 
                         const vbox = hbox.get_child_at_index(1); // Right Pane/Section vbox for calendar etc
                         vbox.get_children().forEach(item => {
@@ -773,10 +778,12 @@ export default class Openbar extends Extension {
         let setNotifPos = this._settings.get_boolean('set-notif-position');
         let notifKeys = ['set-notif-position', 'position', 'monitors-changed', 'updated', 'enabled'];
         if(notifKeys.includes(key) && setNotifPos) {
-            if(position == 'Bottom')
-                Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.END;
-            else
-                Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
+            if(Main.messageTray._bannerBin) {
+                if(this.position == 'Bottom')
+                    Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.END;
+                else
+                    Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
+            }
         }
         // Notifications style
         if(key == this.addedSignal && callbk_param == 'message-banner' && setNotifications) {
@@ -1428,7 +1435,7 @@ export default class Openbar extends Extension {
             [ global.display, 'window-left-monitor', this.setWindowMaxBar.bind(this), 'window-left-monitor' ],
             [ Main.layoutManager, 'startup-complete', this.postStartup.bind(this) ],
             // [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this), 'session-mode-updated' ],
-        ];
+        ].filter(c => c[0] != null);
         // Connections for actor-added/removed OR child-added/removed as per Gnome version
         for(const panelBox of this.panelBoxes) {
             connections.push([panelBox, this.addedSignal, this.updatePanelStyle.bind(this)]);
@@ -1647,7 +1654,8 @@ export default class Openbar extends Extension {
 
         // Reset panel and banner position to Top
         this.setPanelBoxPosition('Top');
-        Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
+        if(Main.messageTray._bannerBin)
+            Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
 
         // Clear/Restore Gtk css and Flatpak override
         StyleSheets.saveGtkCss(this, 'disable');

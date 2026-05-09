@@ -382,11 +382,7 @@ class OpenbarPrefs {
         let mWidth = this._settings.get_int('monitor-width');
         let mHeight = this._settings.get_int('monitor-height');
 
-        window.default_width = 820; // 825
-        window.default_height = 940; //910
-        let reqWidth = mWidth >= 1000? 815: mWidth - 100;
-        let reqHeight = mHeight >= 1000? 935: mHeight - 100;
-        window.set_size_request(reqWidth, reqHeight); // 815, 885
+        window.set_default_size(-1, -1);
 
         window.paletteButtons = [];
         window.colorButtons = [];
@@ -466,16 +462,9 @@ class OpenbarPrefs {
         // navigation.set_sidebar(sidebar);
 
 
-        // Create the Settings page
-        const settingsPage = new Adw.PreferencesPage({
-            name: 'settings',
-            title: _('Settings'),
-            icon_name: 'emblem-system-symbolic',
-        });
-        window.add(settingsPage);
-
-        const settingsGroup = new Adw.PreferencesGroup();
-        settingsPage.add(settingsGroup);
+        let toolbar = new Adw.ToolbarView();
+        let header = new Adw.HeaderBar();
+        toolbar.add_top_bar(header);
 
 
         // Open Bar Title Grid
@@ -2800,18 +2789,39 @@ class OpenbarPrefs {
         const scrollWindow = new Gtk.ScrolledWindow({
             hscrollbar_policy: Gtk.PolicyType.NEVER,
             vscrollbar_policy: Gtk.PolicyType.AUTOMATIC,
+            hexpand: true,
+            vexpand: true,
             css_classes: ['openbar-scroll'],
         });
 
-        let stack = new Gtk.Stack({
-            transition_type: Gtk.StackTransitionType.NONE,//ROTATE_LEFT_RIGHT,
-            hhomogeneous: true,
-            vhomogeneous: false,
-            valign: Gtk.Align.CENTER,
-            halign: Gtk.Align.CENTER,
-            // vexpand: true,
-            css_classes: ['openbar-stack'],
-        });
+        let stack;
+        if (Adw.ViewStack) {
+            stack = new Adw.ViewStack({
+                hhomogeneous: true,
+                vhomogeneous: false,
+                vexpand: true,
+                hexpand: true,
+                valign: Gtk.Align.FILL,
+                halign: Gtk.Align.FILL,
+                css_classes: ['openbar-stack'],
+            });
+            stack.add_titled = (child, name, title) => {
+                let page = stack.add_named(child, name);
+                page.title = title;
+                return page;
+            };
+        } else {
+            stack = new Gtk.Stack({
+                transition_type: Gtk.StackTransitionType.NONE,
+                hhomogeneous: true,
+                vhomogeneous: false,
+                vexpand: true,
+                hexpand: true,
+                valign: Gtk.Align.FILL,
+                halign: Gtk.Align.FILL,
+                css_classes: ['openbar-stack'],
+            });
+        }
         // Add pages to the stack
         stack.add_titled(welcomegrid, 'welcome',  '🙏🏻  Welcome');
         stack.add_titled(palettegrid, 'autotheme',  '✨  Auto Theming');
@@ -2829,24 +2839,40 @@ class OpenbarPrefs {
 
         scrollWindow.set_child(stack);
 
-        let stackBox = new Gtk.Box({css_classes: ['openbar-stack-box']});
-        let sideBar = new Gtk.StackSidebar({
-            stack: stack,
-            css_classes: ['openbar-sidebar'],
+        let stackBox = new Gtk.Box({
+            css_classes: ['openbar-stack-box'],
+            hexpand: true,
             vexpand: true,
         });
+        let sideBar;
+        if (Adw.ViewSwitcherSidebar && Adw.ViewStack && (stack instanceof Adw.ViewStack)) {
+            sideBar = new Adw.ViewSwitcherSidebar({
+                stack: stack,
+                css_classes: ['openbar-sidebar'],
+                vexpand: true,
+            });
+        } else {
+            sideBar = new Gtk.StackSidebar({
+                stack: stack,
+                css_classes: ['openbar-sidebar'],
+                vexpand: true,
+            });
+        }
         stackBox.append(sideBar);
         stackBox.append(scrollWindow);
 
         let prefsBox = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
+            hexpand: true,
+            vexpand: true,
             css_classes: ['openbar-prefs-box'],
         });
         prefsBox.append(titlegrid);
         prefsBox.append(stackBox);
         prefsBox.append(quoteBox);
 
-        settingsGroup.add(prefsBox);
+        toolbar.set_content(prefsBox);
+        window.set_content(toolbar);
 
         /////////////////////////////////////////////////////////////////////
 
