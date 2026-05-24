@@ -362,36 +362,41 @@ export default class Openbar extends Extension {
                     // DateMenu: Notifications (messages and media), DND and Clear buttons
                     //           Calendar Grid, Events, World Clock, Weather
                     if(btn.child.constructor.name === 'DateMenuButton') {
+                      try {
                         const bin = btn.child.menu.box.get_child_at_index(0); // CalendarArea
-                        const hbox = bin.get_child_at_index(0); // hbox with left and right sections
+                        const hbox = bin?.get_child_at_index(0); // hbox with left and right sections
+                        if(!hbox) continue;
 
                         const msgList = hbox.get_child_at_index(0); // Left Pane/Section with notifications etc
                         this.applyMenuClass(msgList, add);
-                        const placeholder = msgList.get_child_at_index(0); // placeholder for 'No Notifications'
+                        const placeholder = msgList?.get_child_at_index(0); // placeholder for 'No Notifications'
                         this.applyMenuClass(placeholder, add);
-                        const msgbox = msgList.get_child_at_index(1);
-                        const msgScroll = msgbox.get_child_at_index(0);
-                        const sectionList = msgScroll.child;
-                        if(add) {
-                            this._connections.connect(sectionList, this.addedSignal, (container, actor) => {
-                                // console.log('section added: ', actor.constructor.name);
-                                this.applySectionStyles(sectionList, add);
-                            });
+                        const msgbox = msgList?.get_child_at_index(1);
+                        const msgScroll = msgbox?.get_child_at_index(0);
+                        const sectionList = msgScroll?.child;
+                        if(sectionList) {
+                            if(add) {
+                                this._connections.connect(sectionList, this.addedSignal, (container, actor) => {
+                                    this.applySectionStyles(sectionList, add);
+                                });
+                            }
+                            else
+                                this._connections?.disconnect(sectionList, this.addedSignal);
+                            this.applySectionStyles(sectionList, add);
                         }
-                        else
-                            this._connections?.disconnect(sectionList, this.addedSignal);
-                        this.applySectionStyles(sectionList, add);
 
-                        const msgHbox = msgbox.get_child_at_index(1); // hbox at botton for dnd and clear buttons
+                        const msgHbox = msgbox?.get_child_at_index(1); // hbox at bottom for dnd and clear buttons
+                        let clearBtn;
                         if(this.gnomeVersion < 49) {
-                            const dndBtn = msgHbox.get_child_at_index(1);
+                            const dndBtn = msgHbox?.get_child_at_index(1);
                             this.applyMenuClass(dndBtn, add);
-                            const toggleSwitch = dndBtn.get_child_at_index(0);
+                            const toggleSwitch = dndBtn?.get_child_at_index(0);
                             this.applyMenuClass(toggleSwitch, add);
-                            const clearBtn = msgHbox.get_child_at_index(2);
+                            clearBtn = msgHbox?.get_child_at_index(2);
                         }
                         else {
-                            const clearBtn = msgHbox.get_child_at_index(1);
+                            // GNOME 49+: DND button removed, clear button is at index 0
+                            clearBtn = msgHbox?.get_child_at_index(0);
                         }
                         this.applyMenuClass(clearBtn, add);
 
@@ -413,6 +418,7 @@ export default class Openbar extends Extension {
                                 }, 250);
                             }
                         });
+                      } catch(e) { console.log('OpenBar: DateMenu tree changed', e.message); }
                     }
 
                 }
@@ -772,7 +778,7 @@ export default class Openbar extends Extension {
         let setNotifications = this._settings.get_boolean('set-notifications');
         let setNotifPos = this._settings.get_boolean('set-notif-position');
         let notifKeys = ['set-notif-position', 'position', 'monitors-changed', 'updated', 'enabled'];
-        if(notifKeys.includes(key) && setNotifPos) {
+        if(notifKeys.includes(key) && setNotifPos && Main.messageTray._bannerBin) {
             if(position == 'Bottom')
                 Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.END;
             else
@@ -1063,7 +1069,8 @@ export default class Openbar extends Extension {
     // Connect multiple signals to ensure detecting background-change in all Gnome versions
     connectPrimaryBGChanged() {
         const pMonitorIdx = Main.layoutManager.primaryIndex;
-        this._connections.connect(Main.layoutManager._bgManagers[pMonitorIdx], 'changed', this.updateBguri.bind(this));
+        if(Main.layoutManager._bgManagers?.[pMonitorIdx])
+            this._connections.connect(Main.layoutManager._bgManagers[pMonitorIdx], 'changed', this.updateBguri.bind(this));
         this._connections.connect(this._bgSettings, 'changed::picture-uri', this.updateBguri.bind(this));
         this._connections.connect(this._bgSettings, 'changed::picture-uri-dark', this.updateBguri.bind(this));
         this._connections.connect(this._intSettings, 'changed::color-scheme', this.updatePanelStyle.bind(this), 'color-scheme');
@@ -1371,7 +1378,7 @@ export default class Openbar extends Extension {
 
         // Get the top panel
         let panel = Main.panel;
-        this.panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox];
+        this.panelBoxes = [panel._leftBox, panel._centerBox, panel._rightBox].filter(Boolean);
 
         this.main = Main;
         this.msSVG = true;
@@ -1422,13 +1429,14 @@ export default class Openbar extends Extension {
             [ Main.overview, 'hiding', this.updatePanelStyle.bind(this) ],
             [ Main.overview, 'showing', this.updatePanelStyle.bind(this) ],
             [ Main.layoutManager, 'monitors-changed', this.updatePanelStyle.bind(this) ],
-            [ Main.messageTray._bannerBin, this.addedSignal, this.updatePanelStyle.bind(this), 'message-banner' ],
             [ global.display, 'in-fullscreen-changed', this.onFullScreen.bind(this), 100 ],
             [ global.display, 'window-entered-monitor', this.setWindowMaxBar.bind(this), 'window-entered-monitor' ],
             [ global.display, 'window-left-monitor', this.setWindowMaxBar.bind(this), 'window-left-monitor' ],
             [ Main.layoutManager, 'startup-complete', this.postStartup.bind(this) ],
             // [ Main.sessionMode, 'updated', this.updatePanelStyle.bind(this), 'session-mode-updated' ],
         ];
+        if(Main.messageTray._bannerBin)
+            connections.push([Main.messageTray._bannerBin, this.addedSignal, this.updatePanelStyle.bind(this), 'message-banner']);
         // Connections for actor-added/removed OR child-added/removed as per Gnome version
         for(const panelBox of this.panelBoxes) {
             connections.push([panelBox, this.addedSignal, this.updatePanelStyle.bind(this)]);
@@ -1485,19 +1493,22 @@ export default class Openbar extends Extension {
 
         // Update calendar style on Calendar rebuild through fn injection
         const obar = this;
-        this._injections["_rebuildCalendar"] = this._injectToFunction(
-            Main.panel.statusArea.dateMenu._calendar,
-            "_rebuildCalendar",
-            function () {
-                if(!obar._settings) {
-                    return;
+        const calendar = Main.panel.statusArea?.dateMenu?._calendar;
+        if(calendar) {
+            this._injections["_rebuildCalendar"] = this._injectToFunction(
+                calendar,
+                "_rebuildCalendar",
+                function () {
+                    if(!obar._settings) {
+                        return;
+                    }
+                    let menustyle = obar._settings.get_boolean('menustyle');
+                    if(menustyle) {
+                        obar.applyCalendarGridStyle(this, menustyle);
+                    }
                 }
-                let menustyle = obar._settings.get_boolean('menustyle');
-                if(menustyle) {
-                    obar.applyCalendarGridStyle(this, menustyle);
-                }
-            }
-        );
+            );
+        }
 
         // OpenBar runtime directory
         const userRunDir = GLib.get_user_runtime_dir();
@@ -1647,7 +1658,8 @@ export default class Openbar extends Extension {
 
         // Reset panel and banner position to Top
         this.setPanelBoxPosition('Top');
-        Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
+        if(Main.messageTray._bannerBin)
+            Main.messageTray._bannerBin.y_align = Clutter.ActorAlign.START;
 
         // Clear/Restore Gtk css and Flatpak override
         StyleSheets.saveGtkCss(this, 'disable');
