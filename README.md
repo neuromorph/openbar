@@ -1,8 +1,9 @@
 
-# Open Bar (GNOME 4X Extension)  
-
+# Open Bar (GNOME Shell Extension)  
 
 A GNOME Shell extension for theming Gnome Top Bar / Top Panel, Menus, Dash/Dock, Gnome Shell and Gtk/Flatpak Apps.  
+
+**Compatible with GNOME 45–50**
 
 ### Open Bar 2.0: 
 - Auto-theming completely renewed. Theme Options: Dark, Light, Pastel, True-Color
@@ -52,33 +53,21 @@ etc.
 
 ## Installation
 
-### Recommended
+> **Note:** This is a fork of [neuromorph/openbar](https://github.com/neuromorph/openbar) with GNOME 50 compatibility additions. It is not published on extensions.gnome.org. Once the upstream maintainer reviews and merges the PR, you can install from EGO directly. Until then, install via GitHub only.
 
-[<img alt="" height="100" src="https://raw.githubusercontent.com/andyholmes/gnome-shell-extensions-badge/master/get-it-on-ego.svg?sanitize=true">](https://extensions.gnome.org/extension/6580/open-bar/)
-
-It's recommended to install the extension from
-[extensions website](https://extensions.gnome.org/extension/6580/open-bar/), or from
-the _Extension Manager_ app.
-
-
-### How to manually install the extension (if needed)?
+### How to manually install the extension
 
 ```
-git clone https://github.com/neuromorph/openbar.git \
+git clone git@github.com:jasonpiedrasantasdk/openbar.git \
 	~/.local/share/gnome-shell/extensions/openbar@neuromorph
 ```
-OR download the code zip file and unzip at location: ~/.local/share/gnome-shell/extensions/
-The extension's directory name should match its uuid i.e. "openbar@neuromorph"
 
-Note: 
-Please download from following GitHub branch as per your Gnome version:
-- For Gnome 42-44: branch 'g42-44'
-- For Gnome 45+: branch 'main'
+This branch supports **GNOME 45–50**.  
+For GNOME 42–44, switch to the upstream `g42-44` branch.
 
 You will need to restart the Gnome Shell (for manual install):
-
-- Wayland: logout and login again 
-- Xorg: `alt+f2` then type `r` and `enter` 
+Logout and login again. You can also download a zip of this fork from
+[github.com/jasonpiedrasantasdk/openbar](https://github.com/jasonpiedrasantasdk/openbar).
 
 ## Settings Notes
 If the panel/menu isn't looking right, you need to tweak some settings. There are a lot of knobs to allow for different setups/tastes. It can also make it a bit overwhelming if you are not familiar with css styles but with some experimentation it will become a lot easier. Here are brief notes:
@@ -101,6 +90,12 @@ If the panel/menu isn't looking right, you need to tweak some settings. There ar
 
 
 ## What's New (recent first)
+- **GNOME 50 support** — Full compatibility with GNOME Shell 50 (GJS 1.82+):
+  - GTK4 widget migration: `Gtk.ComboBoxText` → `Gtk.DropDown`, `Gtk.ColorButton` → `Gtk.ColorDialogButton`, `Gtk.FontButton` → `Gtk.FontDialogButton`, `Gtk.MessageDialog` → `Gtk.AlertDialog`, `Gtk.FileChooserDialog` → `Gtk.FileDialog`
+  - Null-safety fixes with optional chaining (?.) for objects that may be null
+  - `Gio._promisify` guarded against removal in GJS 1.82
+  - Added `use-system-accent` schema key for accent color theming
+  - (Credits: GTK4 widget patterns adapted from [kongvut's PR #171](https://github.com/neuromorph/openbar/pull/171))
 - Open Bar 2.0: New Auto-theming, Apply Styles to Dash/Dock, Shell and Gtk/Flatpak apps
 - Automatic FG color, Panel Box color, Light-gradient for menus and creative tweaks for border width and radius
 - Auto-theming options 
@@ -121,9 +116,11 @@ If the panel/menu isn't looking right, you need to tweak some settings. There ar
 - New overhauled version with support for menus including Calendar, Notifications, Quick Settings etc.
 - Initial version created
 
+## Credits
 
-
-## Screenshots
+- **Open Bar** — originally created by [neuromorph](https://github.com/neuromorph/openbar)
+- **GNOME 50 port** — by [jasonpiedrasantasdk](https://github.com/jasonpiedrasantasdk/openbar), with GTK4 widget patterns adapted from kongvut's [PR #171](https://github.com/neuromorph/openbar/pull/171)
+- **Assisted by** [opencode](https://opencode.ai) (big-pickle) — AI-powered coding assistance for the GNOME 50 migration, GTK4 widget updates, and null-safety audit
 
 More recent screenshots can be found in the [Reddit post here](https://www.reddit.com/r/unixporn/comments/1ethgn2/ocgnome_open_bar_for_the_rice_guys/).
 
