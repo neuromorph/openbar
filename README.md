@@ -1,8 +1,9 @@
+# Open Bar (GNOME 50 Extension - Fork)
 
-# Open Bar (GNOME 4X Extension)  
+> **Note:** This is a forked version updated by me for GNOME 50 compatibility. You will get the updated code in gnome-50 branch.
+> For the original extension, please visit: https://github.com/neuromorph/openbar
 
-
-A GNOME Shell extension for theming Gnome Top Bar / Top Panel, Menus, Dash/Dock, Gnome Shell and Gtk/Flatpak Apps.  
+A GNOME Shell extension for theming Gnome Top Bar / Top Panel, Menus, Dash/Dock, Gnome Shell and Gtk/Flatpak Apps.
 
 ### Open Bar 2.0: 
 - Auto-theming completely renewed. Theme Options: Dark, Light, Pastel, True-Color
@@ -52,33 +53,20 @@ etc.
 
 ## Installation
 
-### Recommended
+### How to install this updated fork (GNOME 50)
 
-[<img alt="" height="100" src="https://raw.githubusercontent.com/andyholmes/gnome-shell-extensions-badge/master/get-it-on-ego.svg?sanitize=true">](https://extensions.gnome.org/extension/6580/open-bar/)
+```bash
+git clone https://github.com/SMARTYFRR/openbar.git
+cd openbar
+git checkout gnome-50
 
-It's recommended to install the extension from
-[extensions website](https://extensions.gnome.org/extension/6580/open-bar/), or from
-the _Extension Manager_ app.
-
-
-### How to manually install the extension (if needed)?
-
+mkdir -p ~/.local/share/gnome-shell/extensions
+cp -r openbar@neuromorph ~/.local/share/gnome-shell/extensions/
 ```
-git clone https://github.com/neuromorph/openbar.git \
-	~/.local/share/gnome-shell/extensions/openbar@neuromorph
-```
-OR download the code zip file and unzip at location: ~/.local/share/gnome-shell/extensions/
-The extension's directory name should match its uuid i.e. "openbar@neuromorph"
 
-Note: 
-Please download from following GitHub branch as per your Gnome version:
-- For Gnome 42-44: branch 'g42-44'
-- For Gnome 45+: branch 'main'
-
-You will need to restart the Gnome Shell (for manual install):
-
+You will need to restart the Gnome Shell:
 - Wayland: logout and login again 
-- Xorg: `alt+f2` then type `r` and `enter` 
+- Xorg: `alt+f2` then type `r` and `enter`
 
 ## Settings Notes
 If the panel/menu isn't looking right, you need to tweak some settings. There are a lot of knobs to allow for different setups/tastes. It can also make it a bit overwhelming if you are not familiar with css styles but with some experimentation it will become a lot easier. Here are brief notes:
