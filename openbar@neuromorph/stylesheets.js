@@ -15,6 +15,8 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  * author: neuromorph
+ *
+ * Updated by Anshu on August 12, 2026 for GNOME 50 compatibility.
  */
 
 /* exported reloadStyle() saveGtkCss() saveFlatpakOverrides() */
@@ -1693,7 +1695,7 @@ function getStylesheet(obar, Me) {
 
     if(bartype == 'Mainland') {
         panelStyle +=
-        ` margin: 0px; border-radius: 0px; `;
+        ` margin: 0px !important; border-radius: 0px; `;
     }
     let setBottomMargin = obar._settings.get_boolean('set-bottom-margin');
     let position = obar._settings.get_string('position');
@@ -1701,32 +1703,32 @@ function getStylesheet(obar, Me) {
     	if(setBottomMargin) {
             if(position == 'Top') {
                 panelStyle +=
-    		    ` margin: ${margin}px ${3*margin}px ${bottomMargin}px ${3*margin}px; `;
+                ` margin: ${margin}px ${3*margin}px ${bottomMargin}px ${3*margin}px !important; `;
             }
             else {
                 panelStyle +=
-    		    ` margin: ${bottomMargin}px ${3*margin}px ${margin}px ${3*margin}px; `;
+                ` margin: ${bottomMargin}px ${3*margin}px ${margin}px ${3*margin}px !important; `;
             }
 
     	} else {
 	        panelStyle +=
-	        ` margin: ${margin}px ${3*margin}px; `;
+	        ` margin: ${margin}px ${3*margin}px !important; `;
     	}
     }
     if(bartype == 'Islands' || bartype == 'Trilands') {
     	if(setBottomMargin) {
             if(position == 'Top') {
                 panelStyle +=
-                ` margin: ${margin}px ${1.5*margin}px ${bottomMargin}px ${1.5*margin}px; `;
+                ` margin: ${margin}px ${1.5*margin}px ${bottomMargin}px ${1.5*margin}px !important; `;
             }
             else {
                 panelStyle +=
-                ` margin: ${bottomMargin}px ${1.5*margin}px ${margin}px ${1.5*margin}px; `;
+                ` margin: ${bottomMargin}px ${1.5*margin}px ${margin}px ${1.5*margin}px !important; `;
             }
 
     	} else {
 	        panelStyle +=
-	        ` margin: ${margin}px ${1.5*margin}px; `;
+	        ` margin: ${margin}px ${1.5*margin}px !important; `;
     	}
         panelStyle += ` ${fgStyle} `;
 
