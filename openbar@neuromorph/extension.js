@@ -727,7 +727,7 @@ export default class Openbar extends Extension {
         // Enable/Disable Fitts Widgets
         if(key == 'fitts-widgets') {
             const fittsWidgets = this._settings.get_boolean('fitts-widgets');
-            if(fittsWidgets)
+            if(fittsWidgets && this.gnomeVersion < 50)
                 this.enableFittsWidgets();
             else
                 this.disableFittsWidgets();
@@ -1557,7 +1557,8 @@ export default class Openbar extends Extension {
         let dtpOn = enabledExtensions.includes('dash-to-panel@jderose9.github.com');
         // Enable button proximity to interact with panel buttons without having to point precisely at them.
         const fittsWidgets = this._settings.get_boolean('fitts-widgets');
-        if(fittsWidgets && !dtpOn)
+        const supportsFittsWidgets = this.gnomeVersion < 50;
+        if(fittsWidgets && supportsFittsWidgets && !dtpOn)
             this.fittsEnableTimeoutId = setTimeout(() => {
                 this.enableFittsWidgets();
                 this.fittsEnableTimeoutId = null;
