@@ -819,6 +819,7 @@ export default class Openbar extends Extension {
 
     setPanelBoxPosition(position, height, margin, setBottomMargin, bottomMargin, borderWidth, bartype) {
         let panelMonitor = this.getPanelMonitor()[0];
+        if(!panelMonitor) return; // no monitors yet (login, remote desktop, display sleep): nothing to position
         let panelBox = Main.layoutManager.panelBox;
         if(position == 'Top') {
             let topX = panelMonitor.x;
@@ -1410,8 +1411,10 @@ export default class Openbar extends Extension {
         this._settings.set_boolean('pause-reload', false);
 
         let panelMonitor = this.getPanelMonitor()[0];
-        this._settings.set_int('monitor-height', panelMonitor.height);
-        this._settings.set_int('monitor-width', panelMonitor.width);
+        if(panelMonitor) { // can be undefined right after login, before monitors are configured
+            this._settings.set_int('monitor-height', panelMonitor.height);
+            this._settings.set_int('monitor-width', panelMonitor.width);
+        }
 
         // Connect to the settings changes
         this._settings.connect('changed', (settings, key) => {
